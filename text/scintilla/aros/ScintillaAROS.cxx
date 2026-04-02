@@ -164,6 +164,10 @@ public:
 		return muiObj;
 	}
 
+	void SetFocus(bool focus) {
+		SetFocusState(focus);
+	}
+
 	//------------------------------------------------------------------
 	// Required virtual methods from Editor
 	//------------------------------------------------------------------
@@ -299,8 +303,13 @@ public:
 	}
 
 	void EnsureBoard(WORD width, WORD height) {
-		if (board && boardW == width && boardH == height)
+		if (board && boardW == width && boardH == height) {
+			D(bug("SCI: EnsureBoard reusing existing board=%p (%dx%d)\n",
+				(void*)board, boardW, boardH));
 			return;
+		}
+		D(bug("SCI: EnsureBoard creating new board (%dx%d), old=%p (%dx%d)\n",
+			width, height, (void*)board, boardW, boardH));
 		if (board) {
 			ZuneDestroyDrawingBoard(rctx, board);
 			board = nullptr;
@@ -309,33 +318,45 @@ public:
 			static_cast<UWORD>(width), static_cast<UWORD>(height), 0);
 		boardW = width;
 		boardH = height;
+		D(bug("SCI: EnsureBoard new board=%p\n", (void*)board));
 		if (board) {
 			ZuneSetTarget(rctx, board);
 		}
 	}
 
 	void DoPaint(WORD left, WORD top, WORD width, WORD height) {
-		if (!rctx) return;
+		static int paintCount = 0;
+		paintCount++;
+		D(bug("SCI: DoPaint #%d enter (%d,%d %dx%d) rctx=%p board=%p\n",
+			paintCount, left, top, width, height, (void*)rctx, (void*)board));
+		if (!rctx) { D(bug("SCI: DoPaint #%d ABORT - no rctx\n", paintCount)); return; }
 
 		EnsureBoard(width, height);
-		if (!board) return;
+		if (!board) { D(bug("SCI: DoPaint #%d ABORT - no board\n", paintCount)); return; }
+
+		D(bug("SCI: DoPaint #%d board=%p (%dx%d) target_board=%p\n",
+			paintCount, (void*)board, boardW, boardH, (void*)rctx->target_board));
 
 		ZuneSetTarget(rctx, board);
-		ZuneBeginBatch(rctx);
 
 		PRectangle rcPaint(0, 0, width, height);
 		std::unique_ptr<Surface> surfaceWindow = Surface::Allocate(Technology::Default);
 		surfaceWindow->Init(static_cast<SurfaceID>(rctx), nullptr);
 
+		D(bug("SCI: DoPaint #%d calling Paint() rcPaint=(0,0,%d,%d)\n",
+			paintCount, width, height));
 		Paint(surfaceWindow.get(), rcPaint);
+		D(bug("SCI: DoPaint #%d Paint() returned, target_board=%p (expected %p)\n",
+			paintCount, (void*)rctx->target_board, (void*)board));
 		surfaceWindow->Release();
-
-		ZuneEndBatch(rctx);
 
 		// Present via ZunePresent
 		ZuneSetTarget(rctx, board);
+		D(bug("SCI: DoPaint #%d presenting to (%d,%d) size %dx%d\n",
+			paintCount, left, top, width, height));
 		ZunePresent(rctx, 0, 0, left, top,
 			static_cast<UWORD>(width), static_cast<UWORD>(height));
+		D(bug("SCI: DoPaint #%d done\n", paintCount));
 	}
 
 	//------------------------------------------------------------------
@@ -357,6 +378,9 @@ public:
 	}
 
 	void HandleMouseDown(WORD x, WORD y, unsigned int time, UWORD qualifier) {
+		if (!hasFocus) {
+			SetFocusState(true);
+		}
 		KeyMod mod = MapQualifiers(qualifier);
 		Point pt(static_cast<XYPOSITION>(x), static_cast<XYPOSITION>(y));
 		ButtonDownWithModifiers(pt, time, mod);
@@ -484,7 +508,17 @@ struct ScintillaMUIData {
 
 static IPTR mNew(struct IClass *cl, Object *obj, struct opSet *msg) {
 	D(bug("SCI: mNew\n"));
+
+	// Inject MUIA_InputMode so MUI sends GoActive/GoInactive for focus
+	struct TagItem extraTags[] = {
+		{ MUIA_InputMode, MUIV_InputMode_RelVerify },
+		{ TAG_MORE, reinterpret_cast<IPTR>(msg->ops_AttrList) },
+	};
+	struct TagItem *origTags = msg->ops_AttrList;
+	msg->ops_AttrList = extraTags;
+
 	obj = reinterpret_cast<Object *>(DoSuperMethodA(cl, obj, reinterpret_cast<Msg>(msg)));
+	msg->ops_AttrList = origTags;
 	if (!obj) { D(bug("SCI: mNew - super failed\n")); return 0; }
 
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
@@ -643,6 +677,22 @@ static IPTR mHandleInput(struct IClass *cl, Object *obj, struct MUIP_HandleInput
 	return 0;
 }
 
+static IPTR mGoActive(struct IClass *cl, Object *obj, Msg msg) {
+	D(bug("SCI: mGoActive\n"));
+	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	data->sci->SetFocus(true);
+	MUI_Redraw(obj, MADF_DRAWUPDATE);
+	return DoSuperMethodA(cl, obj, msg);
+}
+
+static IPTR mGoInactive(struct IClass *cl, Object *obj, Msg msg) {
+	D(bug("SCI: mGoInactive\n"));
+	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	data->sci->SetFocus(false);
+	MUI_Redraw(obj, MADF_DRAWUPDATE);
+	return DoSuperMethodA(cl, obj, msg);
+}
+
 static IPTR mGet(struct IClass *cl, Object *obj, struct opGet *msg) {
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 
@@ -672,6 +722,8 @@ AROS_UFH3S(IPTR, ScintillaDispatcher,
 	case MUIM_AskMinMax:  return mAskMinMax(cl, obj, reinterpret_cast<struct MUIP_AskMinMax *>(msg));
 	case MUIM_Draw:       return mDraw(cl, obj, reinterpret_cast<struct MUIP_Draw *>(msg));
 	case MUIM_HandleInput: return mHandleInput(cl, obj, reinterpret_cast<struct MUIP_HandleInput *>(msg));
+	case MUIM_GoActive:   return mGoActive(cl, obj, msg);
+	case MUIM_GoInactive: return mGoInactive(cl, obj, msg);
 	case OM_GET:          return mGet(cl, obj, reinterpret_cast<struct opGet *>(msg));
 	}
 

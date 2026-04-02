@@ -157,6 +157,10 @@ class SurfaceAROS : public Surface {
 	// Ensure the render context targets the correct surface before drawing
 	void ActivateTarget() {
 		if (rctx) {
+			if (rctx->target_board != board) {
+				D(bug("SCI: ActivateTarget SWITCHING target from %p to %p\n",
+					(void*)rctx->target_board, (void*)board));
+			}
 			ZuneSetTarget(rctx, board);  // board=NULL means RastPort
 		}
 	}
@@ -173,9 +177,11 @@ public:
 		Release();
 		// For measuring we need a RenderContext. If wid is an Intuition Window*, use it.
 		struct ::Window *win = static_cast<struct ::Window *>(wid);
+		D(bug("SCI: Surface::Init(wid) wid=%p\n", wid));
 		if (win) {
 			rctx = ZuneCreateRenderContextForWindow(win, win->WScreen->ViewPort.ColorMap, BACKEND_CYBERGFX);
 			ownRctx = true;
+			D(bug("SCI: Surface::Init(wid) created rctx=%p\n", (void*)rctx));
 		}
 		inited = true;
 	}
@@ -190,15 +196,19 @@ public:
 		board = rctx ? rctx->target_board : nullptr;
 		ownBoard = false;
 		inited = true;
+		D(bug("SCI: Surface::Init(sid) rctx=%p board=%p (from target_board)\n",
+			(void*)rctx, (void*)board));
 	}
 
 	std::unique_ptr<Surface> AllocatePixMap(int width, int height) override {
 		// Offscreen pixmaps need a DrawingBoard so Copy() can blit to the window.
+		D(bug("SCI: AllocatePixMap(%d,%d) rctx=%p\n", width, height, (void*)rctx));
 		auto surf = std::make_unique<SurfaceAROS>();
 		if (rctx) {
 			struct DrawingBoard *db = ZuneCreateDrawingBoardForRenderContext(
 				rctx, static_cast<UWORD>(width), static_cast<UWORD>(height),
 				ZUNE_DRAWINGBOARD_ALPHA);
+			D(bug("SCI: AllocatePixMap created board=%p\n", (void*)db));
 			if (db) {
 				surf->rctx = rctx;
 				surf->ownRctx = false;
@@ -216,13 +226,17 @@ public:
 	}
 
 	void Release() noexcept override {
+		D(bug("SCI: Surface::Release rctx=%p board=%p ownRctx=%d ownBoard=%d\n",
+			(void*)rctx, (void*)board, ownRctx, ownBoard));
 		if (ownBoard && board && rctx) {
+			D(bug("SCI: Surface::Release destroying board=%p\n", (void*)board));
 			ZuneDestroyDrawingBoard(rctx, board);
 		}
 		board = nullptr;
 		ownBoard = false;
 
 		if (ownRctx && rctx) {
+			D(bug("SCI: Surface::Release destroying rctx=%p\n", (void*)rctx));
 			ZuneDestroyRenderContext(rctx);
 		}
 		rctx = nullptr;
@@ -442,11 +456,17 @@ public:
 	void Copy(PRectangle rc, Point from, Surface &surfaceSource) override {
 		if (!rctx) return;
 		SurfaceAROS *src = dynamic_cast<SurfaceAROS *>(&surfaceSource);
+		D(bug("SCI: Copy from=(%d,%d) to rc=(%d,%d,%d,%d) src=%p src->board=%p dst->board=%p\n",
+			(int)from.x, (int)from.y,
+			(int)rc.left, (int)rc.top, (int)rc.right, (int)rc.bottom,
+			(void*)src, src ? (void*)src->board : nullptr, (void*)board));
 		if (src && src->rctx) {
 			// Set source target (DrawingBoard or RastPort)
 			ZuneSetTarget(src->rctx, src->board);
 			// Set our target (DrawingBoard or RastPort)
 			ZuneSetTarget(rctx, board);
+			D(bug("SCI: Copy blit: src_rctx=%p dst_rctx=%p target_board after=%p\n",
+				(void*)src->rctx, (void*)rctx, (void*)rctx->target_board));
 			ZuneBlit(src->rctx, rctx,
 				static_cast<WORD>(from.x), static_cast<WORD>(from.y),
 				static_cast<WORD>(rc.left), static_cast<WORD>(rc.top),
@@ -482,7 +502,16 @@ public:
 
 	void DrawTextTransparent(PRectangle rc, const Font *font_, XYPOSITION ybase,
 			std::string_view text, ColourRGBA fore) override {
-		if (!rctx || text.empty()) return;
+		D(bug("SCI: DrawTextTransparent '%.*s' at (%d,%d) fore=%08x rctx=%p board=%p\n",
+			(int)std::min(text.length(), (size_t)30), text.data(),
+			(int)rc.left, (int)(ybase - Ascent(font_)),
+			(unsigned)ToZuneColor(fore),
+			(void*)rctx, (void*)board));
+		if (!rctx || text.empty()) {
+			D(bug("SCI: DrawTextTransparent SKIP rctx=%p empty=%d\n",
+				(void*)rctx, text.empty()));
+			return;
+		}
 		ActivateTarget();
 		SetFontOnContext(font_);
 		XYPOSITION y = ybase - Ascent(font_);
@@ -581,6 +610,9 @@ public:
 
 	void SetClip(PRectangle rc) override {
 		clipStack.push_back(rc);
+		D(bug("SCI: SetClip (%d,%d)-(%d,%d) depth=%d board=%p\n",
+			(int)rc.left, (int)rc.top, (int)rc.right, (int)rc.bottom,
+			(int)clipStack.size(), (void*)board));
 		if (!rctx) return;
 		ActivateTarget();
 
@@ -601,6 +633,7 @@ public:
 		if (!clipStack.empty()) {
 			clipStack.pop_back();
 		}
+		D(bug("SCI: PopClip depth=%d\n", (int)clipStack.size()));
 		if (!rctx) return;
 
 		if (clipStack.empty()) {
