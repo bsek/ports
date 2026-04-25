@@ -1,0 +1,83 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM ports-audio-freepats : \
+#MM    ports-audio-freepats-cfg \
+#MM    ports-audio-freepats-fetch
+
+#REPOSITORIES := http://freepats.zenvoid.org
+#ARCHBASE     := freepats-20060219
+#ARCHSUFFIXES := tar.xz
+#PATSRCDIR    := freepats
+
+REPOSITORIES  := https://gitlab.redox-os.org/redox-os/freepats/-/archive/main
+ARCHBASE      := freepats-main
+ARCHSUFFIXES  := tar.bz2 tar.gz
+ARCHSRCDIR    := $(PORTSDIR)/freepats/$(ARCHBASE)
+PATSRCDIR     := $(ARCHBASE)
+TARGETDIR     := $(AROS_CONTRIB)/MultiMedia/Audio/Timidity
+
+
+.PHONY: ports-audio-freepats-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-audio-freepats-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-audio-freepats-fetch-location := $(ARCHSRCDIR)
+endif
+
+ifneq (,)
+    ports-audio-freepats-fetch-baseflag := -b 
+else
+    ports-audio-freepats-fetch-baseflag :=
+endif
+
+ports-audio-freepats-fetch-fetchedflag := $(ports-audio-freepats-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-audio-freepats-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "$(ARCHSUFFIXES)" -l $(ports-audio-freepats-fetch-location) \
+	-d $(ARCHSRCDIR) $(ports-audio-freepats-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-audio-freepats-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-audio-freepats-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-audio-freepats
+
+#MM
+ports-audio-freepats :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(ARCHSRCDIR)/$(PATSRCDIR)),$(if $(filter $(SRCDIR)/%,$(abspath $(ARCHSRCDIR)/$(PATSRCDIR))),$(patsubst $(SRCDIR)/%,%,$(abspath $(ARCHSRCDIR)/$(PATSRCDIR))),$(patsubst $(TOP)/%,%,$(abspath $(ARCHSRCDIR)/$(PATSRCDIR)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(ARCHSRCDIR)/$(PATSRCDIR))))' to '$(if $(filter /%,$(TARGETDIR)/Freepats),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Freepats)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Freepats)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Freepats))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Freepats)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(ARCHSRCDIR)/$(PATSRCDIR) -d $(TARGETDIR)/Freepats -e 
+
+
+
+ports-audio-freepats-cfg_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-audio-freepats-cfg
+
+#MM
+ports-audio-freepats-cfg : | $(TARGETDIR) 
+	$(foreach file, timidity.cfg, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-audio-freepats-cfg_SRC)),$(ports-audio-freepats-cfg_SRC),$(SRCDIR)/$(CURDIR)/$(ports-audio-freepats-cfg_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

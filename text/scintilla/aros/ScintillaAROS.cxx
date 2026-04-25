@@ -141,9 +141,20 @@ class ScintillaAROS : public ScintillaBase {
 
 	// Timer state
 	bool tickTimers[5] = {};
+	int tickMillis[5] = {};    // requested interval per timer
+	int tickAccum[5] = {};     // accumulated ms since last fire
 
 	// Clipboard
 	std::string clipboardContent;
+
+	// Scrollbar objects (set from MUI data after creation)
+	Object *scrollV = nullptr;
+	Object *scrollH = nullptr;
+	bool updatingScrollBars = false;  // prevent recursion
+
+	// Notification callback
+	ScintillaNotifyFunc notifyFunc = nullptr;
+	void *notifyUserData = nullptr;
 
 public:
 	ScintillaAROS() {
@@ -164,8 +175,36 @@ public:
 		return muiObj;
 	}
 
+	void SetScrollBars(Object *v, Object *h) {
+		scrollV = v;
+		scrollH = h;
+	}
+
 	void SetFocus(bool focus) {
 		SetFocusState(focus);
+	}
+
+	void SetNotifyCallback(ScintillaNotifyFunc func, void *userData) {
+		notifyFunc = func;
+		notifyUserData = userData;
+	}
+
+	void ExecuteCommand(int cmd) {
+		Command(cmd);
+	}
+
+	void HandleVScroll() {
+		if (updatingScrollBars || !scrollV) return;
+		LONG val = 0;
+		MUIGet(scrollV, MUIA_Prop_First, &val);
+		ScrollTo(static_cast<Sci::Line>(val), false);
+	}
+
+	void HandleHScroll() {
+		if (updatingScrollBars || !scrollH) return;
+		LONG val = 0;
+		MUIGet(scrollH, MUIA_Prop_First, &val);
+		HorizontalScrollTo(static_cast<int>(val));
 	}
 
 	//------------------------------------------------------------------
@@ -181,21 +220,64 @@ public:
 	}
 
 	void Finalise() override {
+		// Close calltip popup if open
+		DestroyCallTipWindow();
 		ScintillaBase::Finalise();
 		ReleaseRenderContext();
 	}
 
+	void DestroyCallTipWindow() {
+		HideCallTip();
+		extern void PlatAROS_SetCallTipCallbacks(void (*)(void *), void (*)(void *), void (*)(void *), void *);
+		extern void PlatAROS_SetCallTipWindow(Scintilla::Internal::Window *);
+		PlatAROS_SetCallTipCallbacks(nullptr, nullptr, nullptr, nullptr);
+		PlatAROS_SetCallTipWindow(nullptr);
+	}
+
 	void SetVerticalScrollPos() override {
-		// TODO: Update MUI scrollbar position
+		if (!scrollV || updatingScrollBars) return;
+		updatingScrollBars = true;
+		MUISet(scrollV, MUIA_Prop_First, static_cast<LONG>(topLine));
+		updatingScrollBars = false;
 	}
 
 	void SetHorizontalScrollPos() override {
-		// TODO: Update MUI scrollbar position
+		if (!scrollH || updatingScrollBars) return;
+		updatingScrollBars = true;
+		MUISet(scrollH, MUIA_Prop_First, static_cast<LONG>(xOffset));
+		updatingScrollBars = false;
 	}
 
 	bool ModifyScrollBars(Sci::Line nMax, Sci::Line nPage) override {
-		// TODO: Update MUI scrollbar ranges
-		return true;
+		bool modified = false;
+		updatingScrollBars = true;
+
+		if (scrollV) {
+			Sci::Line maxPos = nMax + 1;
+			if (maxPos < 1) maxPos = 1;
+			SetAttrs(scrollV,
+				MUIA_Prop_Entries, static_cast<LONG>(maxPos),
+				MUIA_Prop_Visible, static_cast<LONG>(nPage),
+				MUIA_Prop_First, static_cast<LONG>(topLine),
+				TAG_DONE);
+			modified = true;
+		}
+
+		if (scrollH) {
+			PRectangle rcText = GetTextRectangle();
+			int pageWidth = static_cast<int>(rcText.Width());
+			int horizEnd = scrollWidth;
+			if (horizEnd < 1) horizEnd = 1;
+			SetAttrs(scrollH,
+				MUIA_Prop_Entries, static_cast<LONG>(horizEnd),
+				MUIA_Prop_Visible, static_cast<LONG>(pageWidth),
+				MUIA_Prop_First, static_cast<LONG>(xOffset),
+				TAG_DONE);
+			modified = true;
+		}
+
+		updatingScrollBars = false;
+		return modified;
 	}
 
 	void Copy() override {
@@ -220,12 +302,20 @@ public:
 	}
 
 	void NotifyChange() override {
-		// Notify MUI parent that content changed
+		// Handled by NotifyParent which is called for all notifications
 	}
 
 	void NotifyParent(NotificationData scn) override {
-		// Send notification to MUI parent
-		// TODO: MUI notification mechanism
+		if (notifyFunc) {
+			notifyFunc(notifyUserData,
+				static_cast<intptr_t>(scn.nmhdr.code),
+				scn.position,
+				scn.ch);
+		}
+		if (muiObj) {
+			MUISet(muiObj, MUIA_Scintilla_Notification,
+				static_cast<IPTR>(scn.nmhdr.code));
+		}
 	}
 
 	void CopyToClipboard(const SelectionText &selectedText) override {
@@ -244,12 +334,88 @@ public:
 		return 0;
 	}
 
-	void CreateCallTipWindow(PRectangle rc) override {
-		// TODO: Create MUI popup window for calltips
+	void StartDrag() override {
+		// Internal drag-and-drop: Scintilla handles the rest in
+		// ButtonMoveWithModifiers (SetDragPosition) and
+		// ButtonUpWithModifiers (move/copy text).
+		inDragDrop = DragDrop::dragging;
+		dropWentOutside = false;
 	}
 
-	void AddToPopUp(const char *label, int cmd, bool enabled) override {
-		// TODO: Add item to MUI popup menu
+	struct ::Window *calltipWin = nullptr;
+	struct RenderContext *calltipRctx = nullptr;
+
+	void PaintCallTip() {
+		if (!calltipWin || !calltipRctx) return;
+
+		ZuneSetTarget(calltipRctx, nullptr);
+
+		std::unique_ptr<Surface> surf = Surface::Allocate(Technology::Default);
+		surf->Init(static_cast<SurfaceID>(calltipRctx), nullptr);
+		surf->SetMode(SurfaceMode(ct.codePage, false));
+		ct.PaintCT(surf.get());
+		surf->Release();
+	}
+
+	void ShowCallTip() {
+		if (calltipWin) return;
+		if (!intuiWin) return;
+
+		extern PRectangle sPendingPopupPos;
+		LONG x = static_cast<LONG>(sPendingPopupPos.left);
+		LONG y = static_cast<LONG>(sPendingPopupPos.top);
+		LONG w = static_cast<LONG>(sPendingPopupPos.Width());
+		LONG h = static_cast<LONG>(sPendingPopupPos.Height());
+		if (w < 10) w = 100;
+		if (h < 10) h = 20;
+
+		extern struct ::Window *CreatePopupWindow(struct Screen *, LONG, LONG, LONG, LONG);
+		calltipWin = CreatePopupWindow(intuiWin->WScreen, x, y, w, h);
+		if (calltipWin) {
+			calltipRctx = ZuneCreateRenderContextForWindow(calltipWin,
+				intuiWin->WScreen->ViewPort.ColorMap, BACKEND_CYBERGFX);
+			ct.wCallTip = calltipWin;
+			ct.wDraw = calltipWin;
+			PaintCallTip();
+		}
+	}
+
+	void HideCallTip() {
+		ct.wCallTip = nullptr;
+		ct.wDraw = nullptr;
+		if (calltipRctx) {
+			ZuneDestroyRenderContext(calltipRctx);
+			calltipRctx = nullptr;
+		}
+		if (calltipWin) {
+			extern void DestroyPopupWindow(struct ::Window *);
+			DestroyPopupWindow(calltipWin);
+			calltipWin = nullptr;
+		}
+	}
+
+	static void CallTipShowCallback(void *data) {
+		static_cast<ScintillaAROS *>(data)->ShowCallTip();
+	}
+
+	static void CallTipHideCallback(void *data) {
+		static_cast<ScintillaAROS *>(data)->HideCallTip();
+	}
+
+	static void CallTipPaintCallback(void *data) {
+		static_cast<ScintillaAROS *>(data)->PaintCallTip();
+	}
+
+	void CreateCallTipWindow(PRectangle rc) override {
+		extern void PlatAROS_SetCallTipCallbacks(void (*)(void *), void (*)(void *), void (*)(void *), void *);
+		extern void PlatAROS_SetCallTipWindow(Scintilla::Internal::Window *);
+		PlatAROS_SetCallTipCallbacks(CallTipShowCallback, CallTipHideCallback, CallTipPaintCallback, this);
+		PlatAROS_SetCallTipWindow(&ct.wCallTip);
+	}
+
+	void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) override {
+		extern void PlatAROS_AddMenuItem(const char *, int, bool);
+		PlatAROS_AddMenuItem(label, cmd, enabled);
 	}
 
 	bool SetIdle(bool on) override {
@@ -262,12 +428,16 @@ public:
 	}
 
 	void FineTickerStart(TickReason reason, int millis, int tolerance) override {
-		tickTimers[static_cast<int>(reason)] = true;
-		// TODO: Use MUI timer/MUIA_Timer to trigger callbacks
+		int idx = static_cast<int>(reason);
+		tickTimers[idx] = true;
+		tickMillis[idx] = millis;
+		tickAccum[idx] = 0;
 	}
 
 	void FineTickerCancel(TickReason reason) override {
-		tickTimers[static_cast<int>(reason)] = false;
+		int idx = static_cast<int>(reason);
+		tickTimers[idx] = false;
+		tickAccum[idx] = 0;
 	}
 
 	std::string UTF8FromEncoded(std::string_view encoded) const override {
@@ -283,10 +453,14 @@ public:
 	// Rendering
 	//------------------------------------------------------------------
 
-	void SetupRenderContext(struct ::Window *win) {
+	void SetupRenderContext(struct ::Window *win, Object *editorArea) {
 		if (rctx) return;
 		intuiWin = win;
 		rctx = ZuneCreateRenderContextForWindow(win, win->WScreen->ViewPort.ColorMap, BACKEND_CYBERGFX);
+		extern void PlatAROS_SetWindow(struct ::Window *);
+		PlatAROS_SetWindow(win);
+		extern void PlatAROS_SetEditorArea(Object *);
+		PlatAROS_SetEditorArea(editorArea);
 	}
 
 	void ReleaseRenderContext() {
@@ -300,16 +474,15 @@ public:
 			rctx = nullptr;
 		}
 		intuiWin = nullptr;
+		extern void PlatAROS_SetWindow(struct ::Window *);
+		PlatAROS_SetWindow(nullptr);
+		extern void PlatAROS_SetEditorArea(Object *);
+		PlatAROS_SetEditorArea(nullptr);
 	}
 
 	void EnsureBoard(WORD width, WORD height) {
-		if (board && boardW == width && boardH == height) {
-			D(bug("SCI: EnsureBoard reusing existing board=%p (%dx%d)\n",
-				(void*)board, boardW, boardH));
+		if (board && boardW == width && boardH == height)
 			return;
-		}
-		D(bug("SCI: EnsureBoard creating new board (%dx%d), old=%p (%dx%d)\n",
-			width, height, (void*)board, boardW, boardH));
 		if (board) {
 			ZuneDestroyDrawingBoard(rctx, board);
 			board = nullptr;
@@ -318,45 +491,56 @@ public:
 			static_cast<UWORD>(width), static_cast<UWORD>(height), 0);
 		boardW = width;
 		boardH = height;
-		D(bug("SCI: EnsureBoard new board=%p\n", (void*)board));
 		if (board) {
 			ZuneSetTarget(rctx, board);
 		}
 	}
 
-	void DoPaint(WORD left, WORD top, WORD width, WORD height) {
-		static int paintCount = 0;
-		paintCount++;
-		D(bug("SCI: DoPaint #%d enter (%d,%d %dx%d) rctx=%p board=%p\n",
-			paintCount, left, top, width, height, (void*)rctx, (void*)board));
-		if (!rctx) { D(bug("SCI: DoPaint #%d ABORT - no rctx\n", paintCount)); return; }
+	void DoPaint(WORD left, WORD top, WORD width, WORD height, bool
+ fullRedraw) {
+		if (!rctx) return;
 
 		EnsureBoard(width, height);
-		if (!board) { D(bug("SCI: DoPaint #%d ABORT - no board\n", paintCount)); return; }
+		if (!board) return;
 
-		D(bug("SCI: DoPaint #%d board=%p (%dx%d) target_board=%p\n",
-			paintCount, (void*)board, boardW, boardH, (void*)rctx->target_board));
+		// Determine paint area
+		extern void PlatAROS_GetDirtyRect(PRectangle *, bool *);
+		extern void PlatAROS_ClearDirtyRect();
+		PRectangle dirtyRect;
+		bool dirtyAll = false;
+		PlatAROS_GetDirtyRect(&dirtyRect, &dirtyAll);
+		PlatAROS_ClearDirtyRect();
+
+		PRectangle rcPaint;
+		if (fullRedraw || dirtyAll || dirtyRect.Empty()) {
+			rcPaint = PRectangle(0, 0, width, height);
+		} else {
+			// Clamp dirty rect to widget area
+			rcPaint = PRectangle(
+				std::max(dirtyRect.left, 0.0),
+				std::max(dirtyRect.top, 0.0),
+				std::min(dirtyRect.right, static_cast<XYPOSITION>(width)),
+				std::min(dirtyRect.bottom, static_cast<XYPOSITION>(height)));
+		}
 
 		ZuneSetTarget(rctx, board);
 
-		PRectangle rcPaint(0, 0, width, height);
 		std::unique_ptr<Surface> surfaceWindow = Surface::Allocate(Technology::Default);
 		surfaceWindow->Init(static_cast<SurfaceID>(rctx), nullptr);
 
-		D(bug("SCI: DoPaint #%d calling Paint() rcPaint=(0,0,%d,%d)\n",
-			paintCount, width, height));
 		Paint(surfaceWindow.get(), rcPaint);
-		D(bug("SCI: DoPaint #%d Paint() returned, target_board=%p (expected %p)\n",
-			paintCount, (void*)rctx->target_board, (void*)board));
 		surfaceWindow->Release();
 
-		// Present via ZunePresent
+		// Present only the painted area
+		WORD px = static_cast<WORD>(rcPaint.left);
+		WORD py = static_cast<WORD>(rcPaint.top);
+		UWORD pw = static_cast<UWORD>(rcPaint.Width());
+		UWORD ph = static_cast<UWORD>(rcPaint.Height());
+
 		ZuneSetTarget(rctx, board);
-		D(bug("SCI: DoPaint #%d presenting to (%d,%d) size %dx%d\n",
-			paintCount, left, top, width, height));
-		ZunePresent(rctx, 0, 0, left, top,
-			static_cast<UWORD>(width), static_cast<UWORD>(height));
-		D(bug("SCI: DoPaint #%d done\n", paintCount));
+		ZunePresent(rctx, px, py,
+			static_cast<WORD>(left + px), static_cast<WORD>(top + py),
+			pw, ph);
 	}
 
 	//------------------------------------------------------------------
@@ -370,8 +554,7 @@ public:
 		if (sciKey != static_cast<Keys>(0)) {
 			bool consumed = false;
 			KeyDownWithModifiers(sciKey, mod, &consumed);
-		} else if (charLen > 0) {
-			// Regular character input
+		} else if (charLen > 0 && static_cast<unsigned char>(chars[0]) >= 0x20) {
 			std::string_view sv(chars, charLen);
 			InsertCharacter(sv, CharacterSource::DirectInput);
 		}
@@ -404,16 +587,27 @@ public:
 		RightButtonDownWithModifiers(pt, time, mod);
 	}
 
-	void HandleTick() {
-		// Called periodically from MUI timer
+	// Returns true if any timer fired (needs redraw)
+	bool HandleTick() {
+		// INTUITICKS is ~100ms per tick
+		const int tickIntervalMs = 100;
+		bool fired = false;
+
 		for (int i = 0; i < 5; i++) {
 			if (tickTimers[i]) {
-				TickFor(static_cast<TickReason>(i));
+				tickAccum[i] += tickIntervalMs;
+				if (tickAccum[i] >= tickMillis[i]) {
+					tickAccum[i] = 0;
+					TickFor(static_cast<TickReason>(i));
+					fired = true;
+				}
 			}
 		}
 		if (hasIdler) {
 			Idle();
+			fired = true;
 		}
+		return fired;
 	}
 
 	//------------------------------------------------------------------
@@ -421,8 +615,6 @@ public:
 	//------------------------------------------------------------------
 
 	sptr_t SendMessage(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
-		D(bug("SCI: SendMessage msg=%u wParam=%lu lParam=%ld\n",
-			iMessage, (unsigned long)wParam, (long)lParam));
 		return WndProc(static_cast<Scintilla::Message>(iMessage), wParam, lParam);
 	}
 
@@ -501,17 +693,33 @@ private:
 
 struct ScintillaMUIData {
 	ScintillaAROS *sci;
+	Object *editorArea;   // The inner Area that we paint on (_mleft etc.)
+	Object *scrollV;      // Vertical scrollbar
+	Object *scrollH;      // Horizontal scrollbar
+	IPTR lastNotification; // Last SCN_ code for MUIM_Notify
 };
 
-#define MUIA_Scintilla_DirectPtr    (MUIA_UserData + 1)
+// MUIA_Scintilla_DirectPtr defined in ScintillaAROS.h
 #define MUIM_Scintilla_SendMessage  (MUIA_UserData + 2)
+#define MUIM_Scintilla_VScroll      (MUIA_UserData + 3)
+#define MUIM_Scintilla_HScroll      (MUIA_UserData + 4)
 
 static IPTR mNew(struct IClass *cl, Object *obj, struct opSet *msg) {
-	D(bug("SCI: mNew\n"));
+	// Create scrollbar objects before passing to superclass (Group)
+	Object *scrollV = reinterpret_cast<Object *>(MUI_NewObject(MUIC_Scrollbar,
+		MUIA_Scrollbar_Type, MUIV_Scrollbar_Type_Default,
+		MUIA_Group_Horiz, FALSE,
+		TAG_DONE));
 
-	// Inject MUIA_InputMode so MUI sends GoActive/GoInactive for focus
+	Object *scrollH = reinterpret_cast<Object *>(MUI_NewObject(MUIC_Scrollbar,
+		MUIA_Scrollbar_Type, MUIV_Scrollbar_Type_Default,
+		MUIA_Group_Horiz, TRUE,
+		TAG_DONE));
+
+	// Build a group: [editor | vscroll] / [hscroll]
 	struct TagItem extraTags[] = {
-		{ MUIA_InputMode, MUIV_InputMode_RelVerify },
+		{ MUIA_Group_Columns, 2 },
+		{ MUIA_Group_Spacing, 0 },
 		{ TAG_MORE, reinterpret_cast<IPTR>(msg->ops_AttrList) },
 	};
 	struct TagItem *origTags = msg->ops_AttrList;
@@ -519,18 +727,38 @@ static IPTR mNew(struct IClass *cl, Object *obj, struct opSet *msg) {
 
 	obj = reinterpret_cast<Object *>(DoSuperMethodA(cl, obj, reinterpret_cast<Msg>(msg)));
 	msg->ops_AttrList = origTags;
-	if (!obj) { D(bug("SCI: mNew - super failed\n")); return 0; }
+	if (!obj) return 0;
+
+	// Create the inner editor area (a plain Area for painting)
+	Object *editorArea = reinterpret_cast<Object *>(MUI_NewObject(MUIC_Rectangle,
+		MUIA_Frame, MUIV_Frame_None,
+		TAG_DONE));
+
+	// Add children to the group: editor(col1) vscroll(col2) hscroll(col1+2 span? no, just col1)
+	// Actually with 2 columns: row1=[editor, vscroll], row2=[hscroll, empty]
+	DoMethod(obj, OM_ADDMEMBER, reinterpret_cast<IPTR>(editorArea));
+	DoMethod(obj, OM_ADDMEMBER, reinterpret_cast<IPTR>(scrollV));
+	DoMethod(obj, OM_ADDMEMBER, reinterpret_cast<IPTR>(scrollH));
+	// Add empty spacer in bottom-right corner
+	Object *spacer = reinterpret_cast<Object *>(MUI_NewObject(MUIC_Rectangle,
+		MUIA_FixWidth, 0,
+		MUIA_FixHeight, 0,
+		MUIA_Weight, 0,
+		TAG_DONE));
+	DoMethod(obj, OM_ADDMEMBER, reinterpret_cast<IPTR>(spacer));
 
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	data->sci = new ScintillaAROS();
 	data->sci->SetMUIObject(obj);
+	data->sci->SetScrollBars(scrollV, scrollH);
+	data->editorArea = editorArea;
+	data->scrollV = scrollV;
+	data->scrollH = scrollH;
 
-	D(bug("SCI: mNew done, obj=%p sci=%p\n", (void*)obj, (void*)data->sci));
 	return reinterpret_cast<IPTR>(obj);
 }
 
 static IPTR mDispose(struct IClass *cl, Object *obj, Msg msg) {
-	D(bug("SCI: mDispose\n"));
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	delete data->sci;
 	data->sci = nullptr;
@@ -538,40 +766,43 @@ static IPTR mDispose(struct IClass *cl, Object *obj, Msg msg) {
 }
 
 static IPTR mSetup(struct IClass *cl, Object *obj, struct MUIP_Setup *msg) {
-	D(bug("SCI: mSetup\n"));
 	if (!DoSuperMethodA(cl, obj, reinterpret_cast<Msg>(msg)))
 		return FALSE;
 
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	data->sci->Initialise();
 
-	// Request input events
-	MUI_RequestIDCMP(obj, IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE);
+	MUI_RequestIDCMP(obj, IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_INTUITICKS);
 
-	D(bug("SCI: mSetup done\n"));
+	// Notify on scrollbar changes
+	if (data->scrollV) {
+		DoMethod(data->scrollV, MUIM_Notify, MUIA_Prop_First, MUIV_EveryTime,
+			(IPTR)obj, 1, MUIM_Scintilla_VScroll);
+	}
+	if (data->scrollH) {
+		DoMethod(data->scrollH, MUIM_Notify, MUIA_Prop_First, MUIV_EveryTime,
+			(IPTR)obj, 1, MUIM_Scintilla_HScroll);
+	}
+
 	return TRUE;
 }
 
 static IPTR mShow(struct IClass *cl, Object *obj, Msg msg) {
-	D(bug("SCI: mShow\n"));
 	IPTR ret = DoSuperMethodA(cl, obj, msg);
-	if (!ret) { fprintf(stderr, "SCI: mShow - super failed\n"); return ret; }
+	if (!ret) return ret;
 
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 
-	// _window(obj) is now valid — the Intuition window is open
 	struct ::Window *win = _window(obj);
-	D(bug("SCI: mShow window=%p\n", (void*)win));
 	if (win) {
-		data->sci->SetupRenderContext(win);
+		data->sci->SetupRenderContext(win, data->editorArea);
 	}
 
-	D(bug("SCI: mShow done, rctx ready\n"));
+	data->sci->SetFocus(true);
 	return ret;
 }
 
 static IPTR mHide(struct IClass *cl, Object *obj, Msg msg) {
-	D(bug("SCI: mHide\n"));
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	data->sci->ReleaseRenderContext();
 
@@ -579,10 +810,9 @@ static IPTR mHide(struct IClass *cl, Object *obj, Msg msg) {
 }
 
 static IPTR mCleanup(struct IClass *cl, Object *obj, struct MUIP_Cleanup *msg) {
-	D(bug("SCI: mCleanup\n"));
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 
-	MUI_RejectIDCMP(obj, IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE);
+	MUI_RejectIDCMP(obj, IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_INTUITICKS);
 
 	return DoSuperMethodA(cl, obj, reinterpret_cast<Msg>(msg));
 }
@@ -607,18 +837,15 @@ static IPTR mDraw(struct IClass *cl, Object *obj, struct MUIP_Draw *msg) {
 		return 0;
 
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	Object *area = data->editorArea ? data->editorArea : obj;
 
-	WORD left = _mleft(obj);
-	WORD top = _mtop(obj);
-	WORD width = _mwidth(obj);
-	WORD height = _mheight(obj);
+	WORD left = _mleft(area);
+	WORD top = _mtop(area);
+	WORD width = _mwidth(area);
+	WORD height = _mheight(area);
 
-	D(bug("SCI: mDraw flags=%x left=%d top=%d %dx%d rctx=%p\n",
-		msg->flags, left, top, width, height, (void*)data->sci->GetRenderContext()));
-
-	data->sci->DoPaint(left, top, width, height);
-
-	D(bug("SCI: mDraw done\n"));
+	bool fullRedraw = (msg->flags & MADF_DRAWOBJECT) != 0;
+	data->sci->DoPaint(left, top, width, height, fullRedraw);
 	return 0;
 }
 
@@ -629,56 +856,120 @@ static IPTR mHandleInput(struct IClass *cl, Object *obj, struct MUIP_HandleInput
 		return 0;
 
 	struct IntuiMessage *imsg = msg->imsg;
-	WORD mx = imsg->MouseX - _mleft(obj);
-	WORD my = imsg->MouseY - _mtop(obj);
+	Object *area = data->editorArea ? data->editorArea : obj;
+	WORD mx = imsg->MouseX - _mleft(area);
+	WORD my = imsg->MouseY - _mtop(area);
 	unsigned int time = imsg->Seconds * 1000 + imsg->Micros / 1000;
+
+	bool needRedraw = false;
 
 	switch (imsg->Class) {
 	case IDCMP_RAWKEY: {
-		// Decode the key
+		if (imsg->Code & IECODE_UP_PREFIX)
+			break;
+
+		// Mouse wheel scrolling
+		if (imsg->Code == RAWKEY_NM_WHEEL_UP) {
+			data->sci->SendMessage(SCI_LINESCROLL, 0, -3);
+			needRedraw = true;
+			break;
+		}
+		if (imsg->Code == RAWKEY_NM_WHEEL_DOWN) {
+			data->sci->SendMessage(SCI_LINESCROLL, 0, 3);
+			needRedraw = true;
+			break;
+		}
+
 		struct InputEvent ie = {};
 		ie.ie_Class = IECLASS_RAWKEY;
 		ie.ie_Code = imsg->Code;
 		ie.ie_Qualifier = imsg->Qualifier;
 		ie.ie_EventAddress = imsg->IAddress;
 
-		// Check for key-up (bit 7 set)
-		if (imsg->Code & IECODE_UP_PREFIX)
-			break;
-
 		char buf[8] = {};
 		int charLen = KeymapMapRawKey(&ie, buf, sizeof(buf) - 1, nullptr);
 		if (charLen < 0) charLen = 0;
 
+		// Ctrl+Space: trigger autocomplete
+		if (imsg->Code == RAWKEY_SPACE && (imsg->Qualifier & IEQUALIFIER_CONTROL)
+				&& !(imsg->Qualifier & (IEQUALIFIER_LSHIFT | IEQUALIFIER_RSHIFT))) {
+			static const char *defaultWords =
+				"auto?0 break?0 case?0 char?0 const?0 continue?0 default?0 do?0 "
+				"double?0 else?0 extern?0 float?0 for?0 goto?0 if?0 include?0 "
+				"int?0 long?0 main?1 printf?1 register?0 return?0 short?0 "
+				"signed?0 sizeof?0 static?0 struct?0 switch?0 typedef?0 union?0 "
+				"unsigned?0 void?0 volatile?0 while?0";
+			data->sci->SendMessage(SCI_AUTOCSHOW, 0, reinterpret_cast<sptr_t>(defaultWords));
+			needRedraw = true;
+			break;
+		}
+
+		// Ctrl+Shift+Space: trigger calltip
+		if (imsg->Code == RAWKEY_SPACE && (imsg->Qualifier & IEQUALIFIER_CONTROL)
+				&& (imsg->Qualifier & (IEQUALIFIER_LSHIFT | IEQUALIFIER_RSHIFT))) {
+			data->sci->SendMessage(SCI_CALLTIPSHOW, 0,
+				reinterpret_cast<sptr_t>("printf(const char *format, ...)\nFormats and prints text to stdout"));
+			needRedraw = true;
+			break;
+		}
+
 		data->sci->HandleKeyDown(imsg->Code & ~IECODE_UP_PREFIX,
 			imsg->Qualifier, buf, charLen);
-
-		MUI_Redraw(obj, MADF_DRAWUPDATE);
+		needRedraw = true;
 		break;
 	}
 
-	case IDCMP_MOUSEBUTTONS:
+	case IDCMP_MOUSEBUTTONS: {
+		// Check if context menu is open and handle click on it
+		extern struct ::Window *sMenuWin;
+		extern void PlatAROS_HandleMenuClick(int x, int y, void (*)(void *, int), void *);
+		if (sMenuWin && imsg->Code == IECODE_LBUTTON) {
+			PlatAROS_HandleMenuClick(imsg->MouseX, imsg->MouseY,
+				[](void *sci, int cmd) { static_cast<ScintillaAROS *>(sci)->ExecuteCommand(cmd); },
+				data->sci);
+			needRedraw = true;
+			break;
+		}
+
 		if (imsg->Code == IECODE_LBUTTON) {
 			data->sci->HandleMouseDown(mx, my, time, imsg->Qualifier);
-			MUI_Redraw(obj, MADF_DRAWUPDATE);
+			needRedraw = true;
 		} else if (imsg->Code == (IECODE_LBUTTON | IECODE_UP_PREFIX)) {
 			data->sci->HandleMouseUp(mx, my, time, imsg->Qualifier);
-			MUI_Redraw(obj, MADF_DRAWUPDATE);
+			needRedraw = true;
 		} else if (imsg->Code == IECODE_RBUTTON) {
 			data->sci->HandleRightClick(mx, my, time, imsg->Qualifier);
+			needRedraw = true;
 		}
 		break;
+	}
 
 	case IDCMP_MOUSEMOVE:
 		data->sci->HandleMouseMove(mx, my, time, imsg->Qualifier);
+		needRedraw = true;
 		break;
+
+	case IDCMP_INTUITICKS:
+		if (data->sci->HandleTick()) {
+			needRedraw = true;
+		}
+		break;
+	}
+
+	if (needRedraw) {
+		MUI_Redraw(obj, MADF_DRAWUPDATE);
+	}
+
+	// Consume keyboard and mouse events so MUI doesn't process them
+	// (e.g. Escape closing the window)
+	if (imsg->Class == IDCMP_RAWKEY || imsg->Class == IDCMP_MOUSEBUTTONS) {
+		return MUI_EventHandlerRC_Eat;
 	}
 
 	return 0;
 }
 
 static IPTR mGoActive(struct IClass *cl, Object *obj, Msg msg) {
-	D(bug("SCI: mGoActive\n"));
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	data->sci->SetFocus(true);
 	MUI_Redraw(obj, MADF_DRAWUPDATE);
@@ -686,11 +977,38 @@ static IPTR mGoActive(struct IClass *cl, Object *obj, Msg msg) {
 }
 
 static IPTR mGoInactive(struct IClass *cl, Object *obj, Msg msg) {
-	D(bug("SCI: mGoInactive\n"));
 	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
 	data->sci->SetFocus(false);
 	MUI_Redraw(obj, MADF_DRAWUPDATE);
 	return DoSuperMethodA(cl, obj, msg);
+}
+
+static IPTR mVScroll(struct IClass *cl, Object *obj, Msg msg) {
+	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	data->sci->HandleVScroll();
+	MUI_Redraw(obj, MADF_DRAWUPDATE);
+	return 0;
+}
+
+static IPTR mHScroll(struct IClass *cl, Object *obj, Msg msg) {
+	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	data->sci->HandleHScroll();
+	MUI_Redraw(obj, MADF_DRAWUPDATE);
+	return 0;
+}
+
+static IPTR mSet(struct IClass *cl, Object *obj, struct opSet *msg) {
+	struct ScintillaMUIData *data = INST_DATA_CPP(cl, obj);
+	struct TagItem *tag;
+
+	if (msg->ops_AttrList) {
+		tag = FindTagItem(MUIA_Scintilla_Notification, msg->ops_AttrList);
+		if (tag) {
+			data->lastNotification = tag->ti_Data;
+		}
+	}
+
+	return DoSuperMethodA(cl, obj, reinterpret_cast<Msg>(msg));
 }
 
 static IPTR mGet(struct IClass *cl, Object *obj, struct opGet *msg) {
@@ -699,6 +1017,9 @@ static IPTR mGet(struct IClass *cl, Object *obj, struct opGet *msg) {
 	switch (msg->opg_AttrID) {
 	case MUIA_Scintilla_DirectPtr:
 		*msg->opg_Storage = static_cast<IPTR>(data->sci->GetDirectPointer());
+		return TRUE;
+	case MUIA_Scintilla_Notification:
+		*msg->opg_Storage = data->lastNotification;
 		return TRUE;
 	}
 
@@ -714,6 +1035,8 @@ AROS_UFH3S(IPTR, ScintillaDispatcher,
 
 	switch (msg->MethodID) {
 	case OM_NEW:          return mNew(cl, obj, reinterpret_cast<struct opSet *>(msg));
+	case OM_SET:          return mSet(cl, obj, reinterpret_cast<struct opSet *>(msg));
+	case OM_GET:          return mGet(cl, obj, reinterpret_cast<struct opGet *>(msg));
 	case OM_DISPOSE:      return mDispose(cl, obj, msg);
 	case MUIM_Setup:      return mSetup(cl, obj, reinterpret_cast<struct MUIP_Setup *>(msg));
 	case MUIM_Cleanup:    return mCleanup(cl, obj, reinterpret_cast<struct MUIP_Cleanup *>(msg));
@@ -724,7 +1047,8 @@ AROS_UFH3S(IPTR, ScintillaDispatcher,
 	case MUIM_HandleInput: return mHandleInput(cl, obj, reinterpret_cast<struct MUIP_HandleInput *>(msg));
 	case MUIM_GoActive:   return mGoActive(cl, obj, msg);
 	case MUIM_GoInactive: return mGoInactive(cl, obj, msg);
-	case OM_GET:          return mGet(cl, obj, reinterpret_cast<struct opGet *>(msg));
+	case MUIM_Scintilla_VScroll: return mVScroll(cl, obj, msg);
+	case MUIM_Scintilla_HScroll: return mHScroll(cl, obj, msg);
 	}
 
 	return DoSuperMethodA(cl, obj, msg);
@@ -742,7 +1066,7 @@ struct IClass *GetScintillaMUIClass() {
 	if (!ScintillaMUIClass) {
 		ScintillaMUIClass = MUI_CreateCustomClass(
 			nullptr,
-			const_cast<STRPTR>(MUIC_Area),
+			const_cast<STRPTR>(MUIC_Group),
 			nullptr,
 			sizeof(struct ScintillaMUIData),
 			reinterpret_cast<APTR>(ScintillaDispatcher));
@@ -763,4 +1087,11 @@ sptr_t ScintillaAROS_SendMessage(Object *obj, unsigned int iMessage, uptr_t wPar
 		return data->sci->SendMessage(iMessage, wParam, lParam);
 	}
 	return 0;
+}
+
+void ScintillaAROS_SetNotify(Object *obj, ScintillaNotifyFunc func, void *userData) {
+	struct ScintillaMUIData *data = static_cast<struct ScintillaMUIData *>(INST_DATA(OCLASS(obj), obj));
+	if (data && data->sci) {
+		data->sci->SetNotifyCallback(func, userData);
+	}
 }

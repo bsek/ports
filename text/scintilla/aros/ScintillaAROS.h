@@ -56,6 +56,33 @@ intptr_t ScintillaAROS_SendMessage(Object *obj, unsigned int iMessage,
  */
 #define MUIA_Scintilla_DirectPtr  (TAG_USER + 0x000F0001)
 
+/**
+ * Notification callback for Scintilla events (SCN_*).
+ *
+ * Set a callback function to receive Scintilla notifications:
+ *
+ *   void MyNotify(void *userData, struct SCNotification *scn) {
+ *       switch (scn->nmhdr.code) {
+ *       case SCN_CHARADDED:
+ *           printf("char added: %c\n", scn->ch);
+ *           break;
+ *       }
+ *   }
+ *
+ *   // Set callback and user data:
+ *   ScintillaAROS_SetNotify(editor, MyNotify, myData);
+ */
+typedef void (*ScintillaNotifyFunc)(void *userData, intptr_t code,
+                                     intptr_t position, intptr_t ch);
+
+void ScintillaAROS_SetNotify(Object *obj, ScintillaNotifyFunc func, void *userData);
+
+/**
+ * Custom attribute: Notification code from the last SCN_ event.
+ * Use with MUIM_Notify to react to specific events.
+ */
+#define MUIA_Scintilla_Notification  (TAG_USER + 0x000F0002)
+
 #ifdef __cplusplus
 }
 #endif

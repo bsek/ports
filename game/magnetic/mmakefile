@@ -1,0 +1,826 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-$(AROS_TARGET_CPU)
+
+#MM- ports-game-i386 : ports-game-magnetic
+#MM- ports-game-m68k : ports-game-magnetic
+
+#MM  ports-game-magnetic : includes linklibs \
+#MM  ports-game-magnetic-data ports-game-magnetic-cpy \
+#MM  ports-game-magnetic-fetch
+
+#MM  ports-game-magnetic-data : ports-game-magnetic-fetch
+
+#MM  ports-game-magnetic-quick : ports-game-magnetic-fetch
+
+REPOSITORIES := http://archives.aros-exec.org/share/game/adventure/
+ARCHBASE     := magnetic-src-2.3.1
+TARGETDIR    := $(AROS_CONTRIB)/Games/Adventure/Magnetic
+
+NOWARN_FLAGS := $(NOWARN_PARENTHESES)
+USER_CFLAGS  := $(NOWARN_FLAGS) -DNO_ANIMATION
+USER_INCLUDES:= -I $(PORTSDIR)/magnetic/$(ARCHBASE)/Generic
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+FILES := Amiga/amiga Generic/emu
+FILES := $(addprefix $(PORTSDIR)/magnetic/$(ARCHBASE)/,$(FILES))
+
+
+.PHONY : ports-game-magnetic
+
+#MM- ports-game-magnetic : \
+#MM             ports-game-magnetic-$(CPU)
+
+#MM- ports-game-magnetic-$(ARCH)-$(CPU) : \
+#MM             ports-game-magnetic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-magnetic-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-magnetic-$(ARCH)-$(CPU)
+
+#MM- ports-game-magnetic-$(ARCH) : \
+#MM             ports-game-magnetic-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-magnetic-$(FAMILY) : \
+#MM             ports-game-magnetic-$(ARCH)
+
+#MM- ports-game-magnetic-$(CPU) : \
+#MM             ports-game-magnetic-$(FAMILY)
+#MM- ports-game-magnetic-quick : \
+#MM             ports-game-magnetic-$(CPU)-quick
+
+#MM- ports-game-magnetic-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-magnetic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-magnetic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-magnetic-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-magnetic-$(ARCH)-quick : \
+#MM             ports-game-magnetic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-magnetic-$(FAMILY)-quick : \
+#MM             ports-game-magnetic-$(ARCH)-quick
+
+#MM- ports-game-magnetic-$(CPU)-quick : \
+#MM             ports-game-magnetic-$(FAMILY)-quick
+
+ports-game-magnetic_PROGNAME  := Magnetic
+ports-game-magnetic_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-magnetic_TARGETDIR := $(TARGETDIR)
+ports-game-magnetic_LINKER    := 
+ports-game-magnetic_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-magnetic_LINKER),)
+    ports-game-magnetic_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-magnetic_FILES     := $(FILES)
+    ports-game-magnetic_OBJCFILES := 
+    ports-game-magnetic_ASMFILES  := 
+    ports-game-magnetic_CXXFILES := 
+else
+    ports-game-magnetic_FILES     := $(ports-game-magnetic_PROGNAME)
+    ports-game-magnetic_OBJCFILES :=
+    ports-game-magnetic_ASMFILES  :=
+    ports-game-magnetic_CXXFILES :=
+endif
+
+ports-game-magnetic_ARCHOBJS   := $(wildcard $(ports-game-magnetic_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-magnetic_ARCHFILES     := $(basename $(notdir $(ports-game-magnetic_ARCHOBJS)))
+else
+    ports-game-magnetic_ARCHFILES     := $(basename $(patsubst $(ports-game-magnetic_OBJDIR)/%,%,$(ports-game-magnetic_ARCHOBJS)))
+endif
+ports-game-magnetic_C_NARCHFILES := $(filter-out $(ports-game-magnetic_ARCHFILES),$(ports-game-magnetic_FILES))
+ports-game-magnetic_CXX_NARCHFILES := $(filter-out $(ports-game-magnetic_ARCHFILES),$(ports-game-magnetic_CXXFILES))
+ports-game-magnetic_OBJC_NARCHFILES := $(filter-out $(ports-game-magnetic_ARCHFILES),$(ports-game-magnetic_OBJCFILES))
+
+TMP_FILES := $(ports-game-magnetic_C_NARCHFILES) $(ports-game-magnetic_CXX_NARCHFILES) $(ports-game-magnetic_ASMFILES) $(ports-game-magnetic_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-magnetic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-magnetic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-magnetic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-magnetic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-magnetic_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-magnetic_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-magnetic_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-magnetic_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-magnetic_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-magnetic_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-magnetic_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-magnetic_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-magnetic_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-magnetic_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-magnetic_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-magnetic_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-magnetic_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-magnetic_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-magnetic_LDFLAGS          := 
+endif
+
+ports-game-magnetic_CSTATICFLAGS   := `echo "$(ports-game-magnetic_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-magnetic_CSTDCFLAGS   :=  `echo "$(ports-game-magnetic_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-magnetic_CPOSIXCFLAGS   :=  `echo "$(ports-game-magnetic_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-magnetic_LDFLAGS          += $(strip $(ports-game-magnetic_CSTATICFLAGS) $(ports-game-magnetic_CSTDCFLAGS) $(ports-game-magnetic_CPOSIXCFLAGS))
+
+ports-game-magnetic_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-magnetic_COVERAGE := yes
+ports-game-magnetic_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-magnetic_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-magnetic_CFLAGS    := $(strip $(ports-game-magnetic_COVERAGEFLAGS) $(ports-game-magnetic_CFLAGS))
+ports-game-magnetic_CXXFLAGS := $(strip $(ports-game-magnetic_COVERAGEFLAGS) $(ports-game-magnetic_CXXFLAGS))
+ports-game-magnetic_LIBS += $(ports-game-magnetic_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-magnetic_FUNCINSTR := yes
+ports-game-magnetic_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-magnetic_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-magnetic_CFLAGS    := $(strip $(ports-game-magnetic_INSTRFUNCFLAGS) $(ports-game-magnetic_CFLAGS))
+ports-game-magnetic_CXXFLAGS := $(strip $(ports-game-magnetic_INSTRFUNCFLAGS) $(ports-game-magnetic_CXXFLAGS))
+ports-game-magnetic_LIBS += $(ports-game-magnetic_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-magnetic_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-magnetic_CFLAGS))
+ports-game-magnetic_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-magnetic_CXXFLAGS))
+endif
+endif
+ports-game-magnetic_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-magnetic_DFLAGS     := 
+else
+    ports-game-magnetic_DFLAGS     := $(ports-game-magnetic_CFLAGS)
+endif
+ifneq (,)
+    ports-game-magnetic_DXXFLAGS     := 
+else
+    ports-game-magnetic_DXXFLAGS     := $(ports-game-magnetic_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-magnetic_LDFLAGS           := $(ports-game-magnetic_LDFLAGS)
+ports-game-magnetic_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-magnetic_LDFLAGS           := $(ports-game-magnetic_LDFLAGS)
+ports-game-magnetic_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-magnetic_LDFLAGS           := $(ports-game-magnetic_LDFLAGS)
+ports-game-magnetic_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-magnetic_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-magnetic-quick : ports-game-magnetic
+
+#MM ports-game-magnetic : includes-generate-deps core-linklibs
+ports-game-magnetic : $(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-magnetic_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-magnetic_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-magnetic_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-magnetic_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-magnetic_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-magnetic_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-magnetic ports-game-magnetic-quick ports-game-magnetic-compress-quick),)
+
+ports-game-magnetic_CXXABSBASENAMES := $(foreach ports-game-magnetic_CXXBASE,$(ports-game-magnetic_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-magnetic_CXXBASE)),$(ports-game-magnetic_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-magnetic_CXXBASE))))
+
+ifneq ($(ports-game-magnetic_CXXABSBASENAMES),)
+
+ports-game-magnetic_CXXBASENAMES := $(basename $(ports-game-magnetic_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-magnetic_MCXX_FILES  := $(strip $(foreach ports-game-magnetic_CXXBASE,$(ports-game-magnetic_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-magnetic_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-magnetic_EXT),$(ports-game-magnetic_CXXBASE)))))))
+
+ifeq (,)
+ports-game-magnetic_MCXX_SRCWILDCARD := %
+else
+ports-game-magnetic_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-magnetic_OBJDIR),)
+  ports-game-magnetic_CXXTARGETS := $(notdir $(ports-game-magnetic_CXXBASENAMES:=.o))
+  ports-game-magnetic_CXXDTARGETS := $(notdir $(ports-game-magnetic_CXXBASENAMES:=.d))
+  ports-game-magnetic_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-magnetic_CXXTARGETS := $(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(ports-game-magnetic_CXXBASENAMES:=.o)))
+  ports-game-magnetic_CXXDTARGETS := $(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(ports-game-magnetic_CXXBASENAMES:=.d)))
+  ports-game-magnetic_MCXX_WILDCARD := $(ports-game-magnetic_OBJDIR)/%
+else
+  ports-game-magnetic_CXXTARGETS := $(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_CXXBASENAMES:=.o))
+  ports-game-magnetic_CXXDTARGETS := $(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_CXXBASENAMES:=.d))
+  ports-game-magnetic_MCXX_WILDCARD := $(ports-game-magnetic_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-magnetic_CXXTARGETS) $(ports-game-magnetic_CXXDTARGETS) : | $(ports-game-magnetic_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-magnetic_MCXX_CPPFLAGS := $(ports-game-magnetic_CPPFLAGS)
+ports-game-magnetic_CXXFLAGS := $(ports-game-magnetic_CXXFLAGS)
+ifeq ($(ports-game-magnetic_DXXFLAGS),)
+  ports-game-magnetic_DXXFLAGS := $(ports-game-magnetic_CXXFLAGS)
+else
+  ports-game-magnetic_DXXFLAGS := $(ports-game-magnetic_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-magnetic_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-magnetic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-magnetic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-magnetic_STRIP ?= $(HOST_STRIP)
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-magnetic_CXXCMD:=$(HOST_CXX)
+  ports-game-magnetic_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS) $(ports-game-magnetic_MCXX_EXTRA_CPPFLAGS))
+  ports-game-magnetic_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-magnetic_CXXFLAGS))
+  ports-game-magnetic_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-magnetic_DXXFLAGS))
+  ports-game-magnetic_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-magnetic_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-magnetic_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-magnetic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-magnetic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-magnetic_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-magnetic_LDFLAGS ?= $(ports-game-magnetic_CXXLDFLAGS)
+  ports-game-magnetic_STRIP ?= $(TARGET_STRIP)
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-magnetic_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-magnetic_MCXX_CPPFLAGS := $(strip $(ports-game-magnetic_MCXX_CPPFLAGS) $(ports-game-magnetic_MCXX_EXTRA_CPPFLAGS))
+  ports-game-magnetic_CXXFLAGS := $(strip $(ports-game-magnetic_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-magnetic_DXXFLAGS := $(ports-game-magnetic_DXXFLAGS)
+  ports-game-magnetic_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-magnetic_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-magnetic_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-magnetic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-magnetic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-magnetic_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-magnetic_LDFLAGS ?= $(ports-game-magnetic_CXXLDFLAGS)
+  ports-game-magnetic_STRIP ?= $(ECHO) >/dev/null
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-magnetic_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-magnetic_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS) $(ports-game-magnetic_MCXX_EXTRA_CPPFLAGS))
+  ports-game-magnetic_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-magnetic_CXXFLAGS))
+  ports-game-magnetic_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-magnetic_DXXFLAGS))
+  ports-game-magnetic_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-magnetic_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-magnetic_CXXCMD) $(ports-game-magnetic_CXXIQUOTE) $(dir $(2)) $(ports-game-magnetic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) . $(ports-game-magnetic_CXXIQUOTE_END) $(strip $(ports-game-magnetic_CXXFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-magnetic_CXXCMD) $(ports-game-magnetic_CXXIQUOTE) $(dir $(2)) $(ports-game-magnetic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) . $(ports-game-magnetic_CXXIQUOTE_END) $(strip $(ports-game-magnetic_CXXFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-magnetic_CXXCMD) $(ports-game-magnetic_CXXIQUOTE) $(dir $(2)) $(ports-game-magnetic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_CXXIQUOTE) . $(ports-game-magnetic_CXXIQUOTE_END) $(strip $(ports-game-magnetic_CXXFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-magnetic_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-magnetic_DXXFLAGS) $(ports-game-magnetic_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-magnetic_OBJDIR),)
+  $(foreach ports-game-magnetic_CXXFILE,$(ports-game-magnetic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-magnetic_CXXFILE))),$(ports-game-magnetic_CXXFILE))))
+else
+  $(foreach ports-game-magnetic_CXXFILE,$(ports-game-magnetic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(basename $(ports-game-magnetic_CXXFILE)))),$(ports-game-magnetic_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-magnetic_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-magnetic_MOBJC_SRCWILDCARD := %
+else
+ports-game-magnetic_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-magnetic_OBJDIR),)
+  ports-game-magnetic_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-magnetic_OBJC_NARCHFILES))
+  ports-game-magnetic_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-magnetic_OBJC_NARCHFILES))
+  ports-game-magnetic_MOBJC_WILDCARD := %
+else
+  ports-game-magnetic_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_OBJC_NARCHFILES)))
+  ports-game-magnetic_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_OBJC_NARCHFILES)))
+  ports-game-magnetic_MOBJC_WILDCARD := $(ports-game-magnetic_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-magnetic_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-magnetic_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-magnetic_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-magnetic_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-magnetic_MOBJC_DIRS := $(foreach dir, $(ports-game-magnetic_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-magnetic_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-magnetic_MOBJC_DIRS),)
+    ports-game-magnetic_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-magnetic_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-magnetic_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-magnetic_CC := $(TARGET_CC)
+else
+  ports-game-magnetic_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-magnetic_MOBJC_CPPFLAGS := $(ports-game-magnetic_CPPFLAGS)
+ports-game-magnetic_OBJCFLAGS := $(ports-game-magnetic_CFLAGS)
+ports-game-magnetic_OBJCFLAGS := $(ports-game-magnetic_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-magnetic_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-magnetic_OBJCFLAGS)))
+ifeq ($(ports-game-magnetic_DFLAGS),)
+  ports-game-magnetic_OBJCDFLAGS := $(ports-game-magnetic_CFLAGS)
+else
+  ports-game-magnetic_OBJCDFLAGS := $(ports-game-magnetic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-magnetic_LINK ?= $(strip $(ports-game-magnetic_CC) $(TARGET_SYSROOT))
+  ports-game-magnetic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-magnetic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-magnetic_STRIP ?= $(TARGET_STRIP)
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-magnetic_CC) $(TARGET_SYSROOT))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_MOBJC_CPPFLAGS:=$(strip $(ports-game-magnetic_MOBJC_CPPFLAGS) $(ports-game-magnetic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCFLAGS:=$(strip $(ports-game-magnetic_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCDFLAGS:=$(ports-game-magnetic_OBJCDFLAGS)
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-magnetic_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-magnetic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-magnetic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-magnetic_STRIP ?= $(HOST_STRIP)
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-magnetic_MOBJC_CPPFLAGS) $(ports-game-magnetic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-magnetic_OBJCFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-magnetic_OBJCDFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-magnetic_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-magnetic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-magnetic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-magnetic_STRIP ?= $(ECHO) >/dev/null
+  ports-game-magnetic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-magnetic_MOBJC_CPPFLAGS) $(ports-game-magnetic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-magnetic_OBJCFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-magnetic_OBJCDFLAGS))
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-magnetic_MOBJC_TARGETS) $(ports-game-magnetic_MOBJC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-magnetic_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-magnetic_MOBJC_CPPFLAGS)
+$(ports-game-magnetic_MOBJC_TARGETS) : CFLAGS := $(ports-game-magnetic_OBJCFLAGS)
+$(ports-game-magnetic_MOBJC_TARGETS) : $(ports-game-magnetic_MOBJC_WILDCARD).o : $(ports-game-magnetic_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-magnetic_MOBJC_DTARGETS) : $(ports-game-magnetic_MOBJC_WILDCARD).d : $(ports-game-magnetic_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-magnetic_OBJCDFLAGS) $(ports-game-magnetic_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-magnetic_MC_SRCWILDCARD := %
+else
+ports-game-magnetic_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-magnetic_OBJDIR),)
+ports-game-magnetic_MC_TARGETS := $(addsuffix .o,$(ports-game-magnetic_C_NARCHFILES))
+ports-game-magnetic_MC_DTARGETS := $(addsuffix .d,$(ports-game-magnetic_C_NARCHFILES))
+ports-game-magnetic_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-magnetic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(ports-game-magnetic_C_NARCHFILES))))
+    ports-game-magnetic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(ports-game-magnetic_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-magnetic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_C_NARCHFILES)))
+    ports-game-magnetic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(ports-game-magnetic_C_NARCHFILES)))
+else
+    ports-game-magnetic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(patsubst /%,%,$(ports-game-magnetic_C_NARCHFILES))))
+    ports-game-magnetic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(patsubst /%,%,$(ports-game-magnetic_C_NARCHFILES))))
+endif
+endif
+ports-game-magnetic_MC_TGTWILDCARD := $(ports-game-magnetic_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-magnetic_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-magnetic_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-magnetic_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-magnetic_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-magnetic_MC_DIRS := $(foreach dir, $(ports-game-magnetic_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-magnetic_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-magnetic_MC_DIRS),)
+    ports-game-magnetic_MC_DIRS := $(shell $(ECHO) $(ports-game-magnetic_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-magnetic_MC_DIRS)
+endif
+
+endif
+
+ports-game-magnetic_MC_CPPFLAGS := $(ports-game-magnetic_CPPFLAGS)
+ports-game-magnetic_CFLAGS := $(ports-game-magnetic_CFLAGS)
+ifeq ($(ports-game-magnetic_DFLAGS),)
+  ports-game-magnetic_DFLAGS := $(ports-game-magnetic_CFLAGS)
+else
+  ports-game-magnetic_DFLAGS := $(ports-game-magnetic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-magnetic_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-magnetic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-magnetic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-magnetic_STRIP ?= $(TARGET_STRIP)
+ports-game-magnetic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_MC_CPPFLAGS:=$(strip $(ports-game-magnetic_MC_CPPFLAGS) $(ports-game-magnetic_MC_EXTRA_CPPFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_CFLAGS:=$(strip $(ports-game-magnetic_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_DFLAGS:=$(ports-game-magnetic_DFLAGS)
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-magnetic_LINK ?= $(strip $(HOST_CC))
+ports-game-magnetic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-magnetic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-magnetic_STRIP ?= $(HOST_STRIP)
+ports-game-magnetic_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-magnetic_MC_CPPFLAGS) $(ports-game-magnetic_MC_EXTRA_CPPFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-magnetic_CFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-magnetic_DFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-magnetic_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-magnetic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-magnetic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-magnetic_STRIP ?= $(ECHO) >/dev/null
+ports-game-magnetic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-magnetic_MC_CPPFLAGS) $(ports-game-magnetic_MC_EXTRA_CPPFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-magnetic_CFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-magnetic_DFLAGS))
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-magnetic_MC_TARGETS) $(ports-game-magnetic_MC_DTARGETS) : ports-game-magnetic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-magnetic_MC_TARGETS) : CPPFLAGS := $(ports-game-magnetic_MC_CPPFLAGS)
+$(ports-game-magnetic_MC_TARGETS) : CFLAGS := $(ports-game-magnetic_CFLAGS)
+$(ports-game-magnetic_MC_TARGETS) : $(ports-game-magnetic_MC_TGTWILDCARD).o : $(ports-game-magnetic_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-magnetic_IQUOTE) $(dir $<) $(ports-game-magnetic_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-magnetic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-magnetic_IQUOTE) . $(ports-game-magnetic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-magnetic_MC_DTARGETS) : $(ports-game-magnetic_MC_TGTWILDCARD).d : $(ports-game-magnetic_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-magnetic_DFLAGS) $(ports-game-magnetic_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-magnetic_OBJDIR),)
+ports-game-magnetic-MA_TARGETS := $(addsuffix .o,$(ports-game-magnetic_ASMFILES))
+ports-game-magnetic-MA_WILDCARD := %
+else
+ports-game-magnetic-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-magnetic_OBJDIR)/,$(notdir $(ports-game-magnetic_ASMFILES))))
+ports-game-magnetic-MA_WILDCARD := $(ports-game-magnetic_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-magnetic-MA_TARGETS) : | $(addsuffix .s,$(ports-game-magnetic_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-magnetic-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-magnetic-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-magnetic_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-magnetic-MA_DIRS := $(foreach dir, $(ports-game-magnetic-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-magnetic-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-magnetic-MA_DIRS),)
+    ports-game-magnetic-MA_DIRS := $(shell $(ECHO) $(ports-game-magnetic-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-magnetic-MA_DIRS)
+endif
+
+endif
+
+ports-game-magnetic-MA_ASSEMBLER ?= $(ports-game-magnetic_ASSEMBLER)
+
+$(ports-game-magnetic-MA_TARGETS) : ports-game-magnetic-MA_CMD:= $(ports-game-magnetic-MA_ASSEMBLER)
+
+$(ports-game-magnetic-MA_TARGETS) : CPPFLAGS := $(ports-game-magnetic_CPPFLAGS)
+$(ports-game-magnetic-MA_TARGETS) : AFLAGS := $(ports-game-magnetic_AFLAGS)
+$(ports-game-magnetic-MA_TARGETS) : $(ports-game-magnetic-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-magnetic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-magnetic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-magnetic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-magnetic-link_LD_OPTS := 
+ports-game-magnetic-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-magnetic-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-magnetic-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-magnetic-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-magnetic-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-magnetic_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-magnetic-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-magnetic-link_DIRS)))
+# Add trailing /
+ports-game-magnetic-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-magnetic-link_DIRS)))
+# Add normal linklib path
+ports-game-magnetic-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-magnetic-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-magnetic_LIBS) $(ports-game-magnetic-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-magnetic-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-magnetic-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-magnetic-link_DEPLIBS := $(foreach lib,$(ports-game-magnetic-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-magnetic-link_DIRS)))) \
+)
+
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : OBJDIR := $(ports-game-magnetic_OBJDIR)
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : OBJS := $(strip $(ports-game-magnetic_OBJS) $(ports-game-magnetic_ARCHOBJS) $(USER_OBJS))
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : LDFLAGS := $(strip $(ports-game-magnetic_LDFLAGS))
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-magnetic_LIBS) $(ports-game-magnetic-link_EXTRA_LIBS)))
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-magnetic_ARCHLIBS))
+$(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : $(ports-game-magnetic_OBJS) $(ports-game-magnetic_ARCHOBJS) $(USER_OBJS) $(ports-game-magnetic-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-magnetic_LINK) $(strip $(ports-game-magnetic_LD_OPTS) $(ports-game-magnetic-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-magnetic_LINK) $(strip $(ports-game-magnetic_LD_OPTS) $(ports-game-magnetic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-magnetic_LINK) $(strip $(ports-game-magnetic_LD_OPTS) $(ports-game-magnetic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-magnetic_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-magnetic_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-magnetic_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-magnetic_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-magnetic_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-magnetic_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-magnetic_DEPS),)
+  ifneq (ports-game-magnetic ports-game-magnetic-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-magnetic ports-game-magnetic-quick),)
+      -include $(ports-game-magnetic_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-magnetic_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-magnetic_OBJS) $(ports-game-magnetic_DEPS) $(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME),)
+$(ports-game-magnetic_OBJS) $(ports-game-magnetic_DEPS) $(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) : | $(ports-game-magnetic_OBJDIR) $(ports-game-magnetic_TARGETDIR)
+else
+$(ports-game-magnetic_OBJS) $(ports-game-magnetic_DEPS) $(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) :: $(ports-game-magnetic_OBJDIR) $(ports-game-magnetic_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-magnetic_OBJDIR) $(ports-game-magnetic_TARGETDIR)
+
+
+ports-game-magnetic-clean : FILES := $(ports-game-magnetic_OBJS) $(ports-game-magnetic_TARGETDIR)/$(ports-game-magnetic_PROGNAME) $(ports-game-magnetic_DEPS)
+#MM
+ports-game-magnetic-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-magnetic"
+	$(Q)$(RM) $(FILES)
+
+
+
+
+.PHONY: ports-game-magnetic-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-magnetic-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-magnetic-fetch-location := $(PORTSDIR)/magnetic
+endif
+
+ifneq (,)
+    ports-game-magnetic-fetch-baseflag := -b 
+else
+    ports-game-magnetic-fetch-baseflag :=
+endif
+
+ports-game-magnetic-fetch-fetchedflag := $(ports-game-magnetic-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-magnetic-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-game-magnetic-fetch-location) \
+	-d $(PORTSDIR)/magnetic $(ports-game-magnetic-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-magnetic-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-magnetic-fetch-fetchedflag) ; \
+	fi
+
+
+
+.PHONY : ports-game-magnetic-data
+
+#MM
+ports-game-magnetic-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts)))' to '$(if $(filter /%,$(TARGETDIR)/Scripts),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Scripts)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Scripts)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Scripts))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Scripts)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/magnetic/$(ARCHBASE)/Scripts -d $(TARGETDIR)/Scripts -e 
+
+
+
+CPYFILES := COPYING README.txt
+
+
+ports-game-magnetic-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/magnetic/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-magnetic-cpy
+
+#MM
+ports-game-magnetic-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-magnetic-cpy_SRC)),$(ports-game-magnetic-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-magnetic-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

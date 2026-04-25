@@ -1,0 +1,680 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-vice
+
+PACKAGE      := vice
+VERSION      := 2.4
+TARGETDIR    := $(AROS_CONTRIB)/Emu/Vice
+REPOSITORIES := sf://vice-emu/releases
+
+USER_INCLUDES := -I$(GENDIR)/$(CURDIR)/vice/src/arch/amigaos
+USER_CFLAGS := $(CFLAGS_GNU99) 
+
+
+#MM- ports-emulation-vice-quick : ports-emulation-vice--quick
+#MM- ports-emulation-vice--quick : ports-emulation-vice--fetch
+#MM- ports-emulation-vice-fetch : ports-emulation-vice--fetch
+#MM- ports-emulation-vice-create-patch : ports-emulation-vice--create-patch
+#MM- ports-emulation-vice-create-patch-quick : ports-emulation-vice--create-patch
+ 
+ports-emulation-vice-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-emulation-vice-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-emulation-vice-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-emulation-vice-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-emulation-vice-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-emulation-vice--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-emulation-vice--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-emulation-vice--srcdir        ?= 
+else
+    ports-emulation-vice--srcdir        ?= $(ports-emulation-vice-archbase)
+endif
+
+ifneq (,)
+    ports-emulation-vice--builddir      ?= $(ports-emulation-vice--srcdir)/
+else
+    ports-emulation-vice--builddir      ?= $(ports-emulation-vice--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-emulation-vice--patches_specs ?= $(ports-emulation-vice--archbase)-aros.diff:$(ports-emulation-vice--srcdir):-f,-p1
+else
+    ports-emulation-vice--patches_specs ?= ::
+endif
+else
+    ports-emulation-vice--patches_specs ?= 
+endif
+
+
+.PHONY: ports-emulation-vice--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-emulation-vice--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-emulation-vice--fetch-location := $(ports-emulation-vice-portdir)
+endif
+
+ifneq (,)
+    ports-emulation-vice--fetch-baseflag := -b 
+else
+    ports-emulation-vice--fetch-baseflag :=
+endif
+
+ports-emulation-vice--fetch-fetchedflag := $(ports-emulation-vice--fetch-location)/.$(ports-emulation-vice--archbase)-fetched
+
+#MM
+ports-emulation-vice--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-emulation-vice--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-emulation-vice--archbase) -s "tar.gz" -l $(ports-emulation-vice--fetch-location) \
+	-d $(ports-emulation-vice-portdir) $(ports-emulation-vice--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-emulation-vice--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-emulation-vice--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-emulation-vice--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-emulation-vice--create-patch
+
+ifneq (,)
+    ports-emulation-vice--create-patch-location := 
+else
+    ports-emulation-vice--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-emulation-vice--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-emulation-vice--srcdir),)
+    ports-emulation-vice--create-patch-srcdir   := $(ports-emulation-vice--srcdir)
+else
+    ports-emulation-vice--create-patch-srcdir   := $(ports-emulation-vice--archbase)
+endif
+
+ifeq (no,yes)
+    ports-emulation-vice--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-emulation-vice--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-emulation-vice--create-patch-baseflag := -b /tmp
+    ports-emulation-vice--create-patch-base := 
+else
+    ports-emulation-vice--create-patch-baseflag :=
+    ports-emulation-vice--create-patch-base := $(ports-emulation-vice-portdir)
+endif
+
+#MM- ports-emulation-vice--create-patch :  ports-emulation-vice--create-patch-diff 
+#MM- ports-emulation-vice--create-patch-quick :  ports-emulation-vice--create-patch-diff 
+
+#MM
+ports-emulation-vice--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-emulation-vice--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-emulation-vice--create-patch-base)/$(ports-emulation-vice--create-patch-srcdir) $(ports-emulation-vice--create-patch-base)/tmp/$(ports-emulation-vice--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-emulation-vice--archbase) -s "tar.gz" -f -l $(ports-emulation-vice--create-patch-location) -d $(ports-emulation-vice-portdir) $(ports-emulation-vice--create-patch-baseflag); \
+	$(MV) $(ports-emulation-vice--create-patch-base)/$(ports-emulation-vice--create-patch-srcdir) $(ports-emulation-vice--create-patch-base)/tmp/$(ports-emulation-vice--create-patch-srcdir) ; \
+	cd $(ports-emulation-vice--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-emulation-vice--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-emulation-vice--create-patch-diffflag) $(ports-emulation-vice--create-patch-exclude) \
+	    $(ports-emulation-vice--create-patch-srcdir) \
+	    $(ports-emulation-vice--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-emulation-vice--archbase)-aros-new.diff ; \
+	$(MV) $(ports-emulation-vice--create-patch-base)/tmp/$(ports-emulation-vice--create-patch-srcdir).aros $(ports-emulation-vice--create-patch-base)/$(ports-emulation-vice--create-patch-srcdir) ; \
+	$(RM) $(ports-emulation-vice--create-patch-base)/tmp
+
+#MM ports-emulation-vice : ports-emulation-vice-
+#MM
+ports-emulation-vice:
+	$(Q)$(NOP)
+
+ports-emulation-vice--package-dir := $(ports-emulation-vice-portdir)/$(ports-emulation-vice--archbase)
+
+ports-emulation-vice--package-basename := \
+    $(DISTDIR)/Packages/$(ports-emulation-vice--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-emulation-vice--package := $(ports-emulation-vice--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-emulation-vice-prefix),)
+    ports-emulation-vice--prefix := $(ports-emulation-vice-prefix)
+else
+    ports-emulation-vice--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-emulation-vice--aros_prefix := 
+else
+    ports-emulation-vice--aros_prefix := $(ports-emulation-vice--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-emulation-vice--nix    := $(BD_NIXFLAG)
+    ports-emulation-vice--volpfx := /
+    ports-emulation-vice--volsfx := /
+    
+    ifeq (no,)
+        ports-emulation-vice--nix_dir_layout := yes
+    endif
+else
+    ports-emulation-vice--volsfx := :
+    
+    ifeq (no,)
+        ports-emulation-vice--nix_dir_layout := no
+    endif
+endif
+
+ports-emulation-vice--volfunc = $(ports-emulation-vice--volpfx)$(notdir $1)$(ports-emulation-vice--volsfx)
+
+ports-emulation-vice--install_opts += prefix=$(ports-emulation-vice--prefix) \
+        exec_prefix=$(ports-emulation-vice--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-emulation-vice--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-emulation-vice--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-emulation-vice--pkgbasedir := $(GENDIR)
+    else
+        ports-emulation-vice--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-emulation-vice--pkgbasedir := 
+    else
+        ports-emulation-vice--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-emulation-vice--pkgdir := $(ports-emulation-vice--pkgbasedir)
+else
+    ports-emulation-vice--pkgdir := $(ports-emulation-vice--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-emulation-vice--configflag ?= $(ports-emulation-vice--pkgdir)/.configured
+ports-emulation-vice--installflag ?= $(ports-emulation-vice--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-emulation-vice--nix_dir_layout) $(host)),yes)
+    ports-emulation-vice--PROGDIR      := $(ports-emulation-vice--aros_prefix)/bin
+    ports-emulation-vice--config_opts  := --prefix=$(ports-emulation-vice--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-emulation-vice--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-emulation-vice--config_opts  := --prefix=$(ports-emulation-vice--aros_prefix)
+    endif
+
+    ports-emulation-vice--PROGDIR := $(ports-emulation-vice--aros_prefix)
+    
+    ports-emulation-vice--install_opts := bindir=$(ports-emulation-vice--prefix) \
+        sbindir=$(ports-emulation-vice--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-emulation-vice--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-emulation-vice--TARGET_LDFLAGS :=
+else
+ports-emulation-vice--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-emulation-vice--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-emulation-vice--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-emulation-vice--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-emulation-vice--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-emulation-vice--nix)
+endif
+endif
+ports-emulation-vice--TARGET_CC?=$(TARGET_CC)
+ports-emulation-vice--KERNEL_CC?=$(KERNEL_CC)
+ports-emulation-vice--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-emulation-vice--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-emulation-vice--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-emulation-vice--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-emulation-vice--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-emulation-vice--nix)
+endif
+endif
+ports-emulation-vice--TARGET_CXX?=$(TARGET_CXX)
+ports-emulation-vice--KERNEL_CXX?=$(KERNEL_CXX)
+ports-emulation-vice--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-emulation-vice--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-emulation-vice--HOST_CC) $(ports-emulation-vice--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-emulation-vice--HOST_CXX) $(ports-emulation-vice--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-emulation-vice--cfg-env += TARGET_CC="$(strip $(ports-emulation-vice--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-emulation-vice--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-emulation-vice--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-emulation-vice--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-emulation-vice--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-emulation-vice--cfg-env += \
+        CPP="$(strip $(ports-emulation-vice--CROSS_CPP) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-emulation-vice--CROSS_CPP) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-emulation-vice--CROSS_CC) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-emulation-vice--CROSS_CXX) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-emulation-vice--CROSS_LD))" \
+        AS="$(strip $(ports-emulation-vice--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-emulation-vice--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-emulation-vice--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-emulation-vice--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-emulation-vice--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-emulation-vice--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-emulation-vice--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-emulation-vice--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-emulation-vice--CROSS_LDFLAGS))"
+    ports-emulation-vice--cfg-env += CC_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_CC) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_CXX) $(ports-emulation-vice--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-emulation-vice--CROSS_LDFLAGS))"
+else
+    ports-emulation-vice--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-emulation-vice--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-emulation-vice--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-emulation-vice--cfg-env += CFLAGS="$(strip $(ports-emulation-vice--TARGET_CFLAGS) $(ports-emulation-vice--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-emulation-vice--TARGET_CXXFLAGS) $(ports-emulation-vice--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-emulation-vice--cfg-env += LDFLAGS="$(strip $(ports-emulation-vice--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-emulation-vice--nix) $(ports-emulation-vice--s_flag))"
+    ports-emulation-vice--cfg-env += LT_LDFLAGS="$(strip $(ports-emulation-vice--TARGET_LDFLAGS))"
+    ports-emulation-vice--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-emulation-vice--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-emulation-vice--ACBUILD_CPPFLAGS))"
+endif
+    ports-emulation-vice--cfg-env += CC_FOR_BUILD="$(strip $(ports-emulation-vice--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-emulation-vice--HOST_CFLAGS) $(ports-emulation-vice--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-emulation-vice--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-emulation-vice--HOST_CXXFLAGS) $(ports-emulation-vice--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-emulation-vice--ACBUILD_LDFLAGS) $(ports-emulation-vice--s_flag))"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-emulation-vice--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-emulation-vice--cfg-env += CC_FOR_HOST="$(strip $(ports-emulation-vice--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-emulation-vice--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-emulation-vice--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-emulation-vice--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-emulation-vice--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-emulation-vice--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-emulation-vice--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-emulation-vice--nix) $(ports-emulation-vice--s_flag))"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-emulation-vice--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-emulation-vice--cfg-env += CC_FOR_TARGET="$(strip $(ports-emulation-vice--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-emulation-vice--TARGET_CFLAGS) $(ports-emulation-vice--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-emulation-vice--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-emulation-vice--TARGET_CXXFLAGS) $(ports-emulation-vice--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-emulation-vice--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-emulation-vice--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-emulation-vice--nix) $(ports-emulation-vice--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-emulation-vice--cfg-env += TARGET_CC="$(strip $(ports-emulation-vice--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-emulation-vice--KERNEL_CFLAGS) $(ports-emulation-vice--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-emulation-vice--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-emulation-vice--KERNEL_CXXFLAGS) $(ports-emulation-vice--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-emulation-vice--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-emulation-vice--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-emulation-vice--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-emulation-vice--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-emulation-vice--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-emulation-vice--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-emulation-vice--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-emulation-vice--cfg-env += CC="$(strip $(ports-emulation-vice--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-emulation-vice--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-emulation-vice--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-emulation-vice--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-emulation-vice--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-emulation-vice--cfg-env += CC_FOR_BUILD="$(ports-emulation-vice--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-emulation-vice--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-emulation-vice--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-emulation-vice--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-emulation-vice--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-emulation-vice--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-emulation-vice--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-emulation-vice--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-emulation-vice--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-emulation-vice--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-emulation-vice--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-emulation-vice--touchfileflag ?= $(ports-emulation-vice--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-emulation-vice-portdir)/$(ports-emulation-vice--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-emulation-vice--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-emulation-vice--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-emulation-vice--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-emulation-vice-portdir)/$(ports-emulation-vice--builddir)/." $(ports-emulation-vice--pkgdir)/ && $(TOUCH) $@
+
+$(ports-emulation-vice--touchfileflag) : $(ports-emulation-vice--pkgdir)/.local-copy
+
+    ports-emulation-vice--cfg-srcdir=$(ports-emulation-vice--pkgdir)
+else
+    ports-emulation-vice--cfg-srcdir=$(ports-emulation-vice-portdir)/$(ports-emulation-vice--builddir)
+endif
+ports-emulation-vice--make-env += -C $(ports-emulation-vice--pkgdir)
+
+.PHONY : ports-emulation-vice- ports-emulation-vice--clean ports-emulation-vice--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-emulation-vice--host : setup includes ports-emulation-vice--quick
+#MM- ports-emulation-vice--target : setup includes core-linklibs ports-emulation-vice--quick
+#MM- ports-emulation-vice-: ports-emulation-vice--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (,)
+    ports-emulation-vice--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-emulation-vice--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-emulation-vice--PROGDIR)/" $(ports-emulation-vice--install_opts) \
+        $(ports-emulation-vice--make-env)  -j1
+
+    ports-emulation-vice--uninstall_command = \
+    $(RM) $(ports-emulation-vice--installflag) && \
+    $(MAKE) PROGDIR="$(ports-emulation-vice--PROGDIR)/" \
+    $(ports-emulation-vice--install_opts) $(ports-emulation-vice--make-env) uninstall
+else
+    ports-emulation-vice--install_command   := true
+    ports-emulation-vice--uninstall_command := true
+endif
+
+#MM- ports-emulation-vice--quick :  ports-emulation-vice--configure  ports-emulation-vice--build_and_install-quick ports-emulation-vice-install ports-emulation-vice--make-package
+
+#MM
+ports-emulation-vice--build_and_install-quick :  $(ports-emulation-vice--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-emulation-vice--installflag) : $(ports-emulation-vice--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-emulation-vice--volfunc, PROGDIR)" -q $(ports-emulation-vice--make-env); then \
+	    $(RM) $(ports-emulation-vice--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-emulation-vice--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-emulation-vice--volfunc, PROGDIR)" $(ports-emulation-vice--make-env) && \
+	    $(ports-emulation-vice--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-emulation-vice--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-emulation-vice--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-emulation-vice-portdir)/$(ports-emulation-vice--builddir) -exec $(TOUCH) -c -r $(ports-emulation-vice--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-emulation-vice--uninstall :
+	$(ports-emulation-vice--uninstall_command)
+
+#MM
+ports-emulation-vice--configure : $(ports-emulation-vice--configflag)
+
+$(ports-emulation-vice--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-emulation-vice--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-emulation-vice--configflag) : $(ports-emulation-vice--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-emulation-vice--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-emulation-vice--pkgdir))"
+	$(ports-emulation-vice--init-env)
+	$(Q)cd $(ports-emulation-vice--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-emulation-vice--cfg-env) $(TMP_SRCDIR)/configure $(ports-emulation-vice--config_opts)  && \
+	$(TOUCH) $@
+
+#MM
+ports-emulation-vice--clean : ports-emulation-vice--uninstall
+	$(Q)$(RM) $(ports-emulation-vice--pkgdir)
+
+.PHONY : ports-emulation-vice--make-package ports-emulation-vice--create-patch
+#MM ports-emulation-vice--make-package : ports-emulation-vice--quick
+
+#MM
+ports-emulation-vice--make-package : $(ports-emulation-vice--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-emulation-vice--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-emulation-vice-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-emulation-vice--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-emulation-vice-prefix)" ; \
+	    cd $(ports-emulation-vice--package-dir) ; \
+	    tar -cvf $(ports-emulation-vice--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-emulation-vice--package-basename).tar ; \
+	fi
+
+#MM
+ports-emulation-vice-install :
+	$(MKDIR) $(TARGETDIR)
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/x64		                        $(TARGETDIR)/x64
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/x64dtv	                        $(TARGETDIR)/x64dtv
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/x128		                        $(TARGETDIR)/x128
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/xcbm2	                        $(TARGETDIR)/xcbm2
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/xcbm5x0	                        $(TARGETDIR)/xcbm5x0
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/xpet		                        $(TARGETDIR)/xpet
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/xplus4	                        $(TARGETDIR)/xplus4
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/xvic		                        $(TARGETDIR)/xvic
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/c1541	                        $(TARGETDIR)/c1541
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/cartconv	                        $(TARGETDIR)/cartconv
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/petcat	                        $(TARGETDIR)/petcat
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/vsid		                        $(TARGETDIR)/vsid
+
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/x64ns		        "$(TARGETDIR)/x64 (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/x64dtvns	        "$(TARGETDIR)/x64dtv (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/x64scns		        "$(TARGETDIR)/x64sc (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/x128ns		        "$(TARGETDIR)/x128 (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/xcbm2ns		        "$(TARGETDIR)/xcbm2 (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/xcbm5x0ns	        "$(TARGETDIR)/xcbm5x0 (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/xpetns		        "$(TARGETDIR)/xpet (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/xplus4ns	        "$(TARGETDIR)/xplus4 (no sound)"
+	$(CP) $(GENDIR)/$(CURDIR)/vice/src/arch/amigaos/xvicns		        "$(TARGETDIR)/xvic (no sound)"
+
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/C128         $(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/C64		$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/C64DTV	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/CBM-II	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/DRIVES	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/PET		$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/PLUS4	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/PRINTER	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/VIC20	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/data/fonts	$(TARGETDIR)
+	$(CP) -a $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/doc/html		$(TARGETDIR)
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/FEEDBACK	        $(TARGETDIR)
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/README	        $(TARGETDIR)
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/vsid.exe.info "$(TARGETDIR)/vsid.info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/x128.exe.info	"$(TARGETDIR)/x128.info"
+	$(CP) $(TARGETDIR)/x128.info									"$(TARGETDIR)/x128 (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/x64dtv.exe.info	"$(TARGETDIR)/x64dtv.info"
+	$(CP) $(TARGETDIR)/x64dtv.info									"$(TARGETDIR)/x64dtv (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/x64.exe.info	"$(TARGETDIR)/x64.info"
+	$(CP) $(TARGETDIR)/x64.info									"$(TARGETDIR)/x64 (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/x64sc.exe.info	"$(TARGETDIR)/x64sc.info"
+	$(CP) $(TARGETDIR)/x64sc.info									"$(TARGETDIR)/x64sc (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/xcbm2.exe.info	"$(TARGETDIR)/xcbm2.info"
+	$(CP) $(TARGETDIR)/xcbm2.info									"$(TARGETDIR)/xcbm2 (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/xcbm5x0.exe.info "$(TARGETDIR)/xcbm5x0.info"
+	$(CP) $(TARGETDIR)/xcbm5x0.info									"$(TARGETDIR)/xcbm5x0 (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/xpet.exe.info	"$(TARGETDIR)/xpet.info"
+	$(CP) $(TARGETDIR)/xpet.info									"$(TARGETDIR)/xpet (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/xplus4.exe.info	"$(TARGETDIR)/xplus4.info"
+	$(CP) $(TARGETDIR)/xplus4.info									"$(TARGETDIR)/xplus4 (no sound).info"
+
+	$(CP) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/arch/amigaos/info-files/xvic.exe.info	"$(TARGETDIR)/xvic.info"
+	$(CP) $(TARGETDIR)/xvic.info									"$(TARGETDIR)/xvic (no sound).info"
+
+
+#MM
+ports-emulation-vice-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

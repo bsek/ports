@@ -1,0 +1,889 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-gnurobbo
+
+#MM  ports-game-gnurobbo : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-ttf contrib-sdl-sdl-mixer \
+#MM    ports-game-gnurobbo-data ports-game-gnurobbo-cpy \
+#MM    ports-game-gnurobbo-fetch
+
+#MM  ports-game-gnurobbo-data : ports-game-gnurobbo-fetch
+
+#MM  ports-game-gnurobbo-quick : ports-game-gnurobbo-fetch
+
+REPOSITORIES := sf://gnurobbo
+ARCHBASE     := gnurobbo-0.68
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/GnuRobbo
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_MISLEADING_INDENTATION) $(NOWARN_UNUSED_BUT_SET_VARIABLE) $(NOWARN_FORMAT)
+USER_CFLAGS  := $(COMPILER_COMMON_CFLAGS) $(NOWARN_FLAGS) $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags)
+USER_CPPFLAGS := -DPLATFORM_AROS -DVERSION=\"0.68\" -DPACKAGE_DATA_DIR=\"PROGDIR:data\" -DHAVE_DESIGNER -DHAVE_MUSIC \
+                -DLIGHTNINGENABLED=\"yes\" -D_SMOOTH_SCRL_=\"yes\"
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := \
+	board \
+	controls \
+	font \
+	game \
+	konstruktor \
+	levels \
+	locales \
+	pointer_controls \
+	rcfile \
+	ROB_engine \
+	screen \
+	skins \
+	sound
+FILES := $(addprefix $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/,$(FILES))
+
+
+.PHONY : ports-game-gnurobbo
+
+#MM- ports-game-gnurobbo : \
+#MM             ports-game-gnurobbo-$(CPU)
+
+#MM- ports-game-gnurobbo-$(ARCH)-$(CPU) : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-gnurobbo-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(CPU)
+
+#MM- ports-game-gnurobbo-$(ARCH) : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-gnurobbo-$(FAMILY) : \
+#MM             ports-game-gnurobbo-$(ARCH)
+
+#MM- ports-game-gnurobbo-$(CPU) : \
+#MM             ports-game-gnurobbo-$(FAMILY)
+#MM- ports-game-gnurobbo-quick : \
+#MM             ports-game-gnurobbo-$(CPU)-quick
+
+#MM- ports-game-gnurobbo-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-gnurobbo-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-gnurobbo-$(ARCH)-quick : \
+#MM             ports-game-gnurobbo-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-gnurobbo-$(FAMILY)-quick : \
+#MM             ports-game-gnurobbo-$(ARCH)-quick
+
+#MM- ports-game-gnurobbo-$(CPU)-quick : \
+#MM             ports-game-gnurobbo-$(FAMILY)-quick
+
+ports-game-gnurobbo_PROGNAME  := GnuRobbo
+ports-game-gnurobbo_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-gnurobbo_TARGETDIR := $(TARGETDIR)
+ports-game-gnurobbo_LINKER    := 
+ports-game-gnurobbo_LIBS := SDL_image png jpeg SDL_ttf freetype2 SDL_mixer mikmod vorbisfile vorbis ogg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-gnurobbo_LINKER),)
+    ports-game-gnurobbo_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-gnurobbo_FILES     := $(FILES)
+    ports-game-gnurobbo_OBJCFILES := 
+    ports-game-gnurobbo_ASMFILES  := 
+    ports-game-gnurobbo_CXXFILES := 
+else
+    ports-game-gnurobbo_FILES     := $(ports-game-gnurobbo_PROGNAME)
+    ports-game-gnurobbo_OBJCFILES :=
+    ports-game-gnurobbo_ASMFILES  :=
+    ports-game-gnurobbo_CXXFILES :=
+endif
+
+ports-game-gnurobbo_ARCHOBJS   := $(wildcard $(ports-game-gnurobbo_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-gnurobbo_ARCHFILES     := $(basename $(notdir $(ports-game-gnurobbo_ARCHOBJS)))
+else
+    ports-game-gnurobbo_ARCHFILES     := $(basename $(patsubst $(ports-game-gnurobbo_OBJDIR)/%,%,$(ports-game-gnurobbo_ARCHOBJS)))
+endif
+ports-game-gnurobbo_C_NARCHFILES := $(filter-out $(ports-game-gnurobbo_ARCHFILES),$(ports-game-gnurobbo_FILES))
+ports-game-gnurobbo_CXX_NARCHFILES := $(filter-out $(ports-game-gnurobbo_ARCHFILES),$(ports-game-gnurobbo_CXXFILES))
+ports-game-gnurobbo_OBJC_NARCHFILES := $(filter-out $(ports-game-gnurobbo_ARCHFILES),$(ports-game-gnurobbo_OBJCFILES))
+
+TMP_FILES := $(ports-game-gnurobbo_C_NARCHFILES) $(ports-game-gnurobbo_CXX_NARCHFILES) $(ports-game-gnurobbo_ASMFILES) $(ports-game-gnurobbo_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-gnurobbo_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-gnurobbo_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-gnurobbo_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-gnurobbo_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-gnurobbo_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-gnurobbo_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-gnurobbo_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-gnurobbo_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-gnurobbo_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-gnurobbo_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-gnurobbo_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-gnurobbo_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-gnurobbo_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-gnurobbo_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-gnurobbo_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-gnurobbo_LDFLAGS          := 
+endif
+
+ports-game-gnurobbo_CSTATICFLAGS   := `echo "$(ports-game-gnurobbo_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-gnurobbo_CSTDCFLAGS   :=  `echo "$(ports-game-gnurobbo_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-gnurobbo_CPOSIXCFLAGS   :=  `echo "$(ports-game-gnurobbo_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-gnurobbo_LDFLAGS          += $(strip $(ports-game-gnurobbo_CSTATICFLAGS) $(ports-game-gnurobbo_CSTDCFLAGS) $(ports-game-gnurobbo_CPOSIXCFLAGS))
+
+ports-game-gnurobbo_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-gnurobbo_COVERAGE := yes
+ports-game-gnurobbo_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-gnurobbo_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-gnurobbo_CFLAGS    := $(strip $(ports-game-gnurobbo_COVERAGEFLAGS) $(ports-game-gnurobbo_CFLAGS))
+ports-game-gnurobbo_CXXFLAGS := $(strip $(ports-game-gnurobbo_COVERAGEFLAGS) $(ports-game-gnurobbo_CXXFLAGS))
+ports-game-gnurobbo_LIBS += $(ports-game-gnurobbo_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-gnurobbo_FUNCINSTR := yes
+ports-game-gnurobbo_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-gnurobbo_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-gnurobbo_CFLAGS    := $(strip $(ports-game-gnurobbo_INSTRFUNCFLAGS) $(ports-game-gnurobbo_CFLAGS))
+ports-game-gnurobbo_CXXFLAGS := $(strip $(ports-game-gnurobbo_INSTRFUNCFLAGS) $(ports-game-gnurobbo_CXXFLAGS))
+ports-game-gnurobbo_LIBS += $(ports-game-gnurobbo_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-gnurobbo_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-gnurobbo_CFLAGS))
+ports-game-gnurobbo_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-gnurobbo_CXXFLAGS))
+endif
+endif
+ports-game-gnurobbo_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-gnurobbo_DFLAGS     := 
+else
+    ports-game-gnurobbo_DFLAGS     := $(ports-game-gnurobbo_CFLAGS)
+endif
+ifneq (,)
+    ports-game-gnurobbo_DXXFLAGS     := 
+else
+    ports-game-gnurobbo_DXXFLAGS     := $(ports-game-gnurobbo_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-gnurobbo_LDFLAGS           := $(ports-game-gnurobbo_LDFLAGS)
+ports-game-gnurobbo_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-gnurobbo_LDFLAGS           := $(ports-game-gnurobbo_LDFLAGS)
+ports-game-gnurobbo_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_LDFLAGS           := $(ports-game-gnurobbo_LDFLAGS)
+ports-game-gnurobbo_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-gnurobbo_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-gnurobbo-quick : ports-game-gnurobbo
+
+#MM ports-game-gnurobbo : includes-generate-deps core-linklibs
+ports-game-gnurobbo : $(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-gnurobbo_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-gnurobbo_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-gnurobbo_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-gnurobbo_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-gnurobbo_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-gnurobbo ports-game-gnurobbo-quick ports-game-gnurobbo-compress-quick),)
+
+ports-game-gnurobbo_CXXABSBASENAMES := $(foreach ports-game-gnurobbo_CXXBASE,$(ports-game-gnurobbo_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-gnurobbo_CXXBASE)),$(ports-game-gnurobbo_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-gnurobbo_CXXBASE))))
+
+ifneq ($(ports-game-gnurobbo_CXXABSBASENAMES),)
+
+ports-game-gnurobbo_CXXBASENAMES := $(basename $(ports-game-gnurobbo_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-gnurobbo_MCXX_FILES  := $(strip $(foreach ports-game-gnurobbo_CXXBASE,$(ports-game-gnurobbo_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-gnurobbo_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-gnurobbo_EXT),$(ports-game-gnurobbo_CXXBASE)))))))
+
+ifeq (,)
+ports-game-gnurobbo_MCXX_SRCWILDCARD := %
+else
+ports-game-gnurobbo_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-gnurobbo_OBJDIR),)
+  ports-game-gnurobbo_CXXTARGETS := $(notdir $(ports-game-gnurobbo_CXXBASENAMES:=.o))
+  ports-game-gnurobbo_CXXDTARGETS := $(notdir $(ports-game-gnurobbo_CXXBASENAMES:=.d))
+  ports-game-gnurobbo_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-gnurobbo_CXXTARGETS := $(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(ports-game-gnurobbo_CXXBASENAMES:=.o)))
+  ports-game-gnurobbo_CXXDTARGETS := $(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(ports-game-gnurobbo_CXXBASENAMES:=.d)))
+  ports-game-gnurobbo_MCXX_WILDCARD := $(ports-game-gnurobbo_OBJDIR)/%
+else
+  ports-game-gnurobbo_CXXTARGETS := $(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_CXXBASENAMES:=.o))
+  ports-game-gnurobbo_CXXDTARGETS := $(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_CXXBASENAMES:=.d))
+  ports-game-gnurobbo_MCXX_WILDCARD := $(ports-game-gnurobbo_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-gnurobbo_CXXTARGETS) $(ports-game-gnurobbo_CXXDTARGETS) : | $(ports-game-gnurobbo_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-gnurobbo_MCXX_CPPFLAGS := $(ports-game-gnurobbo_CPPFLAGS)
+ports-game-gnurobbo_CXXFLAGS := $(ports-game-gnurobbo_CXXFLAGS)
+ifeq ($(ports-game-gnurobbo_DXXFLAGS),)
+  ports-game-gnurobbo_DXXFLAGS := $(ports-game-gnurobbo_CXXFLAGS)
+else
+  ports-game-gnurobbo_DXXFLAGS := $(ports-game-gnurobbo_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-gnurobbo_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-gnurobbo_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-gnurobbo_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-gnurobbo_STRIP ?= $(HOST_STRIP)
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-gnurobbo_CXXCMD:=$(HOST_CXX)
+  ports-game-gnurobbo_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS) $(ports-game-gnurobbo_MCXX_EXTRA_CPPFLAGS))
+  ports-game-gnurobbo_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-gnurobbo_CXXFLAGS))
+  ports-game-gnurobbo_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-gnurobbo_DXXFLAGS))
+  ports-game-gnurobbo_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-gnurobbo_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-gnurobbo_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-gnurobbo_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-gnurobbo_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-gnurobbo_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-gnurobbo_LDFLAGS ?= $(ports-game-gnurobbo_CXXLDFLAGS)
+  ports-game-gnurobbo_STRIP ?= $(TARGET_STRIP)
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-gnurobbo_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-gnurobbo_MCXX_CPPFLAGS := $(strip $(ports-game-gnurobbo_MCXX_CPPFLAGS) $(ports-game-gnurobbo_MCXX_EXTRA_CPPFLAGS))
+  ports-game-gnurobbo_CXXFLAGS := $(strip $(ports-game-gnurobbo_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-gnurobbo_DXXFLAGS := $(ports-game-gnurobbo_DXXFLAGS)
+  ports-game-gnurobbo_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-gnurobbo_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-gnurobbo_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-gnurobbo_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-gnurobbo_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-gnurobbo_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-gnurobbo_LDFLAGS ?= $(ports-game-gnurobbo_CXXLDFLAGS)
+  ports-game-gnurobbo_STRIP ?= $(ECHO) >/dev/null
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-gnurobbo_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-gnurobbo_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS) $(ports-game-gnurobbo_MCXX_EXTRA_CPPFLAGS))
+  ports-game-gnurobbo_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-gnurobbo_CXXFLAGS))
+  ports-game-gnurobbo_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-gnurobbo_DXXFLAGS))
+  ports-game-gnurobbo_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-gnurobbo_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-gnurobbo_CXXCMD) $(ports-game-gnurobbo_CXXIQUOTE) $(dir $(2)) $(ports-game-gnurobbo_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) . $(ports-game-gnurobbo_CXXIQUOTE_END) $(strip $(ports-game-gnurobbo_CXXFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-gnurobbo_CXXCMD) $(ports-game-gnurobbo_CXXIQUOTE) $(dir $(2)) $(ports-game-gnurobbo_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) . $(ports-game-gnurobbo_CXXIQUOTE_END) $(strip $(ports-game-gnurobbo_CXXFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-gnurobbo_CXXCMD) $(ports-game-gnurobbo_CXXIQUOTE) $(dir $(2)) $(ports-game-gnurobbo_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_CXXIQUOTE) . $(ports-game-gnurobbo_CXXIQUOTE_END) $(strip $(ports-game-gnurobbo_CXXFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-gnurobbo_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-gnurobbo_DXXFLAGS) $(ports-game-gnurobbo_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-gnurobbo_OBJDIR),)
+  $(foreach ports-game-gnurobbo_CXXFILE,$(ports-game-gnurobbo_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-gnurobbo_CXXFILE))),$(ports-game-gnurobbo_CXXFILE))))
+else
+  $(foreach ports-game-gnurobbo_CXXFILE,$(ports-game-gnurobbo_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(basename $(ports-game-gnurobbo_CXXFILE)))),$(ports-game-gnurobbo_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-gnurobbo_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-gnurobbo_MOBJC_SRCWILDCARD := %
+else
+ports-game-gnurobbo_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-gnurobbo_OBJDIR),)
+  ports-game-gnurobbo_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-gnurobbo_OBJC_NARCHFILES))
+  ports-game-gnurobbo_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-gnurobbo_OBJC_NARCHFILES))
+  ports-game-gnurobbo_MOBJC_WILDCARD := %
+else
+  ports-game-gnurobbo_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_OBJC_NARCHFILES)))
+  ports-game-gnurobbo_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_OBJC_NARCHFILES)))
+  ports-game-gnurobbo_MOBJC_WILDCARD := $(ports-game-gnurobbo_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-gnurobbo_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-gnurobbo_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-gnurobbo_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-gnurobbo_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-gnurobbo_MOBJC_DIRS := $(foreach dir, $(ports-game-gnurobbo_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-gnurobbo_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-gnurobbo_MOBJC_DIRS),)
+    ports-game-gnurobbo_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-gnurobbo_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-gnurobbo_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-gnurobbo_CC := $(TARGET_CC)
+else
+  ports-game-gnurobbo_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-gnurobbo_MOBJC_CPPFLAGS := $(ports-game-gnurobbo_CPPFLAGS)
+ports-game-gnurobbo_OBJCFLAGS := $(ports-game-gnurobbo_CFLAGS)
+ports-game-gnurobbo_OBJCFLAGS := $(ports-game-gnurobbo_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-gnurobbo_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-gnurobbo_OBJCFLAGS)))
+ifeq ($(ports-game-gnurobbo_DFLAGS),)
+  ports-game-gnurobbo_OBJCDFLAGS := $(ports-game-gnurobbo_CFLAGS)
+else
+  ports-game-gnurobbo_OBJCDFLAGS := $(ports-game-gnurobbo_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-gnurobbo_LINK ?= $(strip $(ports-game-gnurobbo_CC) $(TARGET_SYSROOT))
+  ports-game-gnurobbo_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-gnurobbo_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-gnurobbo_STRIP ?= $(TARGET_STRIP)
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-gnurobbo_CC) $(TARGET_SYSROOT))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_MOBJC_CPPFLAGS:=$(strip $(ports-game-gnurobbo_MOBJC_CPPFLAGS) $(ports-game-gnurobbo_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCFLAGS:=$(strip $(ports-game-gnurobbo_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCDFLAGS:=$(ports-game-gnurobbo_OBJCDFLAGS)
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-gnurobbo_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-gnurobbo_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-gnurobbo_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-gnurobbo_STRIP ?= $(HOST_STRIP)
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-gnurobbo_MOBJC_CPPFLAGS) $(ports-game-gnurobbo_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-gnurobbo_OBJCFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-gnurobbo_OBJCDFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-gnurobbo_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-gnurobbo_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-gnurobbo_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-gnurobbo_STRIP ?= $(ECHO) >/dev/null
+  ports-game-gnurobbo_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-gnurobbo_MOBJC_CPPFLAGS) $(ports-game-gnurobbo_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-gnurobbo_OBJCFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-gnurobbo_OBJCDFLAGS))
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-gnurobbo_MOBJC_TARGETS) $(ports-game-gnurobbo_MOBJC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-gnurobbo_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-gnurobbo_MOBJC_CPPFLAGS)
+$(ports-game-gnurobbo_MOBJC_TARGETS) : CFLAGS := $(ports-game-gnurobbo_OBJCFLAGS)
+$(ports-game-gnurobbo_MOBJC_TARGETS) : $(ports-game-gnurobbo_MOBJC_WILDCARD).o : $(ports-game-gnurobbo_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-gnurobbo_MOBJC_DTARGETS) : $(ports-game-gnurobbo_MOBJC_WILDCARD).d : $(ports-game-gnurobbo_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-gnurobbo_OBJCDFLAGS) $(ports-game-gnurobbo_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-gnurobbo_MC_SRCWILDCARD := %
+else
+ports-game-gnurobbo_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-gnurobbo_OBJDIR),)
+ports-game-gnurobbo_MC_TARGETS := $(addsuffix .o,$(ports-game-gnurobbo_C_NARCHFILES))
+ports-game-gnurobbo_MC_DTARGETS := $(addsuffix .d,$(ports-game-gnurobbo_C_NARCHFILES))
+ports-game-gnurobbo_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-gnurobbo_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(ports-game-gnurobbo_C_NARCHFILES))))
+    ports-game-gnurobbo_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(ports-game-gnurobbo_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-gnurobbo_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_C_NARCHFILES)))
+    ports-game-gnurobbo_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(ports-game-gnurobbo_C_NARCHFILES)))
+else
+    ports-game-gnurobbo_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(patsubst /%,%,$(ports-game-gnurobbo_C_NARCHFILES))))
+    ports-game-gnurobbo_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(patsubst /%,%,$(ports-game-gnurobbo_C_NARCHFILES))))
+endif
+endif
+ports-game-gnurobbo_MC_TGTWILDCARD := $(ports-game-gnurobbo_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-gnurobbo_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-gnurobbo_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-gnurobbo_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-gnurobbo_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-gnurobbo_MC_DIRS := $(foreach dir, $(ports-game-gnurobbo_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-gnurobbo_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-gnurobbo_MC_DIRS),)
+    ports-game-gnurobbo_MC_DIRS := $(shell $(ECHO) $(ports-game-gnurobbo_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-gnurobbo_MC_DIRS)
+endif
+
+endif
+
+ports-game-gnurobbo_MC_CPPFLAGS := $(ports-game-gnurobbo_CPPFLAGS)
+ports-game-gnurobbo_CFLAGS := $(ports-game-gnurobbo_CFLAGS)
+ifeq ($(ports-game-gnurobbo_DFLAGS),)
+  ports-game-gnurobbo_DFLAGS := $(ports-game-gnurobbo_CFLAGS)
+else
+  ports-game-gnurobbo_DFLAGS := $(ports-game-gnurobbo_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-gnurobbo_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-gnurobbo_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-gnurobbo_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-gnurobbo_STRIP ?= $(TARGET_STRIP)
+ports-game-gnurobbo_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_MC_CPPFLAGS:=$(strip $(ports-game-gnurobbo_MC_CPPFLAGS) $(ports-game-gnurobbo_MC_EXTRA_CPPFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_CFLAGS:=$(strip $(ports-game-gnurobbo_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_DFLAGS:=$(ports-game-gnurobbo_DFLAGS)
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-gnurobbo_LINK ?= $(strip $(HOST_CC))
+ports-game-gnurobbo_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-gnurobbo_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-gnurobbo_STRIP ?= $(HOST_STRIP)
+ports-game-gnurobbo_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-gnurobbo_MC_CPPFLAGS) $(ports-game-gnurobbo_MC_EXTRA_CPPFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-gnurobbo_CFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-gnurobbo_DFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-gnurobbo_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-gnurobbo_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-gnurobbo_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-gnurobbo_STRIP ?= $(ECHO) >/dev/null
+ports-game-gnurobbo_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-gnurobbo_MC_CPPFLAGS) $(ports-game-gnurobbo_MC_EXTRA_CPPFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-gnurobbo_CFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-gnurobbo_DFLAGS))
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-gnurobbo_MC_TARGETS) $(ports-game-gnurobbo_MC_DTARGETS) : ports-game-gnurobbo_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-gnurobbo_MC_TARGETS) : CPPFLAGS := $(ports-game-gnurobbo_MC_CPPFLAGS)
+$(ports-game-gnurobbo_MC_TARGETS) : CFLAGS := $(ports-game-gnurobbo_CFLAGS)
+$(ports-game-gnurobbo_MC_TARGETS) : $(ports-game-gnurobbo_MC_TGTWILDCARD).o : $(ports-game-gnurobbo_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-gnurobbo_IQUOTE) $(dir $<) $(ports-game-gnurobbo_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-gnurobbo_IQUOTE) . $(ports-game-gnurobbo_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-gnurobbo_MC_DTARGETS) : $(ports-game-gnurobbo_MC_TGTWILDCARD).d : $(ports-game-gnurobbo_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-gnurobbo_DFLAGS) $(ports-game-gnurobbo_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-gnurobbo_OBJDIR),)
+ports-game-gnurobbo-MA_TARGETS := $(addsuffix .o,$(ports-game-gnurobbo_ASMFILES))
+ports-game-gnurobbo-MA_WILDCARD := %
+else
+ports-game-gnurobbo-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-gnurobbo_OBJDIR)/,$(notdir $(ports-game-gnurobbo_ASMFILES))))
+ports-game-gnurobbo-MA_WILDCARD := $(ports-game-gnurobbo_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-gnurobbo-MA_TARGETS) : | $(addsuffix .s,$(ports-game-gnurobbo_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-gnurobbo-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-gnurobbo-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-gnurobbo_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-gnurobbo-MA_DIRS := $(foreach dir, $(ports-game-gnurobbo-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-gnurobbo-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-gnurobbo-MA_DIRS),)
+    ports-game-gnurobbo-MA_DIRS := $(shell $(ECHO) $(ports-game-gnurobbo-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-gnurobbo-MA_DIRS)
+endif
+
+endif
+
+ports-game-gnurobbo-MA_ASSEMBLER ?= $(ports-game-gnurobbo_ASSEMBLER)
+
+$(ports-game-gnurobbo-MA_TARGETS) : ports-game-gnurobbo-MA_CMD:= $(ports-game-gnurobbo-MA_ASSEMBLER)
+
+$(ports-game-gnurobbo-MA_TARGETS) : CPPFLAGS := $(ports-game-gnurobbo_CPPFLAGS)
+$(ports-game-gnurobbo-MA_TARGETS) : AFLAGS := $(ports-game-gnurobbo_AFLAGS)
+$(ports-game-gnurobbo-MA_TARGETS) : $(ports-game-gnurobbo-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-gnurobbo-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-gnurobbo-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-gnurobbo-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-gnurobbo-link_LD_OPTS := 
+ports-game-gnurobbo-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-gnurobbo-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-gnurobbo-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-gnurobbo-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-gnurobbo-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-gnurobbo_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-gnurobbo-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-gnurobbo-link_DIRS)))
+# Add trailing /
+ports-game-gnurobbo-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-gnurobbo-link_DIRS)))
+# Add normal linklib path
+ports-game-gnurobbo-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-gnurobbo-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-gnurobbo_LIBS) $(ports-game-gnurobbo-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-gnurobbo-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-gnurobbo-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-gnurobbo-link_DEPLIBS := $(foreach lib,$(ports-game-gnurobbo-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-gnurobbo-link_DIRS)))) \
+)
+
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : OBJDIR := $(ports-game-gnurobbo_OBJDIR)
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : OBJS := $(strip $(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_ARCHOBJS) $(USER_OBJS))
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : LDFLAGS := $(strip $(ports-game-gnurobbo_LDFLAGS))
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-gnurobbo_LIBS) $(ports-game-gnurobbo-link_EXTRA_LIBS)))
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-gnurobbo_ARCHLIBS))
+$(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : $(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_ARCHOBJS) $(USER_OBJS) $(ports-game-gnurobbo-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-gnurobbo_LINK) $(strip $(ports-game-gnurobbo_LD_OPTS) $(ports-game-gnurobbo-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-gnurobbo_LINK) $(strip $(ports-game-gnurobbo_LD_OPTS) $(ports-game-gnurobbo-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-gnurobbo_LINK) $(strip $(ports-game-gnurobbo_LD_OPTS) $(ports-game-gnurobbo-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-gnurobbo_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-gnurobbo_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-gnurobbo_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-gnurobbo_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-gnurobbo_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-gnurobbo_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-gnurobbo_DEPS),)
+  ifneq (ports-game-gnurobbo ports-game-gnurobbo-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-gnurobbo ports-game-gnurobbo-quick),)
+      -include $(ports-game-gnurobbo_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-gnurobbo_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_DEPS) $(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME),)
+$(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_DEPS) $(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) : | $(ports-game-gnurobbo_OBJDIR) $(ports-game-gnurobbo_TARGETDIR)
+else
+$(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_DEPS) $(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) :: $(ports-game-gnurobbo_OBJDIR) $(ports-game-gnurobbo_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-gnurobbo_OBJDIR) $(ports-game-gnurobbo_TARGETDIR)
+
+
+ports-game-gnurobbo-clean : FILES := $(ports-game-gnurobbo_OBJS) $(ports-game-gnurobbo_TARGETDIR)/$(ports-game-gnurobbo_PROGNAME) $(ports-game-gnurobbo_DEPS)
+#MM
+ports-game-gnurobbo-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-gnurobbo"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-gnurobbo-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-gnurobbo-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-gnurobbo-fetch-location := $(PORTSDIR)/gnurobbo
+endif
+
+ifneq (,)
+    ports-game-gnurobbo-fetch-baseflag := -b 
+else
+    ports-game-gnurobbo-fetch-baseflag :=
+endif
+
+ports-game-gnurobbo-fetch-fetchedflag := $(ports-game-gnurobbo-fetch-location)/.$(ARCHBASE)-source-fetched
+
+#MM
+ports-game-gnurobbo-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE)-source ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE)-source -s "tar.gz" -l $(ports-game-gnurobbo-fetch-location) \
+	-d $(PORTSDIR)/gnurobbo $(ports-game-gnurobbo-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-gnurobbo-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-gnurobbo-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-gnurobbo-create-patch
+
+ifneq (,)
+    ports-game-gnurobbo-create-patch-location := 
+else
+    ports-game-gnurobbo-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-gnurobbo-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-game-gnurobbo-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-game-gnurobbo-create-patch-srcdir   := $(ARCHBASE)-source
+endif
+
+ifeq (no,yes)
+    ports-game-gnurobbo-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-gnurobbo-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-gnurobbo-create-patch-baseflag := -b /tmp
+    ports-game-gnurobbo-create-patch-base := 
+else
+    ports-game-gnurobbo-create-patch-baseflag :=
+    ports-game-gnurobbo-create-patch-base := $(PORTSDIR)/gnurobbo
+endif
+
+#MM- ports-game-gnurobbo-create-patch :  ports-game-gnurobbo-create-patch-diff 
+#MM- ports-game-gnurobbo-create-patch-quick :  ports-game-gnurobbo-create-patch-diff 
+
+#MM
+ports-game-gnurobbo-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-gnurobbo-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-gnurobbo-create-patch-base)/$(ports-game-gnurobbo-create-patch-srcdir) $(ports-game-gnurobbo-create-patch-base)/tmp/$(ports-game-gnurobbo-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE)-source -s "tar.gz" -f -l $(ports-game-gnurobbo-create-patch-location) -d $(PORTSDIR)/gnurobbo $(ports-game-gnurobbo-create-patch-baseflag); \
+	$(MV) $(ports-game-gnurobbo-create-patch-base)/$(ports-game-gnurobbo-create-patch-srcdir) $(ports-game-gnurobbo-create-patch-base)/tmp/$(ports-game-gnurobbo-create-patch-srcdir) ; \
+	cd $(ports-game-gnurobbo-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-source-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-gnurobbo-create-patch-diffflag) $(ports-game-gnurobbo-create-patch-exclude) \
+	    $(ports-game-gnurobbo-create-patch-srcdir) \
+	    $(ports-game-gnurobbo-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-source-aros-new.diff ; \
+	$(MV) $(ports-game-gnurobbo-create-patch-base)/tmp/$(ports-game-gnurobbo-create-patch-srcdir).aros $(ports-game-gnurobbo-create-patch-base)/$(ports-game-gnurobbo-create-patch-srcdir) ; \
+	$(RM) $(ports-game-gnurobbo-create-patch-base)/tmp
+
+
+.PHONY : ports-game-gnurobbo-data
+
+#MM
+ports-game-gnurobbo-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo/data -d $(TARGETDIR)/data -e 
+
+
+CPYFILES := ChangeLog NEWS COPYING README LICENSE-sound LICENSE-ttf
+
+
+ports-game-gnurobbo-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/gnurobbo/$(ARCHBASE)/gnurobbo | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-gnurobbo-cpy
+
+#MM
+ports-game-gnurobbo-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-gnurobbo-cpy_SRC)),$(ports-game-gnurobbo-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-gnurobbo-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

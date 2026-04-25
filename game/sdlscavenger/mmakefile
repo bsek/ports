@@ -1,0 +1,877 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-sdlscavenger
+
+#MM  ports-game-sdlscavenger : includes linklibs contrib-sdl ports-game-sdlscavenger-fetch \
+#MM  ports-game-sdlscavenger-install ports-game-sdlscavenger-cpy
+
+#MM  ports-game-sdlscavenger-install  : ports-game-sdlscavenger-fetch
+
+#MM  ports-game-sdlscavenger-quick : ports-game-sdlscavenger-fetch
+
+REPOSITORIES := sf://sdlscavenger
+ARCHBASE     := sdlscav-145
+TARGETDIR    := $(AROS_CONTRIB)/Games/Platform/SdlScavenger
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_BUT_SET_VARIABLE) $(NOWARN_SEQUENCE_POINT)
+USER_CFLAGS := $(CFLAGS_GNU99) $(COMPILER_COMMON_CFLAGS) $(NOWARN_FLAGS) $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags)
+USER_CPPFLAGS := -DLIBPATH=\"/PROGDIR/data\"
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := \
+    $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/scav \
+    $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/gfx \
+    $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/sound \
+    $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/edit \
+    $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/anim
+
+
+.PHONY : ports-game-sdlscavenger
+
+#MM- ports-game-sdlscavenger : \
+#MM             ports-game-sdlscavenger-$(CPU)
+
+#MM- ports-game-sdlscavenger-$(ARCH)-$(CPU) : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-sdlscavenger-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(CPU)
+
+#MM- ports-game-sdlscavenger-$(ARCH) : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-sdlscavenger-$(FAMILY) : \
+#MM             ports-game-sdlscavenger-$(ARCH)
+
+#MM- ports-game-sdlscavenger-$(CPU) : \
+#MM             ports-game-sdlscavenger-$(FAMILY)
+#MM- ports-game-sdlscavenger-quick : \
+#MM             ports-game-sdlscavenger-$(CPU)-quick
+
+#MM- ports-game-sdlscavenger-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-sdlscavenger-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-sdlscavenger-$(ARCH)-quick : \
+#MM             ports-game-sdlscavenger-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-sdlscavenger-$(FAMILY)-quick : \
+#MM             ports-game-sdlscavenger-$(ARCH)-quick
+
+#MM- ports-game-sdlscavenger-$(CPU)-quick : \
+#MM             ports-game-sdlscavenger-$(FAMILY)-quick
+
+ports-game-sdlscavenger_PROGNAME  := SdlScavenger
+ports-game-sdlscavenger_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-sdlscavenger_TARGETDIR := $(TARGETDIR)
+ports-game-sdlscavenger_LINKER    := 
+ports-game-sdlscavenger_LIBS := SDL
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-sdlscavenger_LINKER),)
+    ports-game-sdlscavenger_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-sdlscavenger_FILES     := $(FILES)
+    ports-game-sdlscavenger_OBJCFILES := 
+    ports-game-sdlscavenger_ASMFILES  := 
+    ports-game-sdlscavenger_CXXFILES := 
+else
+    ports-game-sdlscavenger_FILES     := $(ports-game-sdlscavenger_PROGNAME)
+    ports-game-sdlscavenger_OBJCFILES :=
+    ports-game-sdlscavenger_ASMFILES  :=
+    ports-game-sdlscavenger_CXXFILES :=
+endif
+
+ports-game-sdlscavenger_ARCHOBJS   := $(wildcard $(ports-game-sdlscavenger_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-sdlscavenger_ARCHFILES     := $(basename $(notdir $(ports-game-sdlscavenger_ARCHOBJS)))
+else
+    ports-game-sdlscavenger_ARCHFILES     := $(basename $(patsubst $(ports-game-sdlscavenger_OBJDIR)/%,%,$(ports-game-sdlscavenger_ARCHOBJS)))
+endif
+ports-game-sdlscavenger_C_NARCHFILES := $(filter-out $(ports-game-sdlscavenger_ARCHFILES),$(ports-game-sdlscavenger_FILES))
+ports-game-sdlscavenger_CXX_NARCHFILES := $(filter-out $(ports-game-sdlscavenger_ARCHFILES),$(ports-game-sdlscavenger_CXXFILES))
+ports-game-sdlscavenger_OBJC_NARCHFILES := $(filter-out $(ports-game-sdlscavenger_ARCHFILES),$(ports-game-sdlscavenger_OBJCFILES))
+
+TMP_FILES := $(ports-game-sdlscavenger_C_NARCHFILES) $(ports-game-sdlscavenger_CXX_NARCHFILES) $(ports-game-sdlscavenger_ASMFILES) $(ports-game-sdlscavenger_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-sdlscavenger_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-sdlscavenger_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-sdlscavenger_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-sdlscavenger_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-sdlscavenger_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-sdlscavenger_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-sdlscavenger_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-sdlscavenger_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-sdlscavenger_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-sdlscavenger_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-sdlscavenger_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-sdlscavenger_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-sdlscavenger_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-sdlscavenger_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-sdlscavenger_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-sdlscavenger_LDFLAGS          := 
+endif
+
+ports-game-sdlscavenger_CSTATICFLAGS   := `echo "$(ports-game-sdlscavenger_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-sdlscavenger_CSTDCFLAGS   :=  `echo "$(ports-game-sdlscavenger_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-sdlscavenger_CPOSIXCFLAGS   :=  `echo "$(ports-game-sdlscavenger_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-sdlscavenger_LDFLAGS          += $(strip $(ports-game-sdlscavenger_CSTATICFLAGS) $(ports-game-sdlscavenger_CSTDCFLAGS) $(ports-game-sdlscavenger_CPOSIXCFLAGS))
+
+ports-game-sdlscavenger_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-sdlscavenger_COVERAGE := yes
+ports-game-sdlscavenger_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-sdlscavenger_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-sdlscavenger_CFLAGS    := $(strip $(ports-game-sdlscavenger_COVERAGEFLAGS) $(ports-game-sdlscavenger_CFLAGS))
+ports-game-sdlscavenger_CXXFLAGS := $(strip $(ports-game-sdlscavenger_COVERAGEFLAGS) $(ports-game-sdlscavenger_CXXFLAGS))
+ports-game-sdlscavenger_LIBS += $(ports-game-sdlscavenger_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-sdlscavenger_FUNCINSTR := yes
+ports-game-sdlscavenger_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-sdlscavenger_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-sdlscavenger_CFLAGS    := $(strip $(ports-game-sdlscavenger_INSTRFUNCFLAGS) $(ports-game-sdlscavenger_CFLAGS))
+ports-game-sdlscavenger_CXXFLAGS := $(strip $(ports-game-sdlscavenger_INSTRFUNCFLAGS) $(ports-game-sdlscavenger_CXXFLAGS))
+ports-game-sdlscavenger_LIBS += $(ports-game-sdlscavenger_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-sdlscavenger_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-sdlscavenger_CFLAGS))
+ports-game-sdlscavenger_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-sdlscavenger_CXXFLAGS))
+endif
+endif
+ports-game-sdlscavenger_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-sdlscavenger_DFLAGS     := 
+else
+    ports-game-sdlscavenger_DFLAGS     := $(ports-game-sdlscavenger_CFLAGS)
+endif
+ifneq (,)
+    ports-game-sdlscavenger_DXXFLAGS     := 
+else
+    ports-game-sdlscavenger_DXXFLAGS     := $(ports-game-sdlscavenger_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-sdlscavenger_LDFLAGS           := $(ports-game-sdlscavenger_LDFLAGS)
+ports-game-sdlscavenger_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-sdlscavenger_LDFLAGS           := $(ports-game-sdlscavenger_LDFLAGS)
+ports-game-sdlscavenger_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_LDFLAGS           := $(ports-game-sdlscavenger_LDFLAGS)
+ports-game-sdlscavenger_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-sdlscavenger_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-sdlscavenger-quick : ports-game-sdlscavenger
+
+#MM ports-game-sdlscavenger : includes-generate-deps core-linklibs
+ports-game-sdlscavenger : $(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-sdlscavenger_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-sdlscavenger_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-sdlscavenger_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-sdlscavenger_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-sdlscavenger_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-sdlscavenger ports-game-sdlscavenger-quick ports-game-sdlscavenger-compress-quick),)
+
+ports-game-sdlscavenger_CXXABSBASENAMES := $(foreach ports-game-sdlscavenger_CXXBASE,$(ports-game-sdlscavenger_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-sdlscavenger_CXXBASE)),$(ports-game-sdlscavenger_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-sdlscavenger_CXXBASE))))
+
+ifneq ($(ports-game-sdlscavenger_CXXABSBASENAMES),)
+
+ports-game-sdlscavenger_CXXBASENAMES := $(basename $(ports-game-sdlscavenger_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-sdlscavenger_MCXX_FILES  := $(strip $(foreach ports-game-sdlscavenger_CXXBASE,$(ports-game-sdlscavenger_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-sdlscavenger_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-sdlscavenger_EXT),$(ports-game-sdlscavenger_CXXBASE)))))))
+
+ifeq (,)
+ports-game-sdlscavenger_MCXX_SRCWILDCARD := %
+else
+ports-game-sdlscavenger_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-sdlscavenger_OBJDIR),)
+  ports-game-sdlscavenger_CXXTARGETS := $(notdir $(ports-game-sdlscavenger_CXXBASENAMES:=.o))
+  ports-game-sdlscavenger_CXXDTARGETS := $(notdir $(ports-game-sdlscavenger_CXXBASENAMES:=.d))
+  ports-game-sdlscavenger_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-sdlscavenger_CXXTARGETS := $(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(ports-game-sdlscavenger_CXXBASENAMES:=.o)))
+  ports-game-sdlscavenger_CXXDTARGETS := $(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(ports-game-sdlscavenger_CXXBASENAMES:=.d)))
+  ports-game-sdlscavenger_MCXX_WILDCARD := $(ports-game-sdlscavenger_OBJDIR)/%
+else
+  ports-game-sdlscavenger_CXXTARGETS := $(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_CXXBASENAMES:=.o))
+  ports-game-sdlscavenger_CXXDTARGETS := $(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_CXXBASENAMES:=.d))
+  ports-game-sdlscavenger_MCXX_WILDCARD := $(ports-game-sdlscavenger_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-sdlscavenger_CXXTARGETS) $(ports-game-sdlscavenger_CXXDTARGETS) : | $(ports-game-sdlscavenger_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-sdlscavenger_MCXX_CPPFLAGS := $(ports-game-sdlscavenger_CPPFLAGS)
+ports-game-sdlscavenger_CXXFLAGS := $(ports-game-sdlscavenger_CXXFLAGS)
+ifeq ($(ports-game-sdlscavenger_DXXFLAGS),)
+  ports-game-sdlscavenger_DXXFLAGS := $(ports-game-sdlscavenger_CXXFLAGS)
+else
+  ports-game-sdlscavenger_DXXFLAGS := $(ports-game-sdlscavenger_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-sdlscavenger_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-sdlscavenger_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-sdlscavenger_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-sdlscavenger_STRIP ?= $(HOST_STRIP)
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-sdlscavenger_CXXCMD:=$(HOST_CXX)
+  ports-game-sdlscavenger_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS) $(ports-game-sdlscavenger_MCXX_EXTRA_CPPFLAGS))
+  ports-game-sdlscavenger_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-sdlscavenger_CXXFLAGS))
+  ports-game-sdlscavenger_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-sdlscavenger_DXXFLAGS))
+  ports-game-sdlscavenger_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-sdlscavenger_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-sdlscavenger_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-sdlscavenger_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-sdlscavenger_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-sdlscavenger_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-sdlscavenger_LDFLAGS ?= $(ports-game-sdlscavenger_CXXLDFLAGS)
+  ports-game-sdlscavenger_STRIP ?= $(TARGET_STRIP)
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-sdlscavenger_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-sdlscavenger_MCXX_CPPFLAGS := $(strip $(ports-game-sdlscavenger_MCXX_CPPFLAGS) $(ports-game-sdlscavenger_MCXX_EXTRA_CPPFLAGS))
+  ports-game-sdlscavenger_CXXFLAGS := $(strip $(ports-game-sdlscavenger_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-sdlscavenger_DXXFLAGS := $(ports-game-sdlscavenger_DXXFLAGS)
+  ports-game-sdlscavenger_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-sdlscavenger_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-sdlscavenger_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-sdlscavenger_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-sdlscavenger_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-sdlscavenger_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-sdlscavenger_LDFLAGS ?= $(ports-game-sdlscavenger_CXXLDFLAGS)
+  ports-game-sdlscavenger_STRIP ?= $(ECHO) >/dev/null
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-sdlscavenger_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-sdlscavenger_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS) $(ports-game-sdlscavenger_MCXX_EXTRA_CPPFLAGS))
+  ports-game-sdlscavenger_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-sdlscavenger_CXXFLAGS))
+  ports-game-sdlscavenger_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-sdlscavenger_DXXFLAGS))
+  ports-game-sdlscavenger_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-sdlscavenger_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-sdlscavenger_CXXCMD) $(ports-game-sdlscavenger_CXXIQUOTE) $(dir $(2)) $(ports-game-sdlscavenger_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) . $(ports-game-sdlscavenger_CXXIQUOTE_END) $(strip $(ports-game-sdlscavenger_CXXFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-sdlscavenger_CXXCMD) $(ports-game-sdlscavenger_CXXIQUOTE) $(dir $(2)) $(ports-game-sdlscavenger_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) . $(ports-game-sdlscavenger_CXXIQUOTE_END) $(strip $(ports-game-sdlscavenger_CXXFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-sdlscavenger_CXXCMD) $(ports-game-sdlscavenger_CXXIQUOTE) $(dir $(2)) $(ports-game-sdlscavenger_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_CXXIQUOTE) . $(ports-game-sdlscavenger_CXXIQUOTE_END) $(strip $(ports-game-sdlscavenger_CXXFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-sdlscavenger_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-sdlscavenger_DXXFLAGS) $(ports-game-sdlscavenger_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-sdlscavenger_OBJDIR),)
+  $(foreach ports-game-sdlscavenger_CXXFILE,$(ports-game-sdlscavenger_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-sdlscavenger_CXXFILE))),$(ports-game-sdlscavenger_CXXFILE))))
+else
+  $(foreach ports-game-sdlscavenger_CXXFILE,$(ports-game-sdlscavenger_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(basename $(ports-game-sdlscavenger_CXXFILE)))),$(ports-game-sdlscavenger_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-sdlscavenger_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-sdlscavenger_MOBJC_SRCWILDCARD := %
+else
+ports-game-sdlscavenger_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-sdlscavenger_OBJDIR),)
+  ports-game-sdlscavenger_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-sdlscavenger_OBJC_NARCHFILES))
+  ports-game-sdlscavenger_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-sdlscavenger_OBJC_NARCHFILES))
+  ports-game-sdlscavenger_MOBJC_WILDCARD := %
+else
+  ports-game-sdlscavenger_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_OBJC_NARCHFILES)))
+  ports-game-sdlscavenger_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_OBJC_NARCHFILES)))
+  ports-game-sdlscavenger_MOBJC_WILDCARD := $(ports-game-sdlscavenger_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-sdlscavenger_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-sdlscavenger_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-sdlscavenger_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-sdlscavenger_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-sdlscavenger_MOBJC_DIRS := $(foreach dir, $(ports-game-sdlscavenger_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-sdlscavenger_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-sdlscavenger_MOBJC_DIRS),)
+    ports-game-sdlscavenger_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-sdlscavenger_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-sdlscavenger_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-sdlscavenger_CC := $(TARGET_CC)
+else
+  ports-game-sdlscavenger_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-sdlscavenger_MOBJC_CPPFLAGS := $(ports-game-sdlscavenger_CPPFLAGS)
+ports-game-sdlscavenger_OBJCFLAGS := $(ports-game-sdlscavenger_CFLAGS)
+ports-game-sdlscavenger_OBJCFLAGS := $(ports-game-sdlscavenger_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-sdlscavenger_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-sdlscavenger_OBJCFLAGS)))
+ifeq ($(ports-game-sdlscavenger_DFLAGS),)
+  ports-game-sdlscavenger_OBJCDFLAGS := $(ports-game-sdlscavenger_CFLAGS)
+else
+  ports-game-sdlscavenger_OBJCDFLAGS := $(ports-game-sdlscavenger_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-sdlscavenger_LINK ?= $(strip $(ports-game-sdlscavenger_CC) $(TARGET_SYSROOT))
+  ports-game-sdlscavenger_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-sdlscavenger_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-sdlscavenger_STRIP ?= $(TARGET_STRIP)
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-sdlscavenger_CC) $(TARGET_SYSROOT))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_MOBJC_CPPFLAGS:=$(strip $(ports-game-sdlscavenger_MOBJC_CPPFLAGS) $(ports-game-sdlscavenger_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCFLAGS:=$(strip $(ports-game-sdlscavenger_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCDFLAGS:=$(ports-game-sdlscavenger_OBJCDFLAGS)
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-sdlscavenger_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-sdlscavenger_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-sdlscavenger_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-sdlscavenger_STRIP ?= $(HOST_STRIP)
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-sdlscavenger_MOBJC_CPPFLAGS) $(ports-game-sdlscavenger_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-sdlscavenger_OBJCFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-sdlscavenger_OBJCDFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-sdlscavenger_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-sdlscavenger_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-sdlscavenger_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-sdlscavenger_STRIP ?= $(ECHO) >/dev/null
+  ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-sdlscavenger_MOBJC_CPPFLAGS) $(ports-game-sdlscavenger_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-sdlscavenger_OBJCFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-sdlscavenger_OBJCDFLAGS))
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-sdlscavenger_MOBJC_TARGETS) $(ports-game-sdlscavenger_MOBJC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-sdlscavenger_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-sdlscavenger_MOBJC_CPPFLAGS)
+$(ports-game-sdlscavenger_MOBJC_TARGETS) : CFLAGS := $(ports-game-sdlscavenger_OBJCFLAGS)
+$(ports-game-sdlscavenger_MOBJC_TARGETS) : $(ports-game-sdlscavenger_MOBJC_WILDCARD).o : $(ports-game-sdlscavenger_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-sdlscavenger_MOBJC_DTARGETS) : $(ports-game-sdlscavenger_MOBJC_WILDCARD).d : $(ports-game-sdlscavenger_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-sdlscavenger_OBJCDFLAGS) $(ports-game-sdlscavenger_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-sdlscavenger_MC_SRCWILDCARD := %
+else
+ports-game-sdlscavenger_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-sdlscavenger_OBJDIR),)
+ports-game-sdlscavenger_MC_TARGETS := $(addsuffix .o,$(ports-game-sdlscavenger_C_NARCHFILES))
+ports-game-sdlscavenger_MC_DTARGETS := $(addsuffix .d,$(ports-game-sdlscavenger_C_NARCHFILES))
+ports-game-sdlscavenger_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-sdlscavenger_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(ports-game-sdlscavenger_C_NARCHFILES))))
+    ports-game-sdlscavenger_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(ports-game-sdlscavenger_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-sdlscavenger_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_C_NARCHFILES)))
+    ports-game-sdlscavenger_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(ports-game-sdlscavenger_C_NARCHFILES)))
+else
+    ports-game-sdlscavenger_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(patsubst /%,%,$(ports-game-sdlscavenger_C_NARCHFILES))))
+    ports-game-sdlscavenger_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(patsubst /%,%,$(ports-game-sdlscavenger_C_NARCHFILES))))
+endif
+endif
+ports-game-sdlscavenger_MC_TGTWILDCARD := $(ports-game-sdlscavenger_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-sdlscavenger_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-sdlscavenger_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-sdlscavenger_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-sdlscavenger_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-sdlscavenger_MC_DIRS := $(foreach dir, $(ports-game-sdlscavenger_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-sdlscavenger_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-sdlscavenger_MC_DIRS),)
+    ports-game-sdlscavenger_MC_DIRS := $(shell $(ECHO) $(ports-game-sdlscavenger_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-sdlscavenger_MC_DIRS)
+endif
+
+endif
+
+ports-game-sdlscavenger_MC_CPPFLAGS := $(ports-game-sdlscavenger_CPPFLAGS)
+ports-game-sdlscavenger_CFLAGS := $(ports-game-sdlscavenger_CFLAGS)
+ifeq ($(ports-game-sdlscavenger_DFLAGS),)
+  ports-game-sdlscavenger_DFLAGS := $(ports-game-sdlscavenger_CFLAGS)
+else
+  ports-game-sdlscavenger_DFLAGS := $(ports-game-sdlscavenger_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-sdlscavenger_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-sdlscavenger_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-sdlscavenger_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-sdlscavenger_STRIP ?= $(TARGET_STRIP)
+ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_MC_CPPFLAGS:=$(strip $(ports-game-sdlscavenger_MC_CPPFLAGS) $(ports-game-sdlscavenger_MC_EXTRA_CPPFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_CFLAGS:=$(strip $(ports-game-sdlscavenger_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_DFLAGS:=$(ports-game-sdlscavenger_DFLAGS)
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-sdlscavenger_LINK ?= $(strip $(HOST_CC))
+ports-game-sdlscavenger_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-sdlscavenger_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-sdlscavenger_STRIP ?= $(HOST_STRIP)
+ports-game-sdlscavenger_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-sdlscavenger_MC_CPPFLAGS) $(ports-game-sdlscavenger_MC_EXTRA_CPPFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-sdlscavenger_CFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-sdlscavenger_DFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-sdlscavenger_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-sdlscavenger_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-sdlscavenger_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-sdlscavenger_STRIP ?= $(ECHO) >/dev/null
+ports-game-sdlscavenger_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-sdlscavenger_MC_CPPFLAGS) $(ports-game-sdlscavenger_MC_EXTRA_CPPFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-sdlscavenger_CFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-sdlscavenger_DFLAGS))
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-sdlscavenger_MC_TARGETS) $(ports-game-sdlscavenger_MC_DTARGETS) : ports-game-sdlscavenger_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-sdlscavenger_MC_TARGETS) : CPPFLAGS := $(ports-game-sdlscavenger_MC_CPPFLAGS)
+$(ports-game-sdlscavenger_MC_TARGETS) : CFLAGS := $(ports-game-sdlscavenger_CFLAGS)
+$(ports-game-sdlscavenger_MC_TARGETS) : $(ports-game-sdlscavenger_MC_TGTWILDCARD).o : $(ports-game-sdlscavenger_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-sdlscavenger_IQUOTE) $(dir $<) $(ports-game-sdlscavenger_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-sdlscavenger_IQUOTE) . $(ports-game-sdlscavenger_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-sdlscavenger_MC_DTARGETS) : $(ports-game-sdlscavenger_MC_TGTWILDCARD).d : $(ports-game-sdlscavenger_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-sdlscavenger_DFLAGS) $(ports-game-sdlscavenger_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-sdlscavenger_OBJDIR),)
+ports-game-sdlscavenger-MA_TARGETS := $(addsuffix .o,$(ports-game-sdlscavenger_ASMFILES))
+ports-game-sdlscavenger-MA_WILDCARD := %
+else
+ports-game-sdlscavenger-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-sdlscavenger_OBJDIR)/,$(notdir $(ports-game-sdlscavenger_ASMFILES))))
+ports-game-sdlscavenger-MA_WILDCARD := $(ports-game-sdlscavenger_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-sdlscavenger-MA_TARGETS) : | $(addsuffix .s,$(ports-game-sdlscavenger_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-sdlscavenger-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-sdlscavenger-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-sdlscavenger_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-sdlscavenger-MA_DIRS := $(foreach dir, $(ports-game-sdlscavenger-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-sdlscavenger-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-sdlscavenger-MA_DIRS),)
+    ports-game-sdlscavenger-MA_DIRS := $(shell $(ECHO) $(ports-game-sdlscavenger-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-sdlscavenger-MA_DIRS)
+endif
+
+endif
+
+ports-game-sdlscavenger-MA_ASSEMBLER ?= $(ports-game-sdlscavenger_ASSEMBLER)
+
+$(ports-game-sdlscavenger-MA_TARGETS) : ports-game-sdlscavenger-MA_CMD:= $(ports-game-sdlscavenger-MA_ASSEMBLER)
+
+$(ports-game-sdlscavenger-MA_TARGETS) : CPPFLAGS := $(ports-game-sdlscavenger_CPPFLAGS)
+$(ports-game-sdlscavenger-MA_TARGETS) : AFLAGS := $(ports-game-sdlscavenger_AFLAGS)
+$(ports-game-sdlscavenger-MA_TARGETS) : $(ports-game-sdlscavenger-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-sdlscavenger-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-sdlscavenger-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-sdlscavenger-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-sdlscavenger-link_LD_OPTS := 
+ports-game-sdlscavenger-link_EXTRA_LIBS :=
+ifeq (yes,yes)
+    ports-game-sdlscavenger-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-sdlscavenger-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-sdlscavenger-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-sdlscavenger-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-sdlscavenger_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-sdlscavenger-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-sdlscavenger-link_DIRS)))
+# Add trailing /
+ports-game-sdlscavenger-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-sdlscavenger-link_DIRS)))
+# Add normal linklib path
+ports-game-sdlscavenger-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-sdlscavenger-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-sdlscavenger_LIBS) $(ports-game-sdlscavenger-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-sdlscavenger-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-sdlscavenger-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-sdlscavenger-link_DEPLIBS := $(foreach lib,$(ports-game-sdlscavenger-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-sdlscavenger-link_DIRS)))) \
+)
+
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : OBJDIR := $(ports-game-sdlscavenger_OBJDIR)
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : OBJS := $(strip $(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_ARCHOBJS) $(USER_OBJS))
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : LDFLAGS := $(strip $(ports-game-sdlscavenger_LDFLAGS))
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-sdlscavenger_LIBS) $(ports-game-sdlscavenger-link_EXTRA_LIBS)))
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-sdlscavenger_ARCHLIBS))
+$(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : $(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_ARCHOBJS) $(USER_OBJS) $(ports-game-sdlscavenger-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-sdlscavenger_LINK) $(strip $(ports-game-sdlscavenger_LD_OPTS) $(ports-game-sdlscavenger-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-sdlscavenger_LINK) $(strip $(ports-game-sdlscavenger_LD_OPTS) $(ports-game-sdlscavenger-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-sdlscavenger_LINK) $(strip $(ports-game-sdlscavenger_LD_OPTS) $(ports-game-sdlscavenger-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-sdlscavenger_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-sdlscavenger_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-sdlscavenger_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-sdlscavenger_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-sdlscavenger_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-sdlscavenger_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-sdlscavenger_DEPS),)
+  ifneq (ports-game-sdlscavenger ports-game-sdlscavenger-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-sdlscavenger ports-game-sdlscavenger-quick),)
+      -include $(ports-game-sdlscavenger_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-sdlscavenger_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_DEPS) $(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME),)
+$(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_DEPS) $(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) : | $(ports-game-sdlscavenger_OBJDIR) $(ports-game-sdlscavenger_TARGETDIR)
+else
+$(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_DEPS) $(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) :: $(ports-game-sdlscavenger_OBJDIR) $(ports-game-sdlscavenger_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-sdlscavenger_OBJDIR) $(ports-game-sdlscavenger_TARGETDIR)
+
+
+ports-game-sdlscavenger-clean : FILES := $(ports-game-sdlscavenger_OBJS) $(ports-game-sdlscavenger_TARGETDIR)/$(ports-game-sdlscavenger_PROGNAME) $(ports-game-sdlscavenger_DEPS)
+#MM
+ports-game-sdlscavenger-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-sdlscavenger"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-sdlscavenger-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-sdlscavenger-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-sdlscavenger-fetch-location := $(PORTSDIR)/sdlscavenger
+endif
+
+ifneq (,)
+    ports-game-sdlscavenger-fetch-baseflag := -b 
+else
+    ports-game-sdlscavenger-fetch-baseflag :=
+endif
+
+ports-game-sdlscavenger-fetch-fetchedflag := $(ports-game-sdlscavenger-fetch-location)/.$(ARCHBASE).4_2015_01_05-fetched
+
+#MM
+ports-game-sdlscavenger-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE).4_2015_01_05 ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE).4_2015_01_05 -s "tgz" -l $(ports-game-sdlscavenger-fetch-location) \
+	-d $(PORTSDIR)/sdlscavenger $(ports-game-sdlscavenger-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE).4_2015_01_05-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-sdlscavenger-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-sdlscavenger-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-sdlscavenger-create-patch
+
+ifneq (,)
+    ports-game-sdlscavenger-create-patch-location := 
+else
+    ports-game-sdlscavenger-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-sdlscavenger-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-game-sdlscavenger-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-game-sdlscavenger-create-patch-srcdir   := $(ARCHBASE).4_2015_01_05
+endif
+
+ifeq (no,yes)
+    ports-game-sdlscavenger-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-sdlscavenger-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-sdlscavenger-create-patch-baseflag := -b /tmp
+    ports-game-sdlscavenger-create-patch-base := 
+else
+    ports-game-sdlscavenger-create-patch-baseflag :=
+    ports-game-sdlscavenger-create-patch-base := $(PORTSDIR)/sdlscavenger
+endif
+
+#MM- ports-game-sdlscavenger-create-patch :  ports-game-sdlscavenger-create-patch-diff 
+#MM- ports-game-sdlscavenger-create-patch-quick :  ports-game-sdlscavenger-create-patch-diff 
+
+#MM
+ports-game-sdlscavenger-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-sdlscavenger-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-sdlscavenger-create-patch-base)/$(ports-game-sdlscavenger-create-patch-srcdir) $(ports-game-sdlscavenger-create-patch-base)/tmp/$(ports-game-sdlscavenger-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE).4_2015_01_05 -s "tgz" -f -l $(ports-game-sdlscavenger-create-patch-location) -d $(PORTSDIR)/sdlscavenger $(ports-game-sdlscavenger-create-patch-baseflag); \
+	$(MV) $(ports-game-sdlscavenger-create-patch-base)/$(ports-game-sdlscavenger-create-patch-srcdir) $(ports-game-sdlscavenger-create-patch-base)/tmp/$(ports-game-sdlscavenger-create-patch-srcdir) ; \
+	cd $(ports-game-sdlscavenger-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE).4_2015_01_05-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-sdlscavenger-create-patch-diffflag) $(ports-game-sdlscavenger-create-patch-exclude) \
+	    $(ports-game-sdlscavenger-create-patch-srcdir) \
+	    $(ports-game-sdlscavenger-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE).4_2015_01_05-aros-new.diff ; \
+	$(MV) $(ports-game-sdlscavenger-create-patch-base)/tmp/$(ports-game-sdlscavenger-create-patch-srcdir).aros $(ports-game-sdlscavenger-create-patch-base)/$(ports-game-sdlscavenger-create-patch-srcdir) ; \
+	$(RM) $(ports-game-sdlscavenger-create-patch-base)/tmp
+
+CPYFILES := DOC STRATEGY COPYING README
+
+
+ports-game-sdlscavenger-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/sdlscavenger/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-sdlscavenger-cpy
+
+#MM
+ports-game-sdlscavenger-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-sdlscavenger-cpy_SRC)),$(ports-game-sdlscavenger-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-sdlscavenger-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+#MM
+ports-game-sdlscavenger-install :
+	$(MKDIR) $(TARGETDIR)/data
+	$(CP) $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/data/*.lbm $(TARGETDIR)/data
+	$(CP) $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/data/*.wav $(TARGETDIR)/data
+	$(CP) $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/data/*.scl $(TARGETDIR)/data
+	$(MKDIR) $(TARGETDIR)/.scavenger
+	$(CP) $(PORTSDIR)/sdlscavenger/$(ARCHBASE)/data/*rc $(TARGETDIR)/.scavenger
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

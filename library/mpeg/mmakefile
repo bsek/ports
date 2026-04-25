@@ -1,0 +1,523 @@
+# $Id: mmakefile.src $
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+REPOSITORIES := https://libmpeg2.sourceforge.io/files/
+ARCHBASE := libmpeg2-0.5.1
+#PATCHSPEC := $(ARCHBASE)-aros.diff:$(ARCHBASE):-p1
+
+NOWARN_FLAGS := $(NOWARN_FORMAT) $(NOWARN_ERROR)
+
+USER_CFLAGS := $(CFLAGS_GNU99) $(NOWARN_FLAGS)
+USER_INCLUDES := -I$(AROS_CONTRIB_INCLUDES)
+
+LIBMPEG_OPTIONS :=
+
+#MM- ports-libs : ports-libs-libmpeg
+
+#MM ports-libs-libmpeg : includes-copy ports-libs-libmpeg-fetch
+
+
+.PHONY: ports-libs-libmpeg-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-libs-libmpeg-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-libs-libmpeg-fetch-location := $(PORTSDIR)/libmpeg2
+endif
+
+ifneq (,)
+    ports-libs-libmpeg-fetch-baseflag := -b 
+else
+    ports-libs-libmpeg-fetch-baseflag :=
+endif
+
+ports-libs-libmpeg-fetch-fetchedflag := $(ports-libs-libmpeg-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-libs-libmpeg-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-libs-libmpeg-fetch-location) \
+	-d $(PORTSDIR)/libmpeg2 $(ports-libs-libmpeg-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(PATCHSPEC)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-libs-libmpeg-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-libs-libmpeg-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-libs-libmpeg-create-patch
+
+ifneq (,)
+    ports-libs-libmpeg-create-patch-location := 
+else
+    ports-libs-libmpeg-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-libs-libmpeg-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (libmpeg-$(ARCHBASE),)
+    ports-libs-libmpeg-create-patch-srcdir   := libmpeg-$(ARCHBASE)
+else
+    ports-libs-libmpeg-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-libs-libmpeg-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-libs-libmpeg-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-libs-libmpeg-create-patch-baseflag := -b /tmp
+    ports-libs-libmpeg-create-patch-base := 
+else
+    ports-libs-libmpeg-create-patch-baseflag :=
+    ports-libs-libmpeg-create-patch-base := $(PORTSDIR)/libmpeg2
+endif
+
+#MM- ports-libs-libmpeg-create-patch :  ports-libs-libmpeg-create-patch-diff 
+#MM- ports-libs-libmpeg-create-patch-quick :  ports-libs-libmpeg-create-patch-diff 
+
+#MM
+ports-libs-libmpeg-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-libs-libmpeg-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-libs-libmpeg-create-patch-base)/$(ports-libs-libmpeg-create-patch-srcdir) $(ports-libs-libmpeg-create-patch-base)/tmp/$(ports-libs-libmpeg-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tar.bz2 tar.gz" -f -l $(ports-libs-libmpeg-create-patch-location) -d $(PORTSDIR)/libmpeg2 $(ports-libs-libmpeg-create-patch-baseflag); \
+	$(MV) $(ports-libs-libmpeg-create-patch-base)/$(ports-libs-libmpeg-create-patch-srcdir) $(ports-libs-libmpeg-create-patch-base)/tmp/$(ports-libs-libmpeg-create-patch-srcdir) ; \
+	cd $(ports-libs-libmpeg-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-libs-libmpeg-create-patch-diffflag) $(ports-libs-libmpeg-create-patch-exclude) \
+	    $(ports-libs-libmpeg-create-patch-srcdir) \
+	    $(ports-libs-libmpeg-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-libs-libmpeg-create-patch-base)/tmp/$(ports-libs-libmpeg-create-patch-srcdir).aros $(ports-libs-libmpeg-create-patch-base)/$(ports-libs-libmpeg-create-patch-srcdir) ; \
+	$(RM) $(ports-libs-libmpeg-create-patch-base)/tmp
+
+
+ifneq ($(AROS_DEVELOPER),)
+    ports-libs-libmpeg-prefix := $(AROS_DEVELOPER)
+else
+    ports-libs-libmpeg-prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-libs-libmpeg-aros_prefix := 
+else
+    ports-libs-libmpeg-aros_prefix := $(ports-libs-libmpeg-prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-libs-libmpeg-nix    := $(BD_NIXFLAG)
+    ports-libs-libmpeg-volpfx := /
+    ports-libs-libmpeg-volsfx := /
+    
+    ifeq (,)
+        ports-libs-libmpeg-nix_dir_layout := yes
+    endif
+else
+    ports-libs-libmpeg-volsfx := :
+    
+    ifeq (,)
+        ports-libs-libmpeg-nix_dir_layout := no
+    endif
+endif
+
+ports-libs-libmpeg-volfunc = $(ports-libs-libmpeg-volpfx)$(notdir $1)$(ports-libs-libmpeg-volsfx)
+
+ports-libs-libmpeg-install_opts += prefix=$(ports-libs-libmpeg-prefix) \
+        exec_prefix=$(ports-libs-libmpeg-prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-libs-libmpeg-pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-libs-libmpeg-pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-libs-libmpeg-pkgbasedir := $(GENDIR)
+    else
+        ports-libs-libmpeg-pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-libs-libmpeg-pkgbasedir := 
+    else
+        ports-libs-libmpeg-pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq (,)
+    ports-libs-libmpeg-pkgdir := $(ports-libs-libmpeg-pkgbasedir)
+else
+    ports-libs-libmpeg-pkgdir := $(ports-libs-libmpeg-pkgbasedir)/
+endif
+
+ports-libs-libmpeg-configflag ?= $(ports-libs-libmpeg-pkgdir)/.configured
+ports-libs-libmpeg-installflag ?= $(ports-libs-libmpeg-pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-libs-libmpeg-nix_dir_layout) $(host)),yes)
+    ports-libs-libmpeg-PROGDIR      := $(ports-libs-libmpeg-aros_prefix)/bin
+    ports-libs-libmpeg-config_opts  := --prefix=$(ports-libs-libmpeg-aros_prefix)
+else
+    ifeq (no,yes)
+        ports-libs-libmpeg-config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-libs-libmpeg-config_opts  := --prefix=$(ports-libs-libmpeg-aros_prefix)
+    endif
+
+    ports-libs-libmpeg-PROGDIR := $(ports-libs-libmpeg-aros_prefix)
+    
+    ports-libs-libmpeg-install_opts := bindir=$(ports-libs-libmpeg-prefix) \
+        sbindir=$(ports-libs-libmpeg-prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-libs-libmpeg-s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-libs-libmpeg-TARGET_LDFLAGS :=
+else
+ports-libs-libmpeg-TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-libs-libmpeg-HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-libs-libmpeg-KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-libs-libmpeg-TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-libs-libmpeg-TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-libs-libmpeg-nix)
+endif
+endif
+ports-libs-libmpeg-TARGET_CC?=$(TARGET_CC)
+ports-libs-libmpeg-KERNEL_CC?=$(KERNEL_CC)
+ports-libs-libmpeg-HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-libs-libmpeg-HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-libs-libmpeg-KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-libs-libmpeg-TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-libs-libmpeg-TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-libs-libmpeg-nix)
+endif
+endif
+ports-libs-libmpeg-TARGET_CXX?=$(TARGET_CXX)
+ports-libs-libmpeg-KERNEL_CXX?=$(KERNEL_CXX)
+ports-libs-libmpeg-HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-libs-libmpeg-cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-libs-libmpeg-HOST_CC) $(ports-libs-libmpeg-HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-libs-libmpeg-HOST_CXX) $(ports-libs-libmpeg-HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-libs-libmpeg-cfg-env += TARGET_CC="$(strip $(ports-libs-libmpeg-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-libs-libmpeg-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-libs-libmpeg-cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-libs-libmpeg-cfg-env += \
+        CPP="$(strip $(ports-libs-libmpeg-CROSS_CPP) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-libs-libmpeg-CROSS_CPP) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        CC="$(strip $(ports-libs-libmpeg-CROSS_CC) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-libs-libmpeg-CROSS_CXX) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        LD="$(strip $(ports-libs-libmpeg-CROSS_LD))" \
+        AS="$(strip $(ports-libs-libmpeg-CROSS_AS))" \
+        AFLAGS="$(strip $(ports-libs-libmpeg-CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-libs-libmpeg-CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-libs-libmpeg-CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-libs-libmpeg-CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-libs-libmpeg-CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-libs-libmpeg-CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-libs-libmpeg-CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-libs-libmpeg-CROSS_LDFLAGS))"
+    ports-libs-libmpeg-cfg-env += CC_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_CC) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_CXX) $(ports-libs-libmpeg-CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-libs-libmpeg-CROSS_LDFLAGS))"
+else
+    ports-libs-libmpeg-cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-libs-libmpeg-TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-libs-libmpeg-TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-libs-libmpeg-cfg-env += CFLAGS="$(strip $(ports-libs-libmpeg-TARGET_CFLAGS) $(ports-libs-libmpeg-AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-libs-libmpeg-TARGET_CXXFLAGS) $(ports-libs-libmpeg-AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-libs-libmpeg-cfg-env += LDFLAGS="$(strip $(ports-libs-libmpeg-TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-libs-libmpeg-nix) $(ports-libs-libmpeg-s_flag))"
+    ports-libs-libmpeg-cfg-env += LT_LDFLAGS="$(strip $(ports-libs-libmpeg-TARGET_LDFLAGS))"
+    ports-libs-libmpeg-cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-libs-libmpeg-cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-libs-libmpeg-ACBUILD_CPPFLAGS))"
+endif
+    ports-libs-libmpeg-cfg-env += CC_FOR_BUILD="$(strip $(ports-libs-libmpeg-HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-libs-libmpeg-HOST_CFLAGS) $(ports-libs-libmpeg-ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-libs-libmpeg-HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-libs-libmpeg-HOST_CXXFLAGS) $(ports-libs-libmpeg-ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-libs-libmpeg-ACBUILD_LDFLAGS) $(ports-libs-libmpeg-s_flag))"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-libs-libmpeg-ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-libs-libmpeg-cfg-env += CC_FOR_HOST="$(strip $(ports-libs-libmpeg-TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-libs-libmpeg-ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-libs-libmpeg-nix))" \
+        CXX_FOR_HOST="$(strip $(ports-libs-libmpeg-TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-libs-libmpeg-ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-libs-libmpeg-nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-libs-libmpeg-ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-libs-libmpeg-nix) $(ports-libs-libmpeg-s_flag))"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-libs-libmpeg-ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-libs-libmpeg-cfg-env += CC_FOR_TARGET="$(strip $(ports-libs-libmpeg-TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-libs-libmpeg-TARGET_CFLAGS) $(ports-libs-libmpeg-ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-libs-libmpeg-TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-libs-libmpeg-TARGET_CXXFLAGS) $(ports-libs-libmpeg-ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-libs-libmpeg-TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-libs-libmpeg-ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-libs-libmpeg-nix) $(ports-libs-libmpeg-s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-libs-libmpeg-cfg-env += TARGET_CC="$(strip $(ports-libs-libmpeg-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CFLAGS) $(ports-libs-libmpeg-ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-libs-libmpeg-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CXXFLAGS) $(ports-libs-libmpeg-ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-libs-libmpeg-config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-libs-libmpeg-config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-libs-libmpeg-config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-libs-libmpeg-config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-libs-libmpeg-config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-libs-libmpeg-config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-libs-libmpeg-cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-libs-libmpeg-cfg-env += CC="$(strip $(ports-libs-libmpeg-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-libs-libmpeg-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-libs-libmpeg-KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-libs-libmpeg-cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-libs-libmpeg-cfg-env += CC_FOR_BUILD="$(ports-libs-libmpeg-HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-libs-libmpeg-HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-libs-libmpeg-HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-libs-libmpeg-HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-libs-libmpeg-config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-libs-libmpeg-config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-libs-libmpeg-config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-libs-libmpeg-config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-libs-libmpeg-config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-libs-libmpeg-config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-libs-libmpeg-cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-libs-libmpeg-touchfileflag ?= $(ports-libs-libmpeg-pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(PORTSDIR)/libmpeg2/$(ARCHBASE)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-libs-libmpeg-pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-libs-libmpeg-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-libs-libmpeg-pkgdir)))'"
+	$(Q)$(CP) -Rf "$(PORTSDIR)/libmpeg2/$(ARCHBASE)/." $(ports-libs-libmpeg-pkgdir)/ && $(TOUCH) $@
+
+$(ports-libs-libmpeg-touchfileflag) : $(ports-libs-libmpeg-pkgdir)/.local-copy
+
+    ports-libs-libmpeg-cfg-srcdir=$(ports-libs-libmpeg-pkgdir)
+else
+    ports-libs-libmpeg-cfg-srcdir=$(PORTSDIR)/libmpeg2/$(ARCHBASE)
+endif
+ports-libs-libmpeg-make-env += -C $(ports-libs-libmpeg-pkgdir)
+
+.PHONY : ports-libs-libmpeg ports-libs-libmpeg-clean ports-libs-libmpeg-build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-libs-libmpeg-host : setup includes ports-libs-libmpeg-quick
+#MM- ports-libs-libmpeg-target : setup includes core-linklibs ports-libs-libmpeg-quick
+#MM- ports-libs-libmpeg: ports-libs-libmpeg-target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-libs-libmpeg-install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-libs-libmpeg-pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-libs-libmpeg-PROGDIR)/" $(ports-libs-libmpeg-install_opts) \
+        $(ports-libs-libmpeg-make-env) install -j1
+
+    ports-libs-libmpeg-uninstall_command = \
+    $(RM) $(ports-libs-libmpeg-installflag) && \
+    $(MAKE) PROGDIR="$(ports-libs-libmpeg-PROGDIR)/" \
+    $(ports-libs-libmpeg-install_opts) $(ports-libs-libmpeg-make-env) uninstall
+else
+    ports-libs-libmpeg-install_command   := true
+    ports-libs-libmpeg-uninstall_command := true
+endif
+
+#MM- ports-libs-libmpeg-quick :  ports-libs-libmpeg-configure  ports-libs-libmpeg-build_and_install-quick 
+
+#MM
+ports-libs-libmpeg-build_and_install-quick :  $(ports-libs-libmpeg-installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-libs-libmpeg-installflag) : $(ports-libs-libmpeg-configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-libs-libmpeg-volfunc, PROGDIR)" -q $(ports-libs-libmpeg-make-env); then \
+	    $(RM) $(ports-libs-libmpeg-installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-libs-libmpeg-pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-libs-libmpeg-volfunc, PROGDIR)" $(ports-libs-libmpeg-make-env) && \
+	    $(ports-libs-libmpeg-install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-libs-libmpeg-touchfileflag):
+	$(Q)$(FOR) dir in $(ports-libs-libmpeg-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(PORTSDIR)/libmpeg2/$(ARCHBASE) -exec $(TOUCH) -c -r $(ports-libs-libmpeg-cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-libs-libmpeg-uninstall :
+	$(ports-libs-libmpeg-uninstall_command)
+
+#MM
+ports-libs-libmpeg-configure : $(ports-libs-libmpeg-configflag)
+
+$(ports-libs-libmpeg-configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-libs-libmpeg-cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-libs-libmpeg-configflag) : $(ports-libs-libmpeg-touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-libs-libmpeg-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-libs-libmpeg-pkgdir))"
+	$(ports-libs-libmpeg-init-env)
+	$(Q)cd $(ports-libs-libmpeg-pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-libs-libmpeg-cfg-env) $(TMP_SRCDIR)/configure $(ports-libs-libmpeg-config_opts) $(LIBMPEG_OPTIONS) && \
+	$(TOUCH) $@
+
+#MM
+ports-libs-libmpeg-clean : ports-libs-libmpeg-uninstall
+	$(Q)$(RM) $(ports-libs-libmpeg-pkgdir)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

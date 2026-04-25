@@ -1,0 +1,609 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-print : ports-print-a2ps
+
+PACKAGE      := a2ps
+VERSION      := 4.14
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Print/A2ps
+REPOSITORIES := gnu://a2ps
+
+NOWARN_FLAGS := $(NOWARN_IMPLICIT_FUNCTION_DECL) $(NOWARN_BUILTIN_DECLARATION_MISMATCH)
+USER_CFLAGS := $(CFLAGS_GNU11) $(NOWARN_FLAGS)
+A2PS_OPTS=--datarootdir='$$(PROGDIR)share' --sysconfdir='$$(PROGDIR)etc'
+
+
+#MM- ports-print-a2ps-quick : ports-print-a2ps--quick
+#MM- ports-print-a2ps--quick : ports-print-a2ps--fetch
+#MM- ports-print-a2ps-fetch : ports-print-a2ps--fetch
+#MM- ports-print-a2ps-create-patch : ports-print-a2ps--create-patch
+#MM- ports-print-a2ps-create-patch-quick : ports-print-a2ps--create-patch
+ 
+ports-print-a2ps-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-print-a2ps-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-print-a2ps-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-print-a2ps-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-print-a2ps-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-print-a2ps--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-print-a2ps--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-print-a2ps--srcdir        ?= 
+else
+    ports-print-a2ps--srcdir        ?= $(ports-print-a2ps-archbase)
+endif
+
+ifneq (,)
+    ports-print-a2ps--builddir      ?= $(ports-print-a2ps--srcdir)/
+else
+    ports-print-a2ps--builddir      ?= $(ports-print-a2ps--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-print-a2ps--patches_specs ?= $(ports-print-a2ps--archbase)-aros.diff:$(ports-print-a2ps--srcdir):-f,-p1
+else
+    ports-print-a2ps--patches_specs ?= ::
+endif
+else
+    ports-print-a2ps--patches_specs ?= 
+endif
+
+
+.PHONY: ports-print-a2ps--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-print-a2ps--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-print-a2ps--fetch-location := $(ports-print-a2ps-portdir)
+endif
+
+ifneq (,)
+    ports-print-a2ps--fetch-baseflag := -b 
+else
+    ports-print-a2ps--fetch-baseflag :=
+endif
+
+ports-print-a2ps--fetch-fetchedflag := $(ports-print-a2ps--fetch-location)/.$(ports-print-a2ps--archbase)-fetched
+
+#MM
+ports-print-a2ps--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-print-a2ps--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-print-a2ps--archbase) -s "tar.gz" -l $(ports-print-a2ps--fetch-location) \
+	-d $(ports-print-a2ps-portdir) $(ports-print-a2ps--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-print-a2ps--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-print-a2ps--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-print-a2ps--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-print-a2ps--create-patch
+
+ifneq (,)
+    ports-print-a2ps--create-patch-location := 
+else
+    ports-print-a2ps--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-print-a2ps--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-print-a2ps--srcdir),)
+    ports-print-a2ps--create-patch-srcdir   := $(ports-print-a2ps--srcdir)
+else
+    ports-print-a2ps--create-patch-srcdir   := $(ports-print-a2ps--archbase)
+endif
+
+ifeq (no,yes)
+    ports-print-a2ps--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-print-a2ps--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-print-a2ps--create-patch-baseflag := -b /tmp
+    ports-print-a2ps--create-patch-base := 
+else
+    ports-print-a2ps--create-patch-baseflag :=
+    ports-print-a2ps--create-patch-base := $(ports-print-a2ps-portdir)
+endif
+
+#MM- ports-print-a2ps--create-patch :  ports-print-a2ps--create-patch-diff 
+#MM- ports-print-a2ps--create-patch-quick :  ports-print-a2ps--create-patch-diff 
+
+#MM
+ports-print-a2ps--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-print-a2ps--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-print-a2ps--create-patch-base)/$(ports-print-a2ps--create-patch-srcdir) $(ports-print-a2ps--create-patch-base)/tmp/$(ports-print-a2ps--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-print-a2ps--archbase) -s "tar.gz" -f -l $(ports-print-a2ps--create-patch-location) -d $(ports-print-a2ps-portdir) $(ports-print-a2ps--create-patch-baseflag); \
+	$(MV) $(ports-print-a2ps--create-patch-base)/$(ports-print-a2ps--create-patch-srcdir) $(ports-print-a2ps--create-patch-base)/tmp/$(ports-print-a2ps--create-patch-srcdir) ; \
+	cd $(ports-print-a2ps--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-print-a2ps--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-print-a2ps--create-patch-diffflag) $(ports-print-a2ps--create-patch-exclude) \
+	    $(ports-print-a2ps--create-patch-srcdir) \
+	    $(ports-print-a2ps--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-print-a2ps--archbase)-aros-new.diff ; \
+	$(MV) $(ports-print-a2ps--create-patch-base)/tmp/$(ports-print-a2ps--create-patch-srcdir).aros $(ports-print-a2ps--create-patch-base)/$(ports-print-a2ps--create-patch-srcdir) ; \
+	$(RM) $(ports-print-a2ps--create-patch-base)/tmp
+
+#MM ports-print-a2ps : ports-print-a2ps-
+#MM
+ports-print-a2ps:
+	$(Q)$(NOP)
+
+ports-print-a2ps--package-dir := $(ports-print-a2ps-portdir)/$(ports-print-a2ps--archbase)
+
+ports-print-a2ps--package-basename := \
+    $(DISTDIR)/Packages/$(ports-print-a2ps--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-print-a2ps--package := $(ports-print-a2ps--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-print-a2ps-prefix),)
+    ports-print-a2ps--prefix := $(ports-print-a2ps-prefix)
+else
+    ports-print-a2ps--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-print-a2ps--aros_prefix := 
+else
+    ports-print-a2ps--aros_prefix := $(ports-print-a2ps--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (yes,yes)
+    ports-print-a2ps--nix    := $(BD_NIXFLAG)
+    ports-print-a2ps--volpfx := /
+    ports-print-a2ps--volsfx := /
+    
+    ifeq (no,)
+        ports-print-a2ps--nix_dir_layout := yes
+    endif
+else
+    ports-print-a2ps--volsfx := :
+    
+    ifeq (no,)
+        ports-print-a2ps--nix_dir_layout := no
+    endif
+endif
+
+ports-print-a2ps--volfunc = $(ports-print-a2ps--volpfx)$(notdir $1)$(ports-print-a2ps--volsfx)
+
+ports-print-a2ps--install_opts += prefix=$(ports-print-a2ps--prefix) \
+        exec_prefix=$(ports-print-a2ps--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-print-a2ps--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-print-a2ps--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-print-a2ps--pkgbasedir := $(GENDIR)
+    else
+        ports-print-a2ps--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-print-a2ps--pkgbasedir := 
+    else
+        ports-print-a2ps--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-print-a2ps--pkgdir := $(ports-print-a2ps--pkgbasedir)
+else
+    ports-print-a2ps--pkgdir := $(ports-print-a2ps--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-print-a2ps--configflag ?= $(ports-print-a2ps--pkgdir)/.configured
+ports-print-a2ps--installflag ?= $(ports-print-a2ps--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-print-a2ps--nix_dir_layout) $(host)),yes)
+    ports-print-a2ps--PROGDIR      := $(ports-print-a2ps--aros_prefix)/bin
+    ports-print-a2ps--config_opts  := --prefix=$(ports-print-a2ps--aros_prefix)
+else
+    ifeq (yes,yes)
+        ports-print-a2ps--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-print-a2ps--config_opts  := --prefix=$(ports-print-a2ps--aros_prefix)
+    endif
+
+    ports-print-a2ps--PROGDIR := $(ports-print-a2ps--aros_prefix)
+    
+    ports-print-a2ps--install_opts := bindir=$(ports-print-a2ps--prefix) \
+        sbindir=$(ports-print-a2ps--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-print-a2ps--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-print-a2ps--TARGET_LDFLAGS :=
+else
+ports-print-a2ps--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-print-a2ps--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-print-a2ps--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-print-a2ps--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-print-a2ps--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-print-a2ps--nix)
+endif
+endif
+ports-print-a2ps--TARGET_CC?=$(TARGET_CC)
+ports-print-a2ps--KERNEL_CC?=$(KERNEL_CC)
+ports-print-a2ps--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-print-a2ps--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-print-a2ps--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-print-a2ps--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-print-a2ps--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-print-a2ps--nix)
+endif
+endif
+ports-print-a2ps--TARGET_CXX?=$(TARGET_CXX)
+ports-print-a2ps--KERNEL_CXX?=$(KERNEL_CXX)
+ports-print-a2ps--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-print-a2ps--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-print-a2ps--HOST_CC) $(ports-print-a2ps--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-print-a2ps--HOST_CXX) $(ports-print-a2ps--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-print-a2ps--cfg-env += TARGET_CC="$(strip $(ports-print-a2ps--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-print-a2ps--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-print-a2ps--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-print-a2ps--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-print-a2ps--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-print-a2ps--cfg-env += \
+        CPP="$(strip $(ports-print-a2ps--CROSS_CPP) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-print-a2ps--CROSS_CPP) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-print-a2ps--CROSS_CC) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-print-a2ps--CROSS_CXX) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-print-a2ps--CROSS_LD))" \
+        AS="$(strip $(ports-print-a2ps--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-print-a2ps--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-print-a2ps--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-print-a2ps--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-print-a2ps--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-print-a2ps--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-print-a2ps--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-print-a2ps--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-print-a2ps--CROSS_LDFLAGS))"
+    ports-print-a2ps--cfg-env += CC_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_CC) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_CXX) $(ports-print-a2ps--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-print-a2ps--CROSS_LDFLAGS))"
+else
+    ports-print-a2ps--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-print-a2ps--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-print-a2ps--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-print-a2ps--cfg-env += CFLAGS="$(strip $(ports-print-a2ps--TARGET_CFLAGS) $(ports-print-a2ps--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-print-a2ps--TARGET_CXXFLAGS) $(ports-print-a2ps--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-print-a2ps--cfg-env += LDFLAGS="$(strip $(ports-print-a2ps--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-print-a2ps--nix) $(ports-print-a2ps--s_flag))"
+    ports-print-a2ps--cfg-env += LT_LDFLAGS="$(strip $(ports-print-a2ps--TARGET_LDFLAGS))"
+    ports-print-a2ps--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-print-a2ps--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-print-a2ps--ACBUILD_CPPFLAGS))"
+endif
+    ports-print-a2ps--cfg-env += CC_FOR_BUILD="$(strip $(ports-print-a2ps--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-print-a2ps--HOST_CFLAGS) $(ports-print-a2ps--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-print-a2ps--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-print-a2ps--HOST_CXXFLAGS) $(ports-print-a2ps--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-print-a2ps--ACBUILD_LDFLAGS) $(ports-print-a2ps--s_flag))"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-print-a2ps--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-print-a2ps--cfg-env += CC_FOR_HOST="$(strip $(ports-print-a2ps--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-print-a2ps--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-print-a2ps--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-print-a2ps--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-print-a2ps--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-print-a2ps--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-print-a2ps--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-print-a2ps--nix) $(ports-print-a2ps--s_flag))"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-print-a2ps--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-print-a2ps--cfg-env += CC_FOR_TARGET="$(strip $(ports-print-a2ps--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-print-a2ps--TARGET_CFLAGS) $(ports-print-a2ps--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-print-a2ps--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-print-a2ps--TARGET_CXXFLAGS) $(ports-print-a2ps--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-print-a2ps--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-print-a2ps--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-print-a2ps--nix) $(ports-print-a2ps--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-print-a2ps--cfg-env += TARGET_CC="$(strip $(ports-print-a2ps--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-print-a2ps--KERNEL_CFLAGS) $(ports-print-a2ps--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-print-a2ps--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-print-a2ps--KERNEL_CXXFLAGS) $(ports-print-a2ps--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-print-a2ps--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-print-a2ps--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-print-a2ps--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-print-a2ps--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-print-a2ps--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-print-a2ps--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-print-a2ps--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-print-a2ps--cfg-env += CC="$(strip $(ports-print-a2ps--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-print-a2ps--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-print-a2ps--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-print-a2ps--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-print-a2ps--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-print-a2ps--cfg-env += CC_FOR_BUILD="$(ports-print-a2ps--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-print-a2ps--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-print-a2ps--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-print-a2ps--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-print-a2ps--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-print-a2ps--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-print-a2ps--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-print-a2ps--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-print-a2ps--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-print-a2ps--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-print-a2ps--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-print-a2ps--touchfileflag ?= $(ports-print-a2ps--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-print-a2ps-portdir)/$(ports-print-a2ps--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-print-a2ps--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-print-a2ps--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-print-a2ps--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-print-a2ps-portdir)/$(ports-print-a2ps--builddir)/." $(ports-print-a2ps--pkgdir)/ && $(TOUCH) $@
+
+$(ports-print-a2ps--touchfileflag) : $(ports-print-a2ps--pkgdir)/.local-copy
+
+    ports-print-a2ps--cfg-srcdir=$(ports-print-a2ps--pkgdir)
+else
+    ports-print-a2ps--cfg-srcdir=$(ports-print-a2ps-portdir)/$(ports-print-a2ps--builddir)
+endif
+ports-print-a2ps--make-env += -C $(ports-print-a2ps--pkgdir)
+
+.PHONY : ports-print-a2ps- ports-print-a2ps--clean ports-print-a2ps--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-print-a2ps--host : setup includes ports-print-a2ps--quick
+#MM- ports-print-a2ps--target : setup includes core-linklibs ports-print-a2ps--quick
+#MM- ports-print-a2ps-: ports-print-a2ps--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-print-a2ps--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-print-a2ps--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-print-a2ps--PROGDIR)/" $(ports-print-a2ps--install_opts) \
+        $(ports-print-a2ps--make-env) install -j1
+
+    ports-print-a2ps--uninstall_command = \
+    $(RM) $(ports-print-a2ps--installflag) && \
+    $(MAKE) PROGDIR="$(ports-print-a2ps--PROGDIR)/" \
+    $(ports-print-a2ps--install_opts) $(ports-print-a2ps--make-env) uninstall
+else
+    ports-print-a2ps--install_command   := true
+    ports-print-a2ps--uninstall_command := true
+endif
+
+#MM- ports-print-a2ps--quick :  ports-print-a2ps--configure  ports-print-a2ps--build_and_install-quick ports-print-a2ps--make-package
+
+#MM
+ports-print-a2ps--build_and_install-quick :  $(ports-print-a2ps--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-print-a2ps--installflag) : $(ports-print-a2ps--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-print-a2ps--volfunc, PROGDIR)" -q $(ports-print-a2ps--make-env); then \
+	    $(RM) $(ports-print-a2ps--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-print-a2ps--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-print-a2ps--volfunc, PROGDIR)" $(ports-print-a2ps--make-env) && \
+	    $(ports-print-a2ps--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-print-a2ps--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-print-a2ps--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-print-a2ps-portdir)/$(ports-print-a2ps--builddir) -exec $(TOUCH) -c -r $(ports-print-a2ps--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-print-a2ps--uninstall :
+	$(ports-print-a2ps--uninstall_command)
+
+#MM
+ports-print-a2ps--configure : $(ports-print-a2ps--configflag)
+
+$(ports-print-a2ps--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-print-a2ps--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-print-a2ps--configflag) : $(ports-print-a2ps--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-print-a2ps--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-print-a2ps--pkgdir))"
+	$(ports-print-a2ps--init-env)
+	$(Q)cd $(ports-print-a2ps--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-print-a2ps--cfg-env) $(TMP_SRCDIR)/configure $(ports-print-a2ps--config_opts) $(A2PS_OPTS) && \
+	$(TOUCH) $@
+
+#MM
+ports-print-a2ps--clean : ports-print-a2ps--uninstall
+	$(Q)$(RM) $(ports-print-a2ps--pkgdir)
+
+.PHONY : ports-print-a2ps--make-package ports-print-a2ps--create-patch
+#MM ports-print-a2ps--make-package : ports-print-a2ps--quick
+
+#MM
+ports-print-a2ps--make-package : $(ports-print-a2ps--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-print-a2ps--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-print-a2ps-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-print-a2ps--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-print-a2ps-prefix)" ; \
+	    cd $(ports-print-a2ps--package-dir) ; \
+	    tar -cvf $(ports-print-a2ps--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-print-a2ps--package-basename).tar ; \
+	fi
+
+#MM
+ports-print-a2ps-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

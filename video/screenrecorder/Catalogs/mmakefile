@@ -1,0 +1,76 @@
+# Copyright © 2003, The AROS Development Team. All rights reserved.
+# $Id: mmakefile.src
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+ARCHBASE     := screenrecorder-src-svn17
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Video/ScreenRecorder
+
+
+ifeq ($(PORTSDIR)/screenrecorder/$(ARCHBASE)/locale/screenrecorder,)
+ports-video-screenrecorder-catalogs_DESC := $(basename $(wildcard $(SRCDIR)/$(CURDIR)/*.cd))
+else
+ports-video-screenrecorder-catalogs_DESC := $(PORTSDIR)/screenrecorder/$(ARCHBASE)/locale/screenrecorder
+endif
+
+ports-video-screenrecorder-catalogs_SRC := $(shell $(ECHO) $(TOOLDIR)/C_h_aros | sed 's/^\(.\):\//\/\1\//')
+
+ifeq (,)
+ports-video-screenrecorder-catalogs_LNGS := $(basename $(notdir $(call WILDCARD, $(SRCDIR)/$(CURDIR)/*.ct)))
+else
+ports-video-screenrecorder-catalogs_LNGS := 
+endif
+
+ports-video-screenrecorder-catalogs_OBJS := $(addsuffix //ScreenRecorder.catalog, $(addprefix $(TARGETDIR)/Catalogs/, $(ports-video-screenrecorder-catalogs_LNGS)))
+ports-video-screenrecorder-catalogs_DIRS := $(addsuffix /, $(addprefix $(TARGETDIR)/Catalogs/, $(ports-video-screenrecorder-catalogs_LNGS))) $(dir ../locale.h)
+
+#MM- ports-video-screenrecorder-catalogs-quick : ports-video-screenrecorder-catalogs
+
+#MM
+ports-video-screenrecorder-catalogs : $(ports-video-screenrecorder-catalogs_OBJS) ../locale.h
+
+
+ifneq ($(ports-video-screenrecorder-catalogs_OBJS),)
+$(ports-video-screenrecorder-catalogs_OBJS) : | $(ports-video-screenrecorder-catalogs_DIRS)
+else
+$(ports-video-screenrecorder-catalogs_OBJS) :: $(ports-video-screenrecorder-catalogs_DIRS)
+endif
+
+GLOB_MKDIRS += $(ports-video-screenrecorder-catalogs_DIRS)
+
+
+$(TARGETDIR)/Catalogs/%//ScreenRecorder.catalog : $(SRCDIR)/$(CURDIR)/%.ct $(ports-video-screenrecorder-catalogs_DESC).cd
+	$(Q)$(ECHO) "Creating   ScreenRecorder catalog for language $*."
+	$(Q)$(IF) $(TEST) "$*" = "polish"; then \
+	    $(FLEXCAT) iso88592toamigapl $(ports-video-screenrecorder-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//ScreenRecorder.catalog" || [ $$? -lt 10 ] ; \
+	elif $(TEST) "$*" = "russian"; then \
+	    $(FLEXCAT) win1251toamiga1251 $(ports-video-screenrecorder-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//ScreenRecorder.catalog" || [ $$? -lt 10 ] ; \
+	else \
+	    $(FLEXCAT) $(ports-video-screenrecorder-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//ScreenRecorder.catalog" || [ $$? -lt 10 ] ; \
+	fi
+
+ifneq (../locale.h,)
+../locale.h : ports-video-screenrecorder-catalogs_DESC := $(ports-video-screenrecorder-catalogs_DESC)
+../locale.h : ports-video-screenrecorder-catalogs_SRC := $(ports-video-screenrecorder-catalogs_SRC)
+../locale.h : $(ports-video-screenrecorder-catalogs_DESC).cd $(ports-video-screenrecorder-catalogs_SRC).sd | $(dir ../locale.h)
+	$(Q)$(ECHO) "Creating   ScreenRecorder catalog source file $@"
+	$(Q)$(FLEXCAT) $(ports-video-screenrecorder-catalogs_DESC).cd "$@"="$(ports-video-screenrecorder-catalogs_SRC).sd"
+endif
+
+ports-video-screenrecorder-catalogs-clean : FILES := $(ports-video-screenrecorder-catalogs_OBJS) ../locale.h
+#MM
+ports-video-screenrecorder-catalogs-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-video-screenrecorder-catalogs"
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-video-screenrecorder-catalogs ports-video-screenrecorder-catalogs-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

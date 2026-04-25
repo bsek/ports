@@ -1,0 +1,818 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-circuslinux
+
+#MM  ports-game-circuslinux : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-mixer \
+#MM    ports-game-circuslinux-data ports-game-circuslinux-cpy \
+#MM    ports-game-circuslinux-fetch
+
+#MM  ports-game-circuslinux-data : ports-game-circuslinux-fetch
+
+#MM  ports-game-circuslinux-quick : ports-game-circuslinux-fetch
+
+REPOSITORIES := ftp://ftp.tuxpaint.org/unix/x/circus-linux/src
+ARCHBASE     := circuslinux-1.0.3
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/CircusLinux
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS)  $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags) \
+                -DDATA_PREFIX=\"PROGDIR:data/\" -DJOY_YES -DVERSION=\"1.0.3\"
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := $(PORTSDIR)/circuslinux/$(ARCHBASE)/circuslinux
+
+
+.PHONY : ports-game-circuslinux
+
+#MM- ports-game-circuslinux : \
+#MM             ports-game-circuslinux-$(CPU)
+
+#MM- ports-game-circuslinux-$(ARCH)-$(CPU) : \
+#MM             ports-game-circuslinux-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-circuslinux-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-circuslinux-$(ARCH)-$(CPU)
+
+#MM- ports-game-circuslinux-$(ARCH) : \
+#MM             ports-game-circuslinux-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-circuslinux-$(FAMILY) : \
+#MM             ports-game-circuslinux-$(ARCH)
+
+#MM- ports-game-circuslinux-$(CPU) : \
+#MM             ports-game-circuslinux-$(FAMILY)
+#MM- ports-game-circuslinux-quick : \
+#MM             ports-game-circuslinux-$(CPU)-quick
+
+#MM- ports-game-circuslinux-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-circuslinux-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-circuslinux-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-circuslinux-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-circuslinux-$(ARCH)-quick : \
+#MM             ports-game-circuslinux-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-circuslinux-$(FAMILY)-quick : \
+#MM             ports-game-circuslinux-$(ARCH)-quick
+
+#MM- ports-game-circuslinux-$(CPU)-quick : \
+#MM             ports-game-circuslinux-$(FAMILY)-quick
+
+ports-game-circuslinux_PROGNAME  := CircusLinux
+ports-game-circuslinux_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-circuslinux_TARGETDIR := $(TARGETDIR)
+ports-game-circuslinux_LINKER    := 
+ports-game-circuslinux_LIBS := SDL_mixer mikmod vorbisfile vorbis ogg SDL_image png jpeg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-circuslinux_LINKER),)
+    ports-game-circuslinux_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-circuslinux_FILES     := $(FILES)
+    ports-game-circuslinux_OBJCFILES := 
+    ports-game-circuslinux_ASMFILES  := 
+    ports-game-circuslinux_CXXFILES := 
+else
+    ports-game-circuslinux_FILES     := $(ports-game-circuslinux_PROGNAME)
+    ports-game-circuslinux_OBJCFILES :=
+    ports-game-circuslinux_ASMFILES  :=
+    ports-game-circuslinux_CXXFILES :=
+endif
+
+ports-game-circuslinux_ARCHOBJS   := $(wildcard $(ports-game-circuslinux_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-circuslinux_ARCHFILES     := $(basename $(notdir $(ports-game-circuslinux_ARCHOBJS)))
+else
+    ports-game-circuslinux_ARCHFILES     := $(basename $(patsubst $(ports-game-circuslinux_OBJDIR)/%,%,$(ports-game-circuslinux_ARCHOBJS)))
+endif
+ports-game-circuslinux_C_NARCHFILES := $(filter-out $(ports-game-circuslinux_ARCHFILES),$(ports-game-circuslinux_FILES))
+ports-game-circuslinux_CXX_NARCHFILES := $(filter-out $(ports-game-circuslinux_ARCHFILES),$(ports-game-circuslinux_CXXFILES))
+ports-game-circuslinux_OBJC_NARCHFILES := $(filter-out $(ports-game-circuslinux_ARCHFILES),$(ports-game-circuslinux_OBJCFILES))
+
+TMP_FILES := $(ports-game-circuslinux_C_NARCHFILES) $(ports-game-circuslinux_CXX_NARCHFILES) $(ports-game-circuslinux_ASMFILES) $(ports-game-circuslinux_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-circuslinux_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-circuslinux_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-circuslinux_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-circuslinux_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-circuslinux_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-circuslinux_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-circuslinux_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-circuslinux_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-circuslinux_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-circuslinux_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-circuslinux_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-circuslinux_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-circuslinux_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-circuslinux_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-circuslinux_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-circuslinux_LDFLAGS          := 
+endif
+
+ports-game-circuslinux_CSTATICFLAGS   := `echo "$(ports-game-circuslinux_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-circuslinux_CSTDCFLAGS   :=  `echo "$(ports-game-circuslinux_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-circuslinux_CPOSIXCFLAGS   :=  `echo "$(ports-game-circuslinux_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-circuslinux_LDFLAGS          += $(strip $(ports-game-circuslinux_CSTATICFLAGS) $(ports-game-circuslinux_CSTDCFLAGS) $(ports-game-circuslinux_CPOSIXCFLAGS))
+
+ports-game-circuslinux_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-circuslinux_COVERAGE := yes
+ports-game-circuslinux_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-circuslinux_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-circuslinux_CFLAGS    := $(strip $(ports-game-circuslinux_COVERAGEFLAGS) $(ports-game-circuslinux_CFLAGS))
+ports-game-circuslinux_CXXFLAGS := $(strip $(ports-game-circuslinux_COVERAGEFLAGS) $(ports-game-circuslinux_CXXFLAGS))
+ports-game-circuslinux_LIBS += $(ports-game-circuslinux_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-circuslinux_FUNCINSTR := yes
+ports-game-circuslinux_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-circuslinux_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-circuslinux_CFLAGS    := $(strip $(ports-game-circuslinux_INSTRFUNCFLAGS) $(ports-game-circuslinux_CFLAGS))
+ports-game-circuslinux_CXXFLAGS := $(strip $(ports-game-circuslinux_INSTRFUNCFLAGS) $(ports-game-circuslinux_CXXFLAGS))
+ports-game-circuslinux_LIBS += $(ports-game-circuslinux_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-circuslinux_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-circuslinux_CFLAGS))
+ports-game-circuslinux_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-circuslinux_CXXFLAGS))
+endif
+endif
+ports-game-circuslinux_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-circuslinux_DFLAGS     := 
+else
+    ports-game-circuslinux_DFLAGS     := $(ports-game-circuslinux_CFLAGS)
+endif
+ifneq (,)
+    ports-game-circuslinux_DXXFLAGS     := 
+else
+    ports-game-circuslinux_DXXFLAGS     := $(ports-game-circuslinux_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-circuslinux_LDFLAGS           := $(ports-game-circuslinux_LDFLAGS)
+ports-game-circuslinux_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-circuslinux_LDFLAGS           := $(ports-game-circuslinux_LDFLAGS)
+ports-game-circuslinux_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_LDFLAGS           := $(ports-game-circuslinux_LDFLAGS)
+ports-game-circuslinux_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-circuslinux_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-circuslinux-quick : ports-game-circuslinux
+
+#MM ports-game-circuslinux : includes-generate-deps core-linklibs
+ports-game-circuslinux : $(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-circuslinux_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-circuslinux_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-circuslinux_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-circuslinux_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-circuslinux_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-circuslinux ports-game-circuslinux-quick ports-game-circuslinux-compress-quick),)
+
+ports-game-circuslinux_CXXABSBASENAMES := $(foreach ports-game-circuslinux_CXXBASE,$(ports-game-circuslinux_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-circuslinux_CXXBASE)),$(ports-game-circuslinux_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-circuslinux_CXXBASE))))
+
+ifneq ($(ports-game-circuslinux_CXXABSBASENAMES),)
+
+ports-game-circuslinux_CXXBASENAMES := $(basename $(ports-game-circuslinux_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-circuslinux_MCXX_FILES  := $(strip $(foreach ports-game-circuslinux_CXXBASE,$(ports-game-circuslinux_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-circuslinux_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-circuslinux_EXT),$(ports-game-circuslinux_CXXBASE)))))))
+
+ifeq (,)
+ports-game-circuslinux_MCXX_SRCWILDCARD := %
+else
+ports-game-circuslinux_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-circuslinux_OBJDIR),)
+  ports-game-circuslinux_CXXTARGETS := $(notdir $(ports-game-circuslinux_CXXBASENAMES:=.o))
+  ports-game-circuslinux_CXXDTARGETS := $(notdir $(ports-game-circuslinux_CXXBASENAMES:=.d))
+  ports-game-circuslinux_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-circuslinux_CXXTARGETS := $(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(ports-game-circuslinux_CXXBASENAMES:=.o)))
+  ports-game-circuslinux_CXXDTARGETS := $(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(ports-game-circuslinux_CXXBASENAMES:=.d)))
+  ports-game-circuslinux_MCXX_WILDCARD := $(ports-game-circuslinux_OBJDIR)/%
+else
+  ports-game-circuslinux_CXXTARGETS := $(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_CXXBASENAMES:=.o))
+  ports-game-circuslinux_CXXDTARGETS := $(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_CXXBASENAMES:=.d))
+  ports-game-circuslinux_MCXX_WILDCARD := $(ports-game-circuslinux_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-circuslinux_CXXTARGETS) $(ports-game-circuslinux_CXXDTARGETS) : | $(ports-game-circuslinux_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-circuslinux_MCXX_CPPFLAGS := $(ports-game-circuslinux_CPPFLAGS)
+ports-game-circuslinux_CXXFLAGS := $(ports-game-circuslinux_CXXFLAGS)
+ifeq ($(ports-game-circuslinux_DXXFLAGS),)
+  ports-game-circuslinux_DXXFLAGS := $(ports-game-circuslinux_CXXFLAGS)
+else
+  ports-game-circuslinux_DXXFLAGS := $(ports-game-circuslinux_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-circuslinux_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-circuslinux_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-circuslinux_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-circuslinux_STRIP ?= $(HOST_STRIP)
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-circuslinux_CXXCMD:=$(HOST_CXX)
+  ports-game-circuslinux_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS) $(ports-game-circuslinux_MCXX_EXTRA_CPPFLAGS))
+  ports-game-circuslinux_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-circuslinux_CXXFLAGS))
+  ports-game-circuslinux_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-circuslinux_DXXFLAGS))
+  ports-game-circuslinux_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-circuslinux_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-circuslinux_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-circuslinux_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-circuslinux_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-circuslinux_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-circuslinux_LDFLAGS ?= $(ports-game-circuslinux_CXXLDFLAGS)
+  ports-game-circuslinux_STRIP ?= $(TARGET_STRIP)
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-circuslinux_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-circuslinux_MCXX_CPPFLAGS := $(strip $(ports-game-circuslinux_MCXX_CPPFLAGS) $(ports-game-circuslinux_MCXX_EXTRA_CPPFLAGS))
+  ports-game-circuslinux_CXXFLAGS := $(strip $(ports-game-circuslinux_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-circuslinux_DXXFLAGS := $(ports-game-circuslinux_DXXFLAGS)
+  ports-game-circuslinux_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-circuslinux_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-circuslinux_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-circuslinux_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-circuslinux_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-circuslinux_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-circuslinux_LDFLAGS ?= $(ports-game-circuslinux_CXXLDFLAGS)
+  ports-game-circuslinux_STRIP ?= $(ECHO) >/dev/null
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-circuslinux_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-circuslinux_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS) $(ports-game-circuslinux_MCXX_EXTRA_CPPFLAGS))
+  ports-game-circuslinux_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-circuslinux_CXXFLAGS))
+  ports-game-circuslinux_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-circuslinux_DXXFLAGS))
+  ports-game-circuslinux_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-circuslinux_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-circuslinux_CXXCMD) $(ports-game-circuslinux_CXXIQUOTE) $(dir $(2)) $(ports-game-circuslinux_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) . $(ports-game-circuslinux_CXXIQUOTE_END) $(strip $(ports-game-circuslinux_CXXFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-circuslinux_CXXCMD) $(ports-game-circuslinux_CXXIQUOTE) $(dir $(2)) $(ports-game-circuslinux_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) . $(ports-game-circuslinux_CXXIQUOTE_END) $(strip $(ports-game-circuslinux_CXXFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-circuslinux_CXXCMD) $(ports-game-circuslinux_CXXIQUOTE) $(dir $(2)) $(ports-game-circuslinux_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_CXXIQUOTE) . $(ports-game-circuslinux_CXXIQUOTE_END) $(strip $(ports-game-circuslinux_CXXFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-circuslinux_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-circuslinux_DXXFLAGS) $(ports-game-circuslinux_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-circuslinux_OBJDIR),)
+  $(foreach ports-game-circuslinux_CXXFILE,$(ports-game-circuslinux_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-circuslinux_CXXFILE))),$(ports-game-circuslinux_CXXFILE))))
+else
+  $(foreach ports-game-circuslinux_CXXFILE,$(ports-game-circuslinux_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(basename $(ports-game-circuslinux_CXXFILE)))),$(ports-game-circuslinux_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-circuslinux_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-circuslinux_MOBJC_SRCWILDCARD := %
+else
+ports-game-circuslinux_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-circuslinux_OBJDIR),)
+  ports-game-circuslinux_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-circuslinux_OBJC_NARCHFILES))
+  ports-game-circuslinux_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-circuslinux_OBJC_NARCHFILES))
+  ports-game-circuslinux_MOBJC_WILDCARD := %
+else
+  ports-game-circuslinux_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_OBJC_NARCHFILES)))
+  ports-game-circuslinux_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_OBJC_NARCHFILES)))
+  ports-game-circuslinux_MOBJC_WILDCARD := $(ports-game-circuslinux_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-circuslinux_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-circuslinux_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-circuslinux_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-circuslinux_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-circuslinux_MOBJC_DIRS := $(foreach dir, $(ports-game-circuslinux_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-circuslinux_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-circuslinux_MOBJC_DIRS),)
+    ports-game-circuslinux_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-circuslinux_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-circuslinux_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-circuslinux_CC := $(TARGET_CC)
+else
+  ports-game-circuslinux_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-circuslinux_MOBJC_CPPFLAGS := $(ports-game-circuslinux_CPPFLAGS)
+ports-game-circuslinux_OBJCFLAGS := $(ports-game-circuslinux_CFLAGS)
+ports-game-circuslinux_OBJCFLAGS := $(ports-game-circuslinux_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-circuslinux_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-circuslinux_OBJCFLAGS)))
+ifeq ($(ports-game-circuslinux_DFLAGS),)
+  ports-game-circuslinux_OBJCDFLAGS := $(ports-game-circuslinux_CFLAGS)
+else
+  ports-game-circuslinux_OBJCDFLAGS := $(ports-game-circuslinux_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-circuslinux_LINK ?= $(strip $(ports-game-circuslinux_CC) $(TARGET_SYSROOT))
+  ports-game-circuslinux_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-circuslinux_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-circuslinux_STRIP ?= $(TARGET_STRIP)
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-circuslinux_CC) $(TARGET_SYSROOT))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_MOBJC_CPPFLAGS:=$(strip $(ports-game-circuslinux_MOBJC_CPPFLAGS) $(ports-game-circuslinux_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCFLAGS:=$(strip $(ports-game-circuslinux_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCDFLAGS:=$(ports-game-circuslinux_OBJCDFLAGS)
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-circuslinux_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-circuslinux_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-circuslinux_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-circuslinux_STRIP ?= $(HOST_STRIP)
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-circuslinux_MOBJC_CPPFLAGS) $(ports-game-circuslinux_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-circuslinux_OBJCFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-circuslinux_OBJCDFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-circuslinux_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-circuslinux_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-circuslinux_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-circuslinux_STRIP ?= $(ECHO) >/dev/null
+  ports-game-circuslinux_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-circuslinux_MOBJC_CPPFLAGS) $(ports-game-circuslinux_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-circuslinux_OBJCFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-circuslinux_OBJCDFLAGS))
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-circuslinux_MOBJC_TARGETS) $(ports-game-circuslinux_MOBJC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-circuslinux_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-circuslinux_MOBJC_CPPFLAGS)
+$(ports-game-circuslinux_MOBJC_TARGETS) : CFLAGS := $(ports-game-circuslinux_OBJCFLAGS)
+$(ports-game-circuslinux_MOBJC_TARGETS) : $(ports-game-circuslinux_MOBJC_WILDCARD).o : $(ports-game-circuslinux_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-circuslinux_MOBJC_DTARGETS) : $(ports-game-circuslinux_MOBJC_WILDCARD).d : $(ports-game-circuslinux_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-circuslinux_OBJCDFLAGS) $(ports-game-circuslinux_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-circuslinux_MC_SRCWILDCARD := %
+else
+ports-game-circuslinux_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-circuslinux_OBJDIR),)
+ports-game-circuslinux_MC_TARGETS := $(addsuffix .o,$(ports-game-circuslinux_C_NARCHFILES))
+ports-game-circuslinux_MC_DTARGETS := $(addsuffix .d,$(ports-game-circuslinux_C_NARCHFILES))
+ports-game-circuslinux_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-circuslinux_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(ports-game-circuslinux_C_NARCHFILES))))
+    ports-game-circuslinux_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(ports-game-circuslinux_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-circuslinux_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_C_NARCHFILES)))
+    ports-game-circuslinux_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(ports-game-circuslinux_C_NARCHFILES)))
+else
+    ports-game-circuslinux_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(patsubst /%,%,$(ports-game-circuslinux_C_NARCHFILES))))
+    ports-game-circuslinux_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(patsubst /%,%,$(ports-game-circuslinux_C_NARCHFILES))))
+endif
+endif
+ports-game-circuslinux_MC_TGTWILDCARD := $(ports-game-circuslinux_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-circuslinux_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-circuslinux_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-circuslinux_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-circuslinux_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-circuslinux_MC_DIRS := $(foreach dir, $(ports-game-circuslinux_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-circuslinux_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-circuslinux_MC_DIRS),)
+    ports-game-circuslinux_MC_DIRS := $(shell $(ECHO) $(ports-game-circuslinux_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-circuslinux_MC_DIRS)
+endif
+
+endif
+
+ports-game-circuslinux_MC_CPPFLAGS := $(ports-game-circuslinux_CPPFLAGS)
+ports-game-circuslinux_CFLAGS := $(ports-game-circuslinux_CFLAGS)
+ifeq ($(ports-game-circuslinux_DFLAGS),)
+  ports-game-circuslinux_DFLAGS := $(ports-game-circuslinux_CFLAGS)
+else
+  ports-game-circuslinux_DFLAGS := $(ports-game-circuslinux_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-circuslinux_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-circuslinux_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-circuslinux_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-circuslinux_STRIP ?= $(TARGET_STRIP)
+ports-game-circuslinux_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_MC_CPPFLAGS:=$(strip $(ports-game-circuslinux_MC_CPPFLAGS) $(ports-game-circuslinux_MC_EXTRA_CPPFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_CFLAGS:=$(strip $(ports-game-circuslinux_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_DFLAGS:=$(ports-game-circuslinux_DFLAGS)
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-circuslinux_LINK ?= $(strip $(HOST_CC))
+ports-game-circuslinux_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-circuslinux_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-circuslinux_STRIP ?= $(HOST_STRIP)
+ports-game-circuslinux_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-circuslinux_MC_CPPFLAGS) $(ports-game-circuslinux_MC_EXTRA_CPPFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-circuslinux_CFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-circuslinux_DFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-circuslinux_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-circuslinux_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-circuslinux_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-circuslinux_STRIP ?= $(ECHO) >/dev/null
+ports-game-circuslinux_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-circuslinux_MC_CPPFLAGS) $(ports-game-circuslinux_MC_EXTRA_CPPFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-circuslinux_CFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-circuslinux_DFLAGS))
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-circuslinux_MC_TARGETS) $(ports-game-circuslinux_MC_DTARGETS) : ports-game-circuslinux_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-circuslinux_MC_TARGETS) : CPPFLAGS := $(ports-game-circuslinux_MC_CPPFLAGS)
+$(ports-game-circuslinux_MC_TARGETS) : CFLAGS := $(ports-game-circuslinux_CFLAGS)
+$(ports-game-circuslinux_MC_TARGETS) : $(ports-game-circuslinux_MC_TGTWILDCARD).o : $(ports-game-circuslinux_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-circuslinux_IQUOTE) $(dir $<) $(ports-game-circuslinux_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-circuslinux_IQUOTE) . $(ports-game-circuslinux_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-circuslinux_MC_DTARGETS) : $(ports-game-circuslinux_MC_TGTWILDCARD).d : $(ports-game-circuslinux_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-circuslinux_DFLAGS) $(ports-game-circuslinux_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-circuslinux_OBJDIR),)
+ports-game-circuslinux-MA_TARGETS := $(addsuffix .o,$(ports-game-circuslinux_ASMFILES))
+ports-game-circuslinux-MA_WILDCARD := %
+else
+ports-game-circuslinux-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-circuslinux_OBJDIR)/,$(notdir $(ports-game-circuslinux_ASMFILES))))
+ports-game-circuslinux-MA_WILDCARD := $(ports-game-circuslinux_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-circuslinux-MA_TARGETS) : | $(addsuffix .s,$(ports-game-circuslinux_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-circuslinux-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-circuslinux-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-circuslinux_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-circuslinux-MA_DIRS := $(foreach dir, $(ports-game-circuslinux-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-circuslinux-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-circuslinux-MA_DIRS),)
+    ports-game-circuslinux-MA_DIRS := $(shell $(ECHO) $(ports-game-circuslinux-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-circuslinux-MA_DIRS)
+endif
+
+endif
+
+ports-game-circuslinux-MA_ASSEMBLER ?= $(ports-game-circuslinux_ASSEMBLER)
+
+$(ports-game-circuslinux-MA_TARGETS) : ports-game-circuslinux-MA_CMD:= $(ports-game-circuslinux-MA_ASSEMBLER)
+
+$(ports-game-circuslinux-MA_TARGETS) : CPPFLAGS := $(ports-game-circuslinux_CPPFLAGS)
+$(ports-game-circuslinux-MA_TARGETS) : AFLAGS := $(ports-game-circuslinux_AFLAGS)
+$(ports-game-circuslinux-MA_TARGETS) : $(ports-game-circuslinux-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-circuslinux-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-circuslinux-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-circuslinux-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-circuslinux-link_LD_OPTS := 
+ports-game-circuslinux-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-circuslinux-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-circuslinux-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-circuslinux-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-circuslinux-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-circuslinux_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-circuslinux-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-circuslinux-link_DIRS)))
+# Add trailing /
+ports-game-circuslinux-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-circuslinux-link_DIRS)))
+# Add normal linklib path
+ports-game-circuslinux-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-circuslinux-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-circuslinux_LIBS) $(ports-game-circuslinux-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-circuslinux-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-circuslinux-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-circuslinux-link_DEPLIBS := $(foreach lib,$(ports-game-circuslinux-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-circuslinux-link_DIRS)))) \
+)
+
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : OBJDIR := $(ports-game-circuslinux_OBJDIR)
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : OBJS := $(strip $(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_ARCHOBJS) $(USER_OBJS))
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : LDFLAGS := $(strip $(ports-game-circuslinux_LDFLAGS))
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-circuslinux_LIBS) $(ports-game-circuslinux-link_EXTRA_LIBS)))
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-circuslinux_ARCHLIBS))
+$(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : $(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_ARCHOBJS) $(USER_OBJS) $(ports-game-circuslinux-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-circuslinux_LINK) $(strip $(ports-game-circuslinux_LD_OPTS) $(ports-game-circuslinux-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-circuslinux_LINK) $(strip $(ports-game-circuslinux_LD_OPTS) $(ports-game-circuslinux-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-circuslinux_LINK) $(strip $(ports-game-circuslinux_LD_OPTS) $(ports-game-circuslinux-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-circuslinux_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-circuslinux_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-circuslinux_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-circuslinux_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-circuslinux_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-circuslinux_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-circuslinux_DEPS),)
+  ifneq (ports-game-circuslinux ports-game-circuslinux-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-circuslinux ports-game-circuslinux-quick),)
+      -include $(ports-game-circuslinux_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-circuslinux_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_DEPS) $(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME),)
+$(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_DEPS) $(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) : | $(ports-game-circuslinux_OBJDIR) $(ports-game-circuslinux_TARGETDIR)
+else
+$(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_DEPS) $(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) :: $(ports-game-circuslinux_OBJDIR) $(ports-game-circuslinux_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-circuslinux_OBJDIR) $(ports-game-circuslinux_TARGETDIR)
+
+
+ports-game-circuslinux-clean : FILES := $(ports-game-circuslinux_OBJS) $(ports-game-circuslinux_TARGETDIR)/$(ports-game-circuslinux_PROGNAME) $(ports-game-circuslinux_DEPS)
+#MM
+ports-game-circuslinux-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-circuslinux"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-circuslinux-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-circuslinux-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-circuslinux-fetch-location := $(PORTSDIR)/circuslinux
+endif
+
+ifneq (,)
+    ports-game-circuslinux-fetch-baseflag := -b 
+else
+    ports-game-circuslinux-fetch-baseflag :=
+endif
+
+ports-game-circuslinux-fetch-fetchedflag := $(ports-game-circuslinux-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-circuslinux-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-game-circuslinux-fetch-location) \
+	-d $(PORTSDIR)/circuslinux $(ports-game-circuslinux-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "circuslinux-1.0.3-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-circuslinux-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-circuslinux-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-game-circuslinux-data
+
+#MM
+ports-game-circuslinux-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/circuslinux/$(ARCHBASE)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/circuslinux/$(ARCHBASE)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/circuslinux/$(ARCHBASE)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/circuslinux/$(ARCHBASE)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/circuslinux/$(ARCHBASE)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/circuslinux/$(ARCHBASE)/data -d $(TARGETDIR)/data -e Makefile.in Makefile.am
+
+
+CPYFILES := CHANGES.txt COPYING.txt FAQ.txt README.txt
+
+
+ports-game-circuslinux-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/circuslinux/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-circuslinux-cpy
+
+#MM
+ports-game-circuslinux-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-circuslinux-cpy_SRC)),$(ports-game-circuslinux-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-circuslinux-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

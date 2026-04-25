@@ -1,0 +1,672 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-scummvm
+
+#MM- ports-emulation-scummvm : \
+#MM     aros-scummvm \
+#MM     aros-scummvm-themes-fetch \
+#MM     aros-scummvm-themes-copy
+
+#MM- aros-scummvm : \
+#MM     contrib-sdl \
+#MM     ports-libs-libmpeg
+
+PACKAGE      := scummvm
+VERSION      := 2.2.0
+TARGETDIR    := $(AROS_CONTRIB)/Emu/Scummvm
+REPOSITORIES := https://downloads.scummvm.org/frs/scummvm/$(VERSION)
+
+SCUMMVM_OPTS=--host=$(AROS_TARGET_CPU)-aros --enable-verbose-build --enable-c++11 --enable-release --enable-freetype2 --datarootdir=$(TARGETDIR)
+NOWARN_FLAGS := -Wno-expansion-to-defined -Wno-variadic-macros \
+                $(NOWARN_CLASS_MEMACCESS) $(NOWARN_IMPLICIT_FALLTHROUGH) \
+                $(NOWARN_FORMAT_OVERFLOW)
+USER_CXXFLAGS := -fvisibility=hidden  -fvisibility-inlines-hidden
+USER_CPPFLAGS := -D__BSDSOCKET_NOLIBBASE__
+USER_INCLUDES := -I$(AROS_INCLUDES)/SDL -I$(AROS_CONTRIB_INCLUDES) $(NOWARN_FLAGS)
+USER_LDFLAGS := -static-libstdc++
+OPTIMIZATION_CFLAGS:=
+
+
+#MM- aros-scummvm-quick : aros-scummvm--quick
+#MM- aros-scummvm--quick : aros-scummvm--fetch
+#MM- aros-scummvm-fetch : aros-scummvm--fetch
+#MM- aros-scummvm-create-patch : aros-scummvm--create-patch
+#MM- aros-scummvm-create-patch-quick : aros-scummvm--create-patch
+ 
+aros-scummvm-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    aros-scummvm-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    aros-scummvm-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    aros-scummvm-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    aros-scummvm-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    aros-scummvm--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    aros-scummvm--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    aros-scummvm--srcdir        ?= 
+else
+    aros-scummvm--srcdir        ?= $(aros-scummvm-archbase)
+endif
+
+ifneq (,)
+    aros-scummvm--builddir      ?= $(aros-scummvm--srcdir)/
+else
+    aros-scummvm--builddir      ?= $(aros-scummvm--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    aros-scummvm--patches_specs ?= $(aros-scummvm--archbase)-aros.diff:$(aros-scummvm--srcdir):-f,-p1
+else
+    aros-scummvm--patches_specs ?= ::
+endif
+else
+    aros-scummvm--patches_specs ?= 
+endif
+
+
+.PHONY: aros-scummvm--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    aros-scummvm--fetch-location := $(PORTSSOURCEDIR)
+else
+    aros-scummvm--fetch-location := $(aros-scummvm-portdir)
+endif
+
+ifneq (,)
+    aros-scummvm--fetch-baseflag := -b 
+else
+    aros-scummvm--fetch-baseflag :=
+endif
+
+aros-scummvm--fetch-fetchedflag := $(aros-scummvm--fetch-location)/.$(aros-scummvm--archbase)-fetched
+
+#MM
+aros-scummvm--fetch :
+	$(Q)$(ECHO) "Fetching   $(aros-scummvm--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(aros-scummvm--archbase) -s "tar.xz tar.bz2 tar.gz" -l $(aros-scummvm--fetch-location) \
+	-d $(aros-scummvm-portdir) $(aros-scummvm--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(aros-scummvm--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(aros-scummvm--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(aros-scummvm--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: aros-scummvm--create-patch
+
+ifneq (,)
+    aros-scummvm--create-patch-location := 
+else
+    aros-scummvm--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    aros-scummvm--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(aros-scummvm--srcdir),)
+    aros-scummvm--create-patch-srcdir   := $(aros-scummvm--srcdir)
+else
+    aros-scummvm--create-patch-srcdir   := $(aros-scummvm--archbase)
+endif
+
+ifeq (no,yes)
+    aros-scummvm--create-patch-diffflag   := --strip-trailing-cr
+else
+    aros-scummvm--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    aros-scummvm--create-patch-baseflag := -b /tmp
+    aros-scummvm--create-patch-base := 
+else
+    aros-scummvm--create-patch-baseflag :=
+    aros-scummvm--create-patch-base := $(aros-scummvm-portdir)
+endif
+
+#MM- aros-scummvm--create-patch :  aros-scummvm--create-patch-diff 
+#MM- aros-scummvm--create-patch-quick :  aros-scummvm--create-patch-diff 
+
+#MM
+aros-scummvm--create-patch-diff:
+	$(Q)$(FOR) dir in $(aros-scummvm--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(aros-scummvm--create-patch-base)/$(aros-scummvm--create-patch-srcdir) $(aros-scummvm--create-patch-base)/tmp/$(aros-scummvm--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(aros-scummvm--archbase) -s "tar.xz tar.bz2 tar.gz" -f -l $(aros-scummvm--create-patch-location) -d $(aros-scummvm-portdir) $(aros-scummvm--create-patch-baseflag); \
+	$(MV) $(aros-scummvm--create-patch-base)/$(aros-scummvm--create-patch-srcdir) $(aros-scummvm--create-patch-base)/tmp/$(aros-scummvm--create-patch-srcdir) ; \
+	cd $(aros-scummvm--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(aros-scummvm--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(aros-scummvm--create-patch-diffflag) $(aros-scummvm--create-patch-exclude) \
+	    $(aros-scummvm--create-patch-srcdir) \
+	    $(aros-scummvm--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(aros-scummvm--archbase)-aros-new.diff ; \
+	$(MV) $(aros-scummvm--create-patch-base)/tmp/$(aros-scummvm--create-patch-srcdir).aros $(aros-scummvm--create-patch-base)/$(aros-scummvm--create-patch-srcdir) ; \
+	$(RM) $(aros-scummvm--create-patch-base)/tmp
+
+#MM aros-scummvm : aros-scummvm-
+#MM
+aros-scummvm:
+	$(Q)$(NOP)
+
+aros-scummvm--package-dir := $(aros-scummvm-portdir)/$(aros-scummvm--archbase)
+
+aros-scummvm--package-basename := \
+    $(DISTDIR)/Packages/$(aros-scummvm--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    aros-scummvm--package := $(aros-scummvm--package-basename).tar.bz2
+endif
+
+
+ifneq ($(aros-scummvm-prefix),)
+    aros-scummvm--prefix := $(aros-scummvm-prefix)
+else
+    aros-scummvm--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    aros-scummvm--aros_prefix := 
+else
+    aros-scummvm--aros_prefix := $(aros-scummvm--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    aros-scummvm--nix    := $(BD_NIXFLAG)
+    aros-scummvm--volpfx := /
+    aros-scummvm--volsfx := /
+    
+    ifeq (no,)
+        aros-scummvm--nix_dir_layout := yes
+    endif
+else
+    aros-scummvm--volsfx := :
+    
+    ifeq (no,)
+        aros-scummvm--nix_dir_layout := no
+    endif
+endif
+
+aros-scummvm--volfunc = $(aros-scummvm--volpfx)$(notdir $1)$(aros-scummvm--volsfx)
+
+aros-scummvm--install_opts += prefix=$(aros-scummvm--prefix) \
+        exec_prefix=$(aros-scummvm--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        aros-scummvm--pkgbasedir := $(HOSTGENDIR)
+    else
+        aros-scummvm--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        aros-scummvm--pkgbasedir := $(GENDIR)
+    else
+        aros-scummvm--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        aros-scummvm--pkgbasedir := 
+    else
+        aros-scummvm--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    aros-scummvm--pkgdir := $(aros-scummvm--pkgbasedir)
+else
+    aros-scummvm--pkgdir := $(aros-scummvm--pkgbasedir)/$(PACKAGE)
+endif
+
+aros-scummvm--configflag ?= $(aros-scummvm--pkgdir)/.configured
+aros-scummvm--installflag ?= $(aros-scummvm--pkgdir)/.installed
+
+ifeq ($(filter yes, $(aros-scummvm--nix_dir_layout) $(host)),yes)
+    aros-scummvm--PROGDIR      := $(aros-scummvm--aros_prefix)/bin
+    aros-scummvm--config_opts  := --prefix=$(aros-scummvm--aros_prefix)
+else
+    ifeq (no,yes)
+        aros-scummvm--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        aros-scummvm--config_opts  := --prefix=$(aros-scummvm--aros_prefix)
+    endif
+
+    aros-scummvm--PROGDIR := $(aros-scummvm--aros_prefix)
+    
+    aros-scummvm--install_opts := bindir=$(aros-scummvm--prefix) \
+        sbindir=$(aros-scummvm--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    aros-scummvm--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+aros-scummvm--TARGET_LDFLAGS :=
+else
+aros-scummvm--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    aros-scummvm--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    aros-scummvm--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    aros-scummvm--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    aros-scummvm--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(aros-scummvm--nix)
+endif
+endif
+aros-scummvm--TARGET_CC?=$(TARGET_CC)
+aros-scummvm--KERNEL_CC?=$(KERNEL_CC)
+aros-scummvm--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    aros-scummvm--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    aros-scummvm--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    aros-scummvm--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    aros-scummvm--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(aros-scummvm--nix)
+endif
+endif
+aros-scummvm--TARGET_CXX?=$(TARGET_CXX)
+aros-scummvm--KERNEL_CXX?=$(KERNEL_CXX)
+aros-scummvm--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    aros-scummvm--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(aros-scummvm--HOST_CC) $(aros-scummvm--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(aros-scummvm--HOST_CXX) $(aros-scummvm--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    aros-scummvm--cfg-env += TARGET_CC="$(strip $(aros-scummvm--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(aros-scummvm--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(aros-scummvm--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(aros-scummvm--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    aros-scummvm--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    aros-scummvm--cfg-env += \
+        CPP="$(strip $(aros-scummvm--CROSS_CPP) $(aros-scummvm--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(aros-scummvm--CROSS_CPP) $(aros-scummvm--CROSS_SYSROOT))" \
+        CC="$(strip $(aros-scummvm--CROSS_CC) $(aros-scummvm--CROSS_SYSROOT))" \
+        CXX="$(strip $(aros-scummvm--CROSS_CXX) $(aros-scummvm--CROSS_SYSROOT))" \
+        LD="$(strip $(aros-scummvm--CROSS_LD))" \
+        AS="$(strip $(aros-scummvm--CROSS_AS))" \
+        AFLAGS="$(strip $(aros-scummvm--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(aros-scummvm--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(aros-scummvm--CROSS_RANLIB))" \
+        STRIP="$(strip $(aros-scummvm--CROSS_STRIP))" \
+        CFLAGS="$(strip $(aros-scummvm--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(aros-scummvm--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(aros-scummvm--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(aros-scummvm--CROSS_LDFLAGS))"
+    aros-scummvm--cfg-env += CC_FOR_HOST="$(strip $(aros-scummvm--CROSS_CC) $(aros-scummvm--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(aros-scummvm--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(aros-scummvm--CROSS_CXX) $(aros-scummvm--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(aros-scummvm--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(aros-scummvm--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(aros-scummvm--CROSS_LDFLAGS))"
+else
+    aros-scummvm--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(aros-scummvm--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(aros-scummvm--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    aros-scummvm--cfg-env += CFLAGS="$(strip $(aros-scummvm--TARGET_CFLAGS) $(aros-scummvm--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(aros-scummvm--TARGET_CXXFLAGS) $(aros-scummvm--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    aros-scummvm--cfg-env += LDFLAGS="$(strip $(aros-scummvm--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(aros-scummvm--nix) $(aros-scummvm--s_flag))"
+    aros-scummvm--cfg-env += LT_LDFLAGS="$(strip $(aros-scummvm--TARGET_LDFLAGS))"
+    aros-scummvm--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    aros-scummvm--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(aros-scummvm--ACBUILD_CPPFLAGS))"
+endif
+    aros-scummvm--cfg-env += CC_FOR_BUILD="$(strip $(aros-scummvm--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(aros-scummvm--HOST_CFLAGS) $(aros-scummvm--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(aros-scummvm--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(aros-scummvm--HOST_CXXFLAGS) $(aros-scummvm--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(aros-scummvm--ACBUILD_LDFLAGS) $(aros-scummvm--s_flag))"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(aros-scummvm--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    aros-scummvm--cfg-env += CC_FOR_HOST="$(strip $(aros-scummvm--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(aros-scummvm--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(aros-scummvm--nix))" \
+        CXX_FOR_HOST="$(strip $(aros-scummvm--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(aros-scummvm--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(aros-scummvm--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(aros-scummvm--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(aros-scummvm--nix) $(aros-scummvm--s_flag))"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(aros-scummvm--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    aros-scummvm--cfg-env += CC_FOR_TARGET="$(strip $(aros-scummvm--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(aros-scummvm--TARGET_CFLAGS) $(aros-scummvm--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(aros-scummvm--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(aros-scummvm--TARGET_CXXFLAGS) $(aros-scummvm--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(aros-scummvm--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(aros-scummvm--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(aros-scummvm--nix) $(aros-scummvm--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    aros-scummvm--cfg-env += TARGET_CC="$(strip $(aros-scummvm--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(aros-scummvm--KERNEL_CFLAGS) $(aros-scummvm--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(aros-scummvm--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(aros-scummvm--KERNEL_CXXFLAGS) $(aros-scummvm--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (no,yes)
+    aros-scummvm--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    aros-scummvm--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    aros-scummvm--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (no,yes)
+    aros-scummvm--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    aros-scummvm--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    aros-scummvm--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    aros-scummvm--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    aros-scummvm--cfg-env += CC="$(strip $(aros-scummvm--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(aros-scummvm--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(aros-scummvm--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(aros-scummvm--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    aros-scummvm--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    aros-scummvm--cfg-env += CC_FOR_BUILD="$(aros-scummvm--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(aros-scummvm--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(aros-scummvm--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(aros-scummvm--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (no,yes)
+    aros-scummvm--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    aros-scummvm--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    aros-scummvm--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (no,yes)
+    aros-scummvm--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    aros-scummvm--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    aros-scummvm--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (yes,yes)
+    BUILD_ENV := $(aros-scummvm--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+aros-scummvm--touchfileflag ?= $(aros-scummvm--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(aros-scummvm-portdir)/$(aros-scummvm--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(aros-scummvm--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(aros-scummvm--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(aros-scummvm--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(aros-scummvm-portdir)/$(aros-scummvm--builddir)/." $(aros-scummvm--pkgdir)/ && $(TOUCH) $@
+
+$(aros-scummvm--touchfileflag) : $(aros-scummvm--pkgdir)/.local-copy
+
+    aros-scummvm--cfg-srcdir=$(aros-scummvm--pkgdir)
+else
+    aros-scummvm--cfg-srcdir=$(aros-scummvm-portdir)/$(aros-scummvm--builddir)
+endif
+aros-scummvm--make-env += -C $(aros-scummvm--pkgdir)
+
+.PHONY : aros-scummvm- aros-scummvm--clean aros-scummvm--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- aros-scummvm--host : setup includes aros-scummvm--quick
+#MM- aros-scummvm--target : setup includes core-linklibs aros-scummvm--quick
+#MM- aros-scummvm-: aros-scummvm--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    aros-scummvm--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(aros-scummvm--pkgdir))" && \
+        $(MAKE) PROGDIR="$(aros-scummvm--PROGDIR)/" $(aros-scummvm--install_opts) \
+        $(aros-scummvm--make-env) install -j1
+
+    aros-scummvm--uninstall_command = \
+    $(RM) $(aros-scummvm--installflag) && \
+    $(MAKE) PROGDIR="$(aros-scummvm--PROGDIR)/" \
+    $(aros-scummvm--install_opts) $(aros-scummvm--make-env) uninstall
+else
+    aros-scummvm--install_command   := true
+    aros-scummvm--uninstall_command := true
+endif
+
+#MM- aros-scummvm--quick :  aros-scummvm--configure  aros-scummvm--build_and_install-quick aros-scummvm--make-package
+
+#MM
+aros-scummvm--build_and_install-quick :  $(aros-scummvm--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(aros-scummvm--installflag) : $(aros-scummvm--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call aros-scummvm--volfunc, PROGDIR)" -q $(aros-scummvm--make-env); then \
+	    $(RM) $(aros-scummvm--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(aros-scummvm--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call aros-scummvm--volfunc, PROGDIR)" $(aros-scummvm--make-env) && \
+	    $(aros-scummvm--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(aros-scummvm--touchfileflag):
+	$(Q)$(FOR) dir in $(aros-scummvm--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(aros-scummvm-portdir)/$(aros-scummvm--builddir) -exec $(TOUCH) -c -r $(aros-scummvm--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+aros-scummvm--uninstall :
+	$(aros-scummvm--uninstall_command)
+
+#MM
+aros-scummvm--configure : $(aros-scummvm--configflag)
+
+$(aros-scummvm--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(aros-scummvm--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(aros-scummvm--configflag) : $(aros-scummvm--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(aros-scummvm--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(aros-scummvm--pkgdir))"
+	$(aros-scummvm--init-env)
+	$(Q)cd $(aros-scummvm--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(aros-scummvm--cfg-env) $(TMP_SRCDIR)/configure $(aros-scummvm--config_opts) $(SCUMMVM_OPTS) && \
+	$(TOUCH) $@
+
+#MM
+aros-scummvm--clean : aros-scummvm--uninstall
+	$(Q)$(RM) $(aros-scummvm--pkgdir)
+
+.PHONY : aros-scummvm--make-package aros-scummvm--create-patch
+#MM aros-scummvm--make-package : aros-scummvm--quick
+
+#MM
+aros-scummvm--make-package : $(aros-scummvm--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(aros-scummvm--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(aros-scummvm-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(aros-scummvm--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(aros-scummvm-prefix)" ; \
+	    cd $(aros-scummvm--package-dir) ; \
+	    tar -cvf $(aros-scummvm--package-basename).tar * ; \
+	    bzip2 -9 -f $(aros-scummvm--package-basename).tar ; \
+	fi
+
+SCUMMVM_THEME="Modern_ice.zip"
+
+
+.PHONY: aros-scummvm-themes-fetch
+
+ifneq ($(PORTSDIR)/$(PACKAGE),)
+    aros-scummvm-themes-fetch-location := $(PORTSDIR)/$(PACKAGE)
+else
+    aros-scummvm-themes-fetch-location := .
+endif
+
+ifneq (,)
+    aros-scummvm-themes-fetch-baseflag := -b 
+else
+    aros-scummvm-themes-fetch-baseflag :=
+endif
+
+aros-scummvm-themes-fetch-fetchedflag := $(aros-scummvm-themes-fetch-location)/.$(SCUMMVM_THEME)-fetched
+
+#MM
+aros-scummvm-themes-fetch :
+	$(Q)$(ECHO) "Fetching   $(SCUMMVM_THEME) ..."
+	$(Q)$(FETCH) -ao "http://wiki.scummvm.org/images/c/c7" -a $(SCUMMVM_THEME) -s "" -l $(aros-scummvm-themes-fetch-location) \
+	-d . $(aros-scummvm-themes-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(aros-scummvm-themes-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(aros-scummvm-themes-fetch-fetchedflag) ; \
+	fi
+
+
+aros-scummvm-themes-copy_SRC := $(shell $(ECHO) $(PORTSDIR)/$(PACKAGE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/data
+else
+setup :: $(TARGETDIR)/data
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/data
+
+
+.PHONY : aros-scummvm-themes-copy
+
+#MM
+aros-scummvm-themes-copy : | $(TARGETDIR)/data 
+	$(foreach file, $(SCUMMVM_THEME), $(shell $(CP) $(addprefix $(if $(filter /%,$(aros-scummvm-themes-copy_SRC)),$(aros-scummvm-themes-copy_SRC),$(SRCDIR)/$(CURDIR)/$(aros-scummvm-themes-copy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/data/, $(file))))
+
+
+#MM
+ports-emulation-scummvm-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

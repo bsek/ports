@@ -1,0 +1,55 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-print-a2ps : ports-print-a2ps-icons
+
+TARGETDIR := $(AROS_CONTRIB)/Utilities/Print
+ICONS     := A2ps
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-print-a2ps-icons : $(BD_OBJS)
+
+ifeq (,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-print-a2ps-icons-clean : FILES := $(BD_OBJS)
+#MM
+ports-print-a2ps-icons-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-print-a2ps-icons ports-print-a2ps-icons-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

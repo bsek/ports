@@ -1,0 +1,1558 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-xpired
+
+#MM- ports-game-xpired : ports-game-xpiredbin ports-game-xpiredit \
+#MM  ports-game-xpired-cpy \
+#MM  ports-game-xpired-img ports-game-xpired-snd ports-game-xpired-fetch
+
+#MM  ports-game-xpiredbin : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-gfx contrib-sdl-sdl-mixer ports-game-xpired-fetch
+
+#MM  ports-game-xpiredit : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-gfx ports-game-xpired-fetch
+
+#MM  ports-game-xpired-img : ports-game-xpired-fetch
+
+#MM  ports-game-xpired-snd : ports-game-xpired-fetch
+
+#MM-  ports-game-xpired-quick : ports-game-xpiredbin-quick ports-game-xpiredit-quick
+
+#MM-  ports-game-xpired-clean : ports-game-xpiredbin-clean ports-game-xpiredit-clean
+
+REPOSITORIES := sf://xpired
+ARCHBASE     := xpired-1.22
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/Xpired
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_CHAR_SUBSCRIPTS) $(NOWARN_UNUSED_VARIABLE) $(NOWARN_MISLEADING_INDENTATION) $(NOWARN_ENDIF_LABELS) $(NOWARN_FORMAT)
+USER_CFLAGS  := $(NOWARN_FLAGS) $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags) -DUNIX -DSHARE_PREFIX=\"PROGDIR:data\"
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+
+.PHONY : ports-game-xpiredbin
+
+#MM- ports-game-xpiredbin : \
+#MM             ports-game-xpiredbin-$(CPU)
+
+#MM- ports-game-xpiredbin-$(ARCH)-$(CPU) : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-xpiredbin-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(CPU)
+
+#MM- ports-game-xpiredbin-$(ARCH) : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-xpiredbin-$(FAMILY) : \
+#MM             ports-game-xpiredbin-$(ARCH)
+
+#MM- ports-game-xpiredbin-$(CPU) : \
+#MM             ports-game-xpiredbin-$(FAMILY)
+#MM- ports-game-xpiredbin-quick : \
+#MM             ports-game-xpiredbin-$(CPU)-quick
+
+#MM- ports-game-xpiredbin-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-xpiredbin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-xpiredbin-$(ARCH)-quick : \
+#MM             ports-game-xpiredbin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-xpiredbin-$(FAMILY)-quick : \
+#MM             ports-game-xpiredbin-$(ARCH)-quick
+
+#MM- ports-game-xpiredbin-$(CPU)-quick : \
+#MM             ports-game-xpiredbin-$(FAMILY)-quick
+
+ports-game-xpiredbin_PROGNAME  := Xpired
+ports-game-xpiredbin_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-xpiredbin_TARGETDIR := $(TARGETDIR)
+ports-game-xpiredbin_LINKER    := 
+ports-game-xpiredbin_LIBS := SDL_image SDL_gfx png jpeg SDL_mixer mikmod vorbisfile vorbis ogg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-xpiredbin_LINKER),)
+    ports-game-xpiredbin_LINKER := target
+endif
+
+ifneq ("$(strip $(PORTSDIR)/xpired/$(ARCHBASE)/src/xpired   )","")
+    ports-game-xpiredbin_FILES     := $(PORTSDIR)/xpired/$(ARCHBASE)/src/xpired
+    ports-game-xpiredbin_OBJCFILES := 
+    ports-game-xpiredbin_ASMFILES  := 
+    ports-game-xpiredbin_CXXFILES := 
+else
+    ports-game-xpiredbin_FILES     := $(ports-game-xpiredbin_PROGNAME)
+    ports-game-xpiredbin_OBJCFILES :=
+    ports-game-xpiredbin_ASMFILES  :=
+    ports-game-xpiredbin_CXXFILES :=
+endif
+
+ports-game-xpiredbin_ARCHOBJS   := $(wildcard $(ports-game-xpiredbin_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-xpiredbin_ARCHFILES     := $(basename $(notdir $(ports-game-xpiredbin_ARCHOBJS)))
+else
+    ports-game-xpiredbin_ARCHFILES     := $(basename $(patsubst $(ports-game-xpiredbin_OBJDIR)/%,%,$(ports-game-xpiredbin_ARCHOBJS)))
+endif
+ports-game-xpiredbin_C_NARCHFILES := $(filter-out $(ports-game-xpiredbin_ARCHFILES),$(ports-game-xpiredbin_FILES))
+ports-game-xpiredbin_CXX_NARCHFILES := $(filter-out $(ports-game-xpiredbin_ARCHFILES),$(ports-game-xpiredbin_CXXFILES))
+ports-game-xpiredbin_OBJC_NARCHFILES := $(filter-out $(ports-game-xpiredbin_ARCHFILES),$(ports-game-xpiredbin_OBJCFILES))
+
+TMP_FILES := $(ports-game-xpiredbin_C_NARCHFILES) $(ports-game-xpiredbin_CXX_NARCHFILES) $(ports-game-xpiredbin_ASMFILES) $(ports-game-xpiredbin_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-xpiredbin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-xpiredbin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-xpiredbin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-xpiredbin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-xpiredbin_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-xpiredbin_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredbin_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-xpiredbin_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-xpiredbin_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredbin_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-xpiredbin_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-xpiredbin_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredbin_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-xpiredbin_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-xpiredbin_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-xpiredbin_LDFLAGS          := 
+endif
+
+ports-game-xpiredbin_CSTATICFLAGS   := `echo "$(ports-game-xpiredbin_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-xpiredbin_CSTDCFLAGS   :=  `echo "$(ports-game-xpiredbin_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-xpiredbin_CPOSIXCFLAGS   :=  `echo "$(ports-game-xpiredbin_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-xpiredbin_LDFLAGS          += $(strip $(ports-game-xpiredbin_CSTATICFLAGS) $(ports-game-xpiredbin_CSTDCFLAGS) $(ports-game-xpiredbin_CPOSIXCFLAGS))
+
+ports-game-xpiredbin_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-xpiredbin_COVERAGE := yes
+ports-game-xpiredbin_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-xpiredbin_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-xpiredbin_CFLAGS    := $(strip $(ports-game-xpiredbin_COVERAGEFLAGS) $(ports-game-xpiredbin_CFLAGS))
+ports-game-xpiredbin_CXXFLAGS := $(strip $(ports-game-xpiredbin_COVERAGEFLAGS) $(ports-game-xpiredbin_CXXFLAGS))
+ports-game-xpiredbin_LIBS += $(ports-game-xpiredbin_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-xpiredbin_FUNCINSTR := yes
+ports-game-xpiredbin_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-xpiredbin_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-xpiredbin_CFLAGS    := $(strip $(ports-game-xpiredbin_INSTRFUNCFLAGS) $(ports-game-xpiredbin_CFLAGS))
+ports-game-xpiredbin_CXXFLAGS := $(strip $(ports-game-xpiredbin_INSTRFUNCFLAGS) $(ports-game-xpiredbin_CXXFLAGS))
+ports-game-xpiredbin_LIBS += $(ports-game-xpiredbin_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-xpiredbin_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-xpiredbin_CFLAGS))
+ports-game-xpiredbin_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-xpiredbin_CXXFLAGS))
+endif
+endif
+ports-game-xpiredbin_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-xpiredbin_DFLAGS     := 
+else
+    ports-game-xpiredbin_DFLAGS     := $(ports-game-xpiredbin_CFLAGS)
+endif
+ifneq (,)
+    ports-game-xpiredbin_DXXFLAGS     := 
+else
+    ports-game-xpiredbin_DXXFLAGS     := $(ports-game-xpiredbin_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-xpiredbin_LDFLAGS           := $(ports-game-xpiredbin_LDFLAGS)
+ports-game-xpiredbin_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-xpiredbin_LDFLAGS           := $(ports-game-xpiredbin_LDFLAGS)
+ports-game-xpiredbin_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_LDFLAGS           := $(ports-game-xpiredbin_LDFLAGS)
+ports-game-xpiredbin_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-xpiredbin_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-xpiredbin-quick : ports-game-xpiredbin
+
+#MM ports-game-xpiredbin : includes-generate-deps core-linklibs
+ports-game-xpiredbin : $(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-xpiredbin_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-xpiredbin_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-xpiredbin_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-xpiredbin_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-xpiredbin_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-xpiredbin ports-game-xpiredbin-quick ports-game-xpiredbin-compress-quick),)
+
+ports-game-xpiredbin_CXXABSBASENAMES := $(foreach ports-game-xpiredbin_CXXBASE,$(ports-game-xpiredbin_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-xpiredbin_CXXBASE)),$(ports-game-xpiredbin_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-xpiredbin_CXXBASE))))
+
+ifneq ($(ports-game-xpiredbin_CXXABSBASENAMES),)
+
+ports-game-xpiredbin_CXXBASENAMES := $(basename $(ports-game-xpiredbin_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-xpiredbin_MCXX_FILES  := $(strip $(foreach ports-game-xpiredbin_CXXBASE,$(ports-game-xpiredbin_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-xpiredbin_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-xpiredbin_EXT),$(ports-game-xpiredbin_CXXBASE)))))))
+
+ifeq (,)
+ports-game-xpiredbin_MCXX_SRCWILDCARD := %
+else
+ports-game-xpiredbin_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredbin_OBJDIR),)
+  ports-game-xpiredbin_CXXTARGETS := $(notdir $(ports-game-xpiredbin_CXXBASENAMES:=.o))
+  ports-game-xpiredbin_CXXDTARGETS := $(notdir $(ports-game-xpiredbin_CXXBASENAMES:=.d))
+  ports-game-xpiredbin_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-xpiredbin_CXXTARGETS := $(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(ports-game-xpiredbin_CXXBASENAMES:=.o)))
+  ports-game-xpiredbin_CXXDTARGETS := $(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(ports-game-xpiredbin_CXXBASENAMES:=.d)))
+  ports-game-xpiredbin_MCXX_WILDCARD := $(ports-game-xpiredbin_OBJDIR)/%
+else
+  ports-game-xpiredbin_CXXTARGETS := $(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_CXXBASENAMES:=.o))
+  ports-game-xpiredbin_CXXDTARGETS := $(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_CXXBASENAMES:=.d))
+  ports-game-xpiredbin_MCXX_WILDCARD := $(ports-game-xpiredbin_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-xpiredbin_CXXTARGETS) $(ports-game-xpiredbin_CXXDTARGETS) : | $(ports-game-xpiredbin_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-xpiredbin_MCXX_CPPFLAGS := $(ports-game-xpiredbin_CPPFLAGS)
+ports-game-xpiredbin_CXXFLAGS := $(ports-game-xpiredbin_CXXFLAGS)
+ifeq ($(ports-game-xpiredbin_DXXFLAGS),)
+  ports-game-xpiredbin_DXXFLAGS := $(ports-game-xpiredbin_CXXFLAGS)
+else
+  ports-game-xpiredbin_DXXFLAGS := $(ports-game-xpiredbin_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-xpiredbin_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-xpiredbin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-xpiredbin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-xpiredbin_STRIP ?= $(HOST_STRIP)
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-xpiredbin_CXXCMD:=$(HOST_CXX)
+  ports-game-xpiredbin_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS) $(ports-game-xpiredbin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredbin_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-xpiredbin_CXXFLAGS))
+  ports-game-xpiredbin_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-xpiredbin_DXXFLAGS))
+  ports-game-xpiredbin_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-xpiredbin_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-xpiredbin_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-xpiredbin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-xpiredbin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-xpiredbin_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-xpiredbin_LDFLAGS ?= $(ports-game-xpiredbin_CXXLDFLAGS)
+  ports-game-xpiredbin_STRIP ?= $(TARGET_STRIP)
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-xpiredbin_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-xpiredbin_MCXX_CPPFLAGS := $(strip $(ports-game-xpiredbin_MCXX_CPPFLAGS) $(ports-game-xpiredbin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredbin_CXXFLAGS := $(strip $(ports-game-xpiredbin_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-xpiredbin_DXXFLAGS := $(ports-game-xpiredbin_DXXFLAGS)
+  ports-game-xpiredbin_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-xpiredbin_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-xpiredbin_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-xpiredbin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-xpiredbin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-xpiredbin_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-xpiredbin_LDFLAGS ?= $(ports-game-xpiredbin_CXXLDFLAGS)
+  ports-game-xpiredbin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-xpiredbin_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-xpiredbin_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS) $(ports-game-xpiredbin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredbin_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-xpiredbin_CXXFLAGS))
+  ports-game-xpiredbin_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-xpiredbin_DXXFLAGS))
+  ports-game-xpiredbin_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-xpiredbin_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-xpiredbin_CXXCMD) $(ports-game-xpiredbin_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredbin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) . $(ports-game-xpiredbin_CXXIQUOTE_END) $(strip $(ports-game-xpiredbin_CXXFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-xpiredbin_CXXCMD) $(ports-game-xpiredbin_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredbin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) . $(ports-game-xpiredbin_CXXIQUOTE_END) $(strip $(ports-game-xpiredbin_CXXFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-xpiredbin_CXXCMD) $(ports-game-xpiredbin_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredbin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_CXXIQUOTE) . $(ports-game-xpiredbin_CXXIQUOTE_END) $(strip $(ports-game-xpiredbin_CXXFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-xpiredbin_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-xpiredbin_DXXFLAGS) $(ports-game-xpiredbin_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-xpiredbin_OBJDIR),)
+  $(foreach ports-game-xpiredbin_CXXFILE,$(ports-game-xpiredbin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-xpiredbin_CXXFILE))),$(ports-game-xpiredbin_CXXFILE))))
+else
+  $(foreach ports-game-xpiredbin_CXXFILE,$(ports-game-xpiredbin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(basename $(ports-game-xpiredbin_CXXFILE)))),$(ports-game-xpiredbin_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-xpiredbin_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-xpiredbin_MOBJC_SRCWILDCARD := %
+else
+ports-game-xpiredbin_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredbin_OBJDIR),)
+  ports-game-xpiredbin_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-xpiredbin_OBJC_NARCHFILES))
+  ports-game-xpiredbin_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-xpiredbin_OBJC_NARCHFILES))
+  ports-game-xpiredbin_MOBJC_WILDCARD := %
+else
+  ports-game-xpiredbin_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_OBJC_NARCHFILES)))
+  ports-game-xpiredbin_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_OBJC_NARCHFILES)))
+  ports-game-xpiredbin_MOBJC_WILDCARD := $(ports-game-xpiredbin_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-xpiredbin_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-xpiredbin_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-xpiredbin_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredbin_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-xpiredbin_MOBJC_DIRS := $(foreach dir, $(ports-game-xpiredbin_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredbin_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-xpiredbin_MOBJC_DIRS),)
+    ports-game-xpiredbin_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-xpiredbin_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-xpiredbin_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-xpiredbin_CC := $(TARGET_CC)
+else
+  ports-game-xpiredbin_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-xpiredbin_MOBJC_CPPFLAGS := $(ports-game-xpiredbin_CPPFLAGS)
+ports-game-xpiredbin_OBJCFLAGS := $(ports-game-xpiredbin_CFLAGS)
+ports-game-xpiredbin_OBJCFLAGS := $(ports-game-xpiredbin_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-xpiredbin_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-xpiredbin_OBJCFLAGS)))
+ifeq ($(ports-game-xpiredbin_DFLAGS),)
+  ports-game-xpiredbin_OBJCDFLAGS := $(ports-game-xpiredbin_CFLAGS)
+else
+  ports-game-xpiredbin_OBJCDFLAGS := $(ports-game-xpiredbin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-xpiredbin_LINK ?= $(strip $(ports-game-xpiredbin_CC) $(TARGET_SYSROOT))
+  ports-game-xpiredbin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-xpiredbin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-xpiredbin_STRIP ?= $(TARGET_STRIP)
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-xpiredbin_CC) $(TARGET_SYSROOT))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_MOBJC_CPPFLAGS:=$(strip $(ports-game-xpiredbin_MOBJC_CPPFLAGS) $(ports-game-xpiredbin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCFLAGS:=$(strip $(ports-game-xpiredbin_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCDFLAGS:=$(ports-game-xpiredbin_OBJCDFLAGS)
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-xpiredbin_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-xpiredbin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-xpiredbin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-xpiredbin_STRIP ?= $(HOST_STRIP)
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-xpiredbin_MOBJC_CPPFLAGS) $(ports-game-xpiredbin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredbin_OBJCFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredbin_OBJCDFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-xpiredbin_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-xpiredbin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-xpiredbin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-xpiredbin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-xpiredbin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-xpiredbin_MOBJC_CPPFLAGS) $(ports-game-xpiredbin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredbin_OBJCFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredbin_OBJCDFLAGS))
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-xpiredbin_MOBJC_TARGETS) $(ports-game-xpiredbin_MOBJC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-xpiredbin_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-xpiredbin_MOBJC_CPPFLAGS)
+$(ports-game-xpiredbin_MOBJC_TARGETS) : CFLAGS := $(ports-game-xpiredbin_OBJCFLAGS)
+$(ports-game-xpiredbin_MOBJC_TARGETS) : $(ports-game-xpiredbin_MOBJC_WILDCARD).o : $(ports-game-xpiredbin_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-xpiredbin_MOBJC_DTARGETS) : $(ports-game-xpiredbin_MOBJC_WILDCARD).d : $(ports-game-xpiredbin_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-xpiredbin_OBJCDFLAGS) $(ports-game-xpiredbin_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-xpiredbin_MC_SRCWILDCARD := %
+else
+ports-game-xpiredbin_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredbin_OBJDIR),)
+ports-game-xpiredbin_MC_TARGETS := $(addsuffix .o,$(ports-game-xpiredbin_C_NARCHFILES))
+ports-game-xpiredbin_MC_DTARGETS := $(addsuffix .d,$(ports-game-xpiredbin_C_NARCHFILES))
+ports-game-xpiredbin_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-xpiredbin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(ports-game-xpiredbin_C_NARCHFILES))))
+    ports-game-xpiredbin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(ports-game-xpiredbin_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-xpiredbin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_C_NARCHFILES)))
+    ports-game-xpiredbin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(ports-game-xpiredbin_C_NARCHFILES)))
+else
+    ports-game-xpiredbin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(patsubst /%,%,$(ports-game-xpiredbin_C_NARCHFILES))))
+    ports-game-xpiredbin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(patsubst /%,%,$(ports-game-xpiredbin_C_NARCHFILES))))
+endif
+endif
+ports-game-xpiredbin_MC_TGTWILDCARD := $(ports-game-xpiredbin_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-xpiredbin_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-xpiredbin_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-xpiredbin_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredbin_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-xpiredbin_MC_DIRS := $(foreach dir, $(ports-game-xpiredbin_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredbin_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-xpiredbin_MC_DIRS),)
+    ports-game-xpiredbin_MC_DIRS := $(shell $(ECHO) $(ports-game-xpiredbin_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-xpiredbin_MC_DIRS)
+endif
+
+endif
+
+ports-game-xpiredbin_MC_CPPFLAGS := $(ports-game-xpiredbin_CPPFLAGS)
+ports-game-xpiredbin_CFLAGS := $(ports-game-xpiredbin_CFLAGS)
+ifeq ($(ports-game-xpiredbin_DFLAGS),)
+  ports-game-xpiredbin_DFLAGS := $(ports-game-xpiredbin_CFLAGS)
+else
+  ports-game-xpiredbin_DFLAGS := $(ports-game-xpiredbin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-xpiredbin_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-xpiredbin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-xpiredbin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-xpiredbin_STRIP ?= $(TARGET_STRIP)
+ports-game-xpiredbin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_MC_CPPFLAGS:=$(strip $(ports-game-xpiredbin_MC_CPPFLAGS) $(ports-game-xpiredbin_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_CFLAGS:=$(strip $(ports-game-xpiredbin_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_DFLAGS:=$(ports-game-xpiredbin_DFLAGS)
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-xpiredbin_LINK ?= $(strip $(HOST_CC))
+ports-game-xpiredbin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-xpiredbin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-xpiredbin_STRIP ?= $(HOST_STRIP)
+ports-game-xpiredbin_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-xpiredbin_MC_CPPFLAGS) $(ports-game-xpiredbin_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredbin_CFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredbin_DFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-xpiredbin_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-xpiredbin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-xpiredbin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-xpiredbin_STRIP ?= $(ECHO) >/dev/null
+ports-game-xpiredbin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-xpiredbin_MC_CPPFLAGS) $(ports-game-xpiredbin_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredbin_CFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredbin_DFLAGS))
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-xpiredbin_MC_TARGETS) $(ports-game-xpiredbin_MC_DTARGETS) : ports-game-xpiredbin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-xpiredbin_MC_TARGETS) : CPPFLAGS := $(ports-game-xpiredbin_MC_CPPFLAGS)
+$(ports-game-xpiredbin_MC_TARGETS) : CFLAGS := $(ports-game-xpiredbin_CFLAGS)
+$(ports-game-xpiredbin_MC_TARGETS) : $(ports-game-xpiredbin_MC_TGTWILDCARD).o : $(ports-game-xpiredbin_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-xpiredbin_IQUOTE) $(dir $<) $(ports-game-xpiredbin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredbin_IQUOTE) . $(ports-game-xpiredbin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-xpiredbin_MC_DTARGETS) : $(ports-game-xpiredbin_MC_TGTWILDCARD).d : $(ports-game-xpiredbin_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-xpiredbin_DFLAGS) $(ports-game-xpiredbin_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-xpiredbin_OBJDIR),)
+ports-game-xpiredbin-MA_TARGETS := $(addsuffix .o,$(ports-game-xpiredbin_ASMFILES))
+ports-game-xpiredbin-MA_WILDCARD := %
+else
+ports-game-xpiredbin-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredbin_OBJDIR)/,$(notdir $(ports-game-xpiredbin_ASMFILES))))
+ports-game-xpiredbin-MA_WILDCARD := $(ports-game-xpiredbin_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-xpiredbin-MA_TARGETS) : | $(addsuffix .s,$(ports-game-xpiredbin_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-xpiredbin-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-xpiredbin-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredbin_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-xpiredbin-MA_DIRS := $(foreach dir, $(ports-game-xpiredbin-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredbin-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-xpiredbin-MA_DIRS),)
+    ports-game-xpiredbin-MA_DIRS := $(shell $(ECHO) $(ports-game-xpiredbin-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-xpiredbin-MA_DIRS)
+endif
+
+endif
+
+ports-game-xpiredbin-MA_ASSEMBLER ?= $(ports-game-xpiredbin_ASSEMBLER)
+
+$(ports-game-xpiredbin-MA_TARGETS) : ports-game-xpiredbin-MA_CMD:= $(ports-game-xpiredbin-MA_ASSEMBLER)
+
+$(ports-game-xpiredbin-MA_TARGETS) : CPPFLAGS := $(ports-game-xpiredbin_CPPFLAGS)
+$(ports-game-xpiredbin-MA_TARGETS) : AFLAGS := $(ports-game-xpiredbin_AFLAGS)
+$(ports-game-xpiredbin-MA_TARGETS) : $(ports-game-xpiredbin-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-xpiredbin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-xpiredbin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-xpiredbin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-xpiredbin-link_LD_OPTS := 
+ports-game-xpiredbin-link_EXTRA_LIBS :=
+ifeq (yes,yes)
+    ports-game-xpiredbin-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-xpiredbin-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-xpiredbin-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-xpiredbin-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-xpiredbin_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-xpiredbin-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-xpiredbin-link_DIRS)))
+# Add trailing /
+ports-game-xpiredbin-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-xpiredbin-link_DIRS)))
+# Add normal linklib path
+ports-game-xpiredbin-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-xpiredbin-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-xpiredbin_LIBS) $(ports-game-xpiredbin-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-xpiredbin-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-xpiredbin-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-xpiredbin-link_DEPLIBS := $(foreach lib,$(ports-game-xpiredbin-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-xpiredbin-link_DIRS)))) \
+)
+
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : OBJDIR := $(ports-game-xpiredbin_OBJDIR)
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : OBJS := $(strip $(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_ARCHOBJS) $(USER_OBJS))
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : LDFLAGS := $(strip $(ports-game-xpiredbin_LDFLAGS))
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-xpiredbin_LIBS) $(ports-game-xpiredbin-link_EXTRA_LIBS)))
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-xpiredbin_ARCHLIBS))
+$(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : $(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_ARCHOBJS) $(USER_OBJS) $(ports-game-xpiredbin-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-xpiredbin_LINK) $(strip $(ports-game-xpiredbin_LD_OPTS) $(ports-game-xpiredbin-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-xpiredbin_LINK) $(strip $(ports-game-xpiredbin_LD_OPTS) $(ports-game-xpiredbin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-xpiredbin_LINK) $(strip $(ports-game-xpiredbin_LD_OPTS) $(ports-game-xpiredbin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-xpiredbin_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-xpiredbin_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-xpiredbin_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-xpiredbin_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-xpiredbin_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-xpiredbin_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-xpiredbin_DEPS),)
+  ifneq (ports-game-xpiredbin ports-game-xpiredbin-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-xpiredbin ports-game-xpiredbin-quick),)
+      -include $(ports-game-xpiredbin_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-xpiredbin_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_DEPS) $(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME),)
+$(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_DEPS) $(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) : | $(ports-game-xpiredbin_OBJDIR) $(ports-game-xpiredbin_TARGETDIR)
+else
+$(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_DEPS) $(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) :: $(ports-game-xpiredbin_OBJDIR) $(ports-game-xpiredbin_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-xpiredbin_OBJDIR) $(ports-game-xpiredbin_TARGETDIR)
+
+
+ports-game-xpiredbin-clean : FILES := $(ports-game-xpiredbin_OBJS) $(ports-game-xpiredbin_TARGETDIR)/$(ports-game-xpiredbin_PROGNAME) $(ports-game-xpiredbin_DEPS)
+#MM
+ports-game-xpiredbin-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-xpiredbin"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY : ports-game-xpiredit
+
+#MM- ports-game-xpiredit : \
+#MM             ports-game-xpiredit-$(CPU)
+
+#MM- ports-game-xpiredit-$(ARCH)-$(CPU) : \
+#MM             ports-game-xpiredit-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-xpiredit-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-xpiredit-$(ARCH)-$(CPU)
+
+#MM- ports-game-xpiredit-$(ARCH) : \
+#MM             ports-game-xpiredit-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-xpiredit-$(FAMILY) : \
+#MM             ports-game-xpiredit-$(ARCH)
+
+#MM- ports-game-xpiredit-$(CPU) : \
+#MM             ports-game-xpiredit-$(FAMILY)
+#MM- ports-game-xpiredit-quick : \
+#MM             ports-game-xpiredit-$(CPU)-quick
+
+#MM- ports-game-xpiredit-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-xpiredit-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-xpiredit-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-xpiredit-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-xpiredit-$(ARCH)-quick : \
+#MM             ports-game-xpiredit-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-xpiredit-$(FAMILY)-quick : \
+#MM             ports-game-xpiredit-$(ARCH)-quick
+
+#MM- ports-game-xpiredit-$(CPU)-quick : \
+#MM             ports-game-xpiredit-$(FAMILY)-quick
+
+ports-game-xpiredit_PROGNAME  := XpirEdit
+ports-game-xpiredit_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-xpiredit_TARGETDIR := $(TARGETDIR)
+ports-game-xpiredit_LINKER    := 
+ports-game-xpiredit_LIBS := SDL_image SDL_gfx png jpeg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-xpiredit_LINKER),)
+    ports-game-xpiredit_LINKER := target
+endif
+
+ifneq ("$(strip $(PORTSDIR)/xpired/$(ARCHBASE)/src/xpiredit   )","")
+    ports-game-xpiredit_FILES     := $(PORTSDIR)/xpired/$(ARCHBASE)/src/xpiredit
+    ports-game-xpiredit_OBJCFILES := 
+    ports-game-xpiredit_ASMFILES  := 
+    ports-game-xpiredit_CXXFILES := 
+else
+    ports-game-xpiredit_FILES     := $(ports-game-xpiredit_PROGNAME)
+    ports-game-xpiredit_OBJCFILES :=
+    ports-game-xpiredit_ASMFILES  :=
+    ports-game-xpiredit_CXXFILES :=
+endif
+
+ports-game-xpiredit_ARCHOBJS   := $(wildcard $(ports-game-xpiredit_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-xpiredit_ARCHFILES     := $(basename $(notdir $(ports-game-xpiredit_ARCHOBJS)))
+else
+    ports-game-xpiredit_ARCHFILES     := $(basename $(patsubst $(ports-game-xpiredit_OBJDIR)/%,%,$(ports-game-xpiredit_ARCHOBJS)))
+endif
+ports-game-xpiredit_C_NARCHFILES := $(filter-out $(ports-game-xpiredit_ARCHFILES),$(ports-game-xpiredit_FILES))
+ports-game-xpiredit_CXX_NARCHFILES := $(filter-out $(ports-game-xpiredit_ARCHFILES),$(ports-game-xpiredit_CXXFILES))
+ports-game-xpiredit_OBJC_NARCHFILES := $(filter-out $(ports-game-xpiredit_ARCHFILES),$(ports-game-xpiredit_OBJCFILES))
+
+TMP_FILES := $(ports-game-xpiredit_C_NARCHFILES) $(ports-game-xpiredit_CXX_NARCHFILES) $(ports-game-xpiredit_ASMFILES) $(ports-game-xpiredit_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-xpiredit_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-xpiredit_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-xpiredit_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-xpiredit_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-xpiredit_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-xpiredit_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredit_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-xpiredit_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-xpiredit_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredit_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-xpiredit_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-xpiredit_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-xpiredit_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-xpiredit_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-xpiredit_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-xpiredit_LDFLAGS          := 
+endif
+
+ports-game-xpiredit_CSTATICFLAGS   := `echo "$(ports-game-xpiredit_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-xpiredit_CSTDCFLAGS   :=  `echo "$(ports-game-xpiredit_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-xpiredit_CPOSIXCFLAGS   :=  `echo "$(ports-game-xpiredit_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-xpiredit_LDFLAGS          += $(strip $(ports-game-xpiredit_CSTATICFLAGS) $(ports-game-xpiredit_CSTDCFLAGS) $(ports-game-xpiredit_CPOSIXCFLAGS))
+
+ports-game-xpiredit_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-xpiredit_COVERAGE := yes
+ports-game-xpiredit_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-xpiredit_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-xpiredit_CFLAGS    := $(strip $(ports-game-xpiredit_COVERAGEFLAGS) $(ports-game-xpiredit_CFLAGS))
+ports-game-xpiredit_CXXFLAGS := $(strip $(ports-game-xpiredit_COVERAGEFLAGS) $(ports-game-xpiredit_CXXFLAGS))
+ports-game-xpiredit_LIBS += $(ports-game-xpiredit_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-xpiredit_FUNCINSTR := yes
+ports-game-xpiredit_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-xpiredit_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-xpiredit_CFLAGS    := $(strip $(ports-game-xpiredit_INSTRFUNCFLAGS) $(ports-game-xpiredit_CFLAGS))
+ports-game-xpiredit_CXXFLAGS := $(strip $(ports-game-xpiredit_INSTRFUNCFLAGS) $(ports-game-xpiredit_CXXFLAGS))
+ports-game-xpiredit_LIBS += $(ports-game-xpiredit_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-xpiredit_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-xpiredit_CFLAGS))
+ports-game-xpiredit_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-xpiredit_CXXFLAGS))
+endif
+endif
+ports-game-xpiredit_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-xpiredit_DFLAGS     := 
+else
+    ports-game-xpiredit_DFLAGS     := $(ports-game-xpiredit_CFLAGS)
+endif
+ifneq (,)
+    ports-game-xpiredit_DXXFLAGS     := 
+else
+    ports-game-xpiredit_DXXFLAGS     := $(ports-game-xpiredit_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-xpiredit_LDFLAGS           := $(ports-game-xpiredit_LDFLAGS)
+ports-game-xpiredit_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-xpiredit_LDFLAGS           := $(ports-game-xpiredit_LDFLAGS)
+ports-game-xpiredit_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_LDFLAGS           := $(ports-game-xpiredit_LDFLAGS)
+ports-game-xpiredit_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-xpiredit_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-xpiredit-quick : ports-game-xpiredit
+
+#MM ports-game-xpiredit : includes-generate-deps core-linklibs
+ports-game-xpiredit : $(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-xpiredit_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-xpiredit_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-xpiredit_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-xpiredit_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-xpiredit_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-xpiredit ports-game-xpiredit-quick ports-game-xpiredit-compress-quick),)
+
+ports-game-xpiredit_CXXABSBASENAMES := $(foreach ports-game-xpiredit_CXXBASE,$(ports-game-xpiredit_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-xpiredit_CXXBASE)),$(ports-game-xpiredit_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-xpiredit_CXXBASE))))
+
+ifneq ($(ports-game-xpiredit_CXXABSBASENAMES),)
+
+ports-game-xpiredit_CXXBASENAMES := $(basename $(ports-game-xpiredit_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-xpiredit_MCXX_FILES  := $(strip $(foreach ports-game-xpiredit_CXXBASE,$(ports-game-xpiredit_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-xpiredit_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-xpiredit_EXT),$(ports-game-xpiredit_CXXBASE)))))))
+
+ifeq (,)
+ports-game-xpiredit_MCXX_SRCWILDCARD := %
+else
+ports-game-xpiredit_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredit_OBJDIR),)
+  ports-game-xpiredit_CXXTARGETS := $(notdir $(ports-game-xpiredit_CXXBASENAMES:=.o))
+  ports-game-xpiredit_CXXDTARGETS := $(notdir $(ports-game-xpiredit_CXXBASENAMES:=.d))
+  ports-game-xpiredit_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-xpiredit_CXXTARGETS := $(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(ports-game-xpiredit_CXXBASENAMES:=.o)))
+  ports-game-xpiredit_CXXDTARGETS := $(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(ports-game-xpiredit_CXXBASENAMES:=.d)))
+  ports-game-xpiredit_MCXX_WILDCARD := $(ports-game-xpiredit_OBJDIR)/%
+else
+  ports-game-xpiredit_CXXTARGETS := $(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_CXXBASENAMES:=.o))
+  ports-game-xpiredit_CXXDTARGETS := $(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_CXXBASENAMES:=.d))
+  ports-game-xpiredit_MCXX_WILDCARD := $(ports-game-xpiredit_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-xpiredit_CXXTARGETS) $(ports-game-xpiredit_CXXDTARGETS) : | $(ports-game-xpiredit_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-xpiredit_MCXX_CPPFLAGS := $(ports-game-xpiredit_CPPFLAGS)
+ports-game-xpiredit_CXXFLAGS := $(ports-game-xpiredit_CXXFLAGS)
+ifeq ($(ports-game-xpiredit_DXXFLAGS),)
+  ports-game-xpiredit_DXXFLAGS := $(ports-game-xpiredit_CXXFLAGS)
+else
+  ports-game-xpiredit_DXXFLAGS := $(ports-game-xpiredit_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-xpiredit_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-xpiredit_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-xpiredit_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-xpiredit_STRIP ?= $(HOST_STRIP)
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-xpiredit_CXXCMD:=$(HOST_CXX)
+  ports-game-xpiredit_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS) $(ports-game-xpiredit_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredit_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-xpiredit_CXXFLAGS))
+  ports-game-xpiredit_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-xpiredit_DXXFLAGS))
+  ports-game-xpiredit_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-xpiredit_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-xpiredit_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-xpiredit_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-xpiredit_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-xpiredit_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-xpiredit_LDFLAGS ?= $(ports-game-xpiredit_CXXLDFLAGS)
+  ports-game-xpiredit_STRIP ?= $(TARGET_STRIP)
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-xpiredit_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-xpiredit_MCXX_CPPFLAGS := $(strip $(ports-game-xpiredit_MCXX_CPPFLAGS) $(ports-game-xpiredit_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredit_CXXFLAGS := $(strip $(ports-game-xpiredit_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-xpiredit_DXXFLAGS := $(ports-game-xpiredit_DXXFLAGS)
+  ports-game-xpiredit_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-xpiredit_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-xpiredit_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-xpiredit_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-xpiredit_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-xpiredit_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-xpiredit_LDFLAGS ?= $(ports-game-xpiredit_CXXLDFLAGS)
+  ports-game-xpiredit_STRIP ?= $(ECHO) >/dev/null
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-xpiredit_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-xpiredit_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS) $(ports-game-xpiredit_MCXX_EXTRA_CPPFLAGS))
+  ports-game-xpiredit_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-xpiredit_CXXFLAGS))
+  ports-game-xpiredit_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-xpiredit_DXXFLAGS))
+  ports-game-xpiredit_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-xpiredit_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-xpiredit_CXXCMD) $(ports-game-xpiredit_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredit_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) . $(ports-game-xpiredit_CXXIQUOTE_END) $(strip $(ports-game-xpiredit_CXXFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-xpiredit_CXXCMD) $(ports-game-xpiredit_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredit_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) . $(ports-game-xpiredit_CXXIQUOTE_END) $(strip $(ports-game-xpiredit_CXXFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-xpiredit_CXXCMD) $(ports-game-xpiredit_CXXIQUOTE) $(dir $(2)) $(ports-game-xpiredit_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_CXXIQUOTE) . $(ports-game-xpiredit_CXXIQUOTE_END) $(strip $(ports-game-xpiredit_CXXFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-xpiredit_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-xpiredit_DXXFLAGS) $(ports-game-xpiredit_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-xpiredit_OBJDIR),)
+  $(foreach ports-game-xpiredit_CXXFILE,$(ports-game-xpiredit_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-xpiredit_CXXFILE))),$(ports-game-xpiredit_CXXFILE))))
+else
+  $(foreach ports-game-xpiredit_CXXFILE,$(ports-game-xpiredit_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(basename $(ports-game-xpiredit_CXXFILE)))),$(ports-game-xpiredit_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-xpiredit_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-xpiredit_MOBJC_SRCWILDCARD := %
+else
+ports-game-xpiredit_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredit_OBJDIR),)
+  ports-game-xpiredit_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-xpiredit_OBJC_NARCHFILES))
+  ports-game-xpiredit_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-xpiredit_OBJC_NARCHFILES))
+  ports-game-xpiredit_MOBJC_WILDCARD := %
+else
+  ports-game-xpiredit_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_OBJC_NARCHFILES)))
+  ports-game-xpiredit_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_OBJC_NARCHFILES)))
+  ports-game-xpiredit_MOBJC_WILDCARD := $(ports-game-xpiredit_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-xpiredit_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-xpiredit_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-xpiredit_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredit_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-xpiredit_MOBJC_DIRS := $(foreach dir, $(ports-game-xpiredit_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredit_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-xpiredit_MOBJC_DIRS),)
+    ports-game-xpiredit_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-xpiredit_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-xpiredit_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-xpiredit_CC := $(TARGET_CC)
+else
+  ports-game-xpiredit_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-xpiredit_MOBJC_CPPFLAGS := $(ports-game-xpiredit_CPPFLAGS)
+ports-game-xpiredit_OBJCFLAGS := $(ports-game-xpiredit_CFLAGS)
+ports-game-xpiredit_OBJCFLAGS := $(ports-game-xpiredit_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-xpiredit_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-xpiredit_OBJCFLAGS)))
+ifeq ($(ports-game-xpiredit_DFLAGS),)
+  ports-game-xpiredit_OBJCDFLAGS := $(ports-game-xpiredit_CFLAGS)
+else
+  ports-game-xpiredit_OBJCDFLAGS := $(ports-game-xpiredit_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-xpiredit_LINK ?= $(strip $(ports-game-xpiredit_CC) $(TARGET_SYSROOT))
+  ports-game-xpiredit_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-xpiredit_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-xpiredit_STRIP ?= $(TARGET_STRIP)
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-xpiredit_CC) $(TARGET_SYSROOT))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_MOBJC_CPPFLAGS:=$(strip $(ports-game-xpiredit_MOBJC_CPPFLAGS) $(ports-game-xpiredit_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCFLAGS:=$(strip $(ports-game-xpiredit_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCDFLAGS:=$(ports-game-xpiredit_OBJCDFLAGS)
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-xpiredit_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-xpiredit_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-xpiredit_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-xpiredit_STRIP ?= $(HOST_STRIP)
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-xpiredit_MOBJC_CPPFLAGS) $(ports-game-xpiredit_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredit_OBJCFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredit_OBJCDFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-xpiredit_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-xpiredit_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-xpiredit_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-xpiredit_STRIP ?= $(ECHO) >/dev/null
+  ports-game-xpiredit_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-xpiredit_MOBJC_CPPFLAGS) $(ports-game-xpiredit_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredit_OBJCFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredit_OBJCDFLAGS))
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-xpiredit_MOBJC_TARGETS) $(ports-game-xpiredit_MOBJC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-xpiredit_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-xpiredit_MOBJC_CPPFLAGS)
+$(ports-game-xpiredit_MOBJC_TARGETS) : CFLAGS := $(ports-game-xpiredit_OBJCFLAGS)
+$(ports-game-xpiredit_MOBJC_TARGETS) : $(ports-game-xpiredit_MOBJC_WILDCARD).o : $(ports-game-xpiredit_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-xpiredit_MOBJC_DTARGETS) : $(ports-game-xpiredit_MOBJC_WILDCARD).d : $(ports-game-xpiredit_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-xpiredit_OBJCDFLAGS) $(ports-game-xpiredit_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-xpiredit_MC_SRCWILDCARD := %
+else
+ports-game-xpiredit_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-xpiredit_OBJDIR),)
+ports-game-xpiredit_MC_TARGETS := $(addsuffix .o,$(ports-game-xpiredit_C_NARCHFILES))
+ports-game-xpiredit_MC_DTARGETS := $(addsuffix .d,$(ports-game-xpiredit_C_NARCHFILES))
+ports-game-xpiredit_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-xpiredit_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(ports-game-xpiredit_C_NARCHFILES))))
+    ports-game-xpiredit_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(ports-game-xpiredit_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-xpiredit_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_C_NARCHFILES)))
+    ports-game-xpiredit_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(ports-game-xpiredit_C_NARCHFILES)))
+else
+    ports-game-xpiredit_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(patsubst /%,%,$(ports-game-xpiredit_C_NARCHFILES))))
+    ports-game-xpiredit_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(patsubst /%,%,$(ports-game-xpiredit_C_NARCHFILES))))
+endif
+endif
+ports-game-xpiredit_MC_TGTWILDCARD := $(ports-game-xpiredit_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-xpiredit_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-xpiredit_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-xpiredit_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredit_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-xpiredit_MC_DIRS := $(foreach dir, $(ports-game-xpiredit_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredit_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-xpiredit_MC_DIRS),)
+    ports-game-xpiredit_MC_DIRS := $(shell $(ECHO) $(ports-game-xpiredit_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-xpiredit_MC_DIRS)
+endif
+
+endif
+
+ports-game-xpiredit_MC_CPPFLAGS := $(ports-game-xpiredit_CPPFLAGS)
+ports-game-xpiredit_CFLAGS := $(ports-game-xpiredit_CFLAGS)
+ifeq ($(ports-game-xpiredit_DFLAGS),)
+  ports-game-xpiredit_DFLAGS := $(ports-game-xpiredit_CFLAGS)
+else
+  ports-game-xpiredit_DFLAGS := $(ports-game-xpiredit_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-xpiredit_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-xpiredit_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-xpiredit_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-xpiredit_STRIP ?= $(TARGET_STRIP)
+ports-game-xpiredit_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_MC_CPPFLAGS:=$(strip $(ports-game-xpiredit_MC_CPPFLAGS) $(ports-game-xpiredit_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_CFLAGS:=$(strip $(ports-game-xpiredit_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_DFLAGS:=$(ports-game-xpiredit_DFLAGS)
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-xpiredit_LINK ?= $(strip $(HOST_CC))
+ports-game-xpiredit_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-xpiredit_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-xpiredit_STRIP ?= $(HOST_STRIP)
+ports-game-xpiredit_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-xpiredit_MC_CPPFLAGS) $(ports-game-xpiredit_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredit_CFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-xpiredit_DFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-xpiredit_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-xpiredit_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-xpiredit_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-xpiredit_STRIP ?= $(ECHO) >/dev/null
+ports-game-xpiredit_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-xpiredit_MC_CPPFLAGS) $(ports-game-xpiredit_MC_EXTRA_CPPFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredit_CFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-xpiredit_DFLAGS))
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-xpiredit_MC_TARGETS) $(ports-game-xpiredit_MC_DTARGETS) : ports-game-xpiredit_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-xpiredit_MC_TARGETS) : CPPFLAGS := $(ports-game-xpiredit_MC_CPPFLAGS)
+$(ports-game-xpiredit_MC_TARGETS) : CFLAGS := $(ports-game-xpiredit_CFLAGS)
+$(ports-game-xpiredit_MC_TARGETS) : $(ports-game-xpiredit_MC_TGTWILDCARD).o : $(ports-game-xpiredit_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-xpiredit_IQUOTE) $(dir $<) $(ports-game-xpiredit_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-xpiredit_IQUOTE) . $(ports-game-xpiredit_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-xpiredit_MC_DTARGETS) : $(ports-game-xpiredit_MC_TGTWILDCARD).d : $(ports-game-xpiredit_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-xpiredit_DFLAGS) $(ports-game-xpiredit_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-xpiredit_OBJDIR),)
+ports-game-xpiredit-MA_TARGETS := $(addsuffix .o,$(ports-game-xpiredit_ASMFILES))
+ports-game-xpiredit-MA_WILDCARD := %
+else
+ports-game-xpiredit-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-xpiredit_OBJDIR)/,$(notdir $(ports-game-xpiredit_ASMFILES))))
+ports-game-xpiredit-MA_WILDCARD := $(ports-game-xpiredit_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-xpiredit-MA_TARGETS) : | $(addsuffix .s,$(ports-game-xpiredit_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-xpiredit-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-xpiredit-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-xpiredit_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-xpiredit-MA_DIRS := $(foreach dir, $(ports-game-xpiredit-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-xpiredit-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-xpiredit-MA_DIRS),)
+    ports-game-xpiredit-MA_DIRS := $(shell $(ECHO) $(ports-game-xpiredit-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-xpiredit-MA_DIRS)
+endif
+
+endif
+
+ports-game-xpiredit-MA_ASSEMBLER ?= $(ports-game-xpiredit_ASSEMBLER)
+
+$(ports-game-xpiredit-MA_TARGETS) : ports-game-xpiredit-MA_CMD:= $(ports-game-xpiredit-MA_ASSEMBLER)
+
+$(ports-game-xpiredit-MA_TARGETS) : CPPFLAGS := $(ports-game-xpiredit_CPPFLAGS)
+$(ports-game-xpiredit-MA_TARGETS) : AFLAGS := $(ports-game-xpiredit_AFLAGS)
+$(ports-game-xpiredit-MA_TARGETS) : $(ports-game-xpiredit-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-xpiredit-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-xpiredit-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-xpiredit-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-xpiredit-link_LD_OPTS := 
+ports-game-xpiredit-link_EXTRA_LIBS :=
+ifeq (yes,yes)
+    ports-game-xpiredit-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-xpiredit-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-xpiredit-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-xpiredit-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-xpiredit_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-xpiredit-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-xpiredit-link_DIRS)))
+# Add trailing /
+ports-game-xpiredit-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-xpiredit-link_DIRS)))
+# Add normal linklib path
+ports-game-xpiredit-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-xpiredit-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-xpiredit_LIBS) $(ports-game-xpiredit-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-xpiredit-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-xpiredit-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-xpiredit-link_DEPLIBS := $(foreach lib,$(ports-game-xpiredit-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-xpiredit-link_DIRS)))) \
+)
+
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : OBJDIR := $(ports-game-xpiredit_OBJDIR)
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : OBJS := $(strip $(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_ARCHOBJS) $(USER_OBJS))
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : LDFLAGS := $(strip $(ports-game-xpiredit_LDFLAGS))
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-xpiredit_LIBS) $(ports-game-xpiredit-link_EXTRA_LIBS)))
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-xpiredit_ARCHLIBS))
+$(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : $(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_ARCHOBJS) $(USER_OBJS) $(ports-game-xpiredit-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-xpiredit_LINK) $(strip $(ports-game-xpiredit_LD_OPTS) $(ports-game-xpiredit-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-xpiredit_LINK) $(strip $(ports-game-xpiredit_LD_OPTS) $(ports-game-xpiredit-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-xpiredit_LINK) $(strip $(ports-game-xpiredit_LD_OPTS) $(ports-game-xpiredit-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-xpiredit_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-xpiredit_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-xpiredit_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-xpiredit_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-xpiredit_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-xpiredit_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-xpiredit_DEPS),)
+  ifneq (ports-game-xpiredit ports-game-xpiredit-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-xpiredit ports-game-xpiredit-quick),)
+      -include $(ports-game-xpiredit_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-xpiredit_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_DEPS) $(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME),)
+$(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_DEPS) $(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) : | $(ports-game-xpiredit_OBJDIR) $(ports-game-xpiredit_TARGETDIR)
+else
+$(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_DEPS) $(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) :: $(ports-game-xpiredit_OBJDIR) $(ports-game-xpiredit_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-xpiredit_OBJDIR) $(ports-game-xpiredit_TARGETDIR)
+
+
+ports-game-xpiredit-clean : FILES := $(ports-game-xpiredit_OBJS) $(ports-game-xpiredit_TARGETDIR)/$(ports-game-xpiredit_PROGNAME) $(ports-game-xpiredit_DEPS)
+#MM
+ports-game-xpiredit-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-xpiredit"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-xpired-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-xpired-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-xpired-fetch-location := $(PORTSDIR)/xpired/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-game-xpired-fetch-baseflag := -b 
+else
+    ports-game-xpired-fetch-baseflag :=
+endif
+
+ports-game-xpired-fetch-fetchedflag := $(ports-game-xpired-fetch-location)/.$(ARCHBASE)-linux_source-fetched
+
+#MM
+ports-game-xpired-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE)-linux_source ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE)-linux_source -s "tar.gz" -l $(ports-game-xpired-fetch-location) \
+	-d $(PORTSDIR)/xpired/$(ARCHBASE) $(ports-game-xpired-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "xpired-1.22-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-xpired-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-xpired-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-game-xpired-img
+
+#MM
+ports-game-xpired-img :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/xpired/$(ARCHBASE)/src/img),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/img)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/img)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/img))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/xpired/$(ARCHBASE)/src/img)))' to '$(if $(filter /%,$(TARGETDIR)/data/img),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data/img)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data/img)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data/img))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data/img)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/xpired/$(ARCHBASE)/src/img -d $(TARGETDIR)/data/img -e 
+
+
+
+.PHONY : ports-game-xpired-snd
+
+#MM
+ports-game-xpired-snd :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/xpired/$(ARCHBASE)/src/snd),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/snd)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/snd)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/xpired/$(ARCHBASE)/src/snd))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/xpired/$(ARCHBASE)/src/snd)))' to '$(if $(filter /%,$(TARGETDIR)/data/snd),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data/snd)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data/snd)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data/snd))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data/snd)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/xpired/$(ARCHBASE)/src/snd -d $(TARGETDIR)/data/snd -e 
+
+
+CPYFILES := xpired.lvl xpired.cfg bgimages.txt readme.txt xpired.dmo
+
+
+ports-game-xpired-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/xpired/$(ARCHBASE)/src | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/data
+else
+setup :: $(TARGETDIR)/data
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/data
+
+
+.PHONY : ports-game-xpired-cpy
+
+#MM
+ports-game-xpired-cpy : | $(TARGETDIR)/data 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-xpired-cpy_SRC)),$(ports-game-xpired-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-xpired-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/data/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,877 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-video : ports-video-screenrecorder
+
+#MM  ports-video-screenrecorder : includes linklibs workbench-devs-AHI \
+#MM      ports-video-screenrecorder-catalogs \
+#MM      ports-video-screenrecorder-cpy \
+#MM      ports-video-screenrecorder-fetch
+
+#MM- ports-video-screenrecorder-catalogs : ports-video-screenrecorder-fetch
+
+
+REPOSITORIES := archives://share/video/record
+ARCHBASE     := screenrecorder-src-svn17
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Video/ScreenRecorder
+
+NOWARN_FLAGS := $(NOWARN_DISCARDED_ARRAY_QUAL) $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS) -D__LOCALE_STDLIBBASE__
+USER_INCLUDES:= -I$(PORTSDIR)/screenrecorder/$(ARCHBASE)/include
+
+FILES := \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/audio \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/main \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/pointer \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/video_avi \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/video_mng \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/mui \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/scaling \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/screenlistclass \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/qport \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/video_png \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/utils \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/recorder \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/broker \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/init \
+    $(PORTSDIR)/screenrecorder/$(ARCHBASE)/appclass
+
+
+.PHONY : ports-video-screenrecorder
+
+#MM- ports-video-screenrecorder : \
+#MM             ports-video-screenrecorder-$(CPU)
+
+#MM- ports-video-screenrecorder-$(ARCH)-$(CPU) : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-video-screenrecorder-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(CPU)
+
+#MM- ports-video-screenrecorder-$(ARCH) : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-video-screenrecorder-$(FAMILY) : \
+#MM             ports-video-screenrecorder-$(ARCH)
+
+#MM- ports-video-screenrecorder-$(CPU) : \
+#MM             ports-video-screenrecorder-$(FAMILY)
+#MM- ports-video-screenrecorder-quick : \
+#MM             ports-video-screenrecorder-$(CPU)-quick
+
+#MM- ports-video-screenrecorder-$(ARCH)-$(CPU)-quick : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-video-screenrecorder-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(CPU)-quick
+
+#MM- ports-video-screenrecorder-$(ARCH)-quick : \
+#MM             ports-video-screenrecorder-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-video-screenrecorder-$(FAMILY)-quick : \
+#MM             ports-video-screenrecorder-$(ARCH)-quick
+
+#MM- ports-video-screenrecorder-$(CPU)-quick : \
+#MM             ports-video-screenrecorder-$(FAMILY)-quick
+
+ports-video-screenrecorder_PROGNAME  := ScreenRecorder
+ports-video-screenrecorder_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-video-screenrecorder_TARGETDIR := $(TARGETDIR)
+ports-video-screenrecorder_LINKER    := 
+ports-video-screenrecorder_LIBS := jpeg z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-video-screenrecorder_LINKER),)
+    ports-video-screenrecorder_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-video-screenrecorder_FILES     := $(FILES)
+    ports-video-screenrecorder_OBJCFILES := 
+    ports-video-screenrecorder_ASMFILES  := 
+    ports-video-screenrecorder_CXXFILES := 
+else
+    ports-video-screenrecorder_FILES     := $(ports-video-screenrecorder_PROGNAME)
+    ports-video-screenrecorder_OBJCFILES :=
+    ports-video-screenrecorder_ASMFILES  :=
+    ports-video-screenrecorder_CXXFILES :=
+endif
+
+ports-video-screenrecorder_ARCHOBJS   := $(wildcard $(ports-video-screenrecorder_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-video-screenrecorder_ARCHFILES     := $(basename $(notdir $(ports-video-screenrecorder_ARCHOBJS)))
+else
+    ports-video-screenrecorder_ARCHFILES     := $(basename $(patsubst $(ports-video-screenrecorder_OBJDIR)/%,%,$(ports-video-screenrecorder_ARCHOBJS)))
+endif
+ports-video-screenrecorder_C_NARCHFILES := $(filter-out $(ports-video-screenrecorder_ARCHFILES),$(ports-video-screenrecorder_FILES))
+ports-video-screenrecorder_CXX_NARCHFILES := $(filter-out $(ports-video-screenrecorder_ARCHFILES),$(ports-video-screenrecorder_CXXFILES))
+ports-video-screenrecorder_OBJC_NARCHFILES := $(filter-out $(ports-video-screenrecorder_ARCHFILES),$(ports-video-screenrecorder_OBJCFILES))
+
+TMP_FILES := $(ports-video-screenrecorder_C_NARCHFILES) $(ports-video-screenrecorder_CXX_NARCHFILES) $(ports-video-screenrecorder_ASMFILES) $(ports-video-screenrecorder_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-video-screenrecorder_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-video-screenrecorder_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-video-screenrecorder_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(TMP_FILES))) )
+    ports-video-screenrecorder_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-video-screenrecorder_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-video-screenrecorder_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-video-screenrecorder_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-video-screenrecorder_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-video-screenrecorder_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-video-screenrecorder_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-video-screenrecorder_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-video-screenrecorder_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-video-screenrecorder_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-video-screenrecorder_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-video-screenrecorder_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-video-screenrecorder_LDFLAGS          := 
+endif
+
+ports-video-screenrecorder_CSTATICFLAGS   := `echo "$(ports-video-screenrecorder_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-video-screenrecorder_CSTDCFLAGS   :=  `echo "$(ports-video-screenrecorder_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-video-screenrecorder_CPOSIXCFLAGS   :=  `echo "$(ports-video-screenrecorder_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-video-screenrecorder_LDFLAGS          += $(strip $(ports-video-screenrecorder_CSTATICFLAGS) $(ports-video-screenrecorder_CSTDCFLAGS) $(ports-video-screenrecorder_CPOSIXCFLAGS))
+
+ports-video-screenrecorder_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-video-screenrecorder_COVERAGE := yes
+ports-video-screenrecorder_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-video-screenrecorder_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-video-screenrecorder_CFLAGS    := $(strip $(ports-video-screenrecorder_COVERAGEFLAGS) $(ports-video-screenrecorder_CFLAGS))
+ports-video-screenrecorder_CXXFLAGS := $(strip $(ports-video-screenrecorder_COVERAGEFLAGS) $(ports-video-screenrecorder_CXXFLAGS))
+ports-video-screenrecorder_LIBS += $(ports-video-screenrecorder_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-video-screenrecorder_FUNCINSTR := yes
+ports-video-screenrecorder_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-video-screenrecorder_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-video-screenrecorder_CFLAGS    := $(strip $(ports-video-screenrecorder_INSTRFUNCFLAGS) $(ports-video-screenrecorder_CFLAGS))
+ports-video-screenrecorder_CXXFLAGS := $(strip $(ports-video-screenrecorder_INSTRFUNCFLAGS) $(ports-video-screenrecorder_CXXFLAGS))
+ports-video-screenrecorder_LIBS += $(ports-video-screenrecorder_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-video-screenrecorder_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-video-screenrecorder_CFLAGS))
+ports-video-screenrecorder_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-video-screenrecorder_CXXFLAGS))
+endif
+endif
+ports-video-screenrecorder_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-video-screenrecorder_DFLAGS     := 
+else
+    ports-video-screenrecorder_DFLAGS     := $(ports-video-screenrecorder_CFLAGS)
+endif
+ifneq (,)
+    ports-video-screenrecorder_DXXFLAGS     := 
+else
+    ports-video-screenrecorder_DXXFLAGS     := $(ports-video-screenrecorder_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-video-screenrecorder_LDFLAGS           := $(ports-video-screenrecorder_LDFLAGS)
+ports-video-screenrecorder_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-video-screenrecorder_LDFLAGS           := $(ports-video-screenrecorder_LDFLAGS)
+ports-video-screenrecorder_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_LDFLAGS           := $(ports-video-screenrecorder_LDFLAGS)
+ports-video-screenrecorder_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-video-screenrecorder_LDFLAGS   += -L
+endif
+
+#MM
+ports-video-screenrecorder-quick : ports-video-screenrecorder
+
+#MM ports-video-screenrecorder : includes-generate-deps core-linklibs
+ports-video-screenrecorder : $(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-video-screenrecorder_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-video-screenrecorder_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-video-screenrecorder_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-video-screenrecorder_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-video-screenrecorder_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-video-screenrecorder ports-video-screenrecorder-quick ports-video-screenrecorder-compress-quick),)
+
+ports-video-screenrecorder_CXXABSBASENAMES := $(foreach ports-video-screenrecorder_CXXBASE,$(ports-video-screenrecorder_CXX_NARCHFILES),$(if $(filter /%,$(ports-video-screenrecorder_CXXBASE)),$(ports-video-screenrecorder_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-video-screenrecorder_CXXBASE))))
+
+ifneq ($(ports-video-screenrecorder_CXXABSBASENAMES),)
+
+ports-video-screenrecorder_CXXBASENAMES := $(basename $(ports-video-screenrecorder_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-video-screenrecorder_MCXX_FILES  := $(strip $(foreach ports-video-screenrecorder_CXXBASE,$(ports-video-screenrecorder_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-video-screenrecorder_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-video-screenrecorder_EXT),$(ports-video-screenrecorder_CXXBASE)))))))
+
+ifeq (,)
+ports-video-screenrecorder_MCXX_SRCWILDCARD := %
+else
+ports-video-screenrecorder_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-video-screenrecorder_OBJDIR),)
+  ports-video-screenrecorder_CXXTARGETS := $(notdir $(ports-video-screenrecorder_CXXBASENAMES:=.o))
+  ports-video-screenrecorder_CXXDTARGETS := $(notdir $(ports-video-screenrecorder_CXXBASENAMES:=.d))
+  ports-video-screenrecorder_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-video-screenrecorder_CXXTARGETS := $(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(ports-video-screenrecorder_CXXBASENAMES:=.o)))
+  ports-video-screenrecorder_CXXDTARGETS := $(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(ports-video-screenrecorder_CXXBASENAMES:=.d)))
+  ports-video-screenrecorder_MCXX_WILDCARD := $(ports-video-screenrecorder_OBJDIR)/%
+else
+  ports-video-screenrecorder_CXXTARGETS := $(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_CXXBASENAMES:=.o))
+  ports-video-screenrecorder_CXXDTARGETS := $(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_CXXBASENAMES:=.d))
+  ports-video-screenrecorder_MCXX_WILDCARD := $(ports-video-screenrecorder_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-video-screenrecorder_CXXTARGETS) $(ports-video-screenrecorder_CXXDTARGETS) : | $(ports-video-screenrecorder_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-video-screenrecorder_MCXX_CPPFLAGS := $(ports-video-screenrecorder_CPPFLAGS)
+ports-video-screenrecorder_CXXFLAGS := $(ports-video-screenrecorder_CXXFLAGS)
+ifeq ($(ports-video-screenrecorder_DXXFLAGS),)
+  ports-video-screenrecorder_DXXFLAGS := $(ports-video-screenrecorder_CXXFLAGS)
+else
+  ports-video-screenrecorder_DXXFLAGS := $(ports-video-screenrecorder_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-video-screenrecorder_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-video-screenrecorder_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-video-screenrecorder_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-video-screenrecorder_STRIP ?= $(HOST_STRIP)
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-video-screenrecorder_CXXCMD:=$(HOST_CXX)
+  ports-video-screenrecorder_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS) $(ports-video-screenrecorder_MCXX_EXTRA_CPPFLAGS))
+  ports-video-screenrecorder_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-video-screenrecorder_CXXFLAGS))
+  ports-video-screenrecorder_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-video-screenrecorder_DXXFLAGS))
+  ports-video-screenrecorder_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-video-screenrecorder_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-video-screenrecorder_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-video-screenrecorder_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-video-screenrecorder_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-video-screenrecorder_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-video-screenrecorder_LDFLAGS ?= $(ports-video-screenrecorder_CXXLDFLAGS)
+  ports-video-screenrecorder_STRIP ?= $(TARGET_STRIP)
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-video-screenrecorder_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-video-screenrecorder_MCXX_CPPFLAGS := $(strip $(ports-video-screenrecorder_MCXX_CPPFLAGS) $(ports-video-screenrecorder_MCXX_EXTRA_CPPFLAGS))
+  ports-video-screenrecorder_CXXFLAGS := $(strip $(ports-video-screenrecorder_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-video-screenrecorder_DXXFLAGS := $(ports-video-screenrecorder_DXXFLAGS)
+  ports-video-screenrecorder_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-video-screenrecorder_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-video-screenrecorder_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-video-screenrecorder_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-video-screenrecorder_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-video-screenrecorder_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-video-screenrecorder_LDFLAGS ?= $(ports-video-screenrecorder_CXXLDFLAGS)
+  ports-video-screenrecorder_STRIP ?= $(ECHO) >/dev/null
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-video-screenrecorder_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-video-screenrecorder_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS) $(ports-video-screenrecorder_MCXX_EXTRA_CPPFLAGS))
+  ports-video-screenrecorder_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-video-screenrecorder_CXXFLAGS))
+  ports-video-screenrecorder_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-video-screenrecorder_DXXFLAGS))
+  ports-video-screenrecorder_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-video-screenrecorder_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-video-screenrecorder_CXXCMD) $(ports-video-screenrecorder_CXXIQUOTE) $(dir $(2)) $(ports-video-screenrecorder_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) . $(ports-video-screenrecorder_CXXIQUOTE_END) $(strip $(ports-video-screenrecorder_CXXFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-video-screenrecorder_CXXCMD) $(ports-video-screenrecorder_CXXIQUOTE) $(dir $(2)) $(ports-video-screenrecorder_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) . $(ports-video-screenrecorder_CXXIQUOTE_END) $(strip $(ports-video-screenrecorder_CXXFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-video-screenrecorder_CXXCMD) $(ports-video-screenrecorder_CXXIQUOTE) $(dir $(2)) $(ports-video-screenrecorder_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_CXXIQUOTE) . $(ports-video-screenrecorder_CXXIQUOTE_END) $(strip $(ports-video-screenrecorder_CXXFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-video-screenrecorder_CXXCMD)" $(MKDEPEND) $(strip $(ports-video-screenrecorder_DXXFLAGS) $(ports-video-screenrecorder_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-video-screenrecorder_OBJDIR),)
+  $(foreach ports-video-screenrecorder_CXXFILE,$(ports-video-screenrecorder_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-video-screenrecorder_CXXFILE))),$(ports-video-screenrecorder_CXXFILE))))
+else
+  $(foreach ports-video-screenrecorder_CXXFILE,$(ports-video-screenrecorder_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(basename $(ports-video-screenrecorder_CXXFILE)))),$(ports-video-screenrecorder_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-video-screenrecorder_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-video-screenrecorder_MOBJC_SRCWILDCARD := %
+else
+ports-video-screenrecorder_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-video-screenrecorder_OBJDIR),)
+  ports-video-screenrecorder_MOBJC_TARGETS := $(addsuffix .o,$(ports-video-screenrecorder_OBJC_NARCHFILES))
+  ports-video-screenrecorder_MOBJC_DTARGETS := $(addsuffix .d,$(ports-video-screenrecorder_OBJC_NARCHFILES))
+  ports-video-screenrecorder_MOBJC_WILDCARD := %
+else
+  ports-video-screenrecorder_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_OBJC_NARCHFILES)))
+  ports-video-screenrecorder_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_OBJC_NARCHFILES)))
+  ports-video-screenrecorder_MOBJC_WILDCARD := $(ports-video-screenrecorder_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-video-screenrecorder_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-video-screenrecorder_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-video-screenrecorder_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-video-screenrecorder_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-video-screenrecorder_MOBJC_DIRS := $(foreach dir, $(ports-video-screenrecorder_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-video-screenrecorder_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-video-screenrecorder_MOBJC_DIRS),)
+    ports-video-screenrecorder_MOBJC_DIRS := $(shell $(ECHO) $(ports-video-screenrecorder_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-video-screenrecorder_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-video-screenrecorder_CC := $(TARGET_CC)
+else
+  ports-video-screenrecorder_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-video-screenrecorder_MOBJC_CPPFLAGS := $(ports-video-screenrecorder_CPPFLAGS)
+ports-video-screenrecorder_OBJCFLAGS := $(ports-video-screenrecorder_CFLAGS)
+ports-video-screenrecorder_OBJCFLAGS := $(ports-video-screenrecorder_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-video-screenrecorder_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-video-screenrecorder_OBJCFLAGS)))
+ifeq ($(ports-video-screenrecorder_DFLAGS),)
+  ports-video-screenrecorder_OBJCDFLAGS := $(ports-video-screenrecorder_CFLAGS)
+else
+  ports-video-screenrecorder_OBJCDFLAGS := $(ports-video-screenrecorder_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-video-screenrecorder_LINK ?= $(strip $(ports-video-screenrecorder_CC) $(TARGET_SYSROOT))
+  ports-video-screenrecorder_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-video-screenrecorder_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-video-screenrecorder_STRIP ?= $(TARGET_STRIP)
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : CMD:=$(strip $(ports-video-screenrecorder_CC) $(TARGET_SYSROOT))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_MOBJC_CPPFLAGS:=$(strip $(ports-video-screenrecorder_MOBJC_CPPFLAGS) $(ports-video-screenrecorder_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCFLAGS:=$(strip $(ports-video-screenrecorder_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCDFLAGS:=$(ports-video-screenrecorder_OBJCDFLAGS)
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-video-screenrecorder_LINK ?= $(strip $(HOST_OBJC))
+  ports-video-screenrecorder_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-video-screenrecorder_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-video-screenrecorder_STRIP ?= $(HOST_STRIP)
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-video-screenrecorder_MOBJC_CPPFLAGS) $(ports-video-screenrecorder_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-video-screenrecorder_OBJCFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-video-screenrecorder_OBJCDFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-video-screenrecorder_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-video-screenrecorder_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-video-screenrecorder_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-video-screenrecorder_STRIP ?= $(ECHO) >/dev/null
+  ports-video-screenrecorder_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-video-screenrecorder_MOBJC_CPPFLAGS) $(ports-video-screenrecorder_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-video-screenrecorder_OBJCFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-video-screenrecorder_OBJCDFLAGS))
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-video-screenrecorder_MOBJC_TARGETS) $(ports-video-screenrecorder_MOBJC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-video-screenrecorder_MOBJC_TARGETS) : CPPFLAGS := $(ports-video-screenrecorder_MOBJC_CPPFLAGS)
+$(ports-video-screenrecorder_MOBJC_TARGETS) : CFLAGS := $(ports-video-screenrecorder_OBJCFLAGS)
+$(ports-video-screenrecorder_MOBJC_TARGETS) : $(ports-video-screenrecorder_MOBJC_WILDCARD).o : $(ports-video-screenrecorder_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-video-screenrecorder_MOBJC_DTARGETS) : $(ports-video-screenrecorder_MOBJC_WILDCARD).d : $(ports-video-screenrecorder_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-video-screenrecorder_OBJCDFLAGS) $(ports-video-screenrecorder_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-video-screenrecorder_MC_SRCWILDCARD := %
+else
+ports-video-screenrecorder_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-video-screenrecorder_OBJDIR),)
+ports-video-screenrecorder_MC_TARGETS := $(addsuffix .o,$(ports-video-screenrecorder_C_NARCHFILES))
+ports-video-screenrecorder_MC_DTARGETS := $(addsuffix .d,$(ports-video-screenrecorder_C_NARCHFILES))
+ports-video-screenrecorder_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-video-screenrecorder_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(ports-video-screenrecorder_C_NARCHFILES))))
+    ports-video-screenrecorder_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(ports-video-screenrecorder_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-video-screenrecorder_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_C_NARCHFILES)))
+    ports-video-screenrecorder_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(ports-video-screenrecorder_C_NARCHFILES)))
+else
+    ports-video-screenrecorder_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(patsubst /%,%,$(ports-video-screenrecorder_C_NARCHFILES))))
+    ports-video-screenrecorder_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(patsubst /%,%,$(ports-video-screenrecorder_C_NARCHFILES))))
+endif
+endif
+ports-video-screenrecorder_MC_TGTWILDCARD := $(ports-video-screenrecorder_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : | $(addsuffix .c,$(ports-video-screenrecorder_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-video-screenrecorder_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-video-screenrecorder_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-video-screenrecorder_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-video-screenrecorder_MC_DIRS := $(foreach dir, $(ports-video-screenrecorder_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-video-screenrecorder_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-video-screenrecorder_MC_DIRS),)
+    ports-video-screenrecorder_MC_DIRS := $(shell $(ECHO) $(ports-video-screenrecorder_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-video-screenrecorder_MC_DIRS)
+endif
+
+endif
+
+ports-video-screenrecorder_MC_CPPFLAGS := $(ports-video-screenrecorder_CPPFLAGS)
+ports-video-screenrecorder_CFLAGS := $(ports-video-screenrecorder_CFLAGS)
+ifeq ($(ports-video-screenrecorder_DFLAGS),)
+  ports-video-screenrecorder_DFLAGS := $(ports-video-screenrecorder_CFLAGS)
+else
+  ports-video-screenrecorder_DFLAGS := $(ports-video-screenrecorder_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-video-screenrecorder_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-video-screenrecorder_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-video-screenrecorder_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-video-screenrecorder_STRIP ?= $(TARGET_STRIP)
+ports-video-screenrecorder_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_MC_CPPFLAGS:=$(strip $(ports-video-screenrecorder_MC_CPPFLAGS) $(ports-video-screenrecorder_MC_EXTRA_CPPFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_CFLAGS:=$(strip $(ports-video-screenrecorder_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_DFLAGS:=$(ports-video-screenrecorder_DFLAGS)
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-video-screenrecorder_LINK ?= $(strip $(HOST_CC))
+ports-video-screenrecorder_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-video-screenrecorder_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-video-screenrecorder_STRIP ?= $(HOST_STRIP)
+ports-video-screenrecorder_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-video-screenrecorder_MC_CPPFLAGS) $(ports-video-screenrecorder_MC_EXTRA_CPPFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-video-screenrecorder_CFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-video-screenrecorder_DFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(HOST_IQUOTE)
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-video-screenrecorder_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-video-screenrecorder_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-video-screenrecorder_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-video-screenrecorder_STRIP ?= $(ECHO) >/dev/null
+ports-video-screenrecorder_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-video-screenrecorder_MC_CPPFLAGS) $(ports-video-screenrecorder_MC_EXTRA_CPPFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-video-screenrecorder_CFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-video-screenrecorder_DFLAGS))
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-video-screenrecorder_MC_TARGETS) $(ports-video-screenrecorder_MC_DTARGETS) : ports-video-screenrecorder_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-video-screenrecorder_MC_TARGETS) : CPPFLAGS := $(ports-video-screenrecorder_MC_CPPFLAGS)
+$(ports-video-screenrecorder_MC_TARGETS) : CFLAGS := $(ports-video-screenrecorder_CFLAGS)
+$(ports-video-screenrecorder_MC_TARGETS) : $(ports-video-screenrecorder_MC_TGTWILDCARD).o : $(ports-video-screenrecorder_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-video-screenrecorder_IQUOTE) $(dir $<) $(ports-video-screenrecorder_IQUOTE) $(TOP)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-video-screenrecorder_IQUOTE) . $(ports-video-screenrecorder_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-video-screenrecorder_MC_DTARGETS) : $(ports-video-screenrecorder_MC_TGTWILDCARD).d : $(ports-video-screenrecorder_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-video-screenrecorder_DFLAGS) $(ports-video-screenrecorder_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-video-screenrecorder_OBJDIR),)
+ports-video-screenrecorder-MA_TARGETS := $(addsuffix .o,$(ports-video-screenrecorder_ASMFILES))
+ports-video-screenrecorder-MA_WILDCARD := %
+else
+ports-video-screenrecorder-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-video-screenrecorder_OBJDIR)/,$(notdir $(ports-video-screenrecorder_ASMFILES))))
+ports-video-screenrecorder-MA_WILDCARD := $(ports-video-screenrecorder_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-video-screenrecorder-MA_TARGETS) : | $(addsuffix .s,$(ports-video-screenrecorder_ASMFILES))
+
+# Be sure that all .c files are found
+ports-video-screenrecorder-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-video-screenrecorder-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-video-screenrecorder_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-video-screenrecorder-MA_DIRS := $(foreach dir, $(ports-video-screenrecorder-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-video-screenrecorder-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-video-screenrecorder-MA_DIRS),)
+    ports-video-screenrecorder-MA_DIRS := $(shell $(ECHO) $(ports-video-screenrecorder-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-video-screenrecorder-MA_DIRS)
+endif
+
+endif
+
+ports-video-screenrecorder-MA_ASSEMBLER ?= $(ports-video-screenrecorder_ASSEMBLER)
+
+$(ports-video-screenrecorder-MA_TARGETS) : ports-video-screenrecorder-MA_CMD:= $(ports-video-screenrecorder-MA_ASSEMBLER)
+
+$(ports-video-screenrecorder-MA_TARGETS) : CPPFLAGS := $(ports-video-screenrecorder_CPPFLAGS)
+$(ports-video-screenrecorder-MA_TARGETS) : AFLAGS := $(ports-video-screenrecorder_AFLAGS)
+$(ports-video-screenrecorder-MA_TARGETS) : $(ports-video-screenrecorder-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-video-screenrecorder-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-video-screenrecorder-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-video-screenrecorder-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-video-screenrecorder-link_LD_OPTS := 
+ports-video-screenrecorder-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-video-screenrecorder-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-video-screenrecorder-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-video-screenrecorder-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-video-screenrecorder-link_DIRS := $(subst -L ,-L,$(strip $(ports-video-screenrecorder_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-video-screenrecorder-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-video-screenrecorder-link_DIRS)))
+# Add trailing /
+ports-video-screenrecorder-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-video-screenrecorder-link_DIRS)))
+# Add normal linklib path
+ports-video-screenrecorder-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-video-screenrecorder-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-video-screenrecorder_LIBS) $(ports-video-screenrecorder-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-video-screenrecorder-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-video-screenrecorder-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-video-screenrecorder-link_DEPLIBS := $(foreach lib,$(ports-video-screenrecorder-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-video-screenrecorder-link_DIRS)))) \
+)
+
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : OBJDIR := $(ports-video-screenrecorder_OBJDIR)
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : OBJS := $(strip $(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_ARCHOBJS) $(USER_OBJS))
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : LDFLAGS := $(strip $(ports-video-screenrecorder_LDFLAGS))
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-video-screenrecorder_LIBS) $(ports-video-screenrecorder-link_EXTRA_LIBS)))
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-video-screenrecorder_ARCHLIBS))
+$(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : $(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_ARCHOBJS) $(USER_OBJS) $(ports-video-screenrecorder-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-video-screenrecorder_LINK) $(strip $(ports-video-screenrecorder_LD_OPTS) $(ports-video-screenrecorder-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-video-screenrecorder_LINK) $(strip $(ports-video-screenrecorder_LD_OPTS) $(ports-video-screenrecorder-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-video-screenrecorder_LINK) $(strip $(ports-video-screenrecorder_LD_OPTS) $(ports-video-screenrecorder-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-video-screenrecorder_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-video-screenrecorder_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-video-screenrecorder_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-video-screenrecorder_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-video-screenrecorder_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-video-screenrecorder_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-video-screenrecorder_DEPS),)
+  ifneq (ports-video-screenrecorder ports-video-screenrecorder-quick,)
+    ifneq ($(findstring $(TARGET),ports-video-screenrecorder ports-video-screenrecorder-quick),)
+      -include $(ports-video-screenrecorder_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-video-screenrecorder_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_DEPS) $(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME),)
+$(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_DEPS) $(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) : | $(ports-video-screenrecorder_OBJDIR) $(ports-video-screenrecorder_TARGETDIR)
+else
+$(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_DEPS) $(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) :: $(ports-video-screenrecorder_OBJDIR) $(ports-video-screenrecorder_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-video-screenrecorder_OBJDIR) $(ports-video-screenrecorder_TARGETDIR)
+
+
+ports-video-screenrecorder-clean : FILES := $(ports-video-screenrecorder_OBJS) $(ports-video-screenrecorder_TARGETDIR)/$(ports-video-screenrecorder_PROGNAME) $(ports-video-screenrecorder_DEPS)
+#MM
+ports-video-screenrecorder-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-video-screenrecorder"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-video-screenrecorder-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-video-screenrecorder-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-video-screenrecorder-fetch-location := $(PORTSDIR)/screenrecorder
+endif
+
+ifneq (,)
+    ports-video-screenrecorder-fetch-baseflag := -b 
+else
+    ports-video-screenrecorder-fetch-baseflag :=
+endif
+
+ports-video-screenrecorder-fetch-fetchedflag := $(ports-video-screenrecorder-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-video-screenrecorder-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-video-screenrecorder-fetch-location) \
+	-d $(PORTSDIR)/screenrecorder $(ports-video-screenrecorder-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-video-screenrecorder-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-video-screenrecorder-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-video-screenrecorder-create-patch
+
+ifneq (,)
+    ports-video-screenrecorder-create-patch-location := 
+else
+    ports-video-screenrecorder-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-video-screenrecorder-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (,)
+    ports-video-screenrecorder-create-patch-srcdir   := 
+else
+    ports-video-screenrecorder-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-video-screenrecorder-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-video-screenrecorder-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-video-screenrecorder-create-patch-baseflag := -b /tmp
+    ports-video-screenrecorder-create-patch-base := 
+else
+    ports-video-screenrecorder-create-patch-baseflag :=
+    ports-video-screenrecorder-create-patch-base := $(PORTSDIR)/screenrecorder
+endif
+
+#MM- ports-video-screenrecorder-create-patch :  ports-video-screenrecorder-create-patch-diff 
+#MM- ports-video-screenrecorder-create-patch-quick :  ports-video-screenrecorder-create-patch-diff 
+
+#MM
+ports-video-screenrecorder-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-video-screenrecorder-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-video-screenrecorder-create-patch-base)/$(ports-video-screenrecorder-create-patch-srcdir) $(ports-video-screenrecorder-create-patch-base)/tmp/$(ports-video-screenrecorder-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tar.bz2 tar.gz" -f -l $(ports-video-screenrecorder-create-patch-location) -d $(PORTSDIR)/screenrecorder $(ports-video-screenrecorder-create-patch-baseflag); \
+	$(MV) $(ports-video-screenrecorder-create-patch-base)/$(ports-video-screenrecorder-create-patch-srcdir) $(ports-video-screenrecorder-create-patch-base)/tmp/$(ports-video-screenrecorder-create-patch-srcdir) ; \
+	cd $(ports-video-screenrecorder-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-video-screenrecorder-create-patch-diffflag) $(ports-video-screenrecorder-create-patch-exclude) \
+	    $(ports-video-screenrecorder-create-patch-srcdir) \
+	    $(ports-video-screenrecorder-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-video-screenrecorder-create-patch-base)/tmp/$(ports-video-screenrecorder-create-patch-srcdir).aros $(ports-video-screenrecorder-create-patch-base)/$(ports-video-screenrecorder-create-patch-srcdir) ; \
+	$(RM) $(ports-video-screenrecorder-create-patch-base)/tmp
+
+
+CPYFILES := ScreenRecorder.info
+
+
+ports-video-screenrecorder-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/screenrecorder/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/Images
+else
+setup :: $(TARGETDIR)/Images
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/Images
+
+
+.PHONY : ports-video-screenrecorder-cpy
+
+#MM
+ports-video-screenrecorder-cpy : | $(TARGETDIR)/Images 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-video-screenrecorder-cpy_SRC)),$(ports-video-screenrecorder-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-video-screenrecorder-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/Images/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

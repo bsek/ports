@@ -1,0 +1,1764 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-blobwars
+
+#MM- ports-game-blobwars : \
+#MM     ports-game-blobwars-bin \
+#MM     ports-game-blobwars-map \
+#MM     ports-game-blobwars-data \
+#MM     ports-game-blobwars-doc \
+#MM     ports-game-blobwars-gfx \
+#MM     ports-game-blobwars-music \
+#MM     ports-game-blobwars-sound \
+#MM     ports-game-blobwars-fetch
+
+#MM ports-game-blobwars-bin : includes linklibs \
+#MM     contrib-sdl \
+#MM     contrib-sdl-sdl-mixer \
+#MM     contrib-sdl-sdl-gfx \
+#MM     contrib-sdl-sdl-image \
+#MM     contrib-sdl-sdl-ttf \
+#MM     contrib-sdl-sdl-net \
+#MM     ports-game-blobwars-fetch
+
+#MM ports-game-blobwars-map : includes linklibs \
+#MM     contrib-sdl \
+#MM     contrib-sdl-sdl-mixer \
+#MM     contrib-sdl-sdl-gfx \
+#MM     contrib-sdl-sdl-image \
+#MM     contrib-sdl-sdl-ttf \
+#MM     contrib-sdl-sdl-net \
+#MM     ports-game-blobwars-fetch
+
+#MM ports-game-blobwars-data : ports-game-blobwars-fetch
+#MM ports-game-blobwars-doc : ports-game-blobwars-fetch
+#MM ports-game-blobwars-gfx : ports-game-blobwars-fetch
+#MM ports-game-blobwars-music : ports-game-blobwars-fetch
+#MM ports-game-blobwars-sound : ports-game-blobwars-fetch
+
+#MM- ports-game-blobwars-quick : \
+#MM     ports-game-blobwars-bin-quick \
+#MM     ports-game-blobwars-map-quick
+
+#MM- ports-game-blobwars-clean : \
+#MM     ports-game-blobwars-bin-clean \
+#MM     ports-game-blobwars-map-clean
+
+
+ARCHBASE := blobwars
+VERSION := 1.19
+REPOSITORIES := sf://blobwars
+TARGETDIR := $(AROS_CONTRIB)/Games/Platform/Blobwars
+
+PATCHSPECS := $(ARCHBASE)-$(VERSION)-aros.diff:$(ARCHBASE)-$(VERSION):-p1
+
+# PROG := blobwars
+PAKNAME := blobwars.pak
+DOCS := doc/*
+ICONS := icons/
+DATA := data gfx sound music
+
+
+RELEASE := 0
+USEPAK := 0
+
+PREFIX := /PROGDIR
+BINDIR := $(PREFIX)/
+DATADIR := $(PREFIX)/share/blobwars/
+DOCDIR := $(PREFIX)/share/doc/
+ICONDIR := $(PREFIX)/share/icons/hicolor/
+LOCALEDIR := $(PREFIX)/share/locale/
+MEDAL_SERVER_HOST := www.parallelrealities.co.uk
+MEDAL_SERVER_PORT := 80
+
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_FORMAT_TRUNCATION) $(NOWARN_STRINGOP_TRUNCATION)
+
+USER_CPPFLAGS := -DVERSION=$(VERSION) -DRELEASE=$(RELEASE) -DUSEPAK=$(USEPAK)
+USER_CPPFLAGS += -DPAKNAME=\"$(PAKNAME)\" -DPAKLOCATION=\"$(DATADIR)\" -DUNIX -DGAMEPLAYMANUAL=\"$(DOCDIR)index.html\"
+USER_CPPFLAGS += -DLOCALEDIR=\"$(LOCALEDIR)\" -DMEDAL_SERVER_HOST=\"$(MEDAL_SERVER_HOST)\" -DMEDAL_SERVER_PORT=$(MEDAL_SERVER_PORT)
+USER_CXXFLAGS += $(NOWARN_FLAGS) -Wall -Werror
+
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -nix -static-libstdc++ -L$(AROS_CONTRIB_LIB)
+
+FILES := \
+     CAudio \
+     CBoss \
+     CCollision \
+     CCutscene \
+     CConfig \
+     CData \
+     CEffect \
+     CEngine \
+     CEntity \
+     CFileData \
+     CGame \
+     CGameData \
+     CGameObject \
+     CGraphics \
+     CHub \
+     CKeyboard \
+     CJoystick \
+     CLineDef \
+     CList \
+     CMap \
+     CMath \
+     CMedalServer \
+     CObjective \
+     CPak \
+     CParticle \
+     CPersistant \
+     CPersistData \
+     CRadarBlip \
+     CReplayData \
+     CSpawnPoint \
+     CSprite \
+     CSwitch \
+     CTeleporter \
+     CTrain \
+     CTrap \
+     CWeapon \
+     CWidget \
+     aquaBoss \
+     bosses \
+     bullets \
+     cutscene \
+     droidBoss \
+     effects \
+     enemies \
+     entities \
+     explosions \
+     finalBattle \
+     galdov \
+     game \
+     graphics \
+     hub \
+     info \
+     init \
+     intro \
+     items \
+     lineDefs \
+     loadSave \
+     map \
+     mapData \
+     mias \
+     mission \
+     objectives \
+     obstacles \
+     options \
+     particles \
+     player \
+     resources \
+     spawnPoints \
+     switches \
+     tankBoss \
+     teleporters \
+     title \
+     trains \
+     traps \
+     triggers \
+     weapons \
+     widgets
+
+GAMEFILES := $(FILES) main
+MAPFILES  := $(FILES) mapEditor
+# PAKFILES = CFileData pak
+
+GAMEFILES := $(addprefix $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/src/,$(GAMEFILES))
+MAPFILES  := $(addprefix $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/src/,$(MAPFILES))
+
+#############################################################################################################
+
+
+.PHONY : ports-game-blobwars-bin
+
+#MM- ports-game-blobwars-bin : \
+#MM             ports-game-blobwars-bin-$(CPU)
+
+#MM- ports-game-blobwars-bin-$(ARCH)-$(CPU) : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-blobwars-bin-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(CPU)
+
+#MM- ports-game-blobwars-bin-$(ARCH) : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-blobwars-bin-$(FAMILY) : \
+#MM             ports-game-blobwars-bin-$(ARCH)
+
+#MM- ports-game-blobwars-bin-$(CPU) : \
+#MM             ports-game-blobwars-bin-$(FAMILY)
+#MM- ports-game-blobwars-bin-quick : \
+#MM             ports-game-blobwars-bin-$(CPU)-quick
+
+#MM- ports-game-blobwars-bin-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-blobwars-bin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-blobwars-bin-$(ARCH)-quick : \
+#MM             ports-game-blobwars-bin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-blobwars-bin-$(FAMILY)-quick : \
+#MM             ports-game-blobwars-bin-$(ARCH)-quick
+
+#MM- ports-game-blobwars-bin-$(CPU)-quick : \
+#MM             ports-game-blobwars-bin-$(FAMILY)-quick
+
+ports-game-blobwars-bin_PROGNAME  := Blobwars
+ports-game-blobwars-bin_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-blobwars-bin_TARGETDIR := $(TARGETDIR)
+ports-game-blobwars-bin_LINKER    := 
+ports-game-blobwars-bin_LIBS := SDL_mixer SDL_image SDL_ttf SDL_net net freetype2 mikmod vorbisfile vorbis ogg png jpeg SDL z stdc++
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-blobwars-bin_LINKER),)
+    ports-game-blobwars-bin_LINKER := target
+endif
+
+ifneq ("$(strip  $(GAMEFILES)  )","")
+    ports-game-blobwars-bin_FILES     := 
+    ports-game-blobwars-bin_OBJCFILES := 
+    ports-game-blobwars-bin_ASMFILES  := 
+    ports-game-blobwars-bin_CXXFILES := $(GAMEFILES)
+else
+    ports-game-blobwars-bin_FILES     := $(ports-game-blobwars-bin_PROGNAME)
+    ports-game-blobwars-bin_OBJCFILES :=
+    ports-game-blobwars-bin_ASMFILES  :=
+    ports-game-blobwars-bin_CXXFILES :=
+endif
+
+ports-game-blobwars-bin_ARCHOBJS   := $(wildcard $(ports-game-blobwars-bin_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-blobwars-bin_ARCHFILES     := $(basename $(notdir $(ports-game-blobwars-bin_ARCHOBJS)))
+else
+    ports-game-blobwars-bin_ARCHFILES     := $(basename $(patsubst $(ports-game-blobwars-bin_OBJDIR)/%,%,$(ports-game-blobwars-bin_ARCHOBJS)))
+endif
+ports-game-blobwars-bin_C_NARCHFILES := $(filter-out $(ports-game-blobwars-bin_ARCHFILES),$(ports-game-blobwars-bin_FILES))
+ports-game-blobwars-bin_CXX_NARCHFILES := $(filter-out $(ports-game-blobwars-bin_ARCHFILES),$(ports-game-blobwars-bin_CXXFILES))
+ports-game-blobwars-bin_OBJC_NARCHFILES := $(filter-out $(ports-game-blobwars-bin_ARCHFILES),$(ports-game-blobwars-bin_OBJCFILES))
+
+TMP_FILES := $(ports-game-blobwars-bin_C_NARCHFILES) $(ports-game-blobwars-bin_CXX_NARCHFILES) $(ports-game-blobwars-bin_ASMFILES) $(ports-game-blobwars-bin_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-blobwars-bin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-blobwars-bin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-blobwars-bin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-blobwars-bin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-blobwars-bin_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-blobwars-bin_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-bin_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-blobwars-bin_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-blobwars-bin_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-bin_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-blobwars-bin_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-blobwars-bin_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-bin_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-blobwars-bin_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-blobwars-bin_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-blobwars-bin_LDFLAGS          := 
+endif
+
+ports-game-blobwars-bin_CSTATICFLAGS   := `echo "$(ports-game-blobwars-bin_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-blobwars-bin_CSTDCFLAGS   :=  `echo "$(ports-game-blobwars-bin_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-blobwars-bin_CPOSIXCFLAGS   :=  `echo "$(ports-game-blobwars-bin_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-blobwars-bin_LDFLAGS          += $(strip $(ports-game-blobwars-bin_CSTATICFLAGS) $(ports-game-blobwars-bin_CSTDCFLAGS) $(ports-game-blobwars-bin_CPOSIXCFLAGS))
+
+ports-game-blobwars-bin_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-blobwars-bin_COVERAGE := yes
+ports-game-blobwars-bin_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-blobwars-bin_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-blobwars-bin_CFLAGS    := $(strip $(ports-game-blobwars-bin_COVERAGEFLAGS) $(ports-game-blobwars-bin_CFLAGS))
+ports-game-blobwars-bin_CXXFLAGS := $(strip $(ports-game-blobwars-bin_COVERAGEFLAGS) $(ports-game-blobwars-bin_CXXFLAGS))
+ports-game-blobwars-bin_LIBS += $(ports-game-blobwars-bin_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-blobwars-bin_FUNCINSTR := yes
+ports-game-blobwars-bin_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-blobwars-bin_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-blobwars-bin_CFLAGS    := $(strip $(ports-game-blobwars-bin_INSTRFUNCFLAGS) $(ports-game-blobwars-bin_CFLAGS))
+ports-game-blobwars-bin_CXXFLAGS := $(strip $(ports-game-blobwars-bin_INSTRFUNCFLAGS) $(ports-game-blobwars-bin_CXXFLAGS))
+ports-game-blobwars-bin_LIBS += $(ports-game-blobwars-bin_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-blobwars-bin_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-blobwars-bin_CFLAGS))
+ports-game-blobwars-bin_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-blobwars-bin_CXXFLAGS))
+endif
+endif
+ports-game-blobwars-bin_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-blobwars-bin_DFLAGS     := 
+else
+    ports-game-blobwars-bin_DFLAGS     := $(ports-game-blobwars-bin_CFLAGS)
+endif
+ifneq (,)
+    ports-game-blobwars-bin_DXXFLAGS     := 
+else
+    ports-game-blobwars-bin_DXXFLAGS     := $(ports-game-blobwars-bin_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-blobwars-bin_LDFLAGS           := $(ports-game-blobwars-bin_LDFLAGS)
+ports-game-blobwars-bin_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-blobwars-bin_LDFLAGS           := $(ports-game-blobwars-bin_LDFLAGS)
+ports-game-blobwars-bin_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_LDFLAGS           := $(ports-game-blobwars-bin_LDFLAGS)
+ports-game-blobwars-bin_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-blobwars-bin_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-blobwars-bin-quick : ports-game-blobwars-bin
+
+#MM ports-game-blobwars-bin : includes-generate-deps core-linklibs
+ports-game-blobwars-bin : $(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-blobwars-bin_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-blobwars-bin_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-blobwars-bin_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-blobwars-bin_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-blobwars-bin_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-blobwars-bin ports-game-blobwars-bin-quick ports-game-blobwars-bin-compress-quick),)
+
+ports-game-blobwars-bin_CXXABSBASENAMES := $(foreach ports-game-blobwars-bin_CXXBASE,$(ports-game-blobwars-bin_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-blobwars-bin_CXXBASE)),$(ports-game-blobwars-bin_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-blobwars-bin_CXXBASE))))
+
+ifneq ($(ports-game-blobwars-bin_CXXABSBASENAMES),)
+
+ports-game-blobwars-bin_CXXBASENAMES := $(basename $(ports-game-blobwars-bin_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-blobwars-bin_MCXX_FILES  := $(strip $(foreach ports-game-blobwars-bin_CXXBASE,$(ports-game-blobwars-bin_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-blobwars-bin_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-blobwars-bin_EXT),$(ports-game-blobwars-bin_CXXBASE)))))))
+
+ifeq (,)
+ports-game-blobwars-bin_MCXX_SRCWILDCARD := %
+else
+ports-game-blobwars-bin_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-bin_OBJDIR),)
+  ports-game-blobwars-bin_CXXTARGETS := $(notdir $(ports-game-blobwars-bin_CXXBASENAMES:=.o))
+  ports-game-blobwars-bin_CXXDTARGETS := $(notdir $(ports-game-blobwars-bin_CXXBASENAMES:=.d))
+  ports-game-blobwars-bin_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-blobwars-bin_CXXTARGETS := $(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(ports-game-blobwars-bin_CXXBASENAMES:=.o)))
+  ports-game-blobwars-bin_CXXDTARGETS := $(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(ports-game-blobwars-bin_CXXBASENAMES:=.d)))
+  ports-game-blobwars-bin_MCXX_WILDCARD := $(ports-game-blobwars-bin_OBJDIR)/%
+else
+  ports-game-blobwars-bin_CXXTARGETS := $(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_CXXBASENAMES:=.o))
+  ports-game-blobwars-bin_CXXDTARGETS := $(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_CXXBASENAMES:=.d))
+  ports-game-blobwars-bin_MCXX_WILDCARD := $(ports-game-blobwars-bin_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-blobwars-bin_CXXTARGETS) $(ports-game-blobwars-bin_CXXDTARGETS) : | $(ports-game-blobwars-bin_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-blobwars-bin_MCXX_CPPFLAGS := $(ports-game-blobwars-bin_CPPFLAGS)
+ports-game-blobwars-bin_CXXFLAGS := $(ports-game-blobwars-bin_CXXFLAGS)
+ifeq ($(ports-game-blobwars-bin_DXXFLAGS),)
+  ports-game-blobwars-bin_DXXFLAGS := $(ports-game-blobwars-bin_CXXFLAGS)
+else
+  ports-game-blobwars-bin_DXXFLAGS := $(ports-game-blobwars-bin_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-blobwars-bin_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-blobwars-bin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-blobwars-bin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-blobwars-bin_STRIP ?= $(HOST_STRIP)
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-blobwars-bin_CXXCMD:=$(HOST_CXX)
+  ports-game-blobwars-bin_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS) $(ports-game-blobwars-bin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-bin_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-blobwars-bin_CXXFLAGS))
+  ports-game-blobwars-bin_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-blobwars-bin_DXXFLAGS))
+  ports-game-blobwars-bin_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-blobwars-bin_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-blobwars-bin_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-blobwars-bin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-blobwars-bin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-blobwars-bin_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-blobwars-bin_LDFLAGS ?= $(ports-game-blobwars-bin_CXXLDFLAGS)
+  ports-game-blobwars-bin_STRIP ?= $(TARGET_STRIP)
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-blobwars-bin_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-blobwars-bin_MCXX_CPPFLAGS := $(strip $(ports-game-blobwars-bin_MCXX_CPPFLAGS) $(ports-game-blobwars-bin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-bin_CXXFLAGS := $(strip $(ports-game-blobwars-bin_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-blobwars-bin_DXXFLAGS := $(ports-game-blobwars-bin_DXXFLAGS)
+  ports-game-blobwars-bin_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-blobwars-bin_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-blobwars-bin_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-blobwars-bin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-blobwars-bin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-blobwars-bin_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-blobwars-bin_LDFLAGS ?= $(ports-game-blobwars-bin_CXXLDFLAGS)
+  ports-game-blobwars-bin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-blobwars-bin_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-blobwars-bin_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS) $(ports-game-blobwars-bin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-bin_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-blobwars-bin_CXXFLAGS))
+  ports-game-blobwars-bin_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-blobwars-bin_DXXFLAGS))
+  ports-game-blobwars-bin_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-blobwars-bin_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-blobwars-bin_CXXCMD) $(ports-game-blobwars-bin_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-bin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) . $(ports-game-blobwars-bin_CXXIQUOTE_END) $(strip $(ports-game-blobwars-bin_CXXFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-blobwars-bin_CXXCMD) $(ports-game-blobwars-bin_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-bin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) . $(ports-game-blobwars-bin_CXXIQUOTE_END) $(strip $(ports-game-blobwars-bin_CXXFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-blobwars-bin_CXXCMD) $(ports-game-blobwars-bin_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-bin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_CXXIQUOTE) . $(ports-game-blobwars-bin_CXXIQUOTE_END) $(strip $(ports-game-blobwars-bin_CXXFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-blobwars-bin_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-bin_DXXFLAGS) $(ports-game-blobwars-bin_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-blobwars-bin_OBJDIR),)
+  $(foreach ports-game-blobwars-bin_CXXFILE,$(ports-game-blobwars-bin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-blobwars-bin_CXXFILE))),$(ports-game-blobwars-bin_CXXFILE))))
+else
+  $(foreach ports-game-blobwars-bin_CXXFILE,$(ports-game-blobwars-bin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(basename $(ports-game-blobwars-bin_CXXFILE)))),$(ports-game-blobwars-bin_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-blobwars-bin_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-blobwars-bin_MOBJC_SRCWILDCARD := %
+else
+ports-game-blobwars-bin_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-bin_OBJDIR),)
+  ports-game-blobwars-bin_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-blobwars-bin_OBJC_NARCHFILES))
+  ports-game-blobwars-bin_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-blobwars-bin_OBJC_NARCHFILES))
+  ports-game-blobwars-bin_MOBJC_WILDCARD := %
+else
+  ports-game-blobwars-bin_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_OBJC_NARCHFILES)))
+  ports-game-blobwars-bin_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_OBJC_NARCHFILES)))
+  ports-game-blobwars-bin_MOBJC_WILDCARD := $(ports-game-blobwars-bin_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-blobwars-bin_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-blobwars-bin_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-blobwars-bin_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-bin_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-blobwars-bin_MOBJC_DIRS := $(foreach dir, $(ports-game-blobwars-bin_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-bin_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-blobwars-bin_MOBJC_DIRS),)
+    ports-game-blobwars-bin_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-blobwars-bin_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-blobwars-bin_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-blobwars-bin_CC := $(TARGET_CC)
+else
+  ports-game-blobwars-bin_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-blobwars-bin_MOBJC_CPPFLAGS := $(ports-game-blobwars-bin_CPPFLAGS)
+ports-game-blobwars-bin_OBJCFLAGS := $(ports-game-blobwars-bin_CFLAGS)
+ports-game-blobwars-bin_OBJCFLAGS := $(ports-game-blobwars-bin_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-blobwars-bin_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-blobwars-bin_OBJCFLAGS)))
+ifeq ($(ports-game-blobwars-bin_DFLAGS),)
+  ports-game-blobwars-bin_OBJCDFLAGS := $(ports-game-blobwars-bin_CFLAGS)
+else
+  ports-game-blobwars-bin_OBJCDFLAGS := $(ports-game-blobwars-bin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-blobwars-bin_LINK ?= $(strip $(ports-game-blobwars-bin_CC) $(TARGET_SYSROOT))
+  ports-game-blobwars-bin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-blobwars-bin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-blobwars-bin_STRIP ?= $(TARGET_STRIP)
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-blobwars-bin_CC) $(TARGET_SYSROOT))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_MOBJC_CPPFLAGS:=$(strip $(ports-game-blobwars-bin_MOBJC_CPPFLAGS) $(ports-game-blobwars-bin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCFLAGS:=$(strip $(ports-game-blobwars-bin_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCDFLAGS:=$(ports-game-blobwars-bin_OBJCDFLAGS)
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-blobwars-bin_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-blobwars-bin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-blobwars-bin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-blobwars-bin_STRIP ?= $(HOST_STRIP)
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-blobwars-bin_MOBJC_CPPFLAGS) $(ports-game-blobwars-bin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-bin_OBJCFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-bin_OBJCDFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-blobwars-bin_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-blobwars-bin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-blobwars-bin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-blobwars-bin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-blobwars-bin_MOBJC_CPPFLAGS) $(ports-game-blobwars-bin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-bin_OBJCFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-bin_OBJCDFLAGS))
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-blobwars-bin_MOBJC_TARGETS) $(ports-game-blobwars-bin_MOBJC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-blobwars-bin_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-blobwars-bin_MOBJC_CPPFLAGS)
+$(ports-game-blobwars-bin_MOBJC_TARGETS) : CFLAGS := $(ports-game-blobwars-bin_OBJCFLAGS)
+$(ports-game-blobwars-bin_MOBJC_TARGETS) : $(ports-game-blobwars-bin_MOBJC_WILDCARD).o : $(ports-game-blobwars-bin_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-blobwars-bin_MOBJC_DTARGETS) : $(ports-game-blobwars-bin_MOBJC_WILDCARD).d : $(ports-game-blobwars-bin_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-bin_OBJCDFLAGS) $(ports-game-blobwars-bin_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-blobwars-bin_MC_SRCWILDCARD := %
+else
+ports-game-blobwars-bin_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-bin_OBJDIR),)
+ports-game-blobwars-bin_MC_TARGETS := $(addsuffix .o,$(ports-game-blobwars-bin_C_NARCHFILES))
+ports-game-blobwars-bin_MC_DTARGETS := $(addsuffix .d,$(ports-game-blobwars-bin_C_NARCHFILES))
+ports-game-blobwars-bin_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-blobwars-bin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(ports-game-blobwars-bin_C_NARCHFILES))))
+    ports-game-blobwars-bin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(ports-game-blobwars-bin_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-blobwars-bin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_C_NARCHFILES)))
+    ports-game-blobwars-bin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(ports-game-blobwars-bin_C_NARCHFILES)))
+else
+    ports-game-blobwars-bin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(patsubst /%,%,$(ports-game-blobwars-bin_C_NARCHFILES))))
+    ports-game-blobwars-bin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(patsubst /%,%,$(ports-game-blobwars-bin_C_NARCHFILES))))
+endif
+endif
+ports-game-blobwars-bin_MC_TGTWILDCARD := $(ports-game-blobwars-bin_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-blobwars-bin_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-blobwars-bin_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-blobwars-bin_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-bin_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-blobwars-bin_MC_DIRS := $(foreach dir, $(ports-game-blobwars-bin_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-bin_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-blobwars-bin_MC_DIRS),)
+    ports-game-blobwars-bin_MC_DIRS := $(shell $(ECHO) $(ports-game-blobwars-bin_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-blobwars-bin_MC_DIRS)
+endif
+
+endif
+
+ports-game-blobwars-bin_MC_CPPFLAGS := $(ports-game-blobwars-bin_CPPFLAGS)
+ports-game-blobwars-bin_CFLAGS := $(ports-game-blobwars-bin_CFLAGS)
+ifeq ($(ports-game-blobwars-bin_DFLAGS),)
+  ports-game-blobwars-bin_DFLAGS := $(ports-game-blobwars-bin_CFLAGS)
+else
+  ports-game-blobwars-bin_DFLAGS := $(ports-game-blobwars-bin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-blobwars-bin_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-blobwars-bin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-blobwars-bin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-blobwars-bin_STRIP ?= $(TARGET_STRIP)
+ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_MC_CPPFLAGS:=$(strip $(ports-game-blobwars-bin_MC_CPPFLAGS) $(ports-game-blobwars-bin_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_CFLAGS:=$(strip $(ports-game-blobwars-bin_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_DFLAGS:=$(ports-game-blobwars-bin_DFLAGS)
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-blobwars-bin_LINK ?= $(strip $(HOST_CC))
+ports-game-blobwars-bin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-blobwars-bin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-blobwars-bin_STRIP ?= $(HOST_STRIP)
+ports-game-blobwars-bin_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-blobwars-bin_MC_CPPFLAGS) $(ports-game-blobwars-bin_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-bin_CFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-bin_DFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-bin_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-blobwars-bin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-blobwars-bin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-blobwars-bin_STRIP ?= $(ECHO) >/dev/null
+ports-game-blobwars-bin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-blobwars-bin_MC_CPPFLAGS) $(ports-game-blobwars-bin_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-bin_CFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-bin_DFLAGS))
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-blobwars-bin_MC_TARGETS) $(ports-game-blobwars-bin_MC_DTARGETS) : ports-game-blobwars-bin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-blobwars-bin_MC_TARGETS) : CPPFLAGS := $(ports-game-blobwars-bin_MC_CPPFLAGS)
+$(ports-game-blobwars-bin_MC_TARGETS) : CFLAGS := $(ports-game-blobwars-bin_CFLAGS)
+$(ports-game-blobwars-bin_MC_TARGETS) : $(ports-game-blobwars-bin_MC_TGTWILDCARD).o : $(ports-game-blobwars-bin_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-blobwars-bin_IQUOTE) $(dir $<) $(ports-game-blobwars-bin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-bin_IQUOTE) . $(ports-game-blobwars-bin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-blobwars-bin_MC_DTARGETS) : $(ports-game-blobwars-bin_MC_TGTWILDCARD).d : $(ports-game-blobwars-bin_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-bin_DFLAGS) $(ports-game-blobwars-bin_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-blobwars-bin_OBJDIR),)
+ports-game-blobwars-bin-MA_TARGETS := $(addsuffix .o,$(ports-game-blobwars-bin_ASMFILES))
+ports-game-blobwars-bin-MA_WILDCARD := %
+else
+ports-game-blobwars-bin-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-bin_OBJDIR)/,$(notdir $(ports-game-blobwars-bin_ASMFILES))))
+ports-game-blobwars-bin-MA_WILDCARD := $(ports-game-blobwars-bin_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-blobwars-bin-MA_TARGETS) : | $(addsuffix .s,$(ports-game-blobwars-bin_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-blobwars-bin-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-blobwars-bin-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-bin_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-blobwars-bin-MA_DIRS := $(foreach dir, $(ports-game-blobwars-bin-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-bin-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-blobwars-bin-MA_DIRS),)
+    ports-game-blobwars-bin-MA_DIRS := $(shell $(ECHO) $(ports-game-blobwars-bin-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-blobwars-bin-MA_DIRS)
+endif
+
+endif
+
+ports-game-blobwars-bin-MA_ASSEMBLER ?= $(ports-game-blobwars-bin_ASSEMBLER)
+
+$(ports-game-blobwars-bin-MA_TARGETS) : ports-game-blobwars-bin-MA_CMD:= $(ports-game-blobwars-bin-MA_ASSEMBLER)
+
+$(ports-game-blobwars-bin-MA_TARGETS) : CPPFLAGS := $(ports-game-blobwars-bin_CPPFLAGS)
+$(ports-game-blobwars-bin-MA_TARGETS) : AFLAGS := $(ports-game-blobwars-bin_AFLAGS)
+$(ports-game-blobwars-bin-MA_TARGETS) : $(ports-game-blobwars-bin-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-blobwars-bin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-blobwars-bin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-blobwars-bin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-blobwars-bin-link_LD_OPTS := 
+ports-game-blobwars-bin-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-blobwars-bin-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-blobwars-bin-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-blobwars-bin-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-blobwars-bin-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-blobwars-bin_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-blobwars-bin-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-blobwars-bin-link_DIRS)))
+# Add trailing /
+ports-game-blobwars-bin-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-blobwars-bin-link_DIRS)))
+# Add normal linklib path
+ports-game-blobwars-bin-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-blobwars-bin-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-blobwars-bin_LIBS) $(ports-game-blobwars-bin-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-blobwars-bin-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-blobwars-bin-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-blobwars-bin-link_DEPLIBS := $(foreach lib,$(ports-game-blobwars-bin-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-blobwars-bin-link_DIRS)))) \
+)
+
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : OBJDIR := $(ports-game-blobwars-bin_OBJDIR)
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : OBJS := $(strip $(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_ARCHOBJS) $(USER_OBJS))
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : LDFLAGS := $(strip $(ports-game-blobwars-bin_LDFLAGS))
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-blobwars-bin_LIBS) $(ports-game-blobwars-bin-link_EXTRA_LIBS)))
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-blobwars-bin_ARCHLIBS))
+$(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : $(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_ARCHOBJS) $(USER_OBJS) $(ports-game-blobwars-bin-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-blobwars-bin_LINK) $(strip $(ports-game-blobwars-bin_LD_OPTS) $(ports-game-blobwars-bin-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-blobwars-bin_LINK) $(strip $(ports-game-blobwars-bin_LD_OPTS) $(ports-game-blobwars-bin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-blobwars-bin_LINK) $(strip $(ports-game-blobwars-bin_LD_OPTS) $(ports-game-blobwars-bin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-blobwars-bin_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-blobwars-bin_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-blobwars-bin_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-blobwars-bin_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-blobwars-bin_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-blobwars-bin_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-blobwars-bin_DEPS),)
+  ifneq (ports-game-blobwars-bin ports-game-blobwars-bin-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-blobwars-bin ports-game-blobwars-bin-quick),)
+      -include $(ports-game-blobwars-bin_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-blobwars-bin_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_DEPS) $(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME),)
+$(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_DEPS) $(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) : | $(ports-game-blobwars-bin_OBJDIR) $(ports-game-blobwars-bin_TARGETDIR)
+else
+$(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_DEPS) $(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) :: $(ports-game-blobwars-bin_OBJDIR) $(ports-game-blobwars-bin_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-blobwars-bin_OBJDIR) $(ports-game-blobwars-bin_TARGETDIR)
+
+
+ports-game-blobwars-bin-clean : FILES := $(ports-game-blobwars-bin_OBJS) $(ports-game-blobwars-bin_TARGETDIR)/$(ports-game-blobwars-bin_PROGNAME) $(ports-game-blobwars-bin_DEPS)
+#MM
+ports-game-blobwars-bin-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-blobwars-bin"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY : ports-game-blobwars-map
+
+#MM- ports-game-blobwars-map : \
+#MM             ports-game-blobwars-map-$(CPU)
+
+#MM- ports-game-blobwars-map-$(ARCH)-$(CPU) : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-blobwars-map-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(CPU)
+
+#MM- ports-game-blobwars-map-$(ARCH) : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-blobwars-map-$(FAMILY) : \
+#MM             ports-game-blobwars-map-$(ARCH)
+
+#MM- ports-game-blobwars-map-$(CPU) : \
+#MM             ports-game-blobwars-map-$(FAMILY)
+#MM- ports-game-blobwars-map-quick : \
+#MM             ports-game-blobwars-map-$(CPU)-quick
+
+#MM- ports-game-blobwars-map-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-blobwars-map-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-blobwars-map-$(ARCH)-quick : \
+#MM             ports-game-blobwars-map-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-blobwars-map-$(FAMILY)-quick : \
+#MM             ports-game-blobwars-map-$(ARCH)-quick
+
+#MM- ports-game-blobwars-map-$(CPU)-quick : \
+#MM             ports-game-blobwars-map-$(FAMILY)-quick
+
+ports-game-blobwars-map_PROGNAME  := Mapeditor
+ports-game-blobwars-map_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-blobwars-map_TARGETDIR := $(TARGETDIR)
+ports-game-blobwars-map_LINKER    := 
+ports-game-blobwars-map_LIBS := SDL_mixer SDL_image SDL_ttf SDL_net net freetype2 mikmod vorbisfile vorbis ogg png jpeg SDL z stdc++
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-blobwars-map_LINKER),)
+    ports-game-blobwars-map_LINKER := target
+endif
+
+ifneq ("$(strip  $(MAPFILES)  )","")
+    ports-game-blobwars-map_FILES     := 
+    ports-game-blobwars-map_OBJCFILES := 
+    ports-game-blobwars-map_ASMFILES  := 
+    ports-game-blobwars-map_CXXFILES := $(MAPFILES)
+else
+    ports-game-blobwars-map_FILES     := $(ports-game-blobwars-map_PROGNAME)
+    ports-game-blobwars-map_OBJCFILES :=
+    ports-game-blobwars-map_ASMFILES  :=
+    ports-game-blobwars-map_CXXFILES :=
+endif
+
+ports-game-blobwars-map_ARCHOBJS   := $(wildcard $(ports-game-blobwars-map_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-blobwars-map_ARCHFILES     := $(basename $(notdir $(ports-game-blobwars-map_ARCHOBJS)))
+else
+    ports-game-blobwars-map_ARCHFILES     := $(basename $(patsubst $(ports-game-blobwars-map_OBJDIR)/%,%,$(ports-game-blobwars-map_ARCHOBJS)))
+endif
+ports-game-blobwars-map_C_NARCHFILES := $(filter-out $(ports-game-blobwars-map_ARCHFILES),$(ports-game-blobwars-map_FILES))
+ports-game-blobwars-map_CXX_NARCHFILES := $(filter-out $(ports-game-blobwars-map_ARCHFILES),$(ports-game-blobwars-map_CXXFILES))
+ports-game-blobwars-map_OBJC_NARCHFILES := $(filter-out $(ports-game-blobwars-map_ARCHFILES),$(ports-game-blobwars-map_OBJCFILES))
+
+TMP_FILES := $(ports-game-blobwars-map_C_NARCHFILES) $(ports-game-blobwars-map_CXX_NARCHFILES) $(ports-game-blobwars-map_ASMFILES) $(ports-game-blobwars-map_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-blobwars-map_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-blobwars-map_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-blobwars-map_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-blobwars-map_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-blobwars-map_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-blobwars-map_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-map_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-blobwars-map_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-blobwars-map_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-map_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-blobwars-map_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-blobwars-map_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-blobwars-map_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-blobwars-map_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-blobwars-map_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-blobwars-map_LDFLAGS          := 
+endif
+
+ports-game-blobwars-map_CSTATICFLAGS   := `echo "$(ports-game-blobwars-map_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-blobwars-map_CSTDCFLAGS   :=  `echo "$(ports-game-blobwars-map_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-blobwars-map_CPOSIXCFLAGS   :=  `echo "$(ports-game-blobwars-map_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-blobwars-map_LDFLAGS          += $(strip $(ports-game-blobwars-map_CSTATICFLAGS) $(ports-game-blobwars-map_CSTDCFLAGS) $(ports-game-blobwars-map_CPOSIXCFLAGS))
+
+ports-game-blobwars-map_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-blobwars-map_COVERAGE := yes
+ports-game-blobwars-map_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-blobwars-map_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-blobwars-map_CFLAGS    := $(strip $(ports-game-blobwars-map_COVERAGEFLAGS) $(ports-game-blobwars-map_CFLAGS))
+ports-game-blobwars-map_CXXFLAGS := $(strip $(ports-game-blobwars-map_COVERAGEFLAGS) $(ports-game-blobwars-map_CXXFLAGS))
+ports-game-blobwars-map_LIBS += $(ports-game-blobwars-map_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-blobwars-map_FUNCINSTR := yes
+ports-game-blobwars-map_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-blobwars-map_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-blobwars-map_CFLAGS    := $(strip $(ports-game-blobwars-map_INSTRFUNCFLAGS) $(ports-game-blobwars-map_CFLAGS))
+ports-game-blobwars-map_CXXFLAGS := $(strip $(ports-game-blobwars-map_INSTRFUNCFLAGS) $(ports-game-blobwars-map_CXXFLAGS))
+ports-game-blobwars-map_LIBS += $(ports-game-blobwars-map_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-blobwars-map_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-blobwars-map_CFLAGS))
+ports-game-blobwars-map_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-blobwars-map_CXXFLAGS))
+endif
+endif
+ports-game-blobwars-map_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-blobwars-map_DFLAGS     := 
+else
+    ports-game-blobwars-map_DFLAGS     := $(ports-game-blobwars-map_CFLAGS)
+endif
+ifneq (,)
+    ports-game-blobwars-map_DXXFLAGS     := 
+else
+    ports-game-blobwars-map_DXXFLAGS     := $(ports-game-blobwars-map_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-blobwars-map_LDFLAGS           := $(ports-game-blobwars-map_LDFLAGS)
+ports-game-blobwars-map_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-blobwars-map_LDFLAGS           := $(ports-game-blobwars-map_LDFLAGS)
+ports-game-blobwars-map_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_LDFLAGS           := $(ports-game-blobwars-map_LDFLAGS)
+ports-game-blobwars-map_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-blobwars-map_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-blobwars-map-quick : ports-game-blobwars-map
+
+#MM ports-game-blobwars-map : includes-generate-deps core-linklibs
+ports-game-blobwars-map : $(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-blobwars-map_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-blobwars-map_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-blobwars-map_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-blobwars-map_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-blobwars-map_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-blobwars-map ports-game-blobwars-map-quick ports-game-blobwars-map-compress-quick),)
+
+ports-game-blobwars-map_CXXABSBASENAMES := $(foreach ports-game-blobwars-map_CXXBASE,$(ports-game-blobwars-map_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-blobwars-map_CXXBASE)),$(ports-game-blobwars-map_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-blobwars-map_CXXBASE))))
+
+ifneq ($(ports-game-blobwars-map_CXXABSBASENAMES),)
+
+ports-game-blobwars-map_CXXBASENAMES := $(basename $(ports-game-blobwars-map_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-blobwars-map_MCXX_FILES  := $(strip $(foreach ports-game-blobwars-map_CXXBASE,$(ports-game-blobwars-map_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-blobwars-map_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-blobwars-map_EXT),$(ports-game-blobwars-map_CXXBASE)))))))
+
+ifeq (,)
+ports-game-blobwars-map_MCXX_SRCWILDCARD := %
+else
+ports-game-blobwars-map_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-map_OBJDIR),)
+  ports-game-blobwars-map_CXXTARGETS := $(notdir $(ports-game-blobwars-map_CXXBASENAMES:=.o))
+  ports-game-blobwars-map_CXXDTARGETS := $(notdir $(ports-game-blobwars-map_CXXBASENAMES:=.d))
+  ports-game-blobwars-map_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-blobwars-map_CXXTARGETS := $(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(ports-game-blobwars-map_CXXBASENAMES:=.o)))
+  ports-game-blobwars-map_CXXDTARGETS := $(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(ports-game-blobwars-map_CXXBASENAMES:=.d)))
+  ports-game-blobwars-map_MCXX_WILDCARD := $(ports-game-blobwars-map_OBJDIR)/%
+else
+  ports-game-blobwars-map_CXXTARGETS := $(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_CXXBASENAMES:=.o))
+  ports-game-blobwars-map_CXXDTARGETS := $(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_CXXBASENAMES:=.d))
+  ports-game-blobwars-map_MCXX_WILDCARD := $(ports-game-blobwars-map_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-blobwars-map_CXXTARGETS) $(ports-game-blobwars-map_CXXDTARGETS) : | $(ports-game-blobwars-map_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-blobwars-map_MCXX_CPPFLAGS := $(ports-game-blobwars-map_CPPFLAGS)
+ports-game-blobwars-map_CXXFLAGS := $(ports-game-blobwars-map_CXXFLAGS)
+ifeq ($(ports-game-blobwars-map_DXXFLAGS),)
+  ports-game-blobwars-map_DXXFLAGS := $(ports-game-blobwars-map_CXXFLAGS)
+else
+  ports-game-blobwars-map_DXXFLAGS := $(ports-game-blobwars-map_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-blobwars-map_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-blobwars-map_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-blobwars-map_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-blobwars-map_STRIP ?= $(HOST_STRIP)
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-blobwars-map_CXXCMD:=$(HOST_CXX)
+  ports-game-blobwars-map_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS) $(ports-game-blobwars-map_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-map_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-blobwars-map_CXXFLAGS))
+  ports-game-blobwars-map_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-blobwars-map_DXXFLAGS))
+  ports-game-blobwars-map_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-blobwars-map_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-blobwars-map_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-blobwars-map_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-blobwars-map_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-blobwars-map_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-blobwars-map_LDFLAGS ?= $(ports-game-blobwars-map_CXXLDFLAGS)
+  ports-game-blobwars-map_STRIP ?= $(TARGET_STRIP)
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-blobwars-map_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-blobwars-map_MCXX_CPPFLAGS := $(strip $(ports-game-blobwars-map_MCXX_CPPFLAGS) $(ports-game-blobwars-map_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-map_CXXFLAGS := $(strip $(ports-game-blobwars-map_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-blobwars-map_DXXFLAGS := $(ports-game-blobwars-map_DXXFLAGS)
+  ports-game-blobwars-map_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-blobwars-map_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-blobwars-map_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-blobwars-map_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-blobwars-map_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-blobwars-map_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-blobwars-map_LDFLAGS ?= $(ports-game-blobwars-map_CXXLDFLAGS)
+  ports-game-blobwars-map_STRIP ?= $(ECHO) >/dev/null
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-blobwars-map_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-blobwars-map_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS) $(ports-game-blobwars-map_MCXX_EXTRA_CPPFLAGS))
+  ports-game-blobwars-map_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-blobwars-map_CXXFLAGS))
+  ports-game-blobwars-map_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-blobwars-map_DXXFLAGS))
+  ports-game-blobwars-map_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-blobwars-map_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-blobwars-map_CXXCMD) $(ports-game-blobwars-map_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-map_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) . $(ports-game-blobwars-map_CXXIQUOTE_END) $(strip $(ports-game-blobwars-map_CXXFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-blobwars-map_CXXCMD) $(ports-game-blobwars-map_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-map_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) . $(ports-game-blobwars-map_CXXIQUOTE_END) $(strip $(ports-game-blobwars-map_CXXFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-blobwars-map_CXXCMD) $(ports-game-blobwars-map_CXXIQUOTE) $(dir $(2)) $(ports-game-blobwars-map_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_CXXIQUOTE) . $(ports-game-blobwars-map_CXXIQUOTE_END) $(strip $(ports-game-blobwars-map_CXXFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-blobwars-map_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-map_DXXFLAGS) $(ports-game-blobwars-map_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-blobwars-map_OBJDIR),)
+  $(foreach ports-game-blobwars-map_CXXFILE,$(ports-game-blobwars-map_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-blobwars-map_CXXFILE))),$(ports-game-blobwars-map_CXXFILE))))
+else
+  $(foreach ports-game-blobwars-map_CXXFILE,$(ports-game-blobwars-map_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(basename $(ports-game-blobwars-map_CXXFILE)))),$(ports-game-blobwars-map_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-blobwars-map_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-blobwars-map_MOBJC_SRCWILDCARD := %
+else
+ports-game-blobwars-map_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-map_OBJDIR),)
+  ports-game-blobwars-map_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-blobwars-map_OBJC_NARCHFILES))
+  ports-game-blobwars-map_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-blobwars-map_OBJC_NARCHFILES))
+  ports-game-blobwars-map_MOBJC_WILDCARD := %
+else
+  ports-game-blobwars-map_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_OBJC_NARCHFILES)))
+  ports-game-blobwars-map_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_OBJC_NARCHFILES)))
+  ports-game-blobwars-map_MOBJC_WILDCARD := $(ports-game-blobwars-map_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-blobwars-map_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-blobwars-map_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-blobwars-map_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-map_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-blobwars-map_MOBJC_DIRS := $(foreach dir, $(ports-game-blobwars-map_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-map_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-blobwars-map_MOBJC_DIRS),)
+    ports-game-blobwars-map_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-blobwars-map_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-blobwars-map_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-blobwars-map_CC := $(TARGET_CC)
+else
+  ports-game-blobwars-map_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-blobwars-map_MOBJC_CPPFLAGS := $(ports-game-blobwars-map_CPPFLAGS)
+ports-game-blobwars-map_OBJCFLAGS := $(ports-game-blobwars-map_CFLAGS)
+ports-game-blobwars-map_OBJCFLAGS := $(ports-game-blobwars-map_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-blobwars-map_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-blobwars-map_OBJCFLAGS)))
+ifeq ($(ports-game-blobwars-map_DFLAGS),)
+  ports-game-blobwars-map_OBJCDFLAGS := $(ports-game-blobwars-map_CFLAGS)
+else
+  ports-game-blobwars-map_OBJCDFLAGS := $(ports-game-blobwars-map_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-blobwars-map_LINK ?= $(strip $(ports-game-blobwars-map_CC) $(TARGET_SYSROOT))
+  ports-game-blobwars-map_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-blobwars-map_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-blobwars-map_STRIP ?= $(TARGET_STRIP)
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-blobwars-map_CC) $(TARGET_SYSROOT))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_MOBJC_CPPFLAGS:=$(strip $(ports-game-blobwars-map_MOBJC_CPPFLAGS) $(ports-game-blobwars-map_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCFLAGS:=$(strip $(ports-game-blobwars-map_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCDFLAGS:=$(ports-game-blobwars-map_OBJCDFLAGS)
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-blobwars-map_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-blobwars-map_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-blobwars-map_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-blobwars-map_STRIP ?= $(HOST_STRIP)
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-blobwars-map_MOBJC_CPPFLAGS) $(ports-game-blobwars-map_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-map_OBJCFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-map_OBJCDFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-blobwars-map_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-blobwars-map_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-blobwars-map_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-blobwars-map_STRIP ?= $(ECHO) >/dev/null
+  ports-game-blobwars-map_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-blobwars-map_MOBJC_CPPFLAGS) $(ports-game-blobwars-map_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-map_OBJCFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-map_OBJCDFLAGS))
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-blobwars-map_MOBJC_TARGETS) $(ports-game-blobwars-map_MOBJC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-blobwars-map_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-blobwars-map_MOBJC_CPPFLAGS)
+$(ports-game-blobwars-map_MOBJC_TARGETS) : CFLAGS := $(ports-game-blobwars-map_OBJCFLAGS)
+$(ports-game-blobwars-map_MOBJC_TARGETS) : $(ports-game-blobwars-map_MOBJC_WILDCARD).o : $(ports-game-blobwars-map_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-blobwars-map_MOBJC_DTARGETS) : $(ports-game-blobwars-map_MOBJC_WILDCARD).d : $(ports-game-blobwars-map_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-map_OBJCDFLAGS) $(ports-game-blobwars-map_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-blobwars-map_MC_SRCWILDCARD := %
+else
+ports-game-blobwars-map_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-blobwars-map_OBJDIR),)
+ports-game-blobwars-map_MC_TARGETS := $(addsuffix .o,$(ports-game-blobwars-map_C_NARCHFILES))
+ports-game-blobwars-map_MC_DTARGETS := $(addsuffix .d,$(ports-game-blobwars-map_C_NARCHFILES))
+ports-game-blobwars-map_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-blobwars-map_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(ports-game-blobwars-map_C_NARCHFILES))))
+    ports-game-blobwars-map_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(ports-game-blobwars-map_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-blobwars-map_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_C_NARCHFILES)))
+    ports-game-blobwars-map_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(ports-game-blobwars-map_C_NARCHFILES)))
+else
+    ports-game-blobwars-map_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(patsubst /%,%,$(ports-game-blobwars-map_C_NARCHFILES))))
+    ports-game-blobwars-map_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(patsubst /%,%,$(ports-game-blobwars-map_C_NARCHFILES))))
+endif
+endif
+ports-game-blobwars-map_MC_TGTWILDCARD := $(ports-game-blobwars-map_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-blobwars-map_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-blobwars-map_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-blobwars-map_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-map_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-blobwars-map_MC_DIRS := $(foreach dir, $(ports-game-blobwars-map_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-map_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-blobwars-map_MC_DIRS),)
+    ports-game-blobwars-map_MC_DIRS := $(shell $(ECHO) $(ports-game-blobwars-map_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-blobwars-map_MC_DIRS)
+endif
+
+endif
+
+ports-game-blobwars-map_MC_CPPFLAGS := $(ports-game-blobwars-map_CPPFLAGS)
+ports-game-blobwars-map_CFLAGS := $(ports-game-blobwars-map_CFLAGS)
+ifeq ($(ports-game-blobwars-map_DFLAGS),)
+  ports-game-blobwars-map_DFLAGS := $(ports-game-blobwars-map_CFLAGS)
+else
+  ports-game-blobwars-map_DFLAGS := $(ports-game-blobwars-map_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-blobwars-map_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-blobwars-map_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-blobwars-map_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-blobwars-map_STRIP ?= $(TARGET_STRIP)
+ports-game-blobwars-map_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_MC_CPPFLAGS:=$(strip $(ports-game-blobwars-map_MC_CPPFLAGS) $(ports-game-blobwars-map_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_CFLAGS:=$(strip $(ports-game-blobwars-map_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_DFLAGS:=$(ports-game-blobwars-map_DFLAGS)
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-blobwars-map_LINK ?= $(strip $(HOST_CC))
+ports-game-blobwars-map_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-blobwars-map_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-blobwars-map_STRIP ?= $(HOST_STRIP)
+ports-game-blobwars-map_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-blobwars-map_MC_CPPFLAGS) $(ports-game-blobwars-map_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-map_CFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-blobwars-map_DFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-blobwars-map_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-blobwars-map_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-blobwars-map_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-blobwars-map_STRIP ?= $(ECHO) >/dev/null
+ports-game-blobwars-map_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-blobwars-map_MC_CPPFLAGS) $(ports-game-blobwars-map_MC_EXTRA_CPPFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-map_CFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-blobwars-map_DFLAGS))
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-blobwars-map_MC_TARGETS) $(ports-game-blobwars-map_MC_DTARGETS) : ports-game-blobwars-map_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-blobwars-map_MC_TARGETS) : CPPFLAGS := $(ports-game-blobwars-map_MC_CPPFLAGS)
+$(ports-game-blobwars-map_MC_TARGETS) : CFLAGS := $(ports-game-blobwars-map_CFLAGS)
+$(ports-game-blobwars-map_MC_TARGETS) : $(ports-game-blobwars-map_MC_TGTWILDCARD).o : $(ports-game-blobwars-map_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-blobwars-map_IQUOTE) $(dir $<) $(ports-game-blobwars-map_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-blobwars-map_IQUOTE) . $(ports-game-blobwars-map_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-blobwars-map_MC_DTARGETS) : $(ports-game-blobwars-map_MC_TGTWILDCARD).d : $(ports-game-blobwars-map_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-blobwars-map_DFLAGS) $(ports-game-blobwars-map_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-blobwars-map_OBJDIR),)
+ports-game-blobwars-map-MA_TARGETS := $(addsuffix .o,$(ports-game-blobwars-map_ASMFILES))
+ports-game-blobwars-map-MA_WILDCARD := %
+else
+ports-game-blobwars-map-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-blobwars-map_OBJDIR)/,$(notdir $(ports-game-blobwars-map_ASMFILES))))
+ports-game-blobwars-map-MA_WILDCARD := $(ports-game-blobwars-map_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-blobwars-map-MA_TARGETS) : | $(addsuffix .s,$(ports-game-blobwars-map_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-blobwars-map-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-blobwars-map-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-blobwars-map_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-blobwars-map-MA_DIRS := $(foreach dir, $(ports-game-blobwars-map-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-blobwars-map-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-blobwars-map-MA_DIRS),)
+    ports-game-blobwars-map-MA_DIRS := $(shell $(ECHO) $(ports-game-blobwars-map-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-blobwars-map-MA_DIRS)
+endif
+
+endif
+
+ports-game-blobwars-map-MA_ASSEMBLER ?= $(ports-game-blobwars-map_ASSEMBLER)
+
+$(ports-game-blobwars-map-MA_TARGETS) : ports-game-blobwars-map-MA_CMD:= $(ports-game-blobwars-map-MA_ASSEMBLER)
+
+$(ports-game-blobwars-map-MA_TARGETS) : CPPFLAGS := $(ports-game-blobwars-map_CPPFLAGS)
+$(ports-game-blobwars-map-MA_TARGETS) : AFLAGS := $(ports-game-blobwars-map_AFLAGS)
+$(ports-game-blobwars-map-MA_TARGETS) : $(ports-game-blobwars-map-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-blobwars-map-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-blobwars-map-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-blobwars-map-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-blobwars-map-link_LD_OPTS := 
+ports-game-blobwars-map-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-blobwars-map-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-blobwars-map-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-blobwars-map-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-blobwars-map-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-blobwars-map_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-blobwars-map-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-blobwars-map-link_DIRS)))
+# Add trailing /
+ports-game-blobwars-map-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-blobwars-map-link_DIRS)))
+# Add normal linklib path
+ports-game-blobwars-map-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-blobwars-map-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-blobwars-map_LIBS) $(ports-game-blobwars-map-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-blobwars-map-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-blobwars-map-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-blobwars-map-link_DEPLIBS := $(foreach lib,$(ports-game-blobwars-map-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-blobwars-map-link_DIRS)))) \
+)
+
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : OBJDIR := $(ports-game-blobwars-map_OBJDIR)
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : OBJS := $(strip $(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_ARCHOBJS) $(USER_OBJS))
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : LDFLAGS := $(strip $(ports-game-blobwars-map_LDFLAGS))
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-blobwars-map_LIBS) $(ports-game-blobwars-map-link_EXTRA_LIBS)))
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-blobwars-map_ARCHLIBS))
+$(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : $(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_ARCHOBJS) $(USER_OBJS) $(ports-game-blobwars-map-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-blobwars-map_LINK) $(strip $(ports-game-blobwars-map_LD_OPTS) $(ports-game-blobwars-map-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-blobwars-map_LINK) $(strip $(ports-game-blobwars-map_LD_OPTS) $(ports-game-blobwars-map-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-blobwars-map_LINK) $(strip $(ports-game-blobwars-map_LD_OPTS) $(ports-game-blobwars-map-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-blobwars-map_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-blobwars-map_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-blobwars-map_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-blobwars-map_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-blobwars-map_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-blobwars-map_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-blobwars-map_DEPS),)
+  ifneq (ports-game-blobwars-map ports-game-blobwars-map-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-blobwars-map ports-game-blobwars-map-quick),)
+      -include $(ports-game-blobwars-map_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-blobwars-map_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_DEPS) $(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME),)
+$(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_DEPS) $(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) : | $(ports-game-blobwars-map_OBJDIR) $(ports-game-blobwars-map_TARGETDIR)
+else
+$(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_DEPS) $(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) :: $(ports-game-blobwars-map_OBJDIR) $(ports-game-blobwars-map_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-blobwars-map_OBJDIR) $(ports-game-blobwars-map_TARGETDIR)
+
+
+ports-game-blobwars-map-clean : FILES := $(ports-game-blobwars-map_OBJS) $(ports-game-blobwars-map_TARGETDIR)/$(ports-game-blobwars-map_PROGNAME) $(ports-game-blobwars-map_DEPS)
+#MM
+ports-game-blobwars-map-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-blobwars-map"
+	$(Q)$(RM) $(FILES)
+
+
+#############################################################################################################
+
+
+.PHONY: ports-game-blobwars-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-blobwars-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-blobwars-fetch-location := $(PORTSDIR)/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-game-blobwars-fetch-baseflag := -b 
+else
+    ports-game-blobwars-fetch-baseflag :=
+endif
+
+ports-game-blobwars-fetch-fetchedflag := $(ports-game-blobwars-fetch-location)/.$(ARCHBASE)-$(VERSION)-fetched
+
+#MM
+ports-game-blobwars-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE)-$(VERSION) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE)-$(VERSION) -s "tar.gz" -l $(ports-game-blobwars-fetch-location) \
+	-d $(PORTSDIR)/$(ARCHBASE) $(ports-game-blobwars-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(PATCHSPECS)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-blobwars-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-blobwars-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-blobwars-create-patch
+
+ifneq (,)
+    ports-game-blobwars-create-patch-location := 
+else
+    ports-game-blobwars-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-blobwars-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (,)
+    ports-game-blobwars-create-patch-srcdir   := 
+else
+    ports-game-blobwars-create-patch-srcdir   := $(ARCHBASE)-$(VERSION)
+endif
+
+ifeq (no,yes)
+    ports-game-blobwars-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-blobwars-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-blobwars-create-patch-baseflag := -b /tmp
+    ports-game-blobwars-create-patch-base := 
+else
+    ports-game-blobwars-create-patch-baseflag :=
+    ports-game-blobwars-create-patch-base := $(PORTSDIR)/$(ARCHBASE)
+endif
+
+#MM- ports-game-blobwars-create-patch :  ports-game-blobwars-create-patch-diff 
+#MM- ports-game-blobwars-create-patch-quick :  ports-game-blobwars-create-patch-diff 
+
+#MM
+ports-game-blobwars-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-blobwars-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-blobwars-create-patch-base)/$(ports-game-blobwars-create-patch-srcdir) $(ports-game-blobwars-create-patch-base)/tmp/$(ports-game-blobwars-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE)-$(VERSION) -s "tar.gz" -f -l $(ports-game-blobwars-create-patch-location) -d $(PORTSDIR)/$(ARCHBASE) $(ports-game-blobwars-create-patch-baseflag); \
+	$(MV) $(ports-game-blobwars-create-patch-base)/$(ports-game-blobwars-create-patch-srcdir) $(ports-game-blobwars-create-patch-base)/tmp/$(ports-game-blobwars-create-patch-srcdir) ; \
+	cd $(ports-game-blobwars-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-$(VERSION)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-blobwars-create-patch-diffflag) $(ports-game-blobwars-create-patch-exclude) \
+	    $(ports-game-blobwars-create-patch-srcdir) \
+	    $(ports-game-blobwars-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-$(VERSION)-aros-new.diff ; \
+	$(MV) $(ports-game-blobwars-create-patch-base)/tmp/$(ports-game-blobwars-create-patch-srcdir).aros $(ports-game-blobwars-create-patch-base)/$(ports-game-blobwars-create-patch-srcdir) ; \
+	$(RM) $(ports-game-blobwars-create-patch-base)/tmp
+
+#############################################################################################################
+
+
+.PHONY : ports-game-blobwars-data
+
+#MM
+ports-game-blobwars-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/data -d $(TARGETDIR)/data -e 
+
+
+
+.PHONY : ports-game-blobwars-doc
+
+#MM
+ports-game-blobwars-doc :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc)))' to '$(if $(filter /%,$(TARGETDIR)/doc),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/doc)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/doc)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/doc))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/doc)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/doc -d $(TARGETDIR)/doc -e 
+
+
+
+.PHONY : ports-game-blobwars-gfx
+
+#MM
+ports-game-blobwars-gfx :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx)))' to '$(if $(filter /%,$(TARGETDIR)/gfx),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/gfx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/gfx)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/gfx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/gfx)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/gfx -d $(TARGETDIR)/gfx -e 
+
+
+
+.PHONY : ports-game-blobwars-music
+
+#MM
+ports-game-blobwars-music :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music)))' to '$(if $(filter /%,$(TARGETDIR)/music),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/music)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/music)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/music))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/music)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/music -d $(TARGETDIR)/music -e 
+
+
+
+.PHONY : ports-game-blobwars-sound
+
+#MM
+ports-game-blobwars-sound :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound)))' to '$(if $(filter /%,$(TARGETDIR)/sound),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/sound)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/sound)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/sound))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/sound)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(ARCHBASE)/$(ARCHBASE)-$(VERSION)/sound -d $(TARGETDIR)/sound -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

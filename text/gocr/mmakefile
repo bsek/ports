@@ -1,0 +1,849 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-gocr
+
+#MM  ports-text-gocr : includes linklibs ports-text-gocr-fetch ports-text-gocr-cpy \
+#MM  ports-text-gocr-docs ports-text-gocr-examples
+
+#MM  ports-text-gocr-docs : ports-text-gocr-fetch
+
+#MM  ports-text-gocr-examples : ports-text-gocr-fetch
+
+#MM  ports-text-gocr-cpy : ports-text-gocr-fetch
+
+REPOSITORIES := http://www-e.uni-magdeburg.de/jschulen/ocr/
+ARCHBASE     := gocr-0.49
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Text/Gocr
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_BUT_SET_VARIABLE) $(NOWARN_OVERFLOW) $(NOWARN_MISLEADING_INDENTATION) $(NOWARN_STRICT_OVERFLOW)
+USER_CFLAGS  := $(NOWARN_FLAGS)
+USER_INCLUDES:= -I $(PORTSDIR)/gocr/$(ARCHBASE)/include
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+FILES := \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/pgm2asc \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/box \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/database \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/detect \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/barcode \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/lines \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/list \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/ocr0 \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/ocr0n \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/ocr1 \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/otsu \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/output \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/pixel \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/unicode \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/remove \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/pnm \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/pcx \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/progress \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/job \
+    $(PORTSDIR)/gocr/$(ARCHBASE)/src/gocr
+
+
+.PHONY : ports-text-gocr
+
+#MM- ports-text-gocr : \
+#MM             ports-text-gocr-$(CPU)
+
+#MM- ports-text-gocr-$(ARCH)-$(CPU) : \
+#MM             ports-text-gocr-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-gocr-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-gocr-$(ARCH)-$(CPU)
+
+#MM- ports-text-gocr-$(ARCH) : \
+#MM             ports-text-gocr-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-gocr-$(FAMILY) : \
+#MM             ports-text-gocr-$(ARCH)
+
+#MM- ports-text-gocr-$(CPU) : \
+#MM             ports-text-gocr-$(FAMILY)
+#MM- ports-text-gocr-quick : \
+#MM             ports-text-gocr-$(CPU)-quick
+
+#MM- ports-text-gocr-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-gocr-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-gocr-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-gocr-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-gocr-$(ARCH)-quick : \
+#MM             ports-text-gocr-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-gocr-$(FAMILY)-quick : \
+#MM             ports-text-gocr-$(ARCH)-quick
+
+#MM- ports-text-gocr-$(CPU)-quick : \
+#MM             ports-text-gocr-$(FAMILY)-quick
+
+ports-text-gocr_PROGNAME  := gocr
+ports-text-gocr_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-gocr_TARGETDIR := $(TARGETDIR)
+ports-text-gocr_LINKER    := 
+ports-text-gocr_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-gocr_LINKER),)
+    ports-text-gocr_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-gocr_FILES     := $(FILES)
+    ports-text-gocr_OBJCFILES := 
+    ports-text-gocr_ASMFILES  := 
+    ports-text-gocr_CXXFILES := 
+else
+    ports-text-gocr_FILES     := $(ports-text-gocr_PROGNAME)
+    ports-text-gocr_OBJCFILES :=
+    ports-text-gocr_ASMFILES  :=
+    ports-text-gocr_CXXFILES :=
+endif
+
+ports-text-gocr_ARCHOBJS   := $(wildcard $(ports-text-gocr_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-gocr_ARCHFILES     := $(basename $(notdir $(ports-text-gocr_ARCHOBJS)))
+else
+    ports-text-gocr_ARCHFILES     := $(basename $(patsubst $(ports-text-gocr_OBJDIR)/%,%,$(ports-text-gocr_ARCHOBJS)))
+endif
+ports-text-gocr_C_NARCHFILES := $(filter-out $(ports-text-gocr_ARCHFILES),$(ports-text-gocr_FILES))
+ports-text-gocr_CXX_NARCHFILES := $(filter-out $(ports-text-gocr_ARCHFILES),$(ports-text-gocr_CXXFILES))
+ports-text-gocr_OBJC_NARCHFILES := $(filter-out $(ports-text-gocr_ARCHFILES),$(ports-text-gocr_OBJCFILES))
+
+TMP_FILES := $(ports-text-gocr_C_NARCHFILES) $(ports-text-gocr_CXX_NARCHFILES) $(ports-text-gocr_ASMFILES) $(ports-text-gocr_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-gocr_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-gocr_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-gocr_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-gocr_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-gocr_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-gocr_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-gocr_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-gocr_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-gocr_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-gocr_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-gocr_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-gocr_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-gocr_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-gocr_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-gocr_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-gocr_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-gocr_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-gocr_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-gocr_LDFLAGS          := 
+endif
+
+ports-text-gocr_CSTATICFLAGS   := `echo "$(ports-text-gocr_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-gocr_CSTDCFLAGS   :=  `echo "$(ports-text-gocr_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-gocr_CPOSIXCFLAGS   :=  `echo "$(ports-text-gocr_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-gocr_LDFLAGS          += $(strip $(ports-text-gocr_CSTATICFLAGS) $(ports-text-gocr_CSTDCFLAGS) $(ports-text-gocr_CPOSIXCFLAGS))
+
+ports-text-gocr_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-gocr_COVERAGE := yes
+ports-text-gocr_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-gocr_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-gocr_CFLAGS    := $(strip $(ports-text-gocr_COVERAGEFLAGS) $(ports-text-gocr_CFLAGS))
+ports-text-gocr_CXXFLAGS := $(strip $(ports-text-gocr_COVERAGEFLAGS) $(ports-text-gocr_CXXFLAGS))
+ports-text-gocr_LIBS += $(ports-text-gocr_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-gocr_FUNCINSTR := yes
+ports-text-gocr_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-gocr_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-gocr_CFLAGS    := $(strip $(ports-text-gocr_INSTRFUNCFLAGS) $(ports-text-gocr_CFLAGS))
+ports-text-gocr_CXXFLAGS := $(strip $(ports-text-gocr_INSTRFUNCFLAGS) $(ports-text-gocr_CXXFLAGS))
+ports-text-gocr_LIBS += $(ports-text-gocr_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-gocr_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-gocr_CFLAGS))
+ports-text-gocr_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-gocr_CXXFLAGS))
+endif
+endif
+ports-text-gocr_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-gocr_DFLAGS     := 
+else
+    ports-text-gocr_DFLAGS     := $(ports-text-gocr_CFLAGS)
+endif
+ifneq (,)
+    ports-text-gocr_DXXFLAGS     := 
+else
+    ports-text-gocr_DXXFLAGS     := $(ports-text-gocr_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-gocr_LDFLAGS           := $(ports-text-gocr_LDFLAGS)
+ports-text-gocr_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-gocr_LDFLAGS           := $(ports-text-gocr_LDFLAGS)
+ports-text-gocr_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-gocr_LDFLAGS           := $(ports-text-gocr_LDFLAGS)
+ports-text-gocr_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-gocr_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-gocr-quick : ports-text-gocr
+
+#MM ports-text-gocr : includes-generate-deps core-linklibs
+ports-text-gocr : $(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-gocr_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-gocr_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-gocr_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-gocr_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-gocr_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-gocr_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-gocr ports-text-gocr-quick ports-text-gocr-compress-quick),)
+
+ports-text-gocr_CXXABSBASENAMES := $(foreach ports-text-gocr_CXXBASE,$(ports-text-gocr_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-gocr_CXXBASE)),$(ports-text-gocr_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-gocr_CXXBASE))))
+
+ifneq ($(ports-text-gocr_CXXABSBASENAMES),)
+
+ports-text-gocr_CXXBASENAMES := $(basename $(ports-text-gocr_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-gocr_MCXX_FILES  := $(strip $(foreach ports-text-gocr_CXXBASE,$(ports-text-gocr_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-gocr_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-gocr_EXT),$(ports-text-gocr_CXXBASE)))))))
+
+ifeq (,)
+ports-text-gocr_MCXX_SRCWILDCARD := %
+else
+ports-text-gocr_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-gocr_OBJDIR),)
+  ports-text-gocr_CXXTARGETS := $(notdir $(ports-text-gocr_CXXBASENAMES:=.o))
+  ports-text-gocr_CXXDTARGETS := $(notdir $(ports-text-gocr_CXXBASENAMES:=.d))
+  ports-text-gocr_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-gocr_CXXTARGETS := $(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(ports-text-gocr_CXXBASENAMES:=.o)))
+  ports-text-gocr_CXXDTARGETS := $(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(ports-text-gocr_CXXBASENAMES:=.d)))
+  ports-text-gocr_MCXX_WILDCARD := $(ports-text-gocr_OBJDIR)/%
+else
+  ports-text-gocr_CXXTARGETS := $(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_CXXBASENAMES:=.o))
+  ports-text-gocr_CXXDTARGETS := $(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_CXXBASENAMES:=.d))
+  ports-text-gocr_MCXX_WILDCARD := $(ports-text-gocr_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-gocr_CXXTARGETS) $(ports-text-gocr_CXXDTARGETS) : | $(ports-text-gocr_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-gocr_MCXX_CPPFLAGS := $(ports-text-gocr_CPPFLAGS)
+ports-text-gocr_CXXFLAGS := $(ports-text-gocr_CXXFLAGS)
+ifeq ($(ports-text-gocr_DXXFLAGS),)
+  ports-text-gocr_DXXFLAGS := $(ports-text-gocr_CXXFLAGS)
+else
+  ports-text-gocr_DXXFLAGS := $(ports-text-gocr_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-gocr_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-gocr_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-gocr_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-gocr_STRIP ?= $(HOST_STRIP)
+  ports-text-gocr_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-gocr_CXXCMD:=$(HOST_CXX)
+  ports-text-gocr_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS) $(ports-text-gocr_MCXX_EXTRA_CPPFLAGS))
+  ports-text-gocr_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-gocr_CXXFLAGS))
+  ports-text-gocr_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-gocr_DXXFLAGS))
+  ports-text-gocr_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-gocr_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-gocr_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-gocr_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-gocr_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-gocr_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-gocr_LDFLAGS ?= $(ports-text-gocr_CXXLDFLAGS)
+  ports-text-gocr_STRIP ?= $(TARGET_STRIP)
+  ports-text-gocr_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-gocr_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-gocr_MCXX_CPPFLAGS := $(strip $(ports-text-gocr_MCXX_CPPFLAGS) $(ports-text-gocr_MCXX_EXTRA_CPPFLAGS))
+  ports-text-gocr_CXXFLAGS := $(strip $(ports-text-gocr_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-gocr_DXXFLAGS := $(ports-text-gocr_DXXFLAGS)
+  ports-text-gocr_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-gocr_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-gocr_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-gocr_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-gocr_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-gocr_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-gocr_LDFLAGS ?= $(ports-text-gocr_CXXLDFLAGS)
+  ports-text-gocr_STRIP ?= $(ECHO) >/dev/null
+  ports-text-gocr_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-gocr_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-gocr_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS) $(ports-text-gocr_MCXX_EXTRA_CPPFLAGS))
+  ports-text-gocr_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-gocr_CXXFLAGS))
+  ports-text-gocr_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-gocr_DXXFLAGS))
+  ports-text-gocr_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-gocr_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-gocr_CXXCMD) $(ports-text-gocr_CXXIQUOTE) $(dir $(2)) $(ports-text-gocr_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) . $(ports-text-gocr_CXXIQUOTE_END) $(strip $(ports-text-gocr_CXXFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-gocr_CXXCMD) $(ports-text-gocr_CXXIQUOTE) $(dir $(2)) $(ports-text-gocr_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) . $(ports-text-gocr_CXXIQUOTE_END) $(strip $(ports-text-gocr_CXXFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-gocr_CXXCMD) $(ports-text-gocr_CXXIQUOTE) $(dir $(2)) $(ports-text-gocr_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_CXXIQUOTE) . $(ports-text-gocr_CXXIQUOTE_END) $(strip $(ports-text-gocr_CXXFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-gocr_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-gocr_DXXFLAGS) $(ports-text-gocr_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-gocr_OBJDIR),)
+  $(foreach ports-text-gocr_CXXFILE,$(ports-text-gocr_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-gocr_CXXFILE))),$(ports-text-gocr_CXXFILE))))
+else
+  $(foreach ports-text-gocr_CXXFILE,$(ports-text-gocr_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(basename $(ports-text-gocr_CXXFILE)))),$(ports-text-gocr_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-gocr_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-gocr_MOBJC_SRCWILDCARD := %
+else
+ports-text-gocr_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-gocr_OBJDIR),)
+  ports-text-gocr_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-gocr_OBJC_NARCHFILES))
+  ports-text-gocr_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-gocr_OBJC_NARCHFILES))
+  ports-text-gocr_MOBJC_WILDCARD := %
+else
+  ports-text-gocr_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_OBJC_NARCHFILES)))
+  ports-text-gocr_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_OBJC_NARCHFILES)))
+  ports-text-gocr_MOBJC_WILDCARD := $(ports-text-gocr_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-gocr_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-gocr_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-gocr_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-gocr_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-gocr_MOBJC_DIRS := $(foreach dir, $(ports-text-gocr_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-gocr_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-gocr_MOBJC_DIRS),)
+    ports-text-gocr_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-gocr_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-gocr_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-gocr_CC := $(TARGET_CC)
+else
+  ports-text-gocr_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-gocr_MOBJC_CPPFLAGS := $(ports-text-gocr_CPPFLAGS)
+ports-text-gocr_OBJCFLAGS := $(ports-text-gocr_CFLAGS)
+ports-text-gocr_OBJCFLAGS := $(ports-text-gocr_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-gocr_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-gocr_OBJCFLAGS)))
+ifeq ($(ports-text-gocr_DFLAGS),)
+  ports-text-gocr_OBJCDFLAGS := $(ports-text-gocr_CFLAGS)
+else
+  ports-text-gocr_OBJCDFLAGS := $(ports-text-gocr_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-gocr_LINK ?= $(strip $(ports-text-gocr_CC) $(TARGET_SYSROOT))
+  ports-text-gocr_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-gocr_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-gocr_STRIP ?= $(TARGET_STRIP)
+  ports-text-gocr_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-gocr_CC) $(TARGET_SYSROOT))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_MOBJC_CPPFLAGS:=$(strip $(ports-text-gocr_MOBJC_CPPFLAGS) $(ports-text-gocr_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCFLAGS:=$(strip $(ports-text-gocr_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCDFLAGS:=$(ports-text-gocr_OBJCDFLAGS)
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-gocr_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-gocr_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-gocr_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-gocr_STRIP ?= $(HOST_STRIP)
+  ports-text-gocr_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-gocr_MOBJC_CPPFLAGS) $(ports-text-gocr_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-gocr_OBJCFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-gocr_OBJCDFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-gocr_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-gocr_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-gocr_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-gocr_STRIP ?= $(ECHO) >/dev/null
+  ports-text-gocr_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-gocr_MOBJC_CPPFLAGS) $(ports-text-gocr_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-gocr_OBJCFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-gocr_OBJCDFLAGS))
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-gocr_MOBJC_TARGETS) $(ports-text-gocr_MOBJC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-gocr_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-gocr_MOBJC_CPPFLAGS)
+$(ports-text-gocr_MOBJC_TARGETS) : CFLAGS := $(ports-text-gocr_OBJCFLAGS)
+$(ports-text-gocr_MOBJC_TARGETS) : $(ports-text-gocr_MOBJC_WILDCARD).o : $(ports-text-gocr_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-gocr_MOBJC_DTARGETS) : $(ports-text-gocr_MOBJC_WILDCARD).d : $(ports-text-gocr_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-gocr_OBJCDFLAGS) $(ports-text-gocr_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-gocr_MC_SRCWILDCARD := %
+else
+ports-text-gocr_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-gocr_OBJDIR),)
+ports-text-gocr_MC_TARGETS := $(addsuffix .o,$(ports-text-gocr_C_NARCHFILES))
+ports-text-gocr_MC_DTARGETS := $(addsuffix .d,$(ports-text-gocr_C_NARCHFILES))
+ports-text-gocr_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-gocr_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(ports-text-gocr_C_NARCHFILES))))
+    ports-text-gocr_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(ports-text-gocr_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-gocr_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_C_NARCHFILES)))
+    ports-text-gocr_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(ports-text-gocr_C_NARCHFILES)))
+else
+    ports-text-gocr_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(patsubst /%,%,$(ports-text-gocr_C_NARCHFILES))))
+    ports-text-gocr_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-gocr_OBJDIR)/,$(patsubst /%,%,$(ports-text-gocr_C_NARCHFILES))))
+endif
+endif
+ports-text-gocr_MC_TGTWILDCARD := $(ports-text-gocr_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-gocr_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-gocr_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-gocr_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-gocr_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-gocr_MC_DIRS := $(foreach dir, $(ports-text-gocr_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-gocr_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-gocr_MC_DIRS),)
+    ports-text-gocr_MC_DIRS := $(shell $(ECHO) $(ports-text-gocr_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-gocr_MC_DIRS)
+endif
+
+endif
+
+ports-text-gocr_MC_CPPFLAGS := $(ports-text-gocr_CPPFLAGS)
+ports-text-gocr_CFLAGS := $(ports-text-gocr_CFLAGS)
+ifeq ($(ports-text-gocr_DFLAGS),)
+  ports-text-gocr_DFLAGS := $(ports-text-gocr_CFLAGS)
+else
+  ports-text-gocr_DFLAGS := $(ports-text-gocr_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-gocr_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-gocr_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-gocr_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-gocr_STRIP ?= $(TARGET_STRIP)
+ports-text-gocr_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_MC_CPPFLAGS:=$(strip $(ports-text-gocr_MC_CPPFLAGS) $(ports-text-gocr_MC_EXTRA_CPPFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_CFLAGS:=$(strip $(ports-text-gocr_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_DFLAGS:=$(ports-text-gocr_DFLAGS)
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-gocr_LINK ?= $(strip $(HOST_CC))
+ports-text-gocr_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-gocr_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-gocr_STRIP ?= $(HOST_STRIP)
+ports-text-gocr_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-gocr_MC_CPPFLAGS) $(ports-text-gocr_MC_EXTRA_CPPFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-gocr_CFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-gocr_DFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-gocr_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-gocr_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-gocr_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-gocr_STRIP ?= $(ECHO) >/dev/null
+ports-text-gocr_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-gocr_MC_CPPFLAGS) $(ports-text-gocr_MC_EXTRA_CPPFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-gocr_CFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-gocr_DFLAGS))
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-gocr_MC_TARGETS) $(ports-text-gocr_MC_DTARGETS) : ports-text-gocr_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-gocr_MC_TARGETS) : CPPFLAGS := $(ports-text-gocr_MC_CPPFLAGS)
+$(ports-text-gocr_MC_TARGETS) : CFLAGS := $(ports-text-gocr_CFLAGS)
+$(ports-text-gocr_MC_TARGETS) : $(ports-text-gocr_MC_TGTWILDCARD).o : $(ports-text-gocr_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-gocr_IQUOTE) $(dir $<) $(ports-text-gocr_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-gocr_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-gocr_IQUOTE) . $(ports-text-gocr_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-gocr_MC_DTARGETS) : $(ports-text-gocr_MC_TGTWILDCARD).d : $(ports-text-gocr_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-gocr_DFLAGS) $(ports-text-gocr_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-gocr_OBJDIR),)
+ports-text-gocr-MA_TARGETS := $(addsuffix .o,$(ports-text-gocr_ASMFILES))
+ports-text-gocr-MA_WILDCARD := %
+else
+ports-text-gocr-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-gocr_OBJDIR)/,$(notdir $(ports-text-gocr_ASMFILES))))
+ports-text-gocr-MA_WILDCARD := $(ports-text-gocr_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-gocr-MA_TARGETS) : | $(addsuffix .s,$(ports-text-gocr_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-gocr-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-gocr-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-gocr_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-gocr-MA_DIRS := $(foreach dir, $(ports-text-gocr-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-gocr-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-gocr-MA_DIRS),)
+    ports-text-gocr-MA_DIRS := $(shell $(ECHO) $(ports-text-gocr-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-gocr-MA_DIRS)
+endif
+
+endif
+
+ports-text-gocr-MA_ASSEMBLER ?= $(ports-text-gocr_ASSEMBLER)
+
+$(ports-text-gocr-MA_TARGETS) : ports-text-gocr-MA_CMD:= $(ports-text-gocr-MA_ASSEMBLER)
+
+$(ports-text-gocr-MA_TARGETS) : CPPFLAGS := $(ports-text-gocr_CPPFLAGS)
+$(ports-text-gocr-MA_TARGETS) : AFLAGS := $(ports-text-gocr_AFLAGS)
+$(ports-text-gocr-MA_TARGETS) : $(ports-text-gocr-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-gocr-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-gocr-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-gocr-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-gocr-link_LD_OPTS := 
+ports-text-gocr-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-gocr-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-gocr-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-gocr-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-gocr-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-gocr_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-gocr-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-gocr-link_DIRS)))
+# Add trailing /
+ports-text-gocr-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-gocr-link_DIRS)))
+# Add normal linklib path
+ports-text-gocr-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-gocr-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-gocr_LIBS) $(ports-text-gocr-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-gocr-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-gocr-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-gocr-link_DEPLIBS := $(foreach lib,$(ports-text-gocr-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-gocr-link_DIRS)))) \
+)
+
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : OBJDIR := $(ports-text-gocr_OBJDIR)
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : OBJS := $(strip $(ports-text-gocr_OBJS) $(ports-text-gocr_ARCHOBJS) $(USER_OBJS))
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : LDFLAGS := $(strip $(ports-text-gocr_LDFLAGS))
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-gocr_LIBS) $(ports-text-gocr-link_EXTRA_LIBS)))
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-gocr_ARCHLIBS))
+$(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : $(ports-text-gocr_OBJS) $(ports-text-gocr_ARCHOBJS) $(USER_OBJS) $(ports-text-gocr-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-gocr_LINK) $(strip $(ports-text-gocr_LD_OPTS) $(ports-text-gocr-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-gocr_LINK) $(strip $(ports-text-gocr_LD_OPTS) $(ports-text-gocr-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-gocr_LINK) $(strip $(ports-text-gocr_LD_OPTS) $(ports-text-gocr-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-gocr_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-gocr_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-gocr_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-gocr_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-gocr_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-gocr_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-gocr_DEPS),)
+  ifneq (ports-text-gocr ports-text-gocr-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-gocr ports-text-gocr-quick),)
+      -include $(ports-text-gocr_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-gocr_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-gocr_OBJS) $(ports-text-gocr_DEPS) $(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME),)
+$(ports-text-gocr_OBJS) $(ports-text-gocr_DEPS) $(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) : | $(ports-text-gocr_OBJDIR) $(ports-text-gocr_TARGETDIR)
+else
+$(ports-text-gocr_OBJS) $(ports-text-gocr_DEPS) $(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) :: $(ports-text-gocr_OBJDIR) $(ports-text-gocr_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-gocr_OBJDIR) $(ports-text-gocr_TARGETDIR)
+
+
+ports-text-gocr-clean : FILES := $(ports-text-gocr_OBJS) $(ports-text-gocr_TARGETDIR)/$(ports-text-gocr_PROGNAME) $(ports-text-gocr_DEPS)
+#MM
+ports-text-gocr-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-gocr"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-text-gocr-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-text-gocr-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-text-gocr-fetch-location := $(PORTSDIR)/gocr
+endif
+
+ifneq (,)
+    ports-text-gocr-fetch-baseflag := -b 
+else
+    ports-text-gocr-fetch-baseflag :=
+endif
+
+ports-text-gocr-fetch-fetchedflag := $(ports-text-gocr-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-text-gocr-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-text-gocr-fetch-location) \
+	-d $(PORTSDIR)/gocr $(ports-text-gocr-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-text-gocr-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-text-gocr-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-text-gocr-docs
+
+#MM
+ports-text-gocr-docs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/gocr/$(ARCHBASE)/doc),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/doc)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/doc)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/doc))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/gocr/$(ARCHBASE)/doc)))' to '$(if $(filter /%,$(TARGETDIR)/doc),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/doc)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/doc)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/doc))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/doc)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/gocr/$(ARCHBASE)/doc -d $(TARGETDIR)/doc -e 
+
+
+
+.PHONY : ports-text-gocr-examples
+
+#MM
+ports-text-gocr-examples :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/gocr/$(ARCHBASE)/examples),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/examples)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/examples)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/gocr/$(ARCHBASE)/examples))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/gocr/$(ARCHBASE)/examples)))' to '$(if $(filter /%,$(TARGETDIR)/examples),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/examples)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/examples)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/examples))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/examples)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/gocr/$(ARCHBASE)/examples -d $(TARGETDIR)/examples -e 
+
+
+FILES := AUTHORS BUGS CREDITS gpl.html HISTORY \
+    README READMEde.txt REMARK.txt REVIEW TODO
+
+
+ports-text-gocr-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/gocr/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-text-gocr-cpy
+
+#MM
+ports-text-gocr-cpy : | $(TARGETDIR) 
+	$(foreach file, $(FILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-text-gocr-cpy_SRC)),$(ports-text-gocr-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-text-gocr-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

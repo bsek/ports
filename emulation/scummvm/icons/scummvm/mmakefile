@@ -1,0 +1,55 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation-scummvm-icons : ports-emulation-scummvm-icons-scummvm
+
+ICONS     := Scummvm
+TARGETDIR := $(AROS_CONTRIB)/Emu/Scummvm
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-emulation-scummvm-icons-scummvm : $(BD_OBJS)
+
+ifeq (,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-emulation-scummvm-icons-scummvm-clean : FILES := $(BD_OBJS)
+#MM
+ports-emulation-scummvm-icons-scummvm-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-emulation-scummvm-icons-scummvm ports-emulation-scummvm-icons-scummvm-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

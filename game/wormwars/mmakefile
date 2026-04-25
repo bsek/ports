@@ -1,0 +1,845 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+# source code package is no longer available on archives.aros-exec.org
+# #MM- ports-game: ports-game-$(AROS_TARGET_CPU)
+
+#MM- ports-game-i386 : ports-game-wormwars
+#MM- ports-game-arm : ports-game-wormwars
+
+#MM  ports-game-wormwars : includes linklibs \
+#MM     ports-game-wormwars-cpy \
+#MM     ports-game-wormwars-fx \
+#MM     ports-game-wormwars-fonts \
+#MM     ports-game-wormwars-catalogs \
+#MM     ports-game-wormwars-fetch
+
+#MM  ports-game-wormwars-fx : ports-game-wormwars-fetch
+
+#MM  ports-game-wormwars-catalogs : ports-game-wormwars-fetch
+
+#MM  ports-game-wormwars-cpy : ports-game-wormwars-fetch
+
+#MM  ports-game-wormwars-quick : ports-game-wormwars-fetch
+
+
+REPOSITORIES := http://archives.aros-exec.org/share/game/misc/
+ARCHBASE     := wormwars-src-8.86
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/WormWars
+
+NOWARN_FLAGS := $(NOWARN_IMPLICIT_FUNCTION_DECL) $(NOWARN_UNKNOWN_PRAGMAS) $(NOWARN_PARENTHESES) $(NOWARN_UNUSED_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS) -DNO_PRAGMAS -D__STORM__ -D__chip= -DAMIGA
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+FILES := source/amiga source/engine1 source/engine2 source/extras \
+         source/gfx source/heads source/le source/squares source/tails
+FILES := $(addprefix $(PORTSDIR)/wormwars/$(ARCHBASE)/,$(FILES))
+
+
+.PHONY : ports-game-wormwars
+
+#MM- ports-game-wormwars : \
+#MM             ports-game-wormwars-$(CPU)
+
+#MM- ports-game-wormwars-$(ARCH)-$(CPU) : \
+#MM             ports-game-wormwars-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-wormwars-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-wormwars-$(ARCH)-$(CPU)
+
+#MM- ports-game-wormwars-$(ARCH) : \
+#MM             ports-game-wormwars-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-wormwars-$(FAMILY) : \
+#MM             ports-game-wormwars-$(ARCH)
+
+#MM- ports-game-wormwars-$(CPU) : \
+#MM             ports-game-wormwars-$(FAMILY)
+#MM- ports-game-wormwars-quick : \
+#MM             ports-game-wormwars-$(CPU)-quick
+
+#MM- ports-game-wormwars-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-wormwars-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-wormwars-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-wormwars-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-wormwars-$(ARCH)-quick : \
+#MM             ports-game-wormwars-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-wormwars-$(FAMILY)-quick : \
+#MM             ports-game-wormwars-$(ARCH)-quick
+
+#MM- ports-game-wormwars-$(CPU)-quick : \
+#MM             ports-game-wormwars-$(FAMILY)-quick
+
+ports-game-wormwars_PROGNAME  := WormWars
+ports-game-wormwars_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-wormwars_TARGETDIR := $(TARGETDIR)
+ports-game-wormwars_LINKER    := 
+ports-game-wormwars_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-wormwars_LINKER),)
+    ports-game-wormwars_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-wormwars_FILES     := $(FILES)
+    ports-game-wormwars_OBJCFILES := 
+    ports-game-wormwars_ASMFILES  := 
+    ports-game-wormwars_CXXFILES := 
+else
+    ports-game-wormwars_FILES     := $(ports-game-wormwars_PROGNAME)
+    ports-game-wormwars_OBJCFILES :=
+    ports-game-wormwars_ASMFILES  :=
+    ports-game-wormwars_CXXFILES :=
+endif
+
+ports-game-wormwars_ARCHOBJS   := $(wildcard $(ports-game-wormwars_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-wormwars_ARCHFILES     := $(basename $(notdir $(ports-game-wormwars_ARCHOBJS)))
+else
+    ports-game-wormwars_ARCHFILES     := $(basename $(patsubst $(ports-game-wormwars_OBJDIR)/%,%,$(ports-game-wormwars_ARCHOBJS)))
+endif
+ports-game-wormwars_C_NARCHFILES := $(filter-out $(ports-game-wormwars_ARCHFILES),$(ports-game-wormwars_FILES))
+ports-game-wormwars_CXX_NARCHFILES := $(filter-out $(ports-game-wormwars_ARCHFILES),$(ports-game-wormwars_CXXFILES))
+ports-game-wormwars_OBJC_NARCHFILES := $(filter-out $(ports-game-wormwars_ARCHFILES),$(ports-game-wormwars_OBJCFILES))
+
+TMP_FILES := $(ports-game-wormwars_C_NARCHFILES) $(ports-game-wormwars_CXX_NARCHFILES) $(ports-game-wormwars_ASMFILES) $(ports-game-wormwars_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-wormwars_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-wormwars_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-wormwars_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-wormwars_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-wormwars_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-wormwars_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-wormwars_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-wormwars_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-wormwars_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-wormwars_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-wormwars_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-wormwars_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-wormwars_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-wormwars_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-wormwars_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-wormwars_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-wormwars_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-wormwars_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-wormwars_LDFLAGS          := 
+endif
+
+ports-game-wormwars_CSTATICFLAGS   := `echo "$(ports-game-wormwars_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-wormwars_CSTDCFLAGS   :=  `echo "$(ports-game-wormwars_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-wormwars_CPOSIXCFLAGS   :=  `echo "$(ports-game-wormwars_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-wormwars_LDFLAGS          += $(strip $(ports-game-wormwars_CSTATICFLAGS) $(ports-game-wormwars_CSTDCFLAGS) $(ports-game-wormwars_CPOSIXCFLAGS))
+
+ports-game-wormwars_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-wormwars_COVERAGE := yes
+ports-game-wormwars_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-wormwars_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-wormwars_CFLAGS    := $(strip $(ports-game-wormwars_COVERAGEFLAGS) $(ports-game-wormwars_CFLAGS))
+ports-game-wormwars_CXXFLAGS := $(strip $(ports-game-wormwars_COVERAGEFLAGS) $(ports-game-wormwars_CXXFLAGS))
+ports-game-wormwars_LIBS += $(ports-game-wormwars_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-wormwars_FUNCINSTR := yes
+ports-game-wormwars_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-wormwars_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-wormwars_CFLAGS    := $(strip $(ports-game-wormwars_INSTRFUNCFLAGS) $(ports-game-wormwars_CFLAGS))
+ports-game-wormwars_CXXFLAGS := $(strip $(ports-game-wormwars_INSTRFUNCFLAGS) $(ports-game-wormwars_CXXFLAGS))
+ports-game-wormwars_LIBS += $(ports-game-wormwars_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-wormwars_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-wormwars_CFLAGS))
+ports-game-wormwars_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-wormwars_CXXFLAGS))
+endif
+endif
+ports-game-wormwars_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-wormwars_DFLAGS     := 
+else
+    ports-game-wormwars_DFLAGS     := $(ports-game-wormwars_CFLAGS)
+endif
+ifneq (,)
+    ports-game-wormwars_DXXFLAGS     := 
+else
+    ports-game-wormwars_DXXFLAGS     := $(ports-game-wormwars_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-wormwars_LDFLAGS           := $(ports-game-wormwars_LDFLAGS)
+ports-game-wormwars_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-wormwars_LDFLAGS           := $(ports-game-wormwars_LDFLAGS)
+ports-game-wormwars_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-wormwars_LDFLAGS           := $(ports-game-wormwars_LDFLAGS)
+ports-game-wormwars_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-wormwars_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-wormwars-quick : ports-game-wormwars
+
+#MM ports-game-wormwars : includes-generate-deps core-linklibs
+ports-game-wormwars : $(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-wormwars_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-wormwars_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-wormwars_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-wormwars_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-wormwars_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-wormwars_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-wormwars ports-game-wormwars-quick ports-game-wormwars-compress-quick),)
+
+ports-game-wormwars_CXXABSBASENAMES := $(foreach ports-game-wormwars_CXXBASE,$(ports-game-wormwars_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-wormwars_CXXBASE)),$(ports-game-wormwars_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-wormwars_CXXBASE))))
+
+ifneq ($(ports-game-wormwars_CXXABSBASENAMES),)
+
+ports-game-wormwars_CXXBASENAMES := $(basename $(ports-game-wormwars_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-wormwars_MCXX_FILES  := $(strip $(foreach ports-game-wormwars_CXXBASE,$(ports-game-wormwars_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-wormwars_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-wormwars_EXT),$(ports-game-wormwars_CXXBASE)))))))
+
+ifeq (,)
+ports-game-wormwars_MCXX_SRCWILDCARD := %
+else
+ports-game-wormwars_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-wormwars_OBJDIR),)
+  ports-game-wormwars_CXXTARGETS := $(notdir $(ports-game-wormwars_CXXBASENAMES:=.o))
+  ports-game-wormwars_CXXDTARGETS := $(notdir $(ports-game-wormwars_CXXBASENAMES:=.d))
+  ports-game-wormwars_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-wormwars_CXXTARGETS := $(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(ports-game-wormwars_CXXBASENAMES:=.o)))
+  ports-game-wormwars_CXXDTARGETS := $(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(ports-game-wormwars_CXXBASENAMES:=.d)))
+  ports-game-wormwars_MCXX_WILDCARD := $(ports-game-wormwars_OBJDIR)/%
+else
+  ports-game-wormwars_CXXTARGETS := $(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_CXXBASENAMES:=.o))
+  ports-game-wormwars_CXXDTARGETS := $(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_CXXBASENAMES:=.d))
+  ports-game-wormwars_MCXX_WILDCARD := $(ports-game-wormwars_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-wormwars_CXXTARGETS) $(ports-game-wormwars_CXXDTARGETS) : | $(ports-game-wormwars_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-wormwars_MCXX_CPPFLAGS := $(ports-game-wormwars_CPPFLAGS)
+ports-game-wormwars_CXXFLAGS := $(ports-game-wormwars_CXXFLAGS)
+ifeq ($(ports-game-wormwars_DXXFLAGS),)
+  ports-game-wormwars_DXXFLAGS := $(ports-game-wormwars_CXXFLAGS)
+else
+  ports-game-wormwars_DXXFLAGS := $(ports-game-wormwars_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-wormwars_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-wormwars_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-wormwars_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-wormwars_STRIP ?= $(HOST_STRIP)
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-wormwars_CXXCMD:=$(HOST_CXX)
+  ports-game-wormwars_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS) $(ports-game-wormwars_MCXX_EXTRA_CPPFLAGS))
+  ports-game-wormwars_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-wormwars_CXXFLAGS))
+  ports-game-wormwars_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-wormwars_DXXFLAGS))
+  ports-game-wormwars_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-wormwars_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-wormwars_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-wormwars_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-wormwars_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-wormwars_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-wormwars_LDFLAGS ?= $(ports-game-wormwars_CXXLDFLAGS)
+  ports-game-wormwars_STRIP ?= $(TARGET_STRIP)
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-wormwars_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-wormwars_MCXX_CPPFLAGS := $(strip $(ports-game-wormwars_MCXX_CPPFLAGS) $(ports-game-wormwars_MCXX_EXTRA_CPPFLAGS))
+  ports-game-wormwars_CXXFLAGS := $(strip $(ports-game-wormwars_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-wormwars_DXXFLAGS := $(ports-game-wormwars_DXXFLAGS)
+  ports-game-wormwars_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-wormwars_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-wormwars_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-wormwars_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-wormwars_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-wormwars_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-wormwars_LDFLAGS ?= $(ports-game-wormwars_CXXLDFLAGS)
+  ports-game-wormwars_STRIP ?= $(ECHO) >/dev/null
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-wormwars_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-wormwars_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS) $(ports-game-wormwars_MCXX_EXTRA_CPPFLAGS))
+  ports-game-wormwars_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-wormwars_CXXFLAGS))
+  ports-game-wormwars_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-wormwars_DXXFLAGS))
+  ports-game-wormwars_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-wormwars_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-wormwars_CXXCMD) $(ports-game-wormwars_CXXIQUOTE) $(dir $(2)) $(ports-game-wormwars_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) . $(ports-game-wormwars_CXXIQUOTE_END) $(strip $(ports-game-wormwars_CXXFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-wormwars_CXXCMD) $(ports-game-wormwars_CXXIQUOTE) $(dir $(2)) $(ports-game-wormwars_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) . $(ports-game-wormwars_CXXIQUOTE_END) $(strip $(ports-game-wormwars_CXXFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-wormwars_CXXCMD) $(ports-game-wormwars_CXXIQUOTE) $(dir $(2)) $(ports-game-wormwars_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_CXXIQUOTE) . $(ports-game-wormwars_CXXIQUOTE_END) $(strip $(ports-game-wormwars_CXXFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-wormwars_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-wormwars_DXXFLAGS) $(ports-game-wormwars_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-wormwars_OBJDIR),)
+  $(foreach ports-game-wormwars_CXXFILE,$(ports-game-wormwars_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-wormwars_CXXFILE))),$(ports-game-wormwars_CXXFILE))))
+else
+  $(foreach ports-game-wormwars_CXXFILE,$(ports-game-wormwars_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(basename $(ports-game-wormwars_CXXFILE)))),$(ports-game-wormwars_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-wormwars_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-wormwars_MOBJC_SRCWILDCARD := %
+else
+ports-game-wormwars_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-wormwars_OBJDIR),)
+  ports-game-wormwars_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-wormwars_OBJC_NARCHFILES))
+  ports-game-wormwars_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-wormwars_OBJC_NARCHFILES))
+  ports-game-wormwars_MOBJC_WILDCARD := %
+else
+  ports-game-wormwars_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_OBJC_NARCHFILES)))
+  ports-game-wormwars_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_OBJC_NARCHFILES)))
+  ports-game-wormwars_MOBJC_WILDCARD := $(ports-game-wormwars_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-wormwars_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-wormwars_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-wormwars_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-wormwars_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-wormwars_MOBJC_DIRS := $(foreach dir, $(ports-game-wormwars_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-wormwars_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-wormwars_MOBJC_DIRS),)
+    ports-game-wormwars_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-wormwars_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-wormwars_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-wormwars_CC := $(TARGET_CC)
+else
+  ports-game-wormwars_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-wormwars_MOBJC_CPPFLAGS := $(ports-game-wormwars_CPPFLAGS)
+ports-game-wormwars_OBJCFLAGS := $(ports-game-wormwars_CFLAGS)
+ports-game-wormwars_OBJCFLAGS := $(ports-game-wormwars_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-wormwars_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-wormwars_OBJCFLAGS)))
+ifeq ($(ports-game-wormwars_DFLAGS),)
+  ports-game-wormwars_OBJCDFLAGS := $(ports-game-wormwars_CFLAGS)
+else
+  ports-game-wormwars_OBJCDFLAGS := $(ports-game-wormwars_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-wormwars_LINK ?= $(strip $(ports-game-wormwars_CC) $(TARGET_SYSROOT))
+  ports-game-wormwars_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-wormwars_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-wormwars_STRIP ?= $(TARGET_STRIP)
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-wormwars_CC) $(TARGET_SYSROOT))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_MOBJC_CPPFLAGS:=$(strip $(ports-game-wormwars_MOBJC_CPPFLAGS) $(ports-game-wormwars_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCFLAGS:=$(strip $(ports-game-wormwars_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCDFLAGS:=$(ports-game-wormwars_OBJCDFLAGS)
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-wormwars_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-wormwars_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-wormwars_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-wormwars_STRIP ?= $(HOST_STRIP)
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-wormwars_MOBJC_CPPFLAGS) $(ports-game-wormwars_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-wormwars_OBJCFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-wormwars_OBJCDFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-wormwars_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-wormwars_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-wormwars_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-wormwars_STRIP ?= $(ECHO) >/dev/null
+  ports-game-wormwars_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-wormwars_MOBJC_CPPFLAGS) $(ports-game-wormwars_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-wormwars_OBJCFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-wormwars_OBJCDFLAGS))
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-wormwars_MOBJC_TARGETS) $(ports-game-wormwars_MOBJC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-wormwars_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-wormwars_MOBJC_CPPFLAGS)
+$(ports-game-wormwars_MOBJC_TARGETS) : CFLAGS := $(ports-game-wormwars_OBJCFLAGS)
+$(ports-game-wormwars_MOBJC_TARGETS) : $(ports-game-wormwars_MOBJC_WILDCARD).o : $(ports-game-wormwars_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-wormwars_MOBJC_DTARGETS) : $(ports-game-wormwars_MOBJC_WILDCARD).d : $(ports-game-wormwars_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-wormwars_OBJCDFLAGS) $(ports-game-wormwars_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-wormwars_MC_SRCWILDCARD := %
+else
+ports-game-wormwars_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-wormwars_OBJDIR),)
+ports-game-wormwars_MC_TARGETS := $(addsuffix .o,$(ports-game-wormwars_C_NARCHFILES))
+ports-game-wormwars_MC_DTARGETS := $(addsuffix .d,$(ports-game-wormwars_C_NARCHFILES))
+ports-game-wormwars_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-wormwars_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(ports-game-wormwars_C_NARCHFILES))))
+    ports-game-wormwars_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(ports-game-wormwars_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-wormwars_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_C_NARCHFILES)))
+    ports-game-wormwars_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(ports-game-wormwars_C_NARCHFILES)))
+else
+    ports-game-wormwars_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(patsubst /%,%,$(ports-game-wormwars_C_NARCHFILES))))
+    ports-game-wormwars_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(patsubst /%,%,$(ports-game-wormwars_C_NARCHFILES))))
+endif
+endif
+ports-game-wormwars_MC_TGTWILDCARD := $(ports-game-wormwars_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-wormwars_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-wormwars_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-wormwars_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-wormwars_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-wormwars_MC_DIRS := $(foreach dir, $(ports-game-wormwars_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-wormwars_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-wormwars_MC_DIRS),)
+    ports-game-wormwars_MC_DIRS := $(shell $(ECHO) $(ports-game-wormwars_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-wormwars_MC_DIRS)
+endif
+
+endif
+
+ports-game-wormwars_MC_CPPFLAGS := $(ports-game-wormwars_CPPFLAGS)
+ports-game-wormwars_CFLAGS := $(ports-game-wormwars_CFLAGS)
+ifeq ($(ports-game-wormwars_DFLAGS),)
+  ports-game-wormwars_DFLAGS := $(ports-game-wormwars_CFLAGS)
+else
+  ports-game-wormwars_DFLAGS := $(ports-game-wormwars_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-wormwars_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-wormwars_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-wormwars_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-wormwars_STRIP ?= $(TARGET_STRIP)
+ports-game-wormwars_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_MC_CPPFLAGS:=$(strip $(ports-game-wormwars_MC_CPPFLAGS) $(ports-game-wormwars_MC_EXTRA_CPPFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_CFLAGS:=$(strip $(ports-game-wormwars_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_DFLAGS:=$(ports-game-wormwars_DFLAGS)
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-wormwars_LINK ?= $(strip $(HOST_CC))
+ports-game-wormwars_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-wormwars_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-wormwars_STRIP ?= $(HOST_STRIP)
+ports-game-wormwars_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-wormwars_MC_CPPFLAGS) $(ports-game-wormwars_MC_EXTRA_CPPFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-wormwars_CFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-wormwars_DFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-wormwars_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-wormwars_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-wormwars_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-wormwars_STRIP ?= $(ECHO) >/dev/null
+ports-game-wormwars_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-wormwars_MC_CPPFLAGS) $(ports-game-wormwars_MC_EXTRA_CPPFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-wormwars_CFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-wormwars_DFLAGS))
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-wormwars_MC_TARGETS) $(ports-game-wormwars_MC_DTARGETS) : ports-game-wormwars_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-wormwars_MC_TARGETS) : CPPFLAGS := $(ports-game-wormwars_MC_CPPFLAGS)
+$(ports-game-wormwars_MC_TARGETS) : CFLAGS := $(ports-game-wormwars_CFLAGS)
+$(ports-game-wormwars_MC_TARGETS) : $(ports-game-wormwars_MC_TGTWILDCARD).o : $(ports-game-wormwars_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-wormwars_IQUOTE) $(dir $<) $(ports-game-wormwars_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-wormwars_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-wormwars_IQUOTE) . $(ports-game-wormwars_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-wormwars_MC_DTARGETS) : $(ports-game-wormwars_MC_TGTWILDCARD).d : $(ports-game-wormwars_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-wormwars_DFLAGS) $(ports-game-wormwars_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-wormwars_OBJDIR),)
+ports-game-wormwars-MA_TARGETS := $(addsuffix .o,$(ports-game-wormwars_ASMFILES))
+ports-game-wormwars-MA_WILDCARD := %
+else
+ports-game-wormwars-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-wormwars_OBJDIR)/,$(notdir $(ports-game-wormwars_ASMFILES))))
+ports-game-wormwars-MA_WILDCARD := $(ports-game-wormwars_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-wormwars-MA_TARGETS) : | $(addsuffix .s,$(ports-game-wormwars_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-wormwars-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-wormwars-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-wormwars_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-wormwars-MA_DIRS := $(foreach dir, $(ports-game-wormwars-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-wormwars-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-wormwars-MA_DIRS),)
+    ports-game-wormwars-MA_DIRS := $(shell $(ECHO) $(ports-game-wormwars-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-wormwars-MA_DIRS)
+endif
+
+endif
+
+ports-game-wormwars-MA_ASSEMBLER ?= $(ports-game-wormwars_ASSEMBLER)
+
+$(ports-game-wormwars-MA_TARGETS) : ports-game-wormwars-MA_CMD:= $(ports-game-wormwars-MA_ASSEMBLER)
+
+$(ports-game-wormwars-MA_TARGETS) : CPPFLAGS := $(ports-game-wormwars_CPPFLAGS)
+$(ports-game-wormwars-MA_TARGETS) : AFLAGS := $(ports-game-wormwars_AFLAGS)
+$(ports-game-wormwars-MA_TARGETS) : $(ports-game-wormwars-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-wormwars-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-wormwars-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-wormwars-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-wormwars-link_LD_OPTS := 
+ports-game-wormwars-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-wormwars-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-wormwars-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-wormwars-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-wormwars-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-wormwars_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-wormwars-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-wormwars-link_DIRS)))
+# Add trailing /
+ports-game-wormwars-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-wormwars-link_DIRS)))
+# Add normal linklib path
+ports-game-wormwars-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-wormwars-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-wormwars_LIBS) $(ports-game-wormwars-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-wormwars-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-wormwars-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-wormwars-link_DEPLIBS := $(foreach lib,$(ports-game-wormwars-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-wormwars-link_DIRS)))) \
+)
+
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : OBJDIR := $(ports-game-wormwars_OBJDIR)
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : OBJS := $(strip $(ports-game-wormwars_OBJS) $(ports-game-wormwars_ARCHOBJS) $(USER_OBJS))
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : LDFLAGS := $(strip $(ports-game-wormwars_LDFLAGS))
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-wormwars_LIBS) $(ports-game-wormwars-link_EXTRA_LIBS)))
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-wormwars_ARCHLIBS))
+$(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : $(ports-game-wormwars_OBJS) $(ports-game-wormwars_ARCHOBJS) $(USER_OBJS) $(ports-game-wormwars-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-wormwars_LINK) $(strip $(ports-game-wormwars_LD_OPTS) $(ports-game-wormwars-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-wormwars_LINK) $(strip $(ports-game-wormwars_LD_OPTS) $(ports-game-wormwars-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-wormwars_LINK) $(strip $(ports-game-wormwars_LD_OPTS) $(ports-game-wormwars-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-wormwars_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-wormwars_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-wormwars_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-wormwars_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-wormwars_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-wormwars_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-wormwars_DEPS),)
+  ifneq (ports-game-wormwars ports-game-wormwars-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-wormwars ports-game-wormwars-quick),)
+      -include $(ports-game-wormwars_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-wormwars_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-wormwars_OBJS) $(ports-game-wormwars_DEPS) $(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME),)
+$(ports-game-wormwars_OBJS) $(ports-game-wormwars_DEPS) $(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) : | $(ports-game-wormwars_OBJDIR) $(ports-game-wormwars_TARGETDIR)
+else
+$(ports-game-wormwars_OBJS) $(ports-game-wormwars_DEPS) $(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) :: $(ports-game-wormwars_OBJDIR) $(ports-game-wormwars_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-wormwars_OBJDIR) $(ports-game-wormwars_TARGETDIR)
+
+
+ports-game-wormwars-clean : FILES := $(ports-game-wormwars_OBJS) $(ports-game-wormwars_TARGETDIR)/$(ports-game-wormwars_PROGNAME) $(ports-game-wormwars_DEPS)
+#MM
+ports-game-wormwars-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-wormwars"
+	$(Q)$(RM) $(FILES)
+
+
+
+
+.PHONY: ports-game-wormwars-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-wormwars-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-wormwars-fetch-location := $(PORTSDIR)/wormwars
+endif
+
+ifneq (,)
+    ports-game-wormwars-fetch-baseflag := -b 
+else
+    ports-game-wormwars-fetch-baseflag :=
+endif
+
+ports-game-wormwars-fetch-fetchedflag := $(ports-game-wormwars-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-wormwars-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-game-wormwars-fetch-location) \
+	-d $(PORTSDIR)/wormwars $(ports-game-wormwars-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-wormwars-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-wormwars-fetch-fetchedflag) ; \
+	fi
+
+
+
+.PHONY : ports-game-wormwars-fx
+
+#MM
+ports-game-wormwars-fx :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/wormwars/$(ARCHBASE)/fx),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/fx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/fx)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/fx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/wormwars/$(ARCHBASE)/fx)))' to '$(if $(filter /%,$(TARGETDIR)/fx),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/fx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/fx)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/fx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/fx)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/wormwars/$(ARCHBASE)/fx -d $(TARGETDIR)/fx -e 
+
+
+
+.PHONY : ports-game-wormwars-catalogs
+
+#MM
+ports-game-wormwars-catalogs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs)))' to '$(if $(filter /%,$(TARGETDIR)/Catalogs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Catalogs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Catalogs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Catalogs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Catalogs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/wormwars/$(ARCHBASE)/Catalogs -d $(TARGETDIR)/Catalogs -e 
+
+
+
+CPYFILES := WormWars.info WormWars.guide WormWars.guide.info WormWars.lset WormWars.lset.info \
+    Nibbles.lset Nibbles.lset.info RattlerRace.lset RattlerRace.lset.info
+
+
+ports-game-wormwars-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/wormwars/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-wormwars-cpy
+
+#MM
+ports-game-wormwars-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-wormwars-cpy_SRC)),$(ports-game-wormwars-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-wormwars-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

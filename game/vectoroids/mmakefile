@@ -1,0 +1,818 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-vectoroids
+
+#MM  ports-game-vectoroids : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-mixer \
+#MM    ports-game-vectoroids-data ports-game-vectoroids-cpy \
+#MM    ports-game-vectoroids-fetch
+
+#MM  ports-game-vectoroids-data : ports-game-vectoroids-fetch
+
+#MM  ports-game-vectoroids-quick : ports-game-vectoroids-fetch
+
+REPOSITORIES := ftp://ftp.tuxpaint.org/unix/x/vectoroids/src
+ARCHBASE     := vectoroids-1.1.0
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/Vectoroids
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS) $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags) \
+                -DDATA_PREFIX=\"PROGDIR:data/\" -DJOY_YES
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := $(PORTSDIR)/vectoroids/$(ARCHBASE)/vectoroids
+
+
+.PHONY : ports-game-vectoroids
+
+#MM- ports-game-vectoroids : \
+#MM             ports-game-vectoroids-$(CPU)
+
+#MM- ports-game-vectoroids-$(ARCH)-$(CPU) : \
+#MM             ports-game-vectoroids-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-vectoroids-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-vectoroids-$(ARCH)-$(CPU)
+
+#MM- ports-game-vectoroids-$(ARCH) : \
+#MM             ports-game-vectoroids-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-vectoroids-$(FAMILY) : \
+#MM             ports-game-vectoroids-$(ARCH)
+
+#MM- ports-game-vectoroids-$(CPU) : \
+#MM             ports-game-vectoroids-$(FAMILY)
+#MM- ports-game-vectoroids-quick : \
+#MM             ports-game-vectoroids-$(CPU)-quick
+
+#MM- ports-game-vectoroids-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-vectoroids-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-vectoroids-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-vectoroids-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-vectoroids-$(ARCH)-quick : \
+#MM             ports-game-vectoroids-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-vectoroids-$(FAMILY)-quick : \
+#MM             ports-game-vectoroids-$(ARCH)-quick
+
+#MM- ports-game-vectoroids-$(CPU)-quick : \
+#MM             ports-game-vectoroids-$(FAMILY)-quick
+
+ports-game-vectoroids_PROGNAME  := Vectoroids
+ports-game-vectoroids_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-vectoroids_TARGETDIR := $(TARGETDIR)
+ports-game-vectoroids_LINKER    := 
+ports-game-vectoroids_LIBS := SDL_mixer mikmod vorbisfile vorbis ogg SDL_image png jpeg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-vectoroids_LINKER),)
+    ports-game-vectoroids_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-vectoroids_FILES     := $(FILES)
+    ports-game-vectoroids_OBJCFILES := 
+    ports-game-vectoroids_ASMFILES  := 
+    ports-game-vectoroids_CXXFILES := 
+else
+    ports-game-vectoroids_FILES     := $(ports-game-vectoroids_PROGNAME)
+    ports-game-vectoroids_OBJCFILES :=
+    ports-game-vectoroids_ASMFILES  :=
+    ports-game-vectoroids_CXXFILES :=
+endif
+
+ports-game-vectoroids_ARCHOBJS   := $(wildcard $(ports-game-vectoroids_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-vectoroids_ARCHFILES     := $(basename $(notdir $(ports-game-vectoroids_ARCHOBJS)))
+else
+    ports-game-vectoroids_ARCHFILES     := $(basename $(patsubst $(ports-game-vectoroids_OBJDIR)/%,%,$(ports-game-vectoroids_ARCHOBJS)))
+endif
+ports-game-vectoroids_C_NARCHFILES := $(filter-out $(ports-game-vectoroids_ARCHFILES),$(ports-game-vectoroids_FILES))
+ports-game-vectoroids_CXX_NARCHFILES := $(filter-out $(ports-game-vectoroids_ARCHFILES),$(ports-game-vectoroids_CXXFILES))
+ports-game-vectoroids_OBJC_NARCHFILES := $(filter-out $(ports-game-vectoroids_ARCHFILES),$(ports-game-vectoroids_OBJCFILES))
+
+TMP_FILES := $(ports-game-vectoroids_C_NARCHFILES) $(ports-game-vectoroids_CXX_NARCHFILES) $(ports-game-vectoroids_ASMFILES) $(ports-game-vectoroids_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-vectoroids_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-vectoroids_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-vectoroids_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-vectoroids_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-vectoroids_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-vectoroids_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-vectoroids_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-vectoroids_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-vectoroids_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-vectoroids_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-vectoroids_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-vectoroids_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-vectoroids_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-vectoroids_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-vectoroids_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-vectoroids_LDFLAGS          := 
+endif
+
+ports-game-vectoroids_CSTATICFLAGS   := `echo "$(ports-game-vectoroids_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-vectoroids_CSTDCFLAGS   :=  `echo "$(ports-game-vectoroids_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-vectoroids_CPOSIXCFLAGS   :=  `echo "$(ports-game-vectoroids_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-vectoroids_LDFLAGS          += $(strip $(ports-game-vectoroids_CSTATICFLAGS) $(ports-game-vectoroids_CSTDCFLAGS) $(ports-game-vectoroids_CPOSIXCFLAGS))
+
+ports-game-vectoroids_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-vectoroids_COVERAGE := yes
+ports-game-vectoroids_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-vectoroids_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-vectoroids_CFLAGS    := $(strip $(ports-game-vectoroids_COVERAGEFLAGS) $(ports-game-vectoroids_CFLAGS))
+ports-game-vectoroids_CXXFLAGS := $(strip $(ports-game-vectoroids_COVERAGEFLAGS) $(ports-game-vectoroids_CXXFLAGS))
+ports-game-vectoroids_LIBS += $(ports-game-vectoroids_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-vectoroids_FUNCINSTR := yes
+ports-game-vectoroids_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-vectoroids_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-vectoroids_CFLAGS    := $(strip $(ports-game-vectoroids_INSTRFUNCFLAGS) $(ports-game-vectoroids_CFLAGS))
+ports-game-vectoroids_CXXFLAGS := $(strip $(ports-game-vectoroids_INSTRFUNCFLAGS) $(ports-game-vectoroids_CXXFLAGS))
+ports-game-vectoroids_LIBS += $(ports-game-vectoroids_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-vectoroids_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-vectoroids_CFLAGS))
+ports-game-vectoroids_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-vectoroids_CXXFLAGS))
+endif
+endif
+ports-game-vectoroids_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-vectoroids_DFLAGS     := 
+else
+    ports-game-vectoroids_DFLAGS     := $(ports-game-vectoroids_CFLAGS)
+endif
+ifneq (,)
+    ports-game-vectoroids_DXXFLAGS     := 
+else
+    ports-game-vectoroids_DXXFLAGS     := $(ports-game-vectoroids_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-vectoroids_LDFLAGS           := $(ports-game-vectoroids_LDFLAGS)
+ports-game-vectoroids_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-vectoroids_LDFLAGS           := $(ports-game-vectoroids_LDFLAGS)
+ports-game-vectoroids_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_LDFLAGS           := $(ports-game-vectoroids_LDFLAGS)
+ports-game-vectoroids_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-vectoroids_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-vectoroids-quick : ports-game-vectoroids
+
+#MM ports-game-vectoroids : includes-generate-deps core-linklibs
+ports-game-vectoroids : $(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-vectoroids_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-vectoroids_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-vectoroids_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-vectoroids_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-vectoroids_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-vectoroids ports-game-vectoroids-quick ports-game-vectoroids-compress-quick),)
+
+ports-game-vectoroids_CXXABSBASENAMES := $(foreach ports-game-vectoroids_CXXBASE,$(ports-game-vectoroids_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-vectoroids_CXXBASE)),$(ports-game-vectoroids_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-vectoroids_CXXBASE))))
+
+ifneq ($(ports-game-vectoroids_CXXABSBASENAMES),)
+
+ports-game-vectoroids_CXXBASENAMES := $(basename $(ports-game-vectoroids_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-vectoroids_MCXX_FILES  := $(strip $(foreach ports-game-vectoroids_CXXBASE,$(ports-game-vectoroids_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-vectoroids_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-vectoroids_EXT),$(ports-game-vectoroids_CXXBASE)))))))
+
+ifeq (,)
+ports-game-vectoroids_MCXX_SRCWILDCARD := %
+else
+ports-game-vectoroids_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-vectoroids_OBJDIR),)
+  ports-game-vectoroids_CXXTARGETS := $(notdir $(ports-game-vectoroids_CXXBASENAMES:=.o))
+  ports-game-vectoroids_CXXDTARGETS := $(notdir $(ports-game-vectoroids_CXXBASENAMES:=.d))
+  ports-game-vectoroids_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-vectoroids_CXXTARGETS := $(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(ports-game-vectoroids_CXXBASENAMES:=.o)))
+  ports-game-vectoroids_CXXDTARGETS := $(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(ports-game-vectoroids_CXXBASENAMES:=.d)))
+  ports-game-vectoroids_MCXX_WILDCARD := $(ports-game-vectoroids_OBJDIR)/%
+else
+  ports-game-vectoroids_CXXTARGETS := $(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_CXXBASENAMES:=.o))
+  ports-game-vectoroids_CXXDTARGETS := $(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_CXXBASENAMES:=.d))
+  ports-game-vectoroids_MCXX_WILDCARD := $(ports-game-vectoroids_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-vectoroids_CXXTARGETS) $(ports-game-vectoroids_CXXDTARGETS) : | $(ports-game-vectoroids_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-vectoroids_MCXX_CPPFLAGS := $(ports-game-vectoroids_CPPFLAGS)
+ports-game-vectoroids_CXXFLAGS := $(ports-game-vectoroids_CXXFLAGS)
+ifeq ($(ports-game-vectoroids_DXXFLAGS),)
+  ports-game-vectoroids_DXXFLAGS := $(ports-game-vectoroids_CXXFLAGS)
+else
+  ports-game-vectoroids_DXXFLAGS := $(ports-game-vectoroids_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-vectoroids_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-vectoroids_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-vectoroids_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-vectoroids_STRIP ?= $(HOST_STRIP)
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-vectoroids_CXXCMD:=$(HOST_CXX)
+  ports-game-vectoroids_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS) $(ports-game-vectoroids_MCXX_EXTRA_CPPFLAGS))
+  ports-game-vectoroids_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-vectoroids_CXXFLAGS))
+  ports-game-vectoroids_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-vectoroids_DXXFLAGS))
+  ports-game-vectoroids_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-vectoroids_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-vectoroids_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-vectoroids_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-vectoroids_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-vectoroids_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-vectoroids_LDFLAGS ?= $(ports-game-vectoroids_CXXLDFLAGS)
+  ports-game-vectoroids_STRIP ?= $(TARGET_STRIP)
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-vectoroids_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-vectoroids_MCXX_CPPFLAGS := $(strip $(ports-game-vectoroids_MCXX_CPPFLAGS) $(ports-game-vectoroids_MCXX_EXTRA_CPPFLAGS))
+  ports-game-vectoroids_CXXFLAGS := $(strip $(ports-game-vectoroids_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-vectoroids_DXXFLAGS := $(ports-game-vectoroids_DXXFLAGS)
+  ports-game-vectoroids_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-vectoroids_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-vectoroids_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-vectoroids_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-vectoroids_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-vectoroids_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-vectoroids_LDFLAGS ?= $(ports-game-vectoroids_CXXLDFLAGS)
+  ports-game-vectoroids_STRIP ?= $(ECHO) >/dev/null
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-vectoroids_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-vectoroids_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS) $(ports-game-vectoroids_MCXX_EXTRA_CPPFLAGS))
+  ports-game-vectoroids_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-vectoroids_CXXFLAGS))
+  ports-game-vectoroids_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-vectoroids_DXXFLAGS))
+  ports-game-vectoroids_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-vectoroids_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-vectoroids_CXXCMD) $(ports-game-vectoroids_CXXIQUOTE) $(dir $(2)) $(ports-game-vectoroids_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) . $(ports-game-vectoroids_CXXIQUOTE_END) $(strip $(ports-game-vectoroids_CXXFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-vectoroids_CXXCMD) $(ports-game-vectoroids_CXXIQUOTE) $(dir $(2)) $(ports-game-vectoroids_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) . $(ports-game-vectoroids_CXXIQUOTE_END) $(strip $(ports-game-vectoroids_CXXFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-vectoroids_CXXCMD) $(ports-game-vectoroids_CXXIQUOTE) $(dir $(2)) $(ports-game-vectoroids_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_CXXIQUOTE) . $(ports-game-vectoroids_CXXIQUOTE_END) $(strip $(ports-game-vectoroids_CXXFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-vectoroids_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-vectoroids_DXXFLAGS) $(ports-game-vectoroids_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-vectoroids_OBJDIR),)
+  $(foreach ports-game-vectoroids_CXXFILE,$(ports-game-vectoroids_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-vectoroids_CXXFILE))),$(ports-game-vectoroids_CXXFILE))))
+else
+  $(foreach ports-game-vectoroids_CXXFILE,$(ports-game-vectoroids_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(basename $(ports-game-vectoroids_CXXFILE)))),$(ports-game-vectoroids_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-vectoroids_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-vectoroids_MOBJC_SRCWILDCARD := %
+else
+ports-game-vectoroids_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-vectoroids_OBJDIR),)
+  ports-game-vectoroids_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-vectoroids_OBJC_NARCHFILES))
+  ports-game-vectoroids_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-vectoroids_OBJC_NARCHFILES))
+  ports-game-vectoroids_MOBJC_WILDCARD := %
+else
+  ports-game-vectoroids_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_OBJC_NARCHFILES)))
+  ports-game-vectoroids_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_OBJC_NARCHFILES)))
+  ports-game-vectoroids_MOBJC_WILDCARD := $(ports-game-vectoroids_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-vectoroids_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-vectoroids_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-vectoroids_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-vectoroids_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-vectoroids_MOBJC_DIRS := $(foreach dir, $(ports-game-vectoroids_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-vectoroids_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-vectoroids_MOBJC_DIRS),)
+    ports-game-vectoroids_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-vectoroids_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-vectoroids_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-vectoroids_CC := $(TARGET_CC)
+else
+  ports-game-vectoroids_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-vectoroids_MOBJC_CPPFLAGS := $(ports-game-vectoroids_CPPFLAGS)
+ports-game-vectoroids_OBJCFLAGS := $(ports-game-vectoroids_CFLAGS)
+ports-game-vectoroids_OBJCFLAGS := $(ports-game-vectoroids_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-vectoroids_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-vectoroids_OBJCFLAGS)))
+ifeq ($(ports-game-vectoroids_DFLAGS),)
+  ports-game-vectoroids_OBJCDFLAGS := $(ports-game-vectoroids_CFLAGS)
+else
+  ports-game-vectoroids_OBJCDFLAGS := $(ports-game-vectoroids_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-vectoroids_LINK ?= $(strip $(ports-game-vectoroids_CC) $(TARGET_SYSROOT))
+  ports-game-vectoroids_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-vectoroids_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-vectoroids_STRIP ?= $(TARGET_STRIP)
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-vectoroids_CC) $(TARGET_SYSROOT))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_MOBJC_CPPFLAGS:=$(strip $(ports-game-vectoroids_MOBJC_CPPFLAGS) $(ports-game-vectoroids_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCFLAGS:=$(strip $(ports-game-vectoroids_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCDFLAGS:=$(ports-game-vectoroids_OBJCDFLAGS)
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-vectoroids_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-vectoroids_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-vectoroids_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-vectoroids_STRIP ?= $(HOST_STRIP)
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-vectoroids_MOBJC_CPPFLAGS) $(ports-game-vectoroids_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-vectoroids_OBJCFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-vectoroids_OBJCDFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-vectoroids_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-vectoroids_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-vectoroids_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-vectoroids_STRIP ?= $(ECHO) >/dev/null
+  ports-game-vectoroids_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-vectoroids_MOBJC_CPPFLAGS) $(ports-game-vectoroids_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-vectoroids_OBJCFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-vectoroids_OBJCDFLAGS))
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-vectoroids_MOBJC_TARGETS) $(ports-game-vectoroids_MOBJC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-vectoroids_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-vectoroids_MOBJC_CPPFLAGS)
+$(ports-game-vectoroids_MOBJC_TARGETS) : CFLAGS := $(ports-game-vectoroids_OBJCFLAGS)
+$(ports-game-vectoroids_MOBJC_TARGETS) : $(ports-game-vectoroids_MOBJC_WILDCARD).o : $(ports-game-vectoroids_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-vectoroids_MOBJC_DTARGETS) : $(ports-game-vectoroids_MOBJC_WILDCARD).d : $(ports-game-vectoroids_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-vectoroids_OBJCDFLAGS) $(ports-game-vectoroids_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-vectoroids_MC_SRCWILDCARD := %
+else
+ports-game-vectoroids_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-vectoroids_OBJDIR),)
+ports-game-vectoroids_MC_TARGETS := $(addsuffix .o,$(ports-game-vectoroids_C_NARCHFILES))
+ports-game-vectoroids_MC_DTARGETS := $(addsuffix .d,$(ports-game-vectoroids_C_NARCHFILES))
+ports-game-vectoroids_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-vectoroids_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(ports-game-vectoroids_C_NARCHFILES))))
+    ports-game-vectoroids_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(ports-game-vectoroids_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-vectoroids_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_C_NARCHFILES)))
+    ports-game-vectoroids_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(ports-game-vectoroids_C_NARCHFILES)))
+else
+    ports-game-vectoroids_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(patsubst /%,%,$(ports-game-vectoroids_C_NARCHFILES))))
+    ports-game-vectoroids_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(patsubst /%,%,$(ports-game-vectoroids_C_NARCHFILES))))
+endif
+endif
+ports-game-vectoroids_MC_TGTWILDCARD := $(ports-game-vectoroids_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-vectoroids_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-vectoroids_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-vectoroids_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-vectoroids_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-vectoroids_MC_DIRS := $(foreach dir, $(ports-game-vectoroids_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-vectoroids_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-vectoroids_MC_DIRS),)
+    ports-game-vectoroids_MC_DIRS := $(shell $(ECHO) $(ports-game-vectoroids_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-vectoroids_MC_DIRS)
+endif
+
+endif
+
+ports-game-vectoroids_MC_CPPFLAGS := $(ports-game-vectoroids_CPPFLAGS)
+ports-game-vectoroids_CFLAGS := $(ports-game-vectoroids_CFLAGS)
+ifeq ($(ports-game-vectoroids_DFLAGS),)
+  ports-game-vectoroids_DFLAGS := $(ports-game-vectoroids_CFLAGS)
+else
+  ports-game-vectoroids_DFLAGS := $(ports-game-vectoroids_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-vectoroids_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-vectoroids_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-vectoroids_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-vectoroids_STRIP ?= $(TARGET_STRIP)
+ports-game-vectoroids_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_MC_CPPFLAGS:=$(strip $(ports-game-vectoroids_MC_CPPFLAGS) $(ports-game-vectoroids_MC_EXTRA_CPPFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_CFLAGS:=$(strip $(ports-game-vectoroids_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_DFLAGS:=$(ports-game-vectoroids_DFLAGS)
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-vectoroids_LINK ?= $(strip $(HOST_CC))
+ports-game-vectoroids_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-vectoroids_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-vectoroids_STRIP ?= $(HOST_STRIP)
+ports-game-vectoroids_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-vectoroids_MC_CPPFLAGS) $(ports-game-vectoroids_MC_EXTRA_CPPFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-vectoroids_CFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-vectoroids_DFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-vectoroids_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-vectoroids_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-vectoroids_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-vectoroids_STRIP ?= $(ECHO) >/dev/null
+ports-game-vectoroids_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-vectoroids_MC_CPPFLAGS) $(ports-game-vectoroids_MC_EXTRA_CPPFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-vectoroids_CFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-vectoroids_DFLAGS))
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-vectoroids_MC_TARGETS) $(ports-game-vectoroids_MC_DTARGETS) : ports-game-vectoroids_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-vectoroids_MC_TARGETS) : CPPFLAGS := $(ports-game-vectoroids_MC_CPPFLAGS)
+$(ports-game-vectoroids_MC_TARGETS) : CFLAGS := $(ports-game-vectoroids_CFLAGS)
+$(ports-game-vectoroids_MC_TARGETS) : $(ports-game-vectoroids_MC_TGTWILDCARD).o : $(ports-game-vectoroids_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-vectoroids_IQUOTE) $(dir $<) $(ports-game-vectoroids_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-vectoroids_IQUOTE) . $(ports-game-vectoroids_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-vectoroids_MC_DTARGETS) : $(ports-game-vectoroids_MC_TGTWILDCARD).d : $(ports-game-vectoroids_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-vectoroids_DFLAGS) $(ports-game-vectoroids_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-vectoroids_OBJDIR),)
+ports-game-vectoroids-MA_TARGETS := $(addsuffix .o,$(ports-game-vectoroids_ASMFILES))
+ports-game-vectoroids-MA_WILDCARD := %
+else
+ports-game-vectoroids-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-vectoroids_OBJDIR)/,$(notdir $(ports-game-vectoroids_ASMFILES))))
+ports-game-vectoroids-MA_WILDCARD := $(ports-game-vectoroids_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-vectoroids-MA_TARGETS) : | $(addsuffix .s,$(ports-game-vectoroids_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-vectoroids-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-vectoroids-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-vectoroids_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-vectoroids-MA_DIRS := $(foreach dir, $(ports-game-vectoroids-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-vectoroids-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-vectoroids-MA_DIRS),)
+    ports-game-vectoroids-MA_DIRS := $(shell $(ECHO) $(ports-game-vectoroids-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-vectoroids-MA_DIRS)
+endif
+
+endif
+
+ports-game-vectoroids-MA_ASSEMBLER ?= $(ports-game-vectoroids_ASSEMBLER)
+
+$(ports-game-vectoroids-MA_TARGETS) : ports-game-vectoroids-MA_CMD:= $(ports-game-vectoroids-MA_ASSEMBLER)
+
+$(ports-game-vectoroids-MA_TARGETS) : CPPFLAGS := $(ports-game-vectoroids_CPPFLAGS)
+$(ports-game-vectoroids-MA_TARGETS) : AFLAGS := $(ports-game-vectoroids_AFLAGS)
+$(ports-game-vectoroids-MA_TARGETS) : $(ports-game-vectoroids-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-vectoroids-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-vectoroids-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-vectoroids-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-vectoroids-link_LD_OPTS := 
+ports-game-vectoroids-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-vectoroids-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-vectoroids-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-vectoroids-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-vectoroids-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-vectoroids_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-vectoroids-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-vectoroids-link_DIRS)))
+# Add trailing /
+ports-game-vectoroids-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-vectoroids-link_DIRS)))
+# Add normal linklib path
+ports-game-vectoroids-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-vectoroids-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-vectoroids_LIBS) $(ports-game-vectoroids-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-vectoroids-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-vectoroids-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-vectoroids-link_DEPLIBS := $(foreach lib,$(ports-game-vectoroids-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-vectoroids-link_DIRS)))) \
+)
+
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : OBJDIR := $(ports-game-vectoroids_OBJDIR)
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : OBJS := $(strip $(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_ARCHOBJS) $(USER_OBJS))
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : LDFLAGS := $(strip $(ports-game-vectoroids_LDFLAGS))
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-vectoroids_LIBS) $(ports-game-vectoroids-link_EXTRA_LIBS)))
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-vectoroids_ARCHLIBS))
+$(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : $(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_ARCHOBJS) $(USER_OBJS) $(ports-game-vectoroids-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-vectoroids_LINK) $(strip $(ports-game-vectoroids_LD_OPTS) $(ports-game-vectoroids-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-vectoroids_LINK) $(strip $(ports-game-vectoroids_LD_OPTS) $(ports-game-vectoroids-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-vectoroids_LINK) $(strip $(ports-game-vectoroids_LD_OPTS) $(ports-game-vectoroids-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-vectoroids_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-vectoroids_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-vectoroids_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-vectoroids_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-vectoroids_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-vectoroids_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-vectoroids_DEPS),)
+  ifneq (ports-game-vectoroids ports-game-vectoroids-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-vectoroids ports-game-vectoroids-quick),)
+      -include $(ports-game-vectoroids_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-vectoroids_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_DEPS) $(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME),)
+$(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_DEPS) $(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) : | $(ports-game-vectoroids_OBJDIR) $(ports-game-vectoroids_TARGETDIR)
+else
+$(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_DEPS) $(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) :: $(ports-game-vectoroids_OBJDIR) $(ports-game-vectoroids_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-vectoroids_OBJDIR) $(ports-game-vectoroids_TARGETDIR)
+
+
+ports-game-vectoroids-clean : FILES := $(ports-game-vectoroids_OBJS) $(ports-game-vectoroids_TARGETDIR)/$(ports-game-vectoroids_PROGNAME) $(ports-game-vectoroids_DEPS)
+#MM
+ports-game-vectoroids-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-vectoroids"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-vectoroids-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-vectoroids-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-vectoroids-fetch-location := $(PORTSDIR)/vectoroids
+endif
+
+ifneq (,)
+    ports-game-vectoroids-fetch-baseflag := -b 
+else
+    ports-game-vectoroids-fetch-baseflag :=
+endif
+
+ports-game-vectoroids-fetch-fetchedflag := $(ports-game-vectoroids-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-vectoroids-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-game-vectoroids-fetch-location) \
+	-d $(PORTSDIR)/vectoroids $(ports-game-vectoroids-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "vectoroids-1.1.0-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-vectoroids-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-vectoroids-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-game-vectoroids-data
+
+#MM
+ports-game-vectoroids-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/vectoroids/$(ARCHBASE)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/vectoroids/$(ARCHBASE)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/vectoroids/$(ARCHBASE)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/vectoroids/$(ARCHBASE)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/vectoroids/$(ARCHBASE)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/vectoroids/$(ARCHBASE)/data -d $(TARGETDIR)/data -e 
+
+
+CPYFILES := CHANGES.txt COPYING.txt README.txt vectoroids.6
+
+
+ports-game-vectoroids-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/vectoroids/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-vectoroids-cpy
+
+#MM
+ports-game-vectoroids-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-vectoroids-cpy_SRC)),$(ports-game-vectoroids-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-vectoroids-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,44 @@
+#   $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text-vim 	: ports-text-vim-startup
+#MM- ports-text-vim-xxd : ports-text-vim-startup
+
+#MM- ports-text-vim-startup : workbench-prefs-envarc \
+#MM  ports-text-vim-startupfiles \
+#MM  ports-text-vim-envpackage
+
+#MM
+ports-text-vim-envpackage :
+	$(ECHO) "Extras:Utilities/Text/Vim" >$(AROS_PACKAGES)/Vim
+
+FILES := Package-Startup
+
+ports-text-vim-startupfiles_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(AROS_CONTRIB)/Utilities/Text/Vim/S
+else
+setup :: $(AROS_CONTRIB)/Utilities/Text/Vim/S
+endif
+
+GLOB_MKDIRS += $(AROS_CONTRIB)/Utilities/Text/Vim/S
+
+
+.PHONY : ports-text-vim-startupfiles
+
+#MM
+ports-text-vim-startupfiles : | $(AROS_CONTRIB)/Utilities/Text/Vim/S 
+	$(foreach file, $(FILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-text-vim-startupfiles_SRC)),$(ports-text-vim-startupfiles_SRC),$(SRCDIR)/$(CURDIR)/$(ports-text-vim-startupfiles_SRC))/, $(file)) $(addprefix $(AROS_CONTRIB)/Utilities/Text/Vim/S/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

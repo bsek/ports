@@ -1,0 +1,838 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-polyglotman
+
+#MM  ports-text-polyglotman : includes linklibs ports-text-polyglotman-fetch \
+#MM  ports-text-polyglotman-contrib ports-text-polyglotman-cpy
+
+#MM  ports-text-polyglotman-contrib : ports-text-polyglotman-fetch
+
+#MM  ports-text-polyglotman-cpy : ports-text-polyglotman-fetch
+
+#MM  ports-text-polyglotman-quick : ports-text-polyglotman-fetch
+
+REPOSITORIES := sf://polyglotman
+ARCHBASE     := rman-3.2
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Text/PolyglotMan
+
+# list of valid volume numbers and letters
+# you can also set these at runtime with -V
+VOLLIST := '1:2:3:4:5:6:7:8:9:o:l:n:p'
+# SCO Unix has expanded set of volume letters
+#VOLLIST = '1:2:3:4:5:6:7:8:9:o:l:n:p:C:X:S:L:M:F:G:A:H'
+# SGI and UnixWare 2.0
+#VOLLIST = '1:2:3:4:5:6:7:8:9:o:l:n:p:D'
+
+# the printf strings used to set the HTML <TITLE> and
+# to set URL hyperlinks to referenced manual pages
+# can be defined at runtime.  The defaults are defined below.
+# The first %s parameter is the manual page name,
+# the second the volume/section number.
+# you can set these at runtime with -l and -r, respectively
+MANTITLEPRINTF := '%s(%s) manual page'
+
+# relative link to pregenerated file in same directory
+MANREFPRINTF := '%s.%s'
+
+NOWARN_FLAGS := -Wno-comment $(NOWARN_UNUSED_VARIABLE) \
+    $(NOWARN_UNUSED_BUT_SET_VARIABLE) $(NOWARN_NONNULL_COMPARE) \
+    $(NOWARN_INCOMPAT_POINTER_TYPES) $(NOWARN_DISCARDED_QUALIFIERS) $(NOWARN_MISLEADING_INDENTATION)
+USER_CFLAGS  := $(NOWARN_FLAGS) -DVOLLIST=\"$(VOLLIST)\" -DMANTITLEPRINTF=\"$(MANTITLEPRINTF)\" -DMANREFPRINTF=\"$(MANREFPRINTF)\" -DPOLYGLOTMANVERSION=\"3.2\"
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+FILES := $(PORTSDIR)/polyglotman/$(ARCHBASE)/rman
+
+
+.PHONY : ports-text-polyglotman
+
+#MM- ports-text-polyglotman : \
+#MM             ports-text-polyglotman-$(CPU)
+
+#MM- ports-text-polyglotman-$(ARCH)-$(CPU) : \
+#MM             ports-text-polyglotman-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-polyglotman-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-polyglotman-$(ARCH)-$(CPU)
+
+#MM- ports-text-polyglotman-$(ARCH) : \
+#MM             ports-text-polyglotman-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-polyglotman-$(FAMILY) : \
+#MM             ports-text-polyglotman-$(ARCH)
+
+#MM- ports-text-polyglotman-$(CPU) : \
+#MM             ports-text-polyglotman-$(FAMILY)
+#MM- ports-text-polyglotman-quick : \
+#MM             ports-text-polyglotman-$(CPU)-quick
+
+#MM- ports-text-polyglotman-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-polyglotman-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-polyglotman-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-polyglotman-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-polyglotman-$(ARCH)-quick : \
+#MM             ports-text-polyglotman-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-polyglotman-$(FAMILY)-quick : \
+#MM             ports-text-polyglotman-$(ARCH)-quick
+
+#MM- ports-text-polyglotman-$(CPU)-quick : \
+#MM             ports-text-polyglotman-$(FAMILY)-quick
+
+ports-text-polyglotman_PROGNAME  := rman
+ports-text-polyglotman_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-polyglotman_TARGETDIR := $(TARGETDIR)
+ports-text-polyglotman_LINKER    := 
+ports-text-polyglotman_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-polyglotman_LINKER),)
+    ports-text-polyglotman_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-polyglotman_FILES     := $(FILES)
+    ports-text-polyglotman_OBJCFILES := 
+    ports-text-polyglotman_ASMFILES  := 
+    ports-text-polyglotman_CXXFILES := 
+else
+    ports-text-polyglotman_FILES     := $(ports-text-polyglotman_PROGNAME)
+    ports-text-polyglotman_OBJCFILES :=
+    ports-text-polyglotman_ASMFILES  :=
+    ports-text-polyglotman_CXXFILES :=
+endif
+
+ports-text-polyglotman_ARCHOBJS   := $(wildcard $(ports-text-polyglotman_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-polyglotman_ARCHFILES     := $(basename $(notdir $(ports-text-polyglotman_ARCHOBJS)))
+else
+    ports-text-polyglotman_ARCHFILES     := $(basename $(patsubst $(ports-text-polyglotman_OBJDIR)/%,%,$(ports-text-polyglotman_ARCHOBJS)))
+endif
+ports-text-polyglotman_C_NARCHFILES := $(filter-out $(ports-text-polyglotman_ARCHFILES),$(ports-text-polyglotman_FILES))
+ports-text-polyglotman_CXX_NARCHFILES := $(filter-out $(ports-text-polyglotman_ARCHFILES),$(ports-text-polyglotman_CXXFILES))
+ports-text-polyglotman_OBJC_NARCHFILES := $(filter-out $(ports-text-polyglotman_ARCHFILES),$(ports-text-polyglotman_OBJCFILES))
+
+TMP_FILES := $(ports-text-polyglotman_C_NARCHFILES) $(ports-text-polyglotman_CXX_NARCHFILES) $(ports-text-polyglotman_ASMFILES) $(ports-text-polyglotman_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-polyglotman_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-polyglotman_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-polyglotman_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-polyglotman_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-polyglotman_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-polyglotman_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-polyglotman_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-polyglotman_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-polyglotman_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-polyglotman_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-polyglotman_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-polyglotman_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-polyglotman_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-polyglotman_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-polyglotman_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-polyglotman_LDFLAGS          := 
+endif
+
+ports-text-polyglotman_CSTATICFLAGS   := `echo "$(ports-text-polyglotman_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-polyglotman_CSTDCFLAGS   :=  `echo "$(ports-text-polyglotman_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-polyglotman_CPOSIXCFLAGS   :=  `echo "$(ports-text-polyglotman_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-polyglotman_LDFLAGS          += $(strip $(ports-text-polyglotman_CSTATICFLAGS) $(ports-text-polyglotman_CSTDCFLAGS) $(ports-text-polyglotman_CPOSIXCFLAGS))
+
+ports-text-polyglotman_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-polyglotman_COVERAGE := yes
+ports-text-polyglotman_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-polyglotman_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-polyglotman_CFLAGS    := $(strip $(ports-text-polyglotman_COVERAGEFLAGS) $(ports-text-polyglotman_CFLAGS))
+ports-text-polyglotman_CXXFLAGS := $(strip $(ports-text-polyglotman_COVERAGEFLAGS) $(ports-text-polyglotman_CXXFLAGS))
+ports-text-polyglotman_LIBS += $(ports-text-polyglotman_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-polyglotman_FUNCINSTR := yes
+ports-text-polyglotman_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-polyglotman_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-polyglotman_CFLAGS    := $(strip $(ports-text-polyglotman_INSTRFUNCFLAGS) $(ports-text-polyglotman_CFLAGS))
+ports-text-polyglotman_CXXFLAGS := $(strip $(ports-text-polyglotman_INSTRFUNCFLAGS) $(ports-text-polyglotman_CXXFLAGS))
+ports-text-polyglotman_LIBS += $(ports-text-polyglotman_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-polyglotman_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-polyglotman_CFLAGS))
+ports-text-polyglotman_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-polyglotman_CXXFLAGS))
+endif
+endif
+ports-text-polyglotman_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-polyglotman_DFLAGS     := 
+else
+    ports-text-polyglotman_DFLAGS     := $(ports-text-polyglotman_CFLAGS)
+endif
+ifneq (,)
+    ports-text-polyglotman_DXXFLAGS     := 
+else
+    ports-text-polyglotman_DXXFLAGS     := $(ports-text-polyglotman_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-polyglotman_LDFLAGS           := $(ports-text-polyglotman_LDFLAGS)
+ports-text-polyglotman_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-polyglotman_LDFLAGS           := $(ports-text-polyglotman_LDFLAGS)
+ports-text-polyglotman_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_LDFLAGS           := $(ports-text-polyglotman_LDFLAGS)
+ports-text-polyglotman_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-polyglotman_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-polyglotman-quick : ports-text-polyglotman
+
+#MM ports-text-polyglotman : includes-generate-deps core-linklibs
+ports-text-polyglotman : $(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-polyglotman_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-polyglotman_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-polyglotman_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-polyglotman_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-polyglotman_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-polyglotman ports-text-polyglotman-quick ports-text-polyglotman-compress-quick),)
+
+ports-text-polyglotman_CXXABSBASENAMES := $(foreach ports-text-polyglotman_CXXBASE,$(ports-text-polyglotman_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-polyglotman_CXXBASE)),$(ports-text-polyglotman_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-polyglotman_CXXBASE))))
+
+ifneq ($(ports-text-polyglotman_CXXABSBASENAMES),)
+
+ports-text-polyglotman_CXXBASENAMES := $(basename $(ports-text-polyglotman_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-polyglotman_MCXX_FILES  := $(strip $(foreach ports-text-polyglotman_CXXBASE,$(ports-text-polyglotman_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-polyglotman_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-polyglotman_EXT),$(ports-text-polyglotman_CXXBASE)))))))
+
+ifeq (,)
+ports-text-polyglotman_MCXX_SRCWILDCARD := %
+else
+ports-text-polyglotman_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-polyglotman_OBJDIR),)
+  ports-text-polyglotman_CXXTARGETS := $(notdir $(ports-text-polyglotman_CXXBASENAMES:=.o))
+  ports-text-polyglotman_CXXDTARGETS := $(notdir $(ports-text-polyglotman_CXXBASENAMES:=.d))
+  ports-text-polyglotman_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-polyglotman_CXXTARGETS := $(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(ports-text-polyglotman_CXXBASENAMES:=.o)))
+  ports-text-polyglotman_CXXDTARGETS := $(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(ports-text-polyglotman_CXXBASENAMES:=.d)))
+  ports-text-polyglotman_MCXX_WILDCARD := $(ports-text-polyglotman_OBJDIR)/%
+else
+  ports-text-polyglotman_CXXTARGETS := $(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_CXXBASENAMES:=.o))
+  ports-text-polyglotman_CXXDTARGETS := $(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_CXXBASENAMES:=.d))
+  ports-text-polyglotman_MCXX_WILDCARD := $(ports-text-polyglotman_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-polyglotman_CXXTARGETS) $(ports-text-polyglotman_CXXDTARGETS) : | $(ports-text-polyglotman_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-polyglotman_MCXX_CPPFLAGS := $(ports-text-polyglotman_CPPFLAGS)
+ports-text-polyglotman_CXXFLAGS := $(ports-text-polyglotman_CXXFLAGS)
+ifeq ($(ports-text-polyglotman_DXXFLAGS),)
+  ports-text-polyglotman_DXXFLAGS := $(ports-text-polyglotman_CXXFLAGS)
+else
+  ports-text-polyglotman_DXXFLAGS := $(ports-text-polyglotman_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-polyglotman_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-polyglotman_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-polyglotman_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-polyglotman_STRIP ?= $(HOST_STRIP)
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-polyglotman_CXXCMD:=$(HOST_CXX)
+  ports-text-polyglotman_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS) $(ports-text-polyglotman_MCXX_EXTRA_CPPFLAGS))
+  ports-text-polyglotman_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-polyglotman_CXXFLAGS))
+  ports-text-polyglotman_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-polyglotman_DXXFLAGS))
+  ports-text-polyglotman_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-polyglotman_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-polyglotman_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-polyglotman_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-polyglotman_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-polyglotman_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-polyglotman_LDFLAGS ?= $(ports-text-polyglotman_CXXLDFLAGS)
+  ports-text-polyglotman_STRIP ?= $(TARGET_STRIP)
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-polyglotman_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-polyglotman_MCXX_CPPFLAGS := $(strip $(ports-text-polyglotman_MCXX_CPPFLAGS) $(ports-text-polyglotman_MCXX_EXTRA_CPPFLAGS))
+  ports-text-polyglotman_CXXFLAGS := $(strip $(ports-text-polyglotman_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-polyglotman_DXXFLAGS := $(ports-text-polyglotman_DXXFLAGS)
+  ports-text-polyglotman_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-polyglotman_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-polyglotman_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-polyglotman_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-polyglotman_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-polyglotman_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-polyglotman_LDFLAGS ?= $(ports-text-polyglotman_CXXLDFLAGS)
+  ports-text-polyglotman_STRIP ?= $(ECHO) >/dev/null
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-polyglotman_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-polyglotman_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS) $(ports-text-polyglotman_MCXX_EXTRA_CPPFLAGS))
+  ports-text-polyglotman_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-polyglotman_CXXFLAGS))
+  ports-text-polyglotman_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-polyglotman_DXXFLAGS))
+  ports-text-polyglotman_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-polyglotman_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-polyglotman_CXXCMD) $(ports-text-polyglotman_CXXIQUOTE) $(dir $(2)) $(ports-text-polyglotman_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) . $(ports-text-polyglotman_CXXIQUOTE_END) $(strip $(ports-text-polyglotman_CXXFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-polyglotman_CXXCMD) $(ports-text-polyglotman_CXXIQUOTE) $(dir $(2)) $(ports-text-polyglotman_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) . $(ports-text-polyglotman_CXXIQUOTE_END) $(strip $(ports-text-polyglotman_CXXFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-polyglotman_CXXCMD) $(ports-text-polyglotman_CXXIQUOTE) $(dir $(2)) $(ports-text-polyglotman_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_CXXIQUOTE) . $(ports-text-polyglotman_CXXIQUOTE_END) $(strip $(ports-text-polyglotman_CXXFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-polyglotman_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-polyglotman_DXXFLAGS) $(ports-text-polyglotman_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-polyglotman_OBJDIR),)
+  $(foreach ports-text-polyglotman_CXXFILE,$(ports-text-polyglotman_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-polyglotman_CXXFILE))),$(ports-text-polyglotman_CXXFILE))))
+else
+  $(foreach ports-text-polyglotman_CXXFILE,$(ports-text-polyglotman_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(basename $(ports-text-polyglotman_CXXFILE)))),$(ports-text-polyglotman_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-polyglotman_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-polyglotman_MOBJC_SRCWILDCARD := %
+else
+ports-text-polyglotman_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-polyglotman_OBJDIR),)
+  ports-text-polyglotman_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-polyglotman_OBJC_NARCHFILES))
+  ports-text-polyglotman_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-polyglotman_OBJC_NARCHFILES))
+  ports-text-polyglotman_MOBJC_WILDCARD := %
+else
+  ports-text-polyglotman_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_OBJC_NARCHFILES)))
+  ports-text-polyglotman_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_OBJC_NARCHFILES)))
+  ports-text-polyglotman_MOBJC_WILDCARD := $(ports-text-polyglotman_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-polyglotman_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-polyglotman_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-polyglotman_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-polyglotman_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-polyglotman_MOBJC_DIRS := $(foreach dir, $(ports-text-polyglotman_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-polyglotman_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-polyglotman_MOBJC_DIRS),)
+    ports-text-polyglotman_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-polyglotman_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-polyglotman_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-polyglotman_CC := $(TARGET_CC)
+else
+  ports-text-polyglotman_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-polyglotman_MOBJC_CPPFLAGS := $(ports-text-polyglotman_CPPFLAGS)
+ports-text-polyglotman_OBJCFLAGS := $(ports-text-polyglotman_CFLAGS)
+ports-text-polyglotman_OBJCFLAGS := $(ports-text-polyglotman_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-polyglotman_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-polyglotman_OBJCFLAGS)))
+ifeq ($(ports-text-polyglotman_DFLAGS),)
+  ports-text-polyglotman_OBJCDFLAGS := $(ports-text-polyglotman_CFLAGS)
+else
+  ports-text-polyglotman_OBJCDFLAGS := $(ports-text-polyglotman_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-polyglotman_LINK ?= $(strip $(ports-text-polyglotman_CC) $(TARGET_SYSROOT))
+  ports-text-polyglotman_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-polyglotman_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-polyglotman_STRIP ?= $(TARGET_STRIP)
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-polyglotman_CC) $(TARGET_SYSROOT))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_MOBJC_CPPFLAGS:=$(strip $(ports-text-polyglotman_MOBJC_CPPFLAGS) $(ports-text-polyglotman_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCFLAGS:=$(strip $(ports-text-polyglotman_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCDFLAGS:=$(ports-text-polyglotman_OBJCDFLAGS)
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-polyglotman_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-polyglotman_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-polyglotman_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-polyglotman_STRIP ?= $(HOST_STRIP)
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-polyglotman_MOBJC_CPPFLAGS) $(ports-text-polyglotman_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-polyglotman_OBJCFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-polyglotman_OBJCDFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-polyglotman_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-polyglotman_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-polyglotman_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-polyglotman_STRIP ?= $(ECHO) >/dev/null
+  ports-text-polyglotman_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-polyglotman_MOBJC_CPPFLAGS) $(ports-text-polyglotman_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-polyglotman_OBJCFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-polyglotman_OBJCDFLAGS))
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-polyglotman_MOBJC_TARGETS) $(ports-text-polyglotman_MOBJC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-polyglotman_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-polyglotman_MOBJC_CPPFLAGS)
+$(ports-text-polyglotman_MOBJC_TARGETS) : CFLAGS := $(ports-text-polyglotman_OBJCFLAGS)
+$(ports-text-polyglotman_MOBJC_TARGETS) : $(ports-text-polyglotman_MOBJC_WILDCARD).o : $(ports-text-polyglotman_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-polyglotman_MOBJC_DTARGETS) : $(ports-text-polyglotman_MOBJC_WILDCARD).d : $(ports-text-polyglotman_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-polyglotman_OBJCDFLAGS) $(ports-text-polyglotman_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-polyglotman_MC_SRCWILDCARD := %
+else
+ports-text-polyglotman_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-polyglotman_OBJDIR),)
+ports-text-polyglotman_MC_TARGETS := $(addsuffix .o,$(ports-text-polyglotman_C_NARCHFILES))
+ports-text-polyglotman_MC_DTARGETS := $(addsuffix .d,$(ports-text-polyglotman_C_NARCHFILES))
+ports-text-polyglotman_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-polyglotman_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(ports-text-polyglotman_C_NARCHFILES))))
+    ports-text-polyglotman_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(ports-text-polyglotman_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-polyglotman_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_C_NARCHFILES)))
+    ports-text-polyglotman_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(ports-text-polyglotman_C_NARCHFILES)))
+else
+    ports-text-polyglotman_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(patsubst /%,%,$(ports-text-polyglotman_C_NARCHFILES))))
+    ports-text-polyglotman_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(patsubst /%,%,$(ports-text-polyglotman_C_NARCHFILES))))
+endif
+endif
+ports-text-polyglotman_MC_TGTWILDCARD := $(ports-text-polyglotman_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-polyglotman_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-polyglotman_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-polyglotman_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-polyglotman_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-polyglotman_MC_DIRS := $(foreach dir, $(ports-text-polyglotman_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-polyglotman_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-polyglotman_MC_DIRS),)
+    ports-text-polyglotman_MC_DIRS := $(shell $(ECHO) $(ports-text-polyglotman_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-polyglotman_MC_DIRS)
+endif
+
+endif
+
+ports-text-polyglotman_MC_CPPFLAGS := $(ports-text-polyglotman_CPPFLAGS)
+ports-text-polyglotman_CFLAGS := $(ports-text-polyglotman_CFLAGS)
+ifeq ($(ports-text-polyglotman_DFLAGS),)
+  ports-text-polyglotman_DFLAGS := $(ports-text-polyglotman_CFLAGS)
+else
+  ports-text-polyglotman_DFLAGS := $(ports-text-polyglotman_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-polyglotman_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-polyglotman_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-polyglotman_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-polyglotman_STRIP ?= $(TARGET_STRIP)
+ports-text-polyglotman_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_MC_CPPFLAGS:=$(strip $(ports-text-polyglotman_MC_CPPFLAGS) $(ports-text-polyglotman_MC_EXTRA_CPPFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_CFLAGS:=$(strip $(ports-text-polyglotman_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_DFLAGS:=$(ports-text-polyglotman_DFLAGS)
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-polyglotman_LINK ?= $(strip $(HOST_CC))
+ports-text-polyglotman_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-polyglotman_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-polyglotman_STRIP ?= $(HOST_STRIP)
+ports-text-polyglotman_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-polyglotman_MC_CPPFLAGS) $(ports-text-polyglotman_MC_EXTRA_CPPFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-polyglotman_CFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-polyglotman_DFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-polyglotman_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-polyglotman_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-polyglotman_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-polyglotman_STRIP ?= $(ECHO) >/dev/null
+ports-text-polyglotman_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-polyglotman_MC_CPPFLAGS) $(ports-text-polyglotman_MC_EXTRA_CPPFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-polyglotman_CFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-polyglotman_DFLAGS))
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-polyglotman_MC_TARGETS) $(ports-text-polyglotman_MC_DTARGETS) : ports-text-polyglotman_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-polyglotman_MC_TARGETS) : CPPFLAGS := $(ports-text-polyglotman_MC_CPPFLAGS)
+$(ports-text-polyglotman_MC_TARGETS) : CFLAGS := $(ports-text-polyglotman_CFLAGS)
+$(ports-text-polyglotman_MC_TARGETS) : $(ports-text-polyglotman_MC_TGTWILDCARD).o : $(ports-text-polyglotman_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-polyglotman_IQUOTE) $(dir $<) $(ports-text-polyglotman_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-polyglotman_IQUOTE) . $(ports-text-polyglotman_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-polyglotman_MC_DTARGETS) : $(ports-text-polyglotman_MC_TGTWILDCARD).d : $(ports-text-polyglotman_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-polyglotman_DFLAGS) $(ports-text-polyglotman_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-polyglotman_OBJDIR),)
+ports-text-polyglotman-MA_TARGETS := $(addsuffix .o,$(ports-text-polyglotman_ASMFILES))
+ports-text-polyglotman-MA_WILDCARD := %
+else
+ports-text-polyglotman-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-polyglotman_OBJDIR)/,$(notdir $(ports-text-polyglotman_ASMFILES))))
+ports-text-polyglotman-MA_WILDCARD := $(ports-text-polyglotman_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-polyglotman-MA_TARGETS) : | $(addsuffix .s,$(ports-text-polyglotman_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-polyglotman-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-polyglotman-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-polyglotman_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-polyglotman-MA_DIRS := $(foreach dir, $(ports-text-polyglotman-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-polyglotman-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-polyglotman-MA_DIRS),)
+    ports-text-polyglotman-MA_DIRS := $(shell $(ECHO) $(ports-text-polyglotman-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-polyglotman-MA_DIRS)
+endif
+
+endif
+
+ports-text-polyglotman-MA_ASSEMBLER ?= $(ports-text-polyglotman_ASSEMBLER)
+
+$(ports-text-polyglotman-MA_TARGETS) : ports-text-polyglotman-MA_CMD:= $(ports-text-polyglotman-MA_ASSEMBLER)
+
+$(ports-text-polyglotman-MA_TARGETS) : CPPFLAGS := $(ports-text-polyglotman_CPPFLAGS)
+$(ports-text-polyglotman-MA_TARGETS) : AFLAGS := $(ports-text-polyglotman_AFLAGS)
+$(ports-text-polyglotman-MA_TARGETS) : $(ports-text-polyglotman-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-polyglotman-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-polyglotman-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-polyglotman-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-polyglotman-link_LD_OPTS := 
+ports-text-polyglotman-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-polyglotman-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-polyglotman-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-polyglotman-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-polyglotman-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-polyglotman_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-polyglotman-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-polyglotman-link_DIRS)))
+# Add trailing /
+ports-text-polyglotman-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-polyglotman-link_DIRS)))
+# Add normal linklib path
+ports-text-polyglotman-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-polyglotman-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-polyglotman_LIBS) $(ports-text-polyglotman-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-polyglotman-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-polyglotman-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-polyglotman-link_DEPLIBS := $(foreach lib,$(ports-text-polyglotman-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-polyglotman-link_DIRS)))) \
+)
+
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : OBJDIR := $(ports-text-polyglotman_OBJDIR)
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : OBJS := $(strip $(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_ARCHOBJS) $(USER_OBJS))
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : LDFLAGS := $(strip $(ports-text-polyglotman_LDFLAGS))
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-polyglotman_LIBS) $(ports-text-polyglotman-link_EXTRA_LIBS)))
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-polyglotman_ARCHLIBS))
+$(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : $(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_ARCHOBJS) $(USER_OBJS) $(ports-text-polyglotman-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-polyglotman_LINK) $(strip $(ports-text-polyglotman_LD_OPTS) $(ports-text-polyglotman-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-polyglotman_LINK) $(strip $(ports-text-polyglotman_LD_OPTS) $(ports-text-polyglotman-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-polyglotman_LINK) $(strip $(ports-text-polyglotman_LD_OPTS) $(ports-text-polyglotman-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-polyglotman_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-polyglotman_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-polyglotman_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-polyglotman_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-polyglotman_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-polyglotman_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-polyglotman_DEPS),)
+  ifneq (ports-text-polyglotman ports-text-polyglotman-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-polyglotman ports-text-polyglotman-quick),)
+      -include $(ports-text-polyglotman_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-polyglotman_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_DEPS) $(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME),)
+$(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_DEPS) $(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) : | $(ports-text-polyglotman_OBJDIR) $(ports-text-polyglotman_TARGETDIR)
+else
+$(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_DEPS) $(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) :: $(ports-text-polyglotman_OBJDIR) $(ports-text-polyglotman_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-polyglotman_OBJDIR) $(ports-text-polyglotman_TARGETDIR)
+
+
+ports-text-polyglotman-clean : FILES := $(ports-text-polyglotman_OBJS) $(ports-text-polyglotman_TARGETDIR)/$(ports-text-polyglotman_PROGNAME) $(ports-text-polyglotman_DEPS)
+#MM
+ports-text-polyglotman-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-polyglotman"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-text-polyglotman-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-text-polyglotman-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-text-polyglotman-fetch-location := $(PORTSDIR)/polyglotman
+endif
+
+ifneq (,)
+    ports-text-polyglotman-fetch-baseflag := -b 
+else
+    ports-text-polyglotman-fetch-baseflag :=
+endif
+
+ports-text-polyglotman-fetch-fetchedflag := $(ports-text-polyglotman-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-text-polyglotman-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-text-polyglotman-fetch-location) \
+	-d $(PORTSDIR)/polyglotman $(ports-text-polyglotman-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-text-polyglotman-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-text-polyglotman-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-text-polyglotman-contrib
+
+#MM
+ports-text-polyglotman-contrib :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib)))' to '$(if $(filter /%,$(TARGETDIR)/Contrib),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Contrib)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Contrib)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Contrib))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Contrib)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/polyglotman/$(ARCHBASE)/contrib -d $(TARGETDIR)/Contrib -e 
+
+
+CPYFILES := CHANGES MANIFEST README-rman.txt rman.1 rman.html
+
+ports-text-polyglotman-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/polyglotman/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-text-polyglotman-cpy
+
+#MM
+ports-text-polyglotman-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-text-polyglotman-cpy_SRC)),$(ports-text-polyglotman-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-text-polyglotman-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

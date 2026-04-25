@@ -1,0 +1,372 @@
+# $Id: mmakefile.src $
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-arx
+
+#MM- ports-game-arx : \
+#MM     workbench-libs-freetype-linklibs \
+#MM     contrib-sdl \
+#MM     contrib-openal \
+#MM     ports-libs-glew \
+#MM     libglew-includes-copy \
+#MM     development-libs-boost \
+#MM     ports-game-arx-fetch \
+#MM     ports-game-arx-icon
+
+PACKAGE       := ArxLibertatis
+VERSION       := 1.1.2-r1
+TARGETDIR     := $(AROS_CONTRIB)/Games/Adventure/ArxLibertatis
+REPOSITORIES  := https://github.com/arx/ArxLibertatis/archive
+
+NOWARN_FLAGS  := $(NOWARN_ERROR) $(NOWARN_RETURN_TYPE) $(NOWARN_UNUSED_VARIABLE) \
+        $(NOWARN_IMPLICIT_FALLTHROUGH) $(NOWARN_FORMAT_OVERFLOW) \
+        $(NOWARN_MISLEADING_INDENTATION) $(NOWARN_CLASS_MEMACCESS) \
+        -Wno-aligned-new -Wno-deprecated-copy
+
+USER_CXXFLAGS := $(NOWARN_FLAGS) -I$(AROS_CONTRIB_INCLUDES)
+
+#USER_INCLUDES :=  -I$(AROS_CONTRIB_INCLUDES)
+#USER_LDFLAGS  :=-L$(AROS_CONTRIB_LIB)
+
+ARX_OPTIONS   := \
+    -DCMAKE_INSTALL_BINDIR=$(TARGETDIR) \
+    -DCMAKE_INSTALL_DATAROOTDIR=$(TARGETDIR) \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DARX_HAVE_POSIX_FILESYSTEM:BOOL=ON \
+    -DUSE_STATIC_LIBS:BOOL=ON \
+    -DBUILD_CRASHREPORTER:BOOL=OFF \
+    .DARX_HAVE_OPENGL=YES \
+    -DUSE_SDL:BOOL=ON \
+    -DBUILD_TOOLS:BOOL=OFF \
+    -DSCRIPTDIR=$(TARGETDIR) \
+    -DDEBUG:BOOL=ON \
+    -DDEBUG_EXTRA:BOOL=ON \
+    -DFREETYPE_LIBRARY=$(AROS_LIB)/libfreetype2.a \
+    -DFREETYPE_INCLUDE_DIRS=$(AROS_INCLUDES)/freetype \
+    -DZLIB_LIBRARY=$(AROS_LIB)/libz.a \
+    -DZLIB_INCLUDE_DIR=$(AROS_INCLUDES) \
+    -DOPENAL_INCLUDE_DIR=$(AROS_INCLUDES)/AL \
+    -DOPENAL_LIBRARY="$(AROS_LIB)/libopenal.a;$(AROS_LIB)/libpthread.a;" \
+    -DOPENAL_EFX_INCLUDE_DIR=$(AROS_INCLUDES)/AL \
+    -DBOOST_INCLUDEDIR=$(AROS_INCLUDES)/boost \
+    -DSDL_LIBRARY=$(AROS_LIB)/libSDL.a \
+    -DSDL_INCLUDE_DIR=$(AROS_INCLUDES)/SDL \
+    -DOPENGL_INCLUDE_DIR=$(AROS_INCLUDES)/GL \
+    -DOPENGL_gl_LIBRARY=$(AROS_LIB)/libGL.a \
+    -DGLEW_INCLUDE_DIR=$(AROS_INCLUDES)/GL \
+    -DGLEW_LIBRARY=$(AROS_LIB)/libglew.a \
+    -DBOOST_INCLUDEDIR=$(AROS_INCLUDES)
+
+
+.PHONY: ports-game-arx-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-arx-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-arx-fetch-location := $(PORTSDIR)/arx
+endif
+
+ifneq (,)
+    ports-game-arx-fetch-baseflag := -b 
+else
+    ports-game-arx-fetch-baseflag :=
+endif
+
+ports-game-arx-fetch-fetchedflag := $(ports-game-arx-fetch-location)/.$(VERSION)-fetched
+
+#MM
+ports-game-arx-fetch :
+	$(Q)$(ECHO) "Fetching   $(VERSION) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(VERSION) -s "tar.gz" -l $(ports-game-arx-fetch-location) \
+	-d $(PORTSDIR)/arx $(ports-game-arx-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(VERSION)-aros.diff::-p0"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-arx-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-arx-fetch-fetchedflag) ; \
+	fi
+
+
+ifneq ($(TARGETDIR),)
+    ports-game-arx-prefix          := $(TARGETDIR)
+else
+    ports-game-arx-prefix          := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-game-arx-aros_prefix     := 
+else
+    ports-game-arx-aros_prefix     := $(ports-game-arx-prefix)
+endif
+    ports-game-arx-cmake-env += CMAKE_GENERATOR='Unix Makefiles'
+ifeq (target,host)
+    ports-game-arx-cmake-env += LDFLAGS="$(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) "
+    ports-game-arx-cmake-env += CFLAGS="$(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-game-arx-cmake-env += CXXFLAGS="$(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-game-arx-cmake-env += CPPFLAGS="$(HOST_CPPFLAGS) "
+    ports-game-arx-cmake_opts      := -DCMAKE_INSTALL_PREFIX=$(ports-game-arx-prefix)
+ifeq (,$(findstring CMAKE_BUILD_TYPE,$(ARX_OPTIONS)))
+    ports-game-arx-cmake_opts      += -DCMAKE_BUILD_TYPE=Release
+endif
+    ports-game-arx-cmake_opts      += -DCMAKE_LINKER="$(strip $(HOST_LD))" \
+                                -DCMAKE_EXE_LINKER_FLAGS="$(strip $(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) )"
+    ifeq (no,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-game-arx-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_DEF_CC)))"
+    else
+        ports-game-arx-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(HOST_DEF_CC))"
+    endif
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(HOST_CPPFLAGS) )"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-game-arx-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_CXX)))"
+    else
+        ports-game-arx-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(HOST_CXX))"
+    endif
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_CXX_FLAGS="$(strip $(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (,)
+        ports-game-arx-pkgdir      := $(HOSTGENDIR)/$(CURDIR)
+    else
+        ports-game-arx-pkgdir      := $(HOSTGENDIR)/$(CURDIR)/
+    endif
+else
+    ports-game-arx-cmake-env += PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig"
+    ports-game-arx-cmake-env += PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+    ports-game-arx-cmake-env += LDFLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ports-game-arx-cmake-env += CFLAGS="$(strip $(CFLAGS) )"
+    ports-game-arx-cmake-env += CXXFLAGS="$(strip $(CXXFLAGS) )"
+    ports-game-arx-cmake-env += CPPFLAGS="$(strip $(CPPFLAGS) )"
+    ports-game-arx-cmake_opts      := -DCMAKE_TOOLCHAIN_FILE=$(GENDIR)/config/conf.cmake -DCMAKE_INSTALL_PREFIX=$(ports-game-arx-prefix)
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(CFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(CPPFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-game-arx-cmake_opts      += -DCMAKE_CXX_FLAGS="$(strip $(CXXFLAGS) )"
+    endif
+    ports-game-arx-cmake_opts  += -DCMAKE_EXE_LINKER_FLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ifeq (,)
+        ports-game-arx-pkgdir      := $(GENDIR)/$(CURDIR)
+    else
+        ports-game-arx-pkgdir      := $(GENDIR)/$(CURDIR)/
+    endif
+endif
+ifneq (,)
+    ifeq (,)
+        ports-game-arx-pkgdir      := 
+    else
+        ports-game-arx-pkgdir      := /
+    endif
+endif
+
+ports-game-arx-cmakeflag           ?= $(ports-game-arx-pkgdir)/.cmake
+ports-game-arx-installflag         ?= $(ports-game-arx-pkgdir)/.installed
+
+.PHONY : ports-game-arx ports-game-arx-clean ports-game-arx-build_and_install-quick
+
+#MM- ports-game-arx: setup includes core-linklibs ports-game-arx-quick
+
+#MM- ports-game-arx-quick : ports-game-arx-cmake ports-game-arx-build_and_install-quick
+
+#MM
+ports-game-arx-build_and_install-quick :  $(ports-game-arx-installflag)
+
+ifeq (,)
+ports-game-arx-buildargs :=  --build
+else
+ports-game-arx-buildargs :=  
+endif
+
+ifeq (,)
+ports-game-arx-cmakecmdbuild := $(CMAKE) $(ports-game-arx-buildargs) $(ports-game-arx-pkgdir)
+else
+ports-game-arx-cmakecmdbuild := 
+endif
+
+ifeq (,)
+ports-game-arx-installargs :=  --install
+else
+ports-game-arx-installargs :=  
+endif
+
+ifeq (,)
+ports-game-arx-cmakecmdinstall := $(CMAKE) $(ports-game-arx-installargs) $(ports-game-arx-pkgdir)
+else
+ports-game-arx-cmakecmdinstall := 
+endif
+
+ifeq (,)
+ports-game-arx-cmakecleandir := $(ports-game-arx-pkgdir)
+else
+ports-game-arx-cmakecleandir := 
+endif
+
+$(ports-game-arx-installflag) : $(ports-game-arx-cmakeflag)
+	$(Q)$(IF) ! $(MAKE) -q -C $(ports-game-arx-pkgdir); then \
+	    $(RM) $(ports-game-arx-installflag) && \
+	    $(ports-game-arx-cmakecmdbuild) && \
+	    cd $(ports-game-arx-pkgdir) && \
+	    $(ports-game-arx-cmakecmdinstall) && \
+	    $(TOUCH) $@ -r $^; \
+	    $(IF) $(TEST) "no" = "yes"; then \
+	        $(IF) ! $(MAKE) -C $(ports-game-arx-pkgdir) clean; then \
+	            $(RM) -r $(ports-game-arx-cmakecleandir); \
+	        fi; \
+	    fi; \
+	fi
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-game-arx-touchfileflag ?= $(ports-game-arx-pkgdir)/.files-touched
+## **********************************************************************
+ifeq (yes,yes)
+$(ports-game-arx-touchfileflag):
+	$(Q)$(FOR) dir in $(ports-game-arx-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(PORTSDIR)/arx/$(PACKAGE)-$(VERSION) -exec $(TOUCH) -c -r $(PORTSDIR)/arx/$(PACKAGE)-$(VERSION)/CMakeLists.txt '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-game-arx-cmake :  $(ports-game-arx-cmakeflag) 
+
+$(ports-game-arx-cmakeflag) : TMP_SRCDIR := $(shell $(ECHO) $(PORTSDIR)/arx/$(PACKAGE)-$(VERSION) | sed 's/^\(.\):\//\/\1\//')
+$(ports-game-arx-cmakeflag) : $(ports-game-arx-touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(RM) $@
+	$(Q)$(FOR) dir in $(ports-game-arx-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)cd $(ports-game-arx-pkgdir) && \
+	$(RM) -Rf CMakeCache.txt CMakeFiles \; && \
+	$(ports-game-arx-cmake-env) $(CMAKE) $(ports-game-arx-cmake_opts) $(ARX_OPTIONS) $(TMP_SRCDIR) && \
+	$(TOUCH) $@
+
+#MM
+ports-game-arx-clean : ports-game-arx-uninstall
+	$(Q)$(RM) $(ports-game-arx-pkgdir)
+
+
+.PHONY: ports-game-arx-create-patch
+
+ifneq (,)
+    ports-game-arx-create-patch-location := 
+else
+    ports-game-arx-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-arx-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(PACKAGE)-$(VERSION),)
+    ports-game-arx-create-patch-srcdir   := $(PACKAGE)-$(VERSION)
+else
+    ports-game-arx-create-patch-srcdir   := $(VERSION)
+endif
+
+ifeq (no,yes)
+    ports-game-arx-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-arx-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-arx-create-patch-baseflag := -b /tmp
+    ports-game-arx-create-patch-base := 
+else
+    ports-game-arx-create-patch-baseflag :=
+    ports-game-arx-create-patch-base := $(PORTSDIR)/arx
+endif
+
+#MM- ports-game-arx-create-patch :  ports-game-arx-create-patch-diff 
+#MM- ports-game-arx-create-patch-quick :  ports-game-arx-create-patch-diff 
+
+#MM
+ports-game-arx-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-arx-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-arx-create-patch-base)/$(ports-game-arx-create-patch-srcdir) $(ports-game-arx-create-patch-base)/tmp/$(ports-game-arx-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(VERSION) -s "tar.gz" -f -l $(ports-game-arx-create-patch-location) -d $(PORTSDIR)/arx $(ports-game-arx-create-patch-baseflag); \
+	$(MV) $(ports-game-arx-create-patch-base)/$(ports-game-arx-create-patch-srcdir) $(ports-game-arx-create-patch-base)/tmp/$(ports-game-arx-create-patch-srcdir) ; \
+	cd $(ports-game-arx-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(VERSION)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-arx-create-patch-diffflag) $(ports-game-arx-create-patch-exclude) \
+	    $(ports-game-arx-create-patch-srcdir) \
+	    $(ports-game-arx-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(VERSION)-aros-new.diff ; \
+	$(MV) $(ports-game-arx-create-patch-base)/tmp/$(ports-game-arx-create-patch-srcdir).aros $(ports-game-arx-create-patch-base)/$(ports-game-arx-create-patch-srcdir) ; \
+	$(RM) $(ports-game-arx-create-patch-base)/tmp
+
+$(PORTSDIR)/arx/Arx.info.src : $(SRCDIR)/$(CURDIR)/Arx.info.src 
+	@$(CP) $< $@
+
+#MM
+ports-game-arx-iconsrc : $(PORTSDIR)/arx/Arx.info.src
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,Arx))
+
+#MM
+ports-game-arx-icon : $(BD_OBJS)
+
+ifeq ($(PACKAGE)-$(VERSION)/data/icons/arx-libertatis.png,)
+
+$(TARGETDIR)/%.info : $(PORTSDIR)/arx/%.info.src $(PORTSDIR)/arx/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(PORTSDIR)/arx/%.info.src $(PORTSDIR)/arx/$(PACKAGE)-$(VERSION)/data/icons/arx-libertatis.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-game-arx-icon-clean : FILES := $(BD_OBJS)
+#MM
+ports-game-arx-icon-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-game-arx-icon ports-game-arx-icon-clean
+
+#MM ports-game-arx-icon : ports-game-arx-iconsrc
+
+#MM
+ports-game-arx-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

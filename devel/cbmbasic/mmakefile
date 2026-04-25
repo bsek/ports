@@ -1,0 +1,874 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-devel : ports-devel-cbmbasic
+
+#MM  ports-devel-cbmbasic : includes linklibs \
+#MM  ports-devel-cbmbasic-data ports-devel-cbmbasic-cpy \
+#MM  ports-devel-cbmbasic-fetch
+
+#MM  ports-devel-cbmbasic-data : ports-devel-cbmbasic-fetch
+
+#MM  ports-devel-cbmbasic-quick : ports-devel-cbmbasic-fetch
+
+REPOSITORIES := sf://cbmbasic
+ARCHBASE     := cbmbasic-1.0
+TARGETDIR    := $(AROS_CONTRIB)/$(AROS_DIR_DEVELOPER)/CBMBasic
+
+FILES := \
+    $(PORTSDIR)/cbmbasic/$(ARCHBASE)/cbmbasic \
+    $(PORTSDIR)/cbmbasic/$(ARCHBASE)/plugin \
+    $(PORTSDIR)/cbmbasic/$(ARCHBASE)/runtime
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_BUT_SET_VARIABLE) $(NOWARN_STRICT_ALIASING) \
+	$(NOWARN_CPP) $(NOWARN_UNUSED_VARIABLE)
+
+USER_CFLAGS := $(CFLAGS_GNU99) $(COMPILER_COMMON_CFLAGS) $(NOWARN_FLAGS)
+
+
+.PHONY : ports-devel-cbmbasic
+
+#MM- ports-devel-cbmbasic : \
+#MM             ports-devel-cbmbasic-$(CPU)
+
+#MM- ports-devel-cbmbasic-$(ARCH)-$(CPU) : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-devel-cbmbasic-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(CPU)
+
+#MM- ports-devel-cbmbasic-$(ARCH) : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-devel-cbmbasic-$(FAMILY) : \
+#MM             ports-devel-cbmbasic-$(ARCH)
+
+#MM- ports-devel-cbmbasic-$(CPU) : \
+#MM             ports-devel-cbmbasic-$(FAMILY)
+#MM- ports-devel-cbmbasic-quick : \
+#MM             ports-devel-cbmbasic-$(CPU)-quick
+
+#MM- ports-devel-cbmbasic-$(ARCH)-$(CPU)-quick : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-devel-cbmbasic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(CPU)-quick
+
+#MM- ports-devel-cbmbasic-$(ARCH)-quick : \
+#MM             ports-devel-cbmbasic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-devel-cbmbasic-$(FAMILY)-quick : \
+#MM             ports-devel-cbmbasic-$(ARCH)-quick
+
+#MM- ports-devel-cbmbasic-$(CPU)-quick : \
+#MM             ports-devel-cbmbasic-$(FAMILY)-quick
+
+ports-devel-cbmbasic_PROGNAME  := CBMBasic
+ports-devel-cbmbasic_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-devel-cbmbasic_TARGETDIR := $(TARGETDIR)
+ports-devel-cbmbasic_LINKER    := 
+ports-devel-cbmbasic_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-devel-cbmbasic_LINKER),)
+    ports-devel-cbmbasic_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-devel-cbmbasic_FILES     := $(FILES)
+    ports-devel-cbmbasic_OBJCFILES := 
+    ports-devel-cbmbasic_ASMFILES  := 
+    ports-devel-cbmbasic_CXXFILES := 
+else
+    ports-devel-cbmbasic_FILES     := $(ports-devel-cbmbasic_PROGNAME)
+    ports-devel-cbmbasic_OBJCFILES :=
+    ports-devel-cbmbasic_ASMFILES  :=
+    ports-devel-cbmbasic_CXXFILES :=
+endif
+
+ports-devel-cbmbasic_ARCHOBJS   := $(wildcard $(ports-devel-cbmbasic_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-devel-cbmbasic_ARCHFILES     := $(basename $(notdir $(ports-devel-cbmbasic_ARCHOBJS)))
+else
+    ports-devel-cbmbasic_ARCHFILES     := $(basename $(patsubst $(ports-devel-cbmbasic_OBJDIR)/%,%,$(ports-devel-cbmbasic_ARCHOBJS)))
+endif
+ports-devel-cbmbasic_C_NARCHFILES := $(filter-out $(ports-devel-cbmbasic_ARCHFILES),$(ports-devel-cbmbasic_FILES))
+ports-devel-cbmbasic_CXX_NARCHFILES := $(filter-out $(ports-devel-cbmbasic_ARCHFILES),$(ports-devel-cbmbasic_CXXFILES))
+ports-devel-cbmbasic_OBJC_NARCHFILES := $(filter-out $(ports-devel-cbmbasic_ARCHFILES),$(ports-devel-cbmbasic_OBJCFILES))
+
+TMP_FILES := $(ports-devel-cbmbasic_C_NARCHFILES) $(ports-devel-cbmbasic_CXX_NARCHFILES) $(ports-devel-cbmbasic_ASMFILES) $(ports-devel-cbmbasic_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-devel-cbmbasic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-devel-cbmbasic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-devel-cbmbasic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(TMP_FILES))) )
+    ports-devel-cbmbasic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-devel-cbmbasic_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-devel-cbmbasic_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-devel-cbmbasic_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-devel-cbmbasic_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-devel-cbmbasic_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-devel-cbmbasic_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-devel-cbmbasic_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-devel-cbmbasic_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-devel-cbmbasic_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-devel-cbmbasic_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-devel-cbmbasic_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-devel-cbmbasic_LDFLAGS          := 
+endif
+
+ports-devel-cbmbasic_CSTATICFLAGS   := `echo "$(ports-devel-cbmbasic_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-devel-cbmbasic_CSTDCFLAGS   :=  `echo "$(ports-devel-cbmbasic_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-devel-cbmbasic_CPOSIXCFLAGS   :=  `echo "$(ports-devel-cbmbasic_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-devel-cbmbasic_LDFLAGS          += $(strip $(ports-devel-cbmbasic_CSTATICFLAGS) $(ports-devel-cbmbasic_CSTDCFLAGS) $(ports-devel-cbmbasic_CPOSIXCFLAGS))
+
+ports-devel-cbmbasic_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-devel-cbmbasic_COVERAGE := yes
+ports-devel-cbmbasic_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-devel-cbmbasic_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-devel-cbmbasic_CFLAGS    := $(strip $(ports-devel-cbmbasic_COVERAGEFLAGS) $(ports-devel-cbmbasic_CFLAGS))
+ports-devel-cbmbasic_CXXFLAGS := $(strip $(ports-devel-cbmbasic_COVERAGEFLAGS) $(ports-devel-cbmbasic_CXXFLAGS))
+ports-devel-cbmbasic_LIBS += $(ports-devel-cbmbasic_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-devel-cbmbasic_FUNCINSTR := yes
+ports-devel-cbmbasic_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-devel-cbmbasic_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-devel-cbmbasic_CFLAGS    := $(strip $(ports-devel-cbmbasic_INSTRFUNCFLAGS) $(ports-devel-cbmbasic_CFLAGS))
+ports-devel-cbmbasic_CXXFLAGS := $(strip $(ports-devel-cbmbasic_INSTRFUNCFLAGS) $(ports-devel-cbmbasic_CXXFLAGS))
+ports-devel-cbmbasic_LIBS += $(ports-devel-cbmbasic_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-devel-cbmbasic_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-devel-cbmbasic_CFLAGS))
+ports-devel-cbmbasic_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-devel-cbmbasic_CXXFLAGS))
+endif
+endif
+ports-devel-cbmbasic_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-devel-cbmbasic_DFLAGS     := 
+else
+    ports-devel-cbmbasic_DFLAGS     := $(ports-devel-cbmbasic_CFLAGS)
+endif
+ifneq (,)
+    ports-devel-cbmbasic_DXXFLAGS     := 
+else
+    ports-devel-cbmbasic_DXXFLAGS     := $(ports-devel-cbmbasic_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-devel-cbmbasic_LDFLAGS           := $(ports-devel-cbmbasic_LDFLAGS)
+ports-devel-cbmbasic_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-devel-cbmbasic_LDFLAGS           := $(ports-devel-cbmbasic_LDFLAGS)
+ports-devel-cbmbasic_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_LDFLAGS           := $(ports-devel-cbmbasic_LDFLAGS)
+ports-devel-cbmbasic_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-devel-cbmbasic_LDFLAGS   += -L
+endif
+
+#MM
+ports-devel-cbmbasic-quick : ports-devel-cbmbasic
+
+#MM ports-devel-cbmbasic : includes-generate-deps core-linklibs
+ports-devel-cbmbasic : $(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-devel-cbmbasic_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-devel-cbmbasic_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-devel-cbmbasic_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-devel-cbmbasic_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-devel-cbmbasic_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-devel-cbmbasic ports-devel-cbmbasic-quick ports-devel-cbmbasic-compress-quick),)
+
+ports-devel-cbmbasic_CXXABSBASENAMES := $(foreach ports-devel-cbmbasic_CXXBASE,$(ports-devel-cbmbasic_CXX_NARCHFILES),$(if $(filter /%,$(ports-devel-cbmbasic_CXXBASE)),$(ports-devel-cbmbasic_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-devel-cbmbasic_CXXBASE))))
+
+ifneq ($(ports-devel-cbmbasic_CXXABSBASENAMES),)
+
+ports-devel-cbmbasic_CXXBASENAMES := $(basename $(ports-devel-cbmbasic_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-devel-cbmbasic_MCXX_FILES  := $(strip $(foreach ports-devel-cbmbasic_CXXBASE,$(ports-devel-cbmbasic_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-devel-cbmbasic_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-devel-cbmbasic_EXT),$(ports-devel-cbmbasic_CXXBASE)))))))
+
+ifeq (,)
+ports-devel-cbmbasic_MCXX_SRCWILDCARD := %
+else
+ports-devel-cbmbasic_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-devel-cbmbasic_OBJDIR),)
+  ports-devel-cbmbasic_CXXTARGETS := $(notdir $(ports-devel-cbmbasic_CXXBASENAMES:=.o))
+  ports-devel-cbmbasic_CXXDTARGETS := $(notdir $(ports-devel-cbmbasic_CXXBASENAMES:=.d))
+  ports-devel-cbmbasic_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-devel-cbmbasic_CXXTARGETS := $(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(ports-devel-cbmbasic_CXXBASENAMES:=.o)))
+  ports-devel-cbmbasic_CXXDTARGETS := $(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(ports-devel-cbmbasic_CXXBASENAMES:=.d)))
+  ports-devel-cbmbasic_MCXX_WILDCARD := $(ports-devel-cbmbasic_OBJDIR)/%
+else
+  ports-devel-cbmbasic_CXXTARGETS := $(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_CXXBASENAMES:=.o))
+  ports-devel-cbmbasic_CXXDTARGETS := $(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_CXXBASENAMES:=.d))
+  ports-devel-cbmbasic_MCXX_WILDCARD := $(ports-devel-cbmbasic_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-devel-cbmbasic_CXXTARGETS) $(ports-devel-cbmbasic_CXXDTARGETS) : | $(ports-devel-cbmbasic_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-devel-cbmbasic_MCXX_CPPFLAGS := $(ports-devel-cbmbasic_CPPFLAGS)
+ports-devel-cbmbasic_CXXFLAGS := $(ports-devel-cbmbasic_CXXFLAGS)
+ifeq ($(ports-devel-cbmbasic_DXXFLAGS),)
+  ports-devel-cbmbasic_DXXFLAGS := $(ports-devel-cbmbasic_CXXFLAGS)
+else
+  ports-devel-cbmbasic_DXXFLAGS := $(ports-devel-cbmbasic_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-devel-cbmbasic_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-devel-cbmbasic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-devel-cbmbasic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-devel-cbmbasic_STRIP ?= $(HOST_STRIP)
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-devel-cbmbasic_CXXCMD:=$(HOST_CXX)
+  ports-devel-cbmbasic_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS) $(ports-devel-cbmbasic_MCXX_EXTRA_CPPFLAGS))
+  ports-devel-cbmbasic_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-devel-cbmbasic_CXXFLAGS))
+  ports-devel-cbmbasic_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-devel-cbmbasic_DXXFLAGS))
+  ports-devel-cbmbasic_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-devel-cbmbasic_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-devel-cbmbasic_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-devel-cbmbasic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-devel-cbmbasic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-devel-cbmbasic_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-devel-cbmbasic_LDFLAGS ?= $(ports-devel-cbmbasic_CXXLDFLAGS)
+  ports-devel-cbmbasic_STRIP ?= $(TARGET_STRIP)
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-devel-cbmbasic_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-devel-cbmbasic_MCXX_CPPFLAGS := $(strip $(ports-devel-cbmbasic_MCXX_CPPFLAGS) $(ports-devel-cbmbasic_MCXX_EXTRA_CPPFLAGS))
+  ports-devel-cbmbasic_CXXFLAGS := $(strip $(ports-devel-cbmbasic_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-devel-cbmbasic_DXXFLAGS := $(ports-devel-cbmbasic_DXXFLAGS)
+  ports-devel-cbmbasic_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-devel-cbmbasic_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-devel-cbmbasic_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-devel-cbmbasic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-devel-cbmbasic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-devel-cbmbasic_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-devel-cbmbasic_LDFLAGS ?= $(ports-devel-cbmbasic_CXXLDFLAGS)
+  ports-devel-cbmbasic_STRIP ?= $(ECHO) >/dev/null
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-devel-cbmbasic_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-devel-cbmbasic_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS) $(ports-devel-cbmbasic_MCXX_EXTRA_CPPFLAGS))
+  ports-devel-cbmbasic_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-devel-cbmbasic_CXXFLAGS))
+  ports-devel-cbmbasic_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-devel-cbmbasic_DXXFLAGS))
+  ports-devel-cbmbasic_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-devel-cbmbasic_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-devel-cbmbasic_CXXCMD) $(ports-devel-cbmbasic_CXXIQUOTE) $(dir $(2)) $(ports-devel-cbmbasic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) . $(ports-devel-cbmbasic_CXXIQUOTE_END) $(strip $(ports-devel-cbmbasic_CXXFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-devel-cbmbasic_CXXCMD) $(ports-devel-cbmbasic_CXXIQUOTE) $(dir $(2)) $(ports-devel-cbmbasic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) . $(ports-devel-cbmbasic_CXXIQUOTE_END) $(strip $(ports-devel-cbmbasic_CXXFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-devel-cbmbasic_CXXCMD) $(ports-devel-cbmbasic_CXXIQUOTE) $(dir $(2)) $(ports-devel-cbmbasic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_CXXIQUOTE) . $(ports-devel-cbmbasic_CXXIQUOTE_END) $(strip $(ports-devel-cbmbasic_CXXFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-devel-cbmbasic_CXXCMD)" $(MKDEPEND) $(strip $(ports-devel-cbmbasic_DXXFLAGS) $(ports-devel-cbmbasic_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-devel-cbmbasic_OBJDIR),)
+  $(foreach ports-devel-cbmbasic_CXXFILE,$(ports-devel-cbmbasic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-devel-cbmbasic_CXXFILE))),$(ports-devel-cbmbasic_CXXFILE))))
+else
+  $(foreach ports-devel-cbmbasic_CXXFILE,$(ports-devel-cbmbasic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(basename $(ports-devel-cbmbasic_CXXFILE)))),$(ports-devel-cbmbasic_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-devel-cbmbasic_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-devel-cbmbasic_MOBJC_SRCWILDCARD := %
+else
+ports-devel-cbmbasic_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-devel-cbmbasic_OBJDIR),)
+  ports-devel-cbmbasic_MOBJC_TARGETS := $(addsuffix .o,$(ports-devel-cbmbasic_OBJC_NARCHFILES))
+  ports-devel-cbmbasic_MOBJC_DTARGETS := $(addsuffix .d,$(ports-devel-cbmbasic_OBJC_NARCHFILES))
+  ports-devel-cbmbasic_MOBJC_WILDCARD := %
+else
+  ports-devel-cbmbasic_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_OBJC_NARCHFILES)))
+  ports-devel-cbmbasic_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_OBJC_NARCHFILES)))
+  ports-devel-cbmbasic_MOBJC_WILDCARD := $(ports-devel-cbmbasic_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-devel-cbmbasic_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-devel-cbmbasic_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-devel-cbmbasic_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-devel-cbmbasic_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-devel-cbmbasic_MOBJC_DIRS := $(foreach dir, $(ports-devel-cbmbasic_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-devel-cbmbasic_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-devel-cbmbasic_MOBJC_DIRS),)
+    ports-devel-cbmbasic_MOBJC_DIRS := $(shell $(ECHO) $(ports-devel-cbmbasic_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-devel-cbmbasic_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-devel-cbmbasic_CC := $(TARGET_CC)
+else
+  ports-devel-cbmbasic_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-devel-cbmbasic_MOBJC_CPPFLAGS := $(ports-devel-cbmbasic_CPPFLAGS)
+ports-devel-cbmbasic_OBJCFLAGS := $(ports-devel-cbmbasic_CFLAGS)
+ports-devel-cbmbasic_OBJCFLAGS := $(ports-devel-cbmbasic_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-devel-cbmbasic_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-devel-cbmbasic_OBJCFLAGS)))
+ifeq ($(ports-devel-cbmbasic_DFLAGS),)
+  ports-devel-cbmbasic_OBJCDFLAGS := $(ports-devel-cbmbasic_CFLAGS)
+else
+  ports-devel-cbmbasic_OBJCDFLAGS := $(ports-devel-cbmbasic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-devel-cbmbasic_LINK ?= $(strip $(ports-devel-cbmbasic_CC) $(TARGET_SYSROOT))
+  ports-devel-cbmbasic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-devel-cbmbasic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-devel-cbmbasic_STRIP ?= $(TARGET_STRIP)
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : CMD:=$(strip $(ports-devel-cbmbasic_CC) $(TARGET_SYSROOT))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_MOBJC_CPPFLAGS:=$(strip $(ports-devel-cbmbasic_MOBJC_CPPFLAGS) $(ports-devel-cbmbasic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCFLAGS:=$(strip $(ports-devel-cbmbasic_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCDFLAGS:=$(ports-devel-cbmbasic_OBJCDFLAGS)
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-devel-cbmbasic_LINK ?= $(strip $(HOST_OBJC))
+  ports-devel-cbmbasic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-devel-cbmbasic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-devel-cbmbasic_STRIP ?= $(HOST_STRIP)
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-devel-cbmbasic_MOBJC_CPPFLAGS) $(ports-devel-cbmbasic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-devel-cbmbasic_OBJCFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-devel-cbmbasic_OBJCDFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-devel-cbmbasic_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-devel-cbmbasic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-devel-cbmbasic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-devel-cbmbasic_STRIP ?= $(ECHO) >/dev/null
+  ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-devel-cbmbasic_MOBJC_CPPFLAGS) $(ports-devel-cbmbasic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-devel-cbmbasic_OBJCFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-devel-cbmbasic_OBJCDFLAGS))
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-devel-cbmbasic_MOBJC_TARGETS) $(ports-devel-cbmbasic_MOBJC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-devel-cbmbasic_MOBJC_TARGETS) : CPPFLAGS := $(ports-devel-cbmbasic_MOBJC_CPPFLAGS)
+$(ports-devel-cbmbasic_MOBJC_TARGETS) : CFLAGS := $(ports-devel-cbmbasic_OBJCFLAGS)
+$(ports-devel-cbmbasic_MOBJC_TARGETS) : $(ports-devel-cbmbasic_MOBJC_WILDCARD).o : $(ports-devel-cbmbasic_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-devel-cbmbasic_MOBJC_DTARGETS) : $(ports-devel-cbmbasic_MOBJC_WILDCARD).d : $(ports-devel-cbmbasic_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-devel-cbmbasic_OBJCDFLAGS) $(ports-devel-cbmbasic_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-devel-cbmbasic_MC_SRCWILDCARD := %
+else
+ports-devel-cbmbasic_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-devel-cbmbasic_OBJDIR),)
+ports-devel-cbmbasic_MC_TARGETS := $(addsuffix .o,$(ports-devel-cbmbasic_C_NARCHFILES))
+ports-devel-cbmbasic_MC_DTARGETS := $(addsuffix .d,$(ports-devel-cbmbasic_C_NARCHFILES))
+ports-devel-cbmbasic_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-devel-cbmbasic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(ports-devel-cbmbasic_C_NARCHFILES))))
+    ports-devel-cbmbasic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(ports-devel-cbmbasic_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-devel-cbmbasic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_C_NARCHFILES)))
+    ports-devel-cbmbasic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(ports-devel-cbmbasic_C_NARCHFILES)))
+else
+    ports-devel-cbmbasic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(patsubst /%,%,$(ports-devel-cbmbasic_C_NARCHFILES))))
+    ports-devel-cbmbasic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(patsubst /%,%,$(ports-devel-cbmbasic_C_NARCHFILES))))
+endif
+endif
+ports-devel-cbmbasic_MC_TGTWILDCARD := $(ports-devel-cbmbasic_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : | $(addsuffix .c,$(ports-devel-cbmbasic_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-devel-cbmbasic_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-devel-cbmbasic_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-devel-cbmbasic_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-devel-cbmbasic_MC_DIRS := $(foreach dir, $(ports-devel-cbmbasic_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-devel-cbmbasic_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-devel-cbmbasic_MC_DIRS),)
+    ports-devel-cbmbasic_MC_DIRS := $(shell $(ECHO) $(ports-devel-cbmbasic_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-devel-cbmbasic_MC_DIRS)
+endif
+
+endif
+
+ports-devel-cbmbasic_MC_CPPFLAGS := $(ports-devel-cbmbasic_CPPFLAGS)
+ports-devel-cbmbasic_CFLAGS := $(ports-devel-cbmbasic_CFLAGS)
+ifeq ($(ports-devel-cbmbasic_DFLAGS),)
+  ports-devel-cbmbasic_DFLAGS := $(ports-devel-cbmbasic_CFLAGS)
+else
+  ports-devel-cbmbasic_DFLAGS := $(ports-devel-cbmbasic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-devel-cbmbasic_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-devel-cbmbasic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-devel-cbmbasic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-devel-cbmbasic_STRIP ?= $(TARGET_STRIP)
+ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_MC_CPPFLAGS:=$(strip $(ports-devel-cbmbasic_MC_CPPFLAGS) $(ports-devel-cbmbasic_MC_EXTRA_CPPFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_CFLAGS:=$(strip $(ports-devel-cbmbasic_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_DFLAGS:=$(ports-devel-cbmbasic_DFLAGS)
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-devel-cbmbasic_LINK ?= $(strip $(HOST_CC))
+ports-devel-cbmbasic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-devel-cbmbasic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-devel-cbmbasic_STRIP ?= $(HOST_STRIP)
+ports-devel-cbmbasic_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-devel-cbmbasic_MC_CPPFLAGS) $(ports-devel-cbmbasic_MC_EXTRA_CPPFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-devel-cbmbasic_CFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-devel-cbmbasic_DFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(HOST_IQUOTE)
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-devel-cbmbasic_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-devel-cbmbasic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-devel-cbmbasic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-devel-cbmbasic_STRIP ?= $(ECHO) >/dev/null
+ports-devel-cbmbasic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-devel-cbmbasic_MC_CPPFLAGS) $(ports-devel-cbmbasic_MC_EXTRA_CPPFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-devel-cbmbasic_CFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-devel-cbmbasic_DFLAGS))
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-devel-cbmbasic_MC_TARGETS) $(ports-devel-cbmbasic_MC_DTARGETS) : ports-devel-cbmbasic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-devel-cbmbasic_MC_TARGETS) : CPPFLAGS := $(ports-devel-cbmbasic_MC_CPPFLAGS)
+$(ports-devel-cbmbasic_MC_TARGETS) : CFLAGS := $(ports-devel-cbmbasic_CFLAGS)
+$(ports-devel-cbmbasic_MC_TARGETS) : $(ports-devel-cbmbasic_MC_TGTWILDCARD).o : $(ports-devel-cbmbasic_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-devel-cbmbasic_IQUOTE) $(dir $<) $(ports-devel-cbmbasic_IQUOTE) $(TOP)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-devel-cbmbasic_IQUOTE) . $(ports-devel-cbmbasic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-devel-cbmbasic_MC_DTARGETS) : $(ports-devel-cbmbasic_MC_TGTWILDCARD).d : $(ports-devel-cbmbasic_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-devel-cbmbasic_DFLAGS) $(ports-devel-cbmbasic_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-devel-cbmbasic_OBJDIR),)
+ports-devel-cbmbasic-MA_TARGETS := $(addsuffix .o,$(ports-devel-cbmbasic_ASMFILES))
+ports-devel-cbmbasic-MA_WILDCARD := %
+else
+ports-devel-cbmbasic-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-devel-cbmbasic_OBJDIR)/,$(notdir $(ports-devel-cbmbasic_ASMFILES))))
+ports-devel-cbmbasic-MA_WILDCARD := $(ports-devel-cbmbasic_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-devel-cbmbasic-MA_TARGETS) : | $(addsuffix .s,$(ports-devel-cbmbasic_ASMFILES))
+
+# Be sure that all .c files are found
+ports-devel-cbmbasic-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-devel-cbmbasic-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-devel-cbmbasic_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-devel-cbmbasic-MA_DIRS := $(foreach dir, $(ports-devel-cbmbasic-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-devel-cbmbasic-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-devel-cbmbasic-MA_DIRS),)
+    ports-devel-cbmbasic-MA_DIRS := $(shell $(ECHO) $(ports-devel-cbmbasic-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-devel-cbmbasic-MA_DIRS)
+endif
+
+endif
+
+ports-devel-cbmbasic-MA_ASSEMBLER ?= $(ports-devel-cbmbasic_ASSEMBLER)
+
+$(ports-devel-cbmbasic-MA_TARGETS) : ports-devel-cbmbasic-MA_CMD:= $(ports-devel-cbmbasic-MA_ASSEMBLER)
+
+$(ports-devel-cbmbasic-MA_TARGETS) : CPPFLAGS := $(ports-devel-cbmbasic_CPPFLAGS)
+$(ports-devel-cbmbasic-MA_TARGETS) : AFLAGS := $(ports-devel-cbmbasic_AFLAGS)
+$(ports-devel-cbmbasic-MA_TARGETS) : $(ports-devel-cbmbasic-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-devel-cbmbasic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-devel-cbmbasic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-devel-cbmbasic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-devel-cbmbasic-link_LD_OPTS := 
+ports-devel-cbmbasic-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-devel-cbmbasic-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-devel-cbmbasic-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-devel-cbmbasic-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-devel-cbmbasic-link_DIRS := $(subst -L ,-L,$(strip $(ports-devel-cbmbasic_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-devel-cbmbasic-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-devel-cbmbasic-link_DIRS)))
+# Add trailing /
+ports-devel-cbmbasic-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-devel-cbmbasic-link_DIRS)))
+# Add normal linklib path
+ports-devel-cbmbasic-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-devel-cbmbasic-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-devel-cbmbasic_LIBS) $(ports-devel-cbmbasic-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-devel-cbmbasic-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-devel-cbmbasic-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-devel-cbmbasic-link_DEPLIBS := $(foreach lib,$(ports-devel-cbmbasic-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-devel-cbmbasic-link_DIRS)))) \
+)
+
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : OBJDIR := $(ports-devel-cbmbasic_OBJDIR)
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : OBJS := $(strip $(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_ARCHOBJS) $(USER_OBJS))
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : LDFLAGS := $(strip $(ports-devel-cbmbasic_LDFLAGS))
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-devel-cbmbasic_LIBS) $(ports-devel-cbmbasic-link_EXTRA_LIBS)))
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-devel-cbmbasic_ARCHLIBS))
+$(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : $(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_ARCHOBJS) $(USER_OBJS) $(ports-devel-cbmbasic-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-devel-cbmbasic_LINK) $(strip $(ports-devel-cbmbasic_LD_OPTS) $(ports-devel-cbmbasic-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-devel-cbmbasic_LINK) $(strip $(ports-devel-cbmbasic_LD_OPTS) $(ports-devel-cbmbasic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-devel-cbmbasic_LINK) $(strip $(ports-devel-cbmbasic_LD_OPTS) $(ports-devel-cbmbasic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-devel-cbmbasic_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-devel-cbmbasic_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-devel-cbmbasic_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-devel-cbmbasic_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-devel-cbmbasic_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-devel-cbmbasic_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-devel-cbmbasic_DEPS),)
+  ifneq (ports-devel-cbmbasic ports-devel-cbmbasic-quick,)
+    ifneq ($(findstring $(TARGET),ports-devel-cbmbasic ports-devel-cbmbasic-quick),)
+      -include $(ports-devel-cbmbasic_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-devel-cbmbasic_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_DEPS) $(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME),)
+$(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_DEPS) $(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) : | $(ports-devel-cbmbasic_OBJDIR) $(ports-devel-cbmbasic_TARGETDIR)
+else
+$(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_DEPS) $(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) :: $(ports-devel-cbmbasic_OBJDIR) $(ports-devel-cbmbasic_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-devel-cbmbasic_OBJDIR) $(ports-devel-cbmbasic_TARGETDIR)
+
+
+ports-devel-cbmbasic-clean : FILES := $(ports-devel-cbmbasic_OBJS) $(ports-devel-cbmbasic_TARGETDIR)/$(ports-devel-cbmbasic_PROGNAME) $(ports-devel-cbmbasic_DEPS)
+#MM
+ports-devel-cbmbasic-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-devel-cbmbasic"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-devel-cbmbasic-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-devel-cbmbasic-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-devel-cbmbasic-fetch-location := $(PORTSDIR)/cbmbasic
+endif
+
+ifneq (,)
+    ports-devel-cbmbasic-fetch-baseflag := -b 
+else
+    ports-devel-cbmbasic-fetch-baseflag :=
+endif
+
+ports-devel-cbmbasic-fetch-fetchedflag := $(ports-devel-cbmbasic-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-devel-cbmbasic-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tgz" -l $(ports-devel-cbmbasic-fetch-location) \
+	-d $(PORTSDIR)/cbmbasic $(ports-devel-cbmbasic-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-devel-cbmbasic-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-devel-cbmbasic-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-devel-cbmbasic-create-patch
+
+ifneq (,)
+    ports-devel-cbmbasic-create-patch-location := 
+else
+    ports-devel-cbmbasic-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-devel-cbmbasic-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-devel-cbmbasic-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-devel-cbmbasic-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-devel-cbmbasic-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-devel-cbmbasic-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-devel-cbmbasic-create-patch-baseflag := -b /tmp
+    ports-devel-cbmbasic-create-patch-base := 
+else
+    ports-devel-cbmbasic-create-patch-baseflag :=
+    ports-devel-cbmbasic-create-patch-base := $(PORTSDIR)/cbmbasic
+endif
+
+#MM- ports-devel-cbmbasic-create-patch :  ports-devel-cbmbasic-create-patch-diff 
+#MM- ports-devel-cbmbasic-create-patch-quick :  ports-devel-cbmbasic-create-patch-diff 
+
+#MM
+ports-devel-cbmbasic-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-devel-cbmbasic-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-devel-cbmbasic-create-patch-base)/$(ports-devel-cbmbasic-create-patch-srcdir) $(ports-devel-cbmbasic-create-patch-base)/tmp/$(ports-devel-cbmbasic-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tgz" -f -l $(ports-devel-cbmbasic-create-patch-location) -d $(PORTSDIR)/cbmbasic $(ports-devel-cbmbasic-create-patch-baseflag); \
+	$(MV) $(ports-devel-cbmbasic-create-patch-base)/$(ports-devel-cbmbasic-create-patch-srcdir) $(ports-devel-cbmbasic-create-patch-base)/tmp/$(ports-devel-cbmbasic-create-patch-srcdir) ; \
+	cd $(ports-devel-cbmbasic-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-devel-cbmbasic-create-patch-diffflag) $(ports-devel-cbmbasic-create-patch-exclude) \
+	    $(ports-devel-cbmbasic-create-patch-srcdir) \
+	    $(ports-devel-cbmbasic-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-devel-cbmbasic-create-patch-base)/tmp/$(ports-devel-cbmbasic-create-patch-srcdir).aros $(ports-devel-cbmbasic-create-patch-base)/$(ports-devel-cbmbasic-create-patch-srcdir) ; \
+	$(RM) $(ports-devel-cbmbasic-create-patch-base)/tmp
+
+
+.PHONY : ports-devel-cbmbasic-data
+
+#MM
+ports-devel-cbmbasic-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/cbmbasic/$(ARCHBASE)/test),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/cbmbasic/$(ARCHBASE)/test)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/cbmbasic/$(ARCHBASE)/test)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/cbmbasic/$(ARCHBASE)/test))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/cbmbasic/$(ARCHBASE)/test)))' to '$(if $(filter /%,$(TARGETDIR)/test),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/test)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/test)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/test))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/test)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/cbmbasic/$(ARCHBASE)/test -d $(TARGETDIR)/test -e 
+
+
+CPYFILES := README.txt
+
+
+ports-devel-cbmbasic-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/cbmbasic/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-devel-cbmbasic-cpy
+
+#MM
+ports-devel-cbmbasic-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-devel-cbmbasic-cpy_SRC)),$(ports-devel-cbmbasic-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-devel-cbmbasic-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

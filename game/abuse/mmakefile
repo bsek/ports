@@ -1,0 +1,612 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-abuse
+# Collision check isn't working. i.e. hero falls through floor.
+
+#MM- ports-game-abuse : \
+#MM     contrib-sdl \
+#MM     contrib-sdl-sdl-mixer
+
+PACKAGE      := abuse
+VERSION      := 0.8
+TARGETDIR    := $(AROS_CONTRIB)/Games/Platform/Abuse
+REPOSITORIES := http://abuse.zoy.org/raw-attachment/wiki/download
+USER_INCLUDES := -I$(AROS_CONTRIB_INCLUDES)
+USER_CXXFLAGS:= -static-libstdc++ -fpermissive
+
+
+#MM- ports-game-abuse-quick : ports-game-abuse--quick
+#MM- ports-game-abuse--quick : ports-game-abuse--fetch
+#MM- ports-game-abuse-fetch : ports-game-abuse--fetch
+#MM- ports-game-abuse-create-patch : ports-game-abuse--create-patch
+#MM- ports-game-abuse-create-patch-quick : ports-game-abuse--create-patch
+ 
+ports-game-abuse-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-game-abuse-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-game-abuse-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-game-abuse-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-game-abuse-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-game-abuse--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-game-abuse--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-game-abuse--srcdir        ?= 
+else
+    ports-game-abuse--srcdir        ?= $(ports-game-abuse-archbase)
+endif
+
+ifneq (,)
+    ports-game-abuse--builddir      ?= $(ports-game-abuse--srcdir)/
+else
+    ports-game-abuse--builddir      ?= $(ports-game-abuse--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-game-abuse--patches_specs ?= $(ports-game-abuse--archbase)-aros.diff:$(ports-game-abuse--srcdir):-f,-p1
+else
+    ports-game-abuse--patches_specs ?= ::
+endif
+else
+    ports-game-abuse--patches_specs ?= 
+endif
+
+
+.PHONY: ports-game-abuse--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-abuse--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-abuse--fetch-location := $(ports-game-abuse-portdir)
+endif
+
+ifneq (,)
+    ports-game-abuse--fetch-baseflag := -b 
+else
+    ports-game-abuse--fetch-baseflag :=
+endif
+
+ports-game-abuse--fetch-fetchedflag := $(ports-game-abuse--fetch-location)/.$(ports-game-abuse--archbase)-fetched
+
+#MM
+ports-game-abuse--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-game-abuse--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-game-abuse--archbase) -s "tar.gz" -l $(ports-game-abuse--fetch-location) \
+	-d $(ports-game-abuse-portdir) $(ports-game-abuse--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-game-abuse--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-abuse--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-abuse--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-abuse--create-patch
+
+ifneq (,)
+    ports-game-abuse--create-patch-location := 
+else
+    ports-game-abuse--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-abuse--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-game-abuse--srcdir),)
+    ports-game-abuse--create-patch-srcdir   := $(ports-game-abuse--srcdir)
+else
+    ports-game-abuse--create-patch-srcdir   := $(ports-game-abuse--archbase)
+endif
+
+ifeq (no,yes)
+    ports-game-abuse--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-abuse--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-abuse--create-patch-baseflag := -b /tmp
+    ports-game-abuse--create-patch-base := 
+else
+    ports-game-abuse--create-patch-baseflag :=
+    ports-game-abuse--create-patch-base := $(ports-game-abuse-portdir)
+endif
+
+#MM- ports-game-abuse--create-patch :  ports-game-abuse--create-patch-diff 
+#MM- ports-game-abuse--create-patch-quick :  ports-game-abuse--create-patch-diff 
+
+#MM
+ports-game-abuse--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-abuse--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-abuse--create-patch-base)/$(ports-game-abuse--create-patch-srcdir) $(ports-game-abuse--create-patch-base)/tmp/$(ports-game-abuse--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-game-abuse--archbase) -s "tar.gz" -f -l $(ports-game-abuse--create-patch-location) -d $(ports-game-abuse-portdir) $(ports-game-abuse--create-patch-baseflag); \
+	$(MV) $(ports-game-abuse--create-patch-base)/$(ports-game-abuse--create-patch-srcdir) $(ports-game-abuse--create-patch-base)/tmp/$(ports-game-abuse--create-patch-srcdir) ; \
+	cd $(ports-game-abuse--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-game-abuse--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-abuse--create-patch-diffflag) $(ports-game-abuse--create-patch-exclude) \
+	    $(ports-game-abuse--create-patch-srcdir) \
+	    $(ports-game-abuse--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-game-abuse--archbase)-aros-new.diff ; \
+	$(MV) $(ports-game-abuse--create-patch-base)/tmp/$(ports-game-abuse--create-patch-srcdir).aros $(ports-game-abuse--create-patch-base)/$(ports-game-abuse--create-patch-srcdir) ; \
+	$(RM) $(ports-game-abuse--create-patch-base)/tmp
+
+#MM ports-game-abuse : ports-game-abuse-
+#MM
+ports-game-abuse:
+	$(Q)$(NOP)
+
+ports-game-abuse--package-dir := $(ports-game-abuse-portdir)/$(ports-game-abuse--archbase)
+
+ports-game-abuse--package-basename := \
+    $(DISTDIR)/Packages/$(ports-game-abuse--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-game-abuse--package := $(ports-game-abuse--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-game-abuse-prefix),)
+    ports-game-abuse--prefix := $(ports-game-abuse-prefix)
+else
+    ports-game-abuse--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-game-abuse--aros_prefix := 
+else
+    ports-game-abuse--aros_prefix := $(ports-game-abuse--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-game-abuse--nix    := $(BD_NIXFLAG)
+    ports-game-abuse--volpfx := /
+    ports-game-abuse--volsfx := /
+    
+    ifeq (no,)
+        ports-game-abuse--nix_dir_layout := yes
+    endif
+else
+    ports-game-abuse--volsfx := :
+    
+    ifeq (no,)
+        ports-game-abuse--nix_dir_layout := no
+    endif
+endif
+
+ports-game-abuse--volfunc = $(ports-game-abuse--volpfx)$(notdir $1)$(ports-game-abuse--volsfx)
+
+ports-game-abuse--install_opts += prefix=$(ports-game-abuse--prefix) \
+        exec_prefix=$(ports-game-abuse--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-game-abuse--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-game-abuse--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-game-abuse--pkgbasedir := $(GENDIR)
+    else
+        ports-game-abuse--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-game-abuse--pkgbasedir := 
+    else
+        ports-game-abuse--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-game-abuse--pkgdir := $(ports-game-abuse--pkgbasedir)
+else
+    ports-game-abuse--pkgdir := $(ports-game-abuse--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-game-abuse--configflag ?= $(ports-game-abuse--pkgdir)/.configured
+ports-game-abuse--installflag ?= $(ports-game-abuse--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-game-abuse--nix_dir_layout) $(host)),yes)
+    ports-game-abuse--PROGDIR      := $(ports-game-abuse--aros_prefix)/bin
+    ports-game-abuse--config_opts  := --prefix=$(ports-game-abuse--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-game-abuse--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-game-abuse--config_opts  := --prefix=$(ports-game-abuse--aros_prefix)
+    endif
+
+    ports-game-abuse--PROGDIR := $(ports-game-abuse--aros_prefix)
+    
+    ports-game-abuse--install_opts := bindir=$(ports-game-abuse--prefix) \
+        sbindir=$(ports-game-abuse--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-game-abuse--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-game-abuse--TARGET_LDFLAGS :=
+else
+ports-game-abuse--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-game-abuse--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-game-abuse--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-game-abuse--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-game-abuse--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-game-abuse--nix)
+endif
+endif
+ports-game-abuse--TARGET_CC?=$(TARGET_CC)
+ports-game-abuse--KERNEL_CC?=$(KERNEL_CC)
+ports-game-abuse--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-game-abuse--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-game-abuse--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-game-abuse--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-game-abuse--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-game-abuse--nix)
+endif
+endif
+ports-game-abuse--TARGET_CXX?=$(TARGET_CXX)
+ports-game-abuse--KERNEL_CXX?=$(KERNEL_CXX)
+ports-game-abuse--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-game-abuse--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-game-abuse--HOST_CC) $(ports-game-abuse--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-game-abuse--HOST_CXX) $(ports-game-abuse--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-abuse--cfg-env += TARGET_CC="$(strip $(ports-game-abuse--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-abuse--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-abuse--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-abuse--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-game-abuse--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-game-abuse--cfg-env += \
+        CPP="$(strip $(ports-game-abuse--CROSS_CPP) $(ports-game-abuse--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-game-abuse--CROSS_CPP) $(ports-game-abuse--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-game-abuse--CROSS_CC) $(ports-game-abuse--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-game-abuse--CROSS_CXX) $(ports-game-abuse--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-game-abuse--CROSS_LD))" \
+        AS="$(strip $(ports-game-abuse--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-game-abuse--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-game-abuse--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-game-abuse--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-game-abuse--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-game-abuse--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-abuse--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-game-abuse--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-game-abuse--CROSS_LDFLAGS))"
+    ports-game-abuse--cfg-env += CC_FOR_HOST="$(strip $(ports-game-abuse--CROSS_CC) $(ports-game-abuse--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-game-abuse--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-game-abuse--CROSS_CXX) $(ports-game-abuse--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-game-abuse--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-game-abuse--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-game-abuse--CROSS_LDFLAGS))"
+else
+    ports-game-abuse--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-game-abuse--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-game-abuse--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-game-abuse--cfg-env += CFLAGS="$(strip $(ports-game-abuse--TARGET_CFLAGS) $(ports-game-abuse--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-abuse--TARGET_CXXFLAGS) $(ports-game-abuse--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-game-abuse--cfg-env += LDFLAGS="$(strip $(ports-game-abuse--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-abuse--nix) $(ports-game-abuse--s_flag))"
+    ports-game-abuse--cfg-env += LT_LDFLAGS="$(strip $(ports-game-abuse--TARGET_LDFLAGS))"
+    ports-game-abuse--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-game-abuse--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-game-abuse--ACBUILD_CPPFLAGS))"
+endif
+    ports-game-abuse--cfg-env += CC_FOR_BUILD="$(strip $(ports-game-abuse--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-game-abuse--HOST_CFLAGS) $(ports-game-abuse--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-game-abuse--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-game-abuse--HOST_CXXFLAGS) $(ports-game-abuse--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-game-abuse--ACBUILD_LDFLAGS) $(ports-game-abuse--s_flag))"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-game-abuse--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-abuse--cfg-env += CC_FOR_HOST="$(strip $(ports-game-abuse--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-game-abuse--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-abuse--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-game-abuse--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-game-abuse--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-abuse--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-game-abuse--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-game-abuse--nix) $(ports-game-abuse--s_flag))"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-game-abuse--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-abuse--cfg-env += CC_FOR_TARGET="$(strip $(ports-game-abuse--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-game-abuse--TARGET_CFLAGS) $(ports-game-abuse--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-game-abuse--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-game-abuse--TARGET_CXXFLAGS) $(ports-game-abuse--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-game-abuse--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-game-abuse--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-abuse--nix) $(ports-game-abuse--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-abuse--cfg-env += TARGET_CC="$(strip $(ports-game-abuse--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-abuse--KERNEL_CFLAGS) $(ports-game-abuse--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-abuse--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-abuse--KERNEL_CXXFLAGS) $(ports-game-abuse--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-game-abuse--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-abuse--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-abuse--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-abuse--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-abuse--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-abuse--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-game-abuse--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-game-abuse--cfg-env += CC="$(strip $(ports-game-abuse--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-game-abuse--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-game-abuse--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-game-abuse--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-game-abuse--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-game-abuse--cfg-env += CC_FOR_BUILD="$(ports-game-abuse--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-game-abuse--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-game-abuse--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-game-abuse--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-game-abuse--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-abuse--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-abuse--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-abuse--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-abuse--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-abuse--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-game-abuse--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-game-abuse--touchfileflag ?= $(ports-game-abuse--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-game-abuse-portdir)/$(ports-game-abuse--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-game-abuse--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-game-abuse--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-game-abuse--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-game-abuse-portdir)/$(ports-game-abuse--builddir)/." $(ports-game-abuse--pkgdir)/ && $(TOUCH) $@
+
+$(ports-game-abuse--touchfileflag) : $(ports-game-abuse--pkgdir)/.local-copy
+
+    ports-game-abuse--cfg-srcdir=$(ports-game-abuse--pkgdir)
+else
+    ports-game-abuse--cfg-srcdir=$(ports-game-abuse-portdir)/$(ports-game-abuse--builddir)
+endif
+ports-game-abuse--make-env += -C $(ports-game-abuse--pkgdir)
+
+.PHONY : ports-game-abuse- ports-game-abuse--clean ports-game-abuse--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-game-abuse--host : setup includes ports-game-abuse--quick
+#MM- ports-game-abuse--target : setup includes core-linklibs ports-game-abuse--quick
+#MM- ports-game-abuse-: ports-game-abuse--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-game-abuse--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-game-abuse--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-game-abuse--PROGDIR)/" $(ports-game-abuse--install_opts) \
+        $(ports-game-abuse--make-env) install -j1
+
+    ports-game-abuse--uninstall_command = \
+    $(RM) $(ports-game-abuse--installflag) && \
+    $(MAKE) PROGDIR="$(ports-game-abuse--PROGDIR)/" \
+    $(ports-game-abuse--install_opts) $(ports-game-abuse--make-env) uninstall
+else
+    ports-game-abuse--install_command   := true
+    ports-game-abuse--uninstall_command := true
+endif
+
+#MM- ports-game-abuse--quick :  ports-game-abuse--configure  ports-game-abuse--build_and_install-quick ports-game-abuse--make-package
+
+#MM
+ports-game-abuse--build_and_install-quick :  $(ports-game-abuse--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-game-abuse--installflag) : $(ports-game-abuse--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-abuse--volfunc, PROGDIR)" -q $(ports-game-abuse--make-env); then \
+	    $(RM) $(ports-game-abuse--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-game-abuse--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-abuse--volfunc, PROGDIR)" $(ports-game-abuse--make-env) && \
+	    $(ports-game-abuse--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-game-abuse--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-game-abuse--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-game-abuse-portdir)/$(ports-game-abuse--builddir) -exec $(TOUCH) -c -r $(ports-game-abuse--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-game-abuse--uninstall :
+	$(ports-game-abuse--uninstall_command)
+
+#MM
+ports-game-abuse--configure : $(ports-game-abuse--configflag)
+
+$(ports-game-abuse--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-game-abuse--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-game-abuse--configflag) : $(ports-game-abuse--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-game-abuse--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-game-abuse--pkgdir))"
+	$(ports-game-abuse--init-env)
+	$(Q)cd $(ports-game-abuse--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-game-abuse--cfg-env) $(TMP_SRCDIR)/configure $(ports-game-abuse--config_opts) --with-assetdir='$$(PROGDIR)share/games/abuse' && \
+	$(TOUCH) $@
+
+#MM
+ports-game-abuse--clean : ports-game-abuse--uninstall
+	$(Q)$(RM) $(ports-game-abuse--pkgdir)
+
+.PHONY : ports-game-abuse--make-package ports-game-abuse--create-patch
+#MM ports-game-abuse--make-package : ports-game-abuse--quick
+
+#MM
+ports-game-abuse--make-package : $(ports-game-abuse--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-game-abuse--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-game-abuse-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-game-abuse--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-game-abuse-prefix)" ; \
+	    cd $(ports-game-abuse--package-dir) ; \
+	    tar -cvf $(ports-game-abuse--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-game-abuse--package-basename).tar ; \
+	fi
+
+#MM
+ports-game-abuse-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

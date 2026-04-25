@@ -1,0 +1,616 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-penguincommand
+
+#MM- ports-game-penguincommand : contrib-sdl contrib-sdl-sdl-image
+
+PACKAGE      := penguin-command
+VERSION      := 1.6.11
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/PenguinCommand
+REPOSITORIES := sf://penguin-command
+
+NOWARN_FLAGS := $(NOWARN_FORMAT_OVERFLOW) $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_CFLAGS := $(CFLAGS_GNU99) $(NOWARN_FLAGS)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+PENGUINC_EXTRAOPTS= --program-transform-name='s/penguin-command/PenguinCommand/' \
+        --datadir='$$(PROGDIR)data' \
+        --mandir='$$(PROGDIR)man'
+
+
+#MM- ports-game-penguincommand-quick : ports-game-penguincommand--quick
+#MM- ports-game-penguincommand--quick : ports-game-penguincommand--fetch
+#MM- ports-game-penguincommand-fetch : ports-game-penguincommand--fetch
+#MM- ports-game-penguincommand-create-patch : ports-game-penguincommand--create-patch
+#MM- ports-game-penguincommand-create-patch-quick : ports-game-penguincommand--create-patch
+ 
+ports-game-penguincommand-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-game-penguincommand-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-game-penguincommand-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-game-penguincommand-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-game-penguincommand-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-game-penguincommand--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--srcdir        ?= 
+else
+    ports-game-penguincommand--srcdir        ?= $(ports-game-penguincommand-archbase)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--builddir      ?= $(ports-game-penguincommand--srcdir)/
+else
+    ports-game-penguincommand--builddir      ?= $(ports-game-penguincommand--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-game-penguincommand--patches_specs ?= $(ports-game-penguincommand--archbase)-aros.diff:$(ports-game-penguincommand--srcdir):-f,-p1
+else
+    ports-game-penguincommand--patches_specs ?= ::
+endif
+else
+    ports-game-penguincommand--patches_specs ?= 
+endif
+
+
+.PHONY: ports-game-penguincommand--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-penguincommand--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-penguincommand--fetch-location := $(ports-game-penguincommand-portdir)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--fetch-baseflag := -b 
+else
+    ports-game-penguincommand--fetch-baseflag :=
+endif
+
+ports-game-penguincommand--fetch-fetchedflag := $(ports-game-penguincommand--fetch-location)/.$(ports-game-penguincommand--archbase)-fetched
+
+#MM
+ports-game-penguincommand--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-game-penguincommand--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-game-penguincommand--archbase) -s "tar.gz" -l $(ports-game-penguincommand--fetch-location) \
+	-d $(ports-game-penguincommand-portdir) $(ports-game-penguincommand--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-game-penguincommand--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-penguincommand--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-penguincommand--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-penguincommand--create-patch
+
+ifneq (,)
+    ports-game-penguincommand--create-patch-location := 
+else
+    ports-game-penguincommand--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-game-penguincommand--srcdir),)
+    ports-game-penguincommand--create-patch-srcdir   := $(ports-game-penguincommand--srcdir)
+else
+    ports-game-penguincommand--create-patch-srcdir   := $(ports-game-penguincommand--archbase)
+endif
+
+ifeq (no,yes)
+    ports-game-penguincommand--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-penguincommand--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-penguincommand--create-patch-baseflag := -b /tmp
+    ports-game-penguincommand--create-patch-base := 
+else
+    ports-game-penguincommand--create-patch-baseflag :=
+    ports-game-penguincommand--create-patch-base := $(ports-game-penguincommand-portdir)
+endif
+
+#MM- ports-game-penguincommand--create-patch :  ports-game-penguincommand--create-patch-diff 
+#MM- ports-game-penguincommand--create-patch-quick :  ports-game-penguincommand--create-patch-diff 
+
+#MM
+ports-game-penguincommand--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-penguincommand--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-penguincommand--create-patch-base)/$(ports-game-penguincommand--create-patch-srcdir) $(ports-game-penguincommand--create-patch-base)/tmp/$(ports-game-penguincommand--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-game-penguincommand--archbase) -s "tar.gz" -f -l $(ports-game-penguincommand--create-patch-location) -d $(ports-game-penguincommand-portdir) $(ports-game-penguincommand--create-patch-baseflag); \
+	$(MV) $(ports-game-penguincommand--create-patch-base)/$(ports-game-penguincommand--create-patch-srcdir) $(ports-game-penguincommand--create-patch-base)/tmp/$(ports-game-penguincommand--create-patch-srcdir) ; \
+	cd $(ports-game-penguincommand--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-game-penguincommand--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-penguincommand--create-patch-diffflag) $(ports-game-penguincommand--create-patch-exclude) \
+	    $(ports-game-penguincommand--create-patch-srcdir) \
+	    $(ports-game-penguincommand--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-game-penguincommand--archbase)-aros-new.diff ; \
+	$(MV) $(ports-game-penguincommand--create-patch-base)/tmp/$(ports-game-penguincommand--create-patch-srcdir).aros $(ports-game-penguincommand--create-patch-base)/$(ports-game-penguincommand--create-patch-srcdir) ; \
+	$(RM) $(ports-game-penguincommand--create-patch-base)/tmp
+
+#MM ports-game-penguincommand : ports-game-penguincommand-
+#MM
+ports-game-penguincommand:
+	$(Q)$(NOP)
+
+ports-game-penguincommand--package-dir := $(ports-game-penguincommand-portdir)/$(ports-game-penguincommand--archbase)
+
+ports-game-penguincommand--package-basename := \
+    $(DISTDIR)/Packages/$(ports-game-penguincommand--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-game-penguincommand--package := $(ports-game-penguincommand--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-game-penguincommand-prefix),)
+    ports-game-penguincommand--prefix := $(ports-game-penguincommand-prefix)
+else
+    ports-game-penguincommand--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-game-penguincommand--aros_prefix := 
+else
+    ports-game-penguincommand--aros_prefix := $(ports-game-penguincommand--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-game-penguincommand--nix    := $(BD_NIXFLAG)
+    ports-game-penguincommand--volpfx := /
+    ports-game-penguincommand--volsfx := /
+    
+    ifeq (no,)
+        ports-game-penguincommand--nix_dir_layout := yes
+    endif
+else
+    ports-game-penguincommand--volsfx := :
+    
+    ifeq (no,)
+        ports-game-penguincommand--nix_dir_layout := no
+    endif
+endif
+
+ports-game-penguincommand--volfunc = $(ports-game-penguincommand--volpfx)$(notdir $1)$(ports-game-penguincommand--volsfx)
+
+ports-game-penguincommand--install_opts += prefix=$(ports-game-penguincommand--prefix) \
+        exec_prefix=$(ports-game-penguincommand--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-game-penguincommand--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-game-penguincommand--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-game-penguincommand--pkgbasedir := $(GENDIR)
+    else
+        ports-game-penguincommand--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-game-penguincommand--pkgbasedir := 
+    else
+        ports-game-penguincommand--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-game-penguincommand--pkgdir := $(ports-game-penguincommand--pkgbasedir)
+else
+    ports-game-penguincommand--pkgdir := $(ports-game-penguincommand--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-game-penguincommand--configflag ?= $(ports-game-penguincommand--pkgdir)/.configured
+ports-game-penguincommand--installflag ?= $(ports-game-penguincommand--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-game-penguincommand--nix_dir_layout) $(host)),yes)
+    ports-game-penguincommand--PROGDIR      := $(ports-game-penguincommand--aros_prefix)/bin
+    ports-game-penguincommand--config_opts  := --prefix=$(ports-game-penguincommand--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-game-penguincommand--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-game-penguincommand--config_opts  := --prefix=$(ports-game-penguincommand--aros_prefix)
+    endif
+
+    ports-game-penguincommand--PROGDIR := $(ports-game-penguincommand--aros_prefix)
+    
+    ports-game-penguincommand--install_opts := bindir=$(ports-game-penguincommand--prefix) \
+        sbindir=$(ports-game-penguincommand--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-game-penguincommand--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-game-penguincommand--TARGET_LDFLAGS :=
+else
+ports-game-penguincommand--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-game-penguincommand--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-game-penguincommand--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-game-penguincommand--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-game-penguincommand--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-game-penguincommand--nix)
+endif
+endif
+ports-game-penguincommand--TARGET_CC?=$(TARGET_CC)
+ports-game-penguincommand--KERNEL_CC?=$(KERNEL_CC)
+ports-game-penguincommand--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-game-penguincommand--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-game-penguincommand--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-game-penguincommand--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-game-penguincommand--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-game-penguincommand--nix)
+endif
+endif
+ports-game-penguincommand--TARGET_CXX?=$(TARGET_CXX)
+ports-game-penguincommand--KERNEL_CXX?=$(KERNEL_CXX)
+ports-game-penguincommand--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-game-penguincommand--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-game-penguincommand--HOST_CC) $(ports-game-penguincommand--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-game-penguincommand--HOST_CXX) $(ports-game-penguincommand--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-penguincommand--cfg-env += TARGET_CC="$(strip $(ports-game-penguincommand--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-penguincommand--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-game-penguincommand--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-game-penguincommand--cfg-env += \
+        CPP="$(strip $(ports-game-penguincommand--CROSS_CPP) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-game-penguincommand--CROSS_CPP) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-game-penguincommand--CROSS_CC) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-game-penguincommand--CROSS_CXX) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-game-penguincommand--CROSS_LD))" \
+        AS="$(strip $(ports-game-penguincommand--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-game-penguincommand--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-game-penguincommand--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-game-penguincommand--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-game-penguincommand--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-game-penguincommand--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-penguincommand--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-game-penguincommand--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-game-penguincommand--CROSS_LDFLAGS))"
+    ports-game-penguincommand--cfg-env += CC_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_CC) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_CXX) $(ports-game-penguincommand--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-game-penguincommand--CROSS_LDFLAGS))"
+else
+    ports-game-penguincommand--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-game-penguincommand--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-game-penguincommand--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-game-penguincommand--cfg-env += CFLAGS="$(strip $(ports-game-penguincommand--TARGET_CFLAGS) $(ports-game-penguincommand--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-penguincommand--TARGET_CXXFLAGS) $(ports-game-penguincommand--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-game-penguincommand--cfg-env += LDFLAGS="$(strip $(ports-game-penguincommand--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-penguincommand--nix) $(ports-game-penguincommand--s_flag))"
+    ports-game-penguincommand--cfg-env += LT_LDFLAGS="$(strip $(ports-game-penguincommand--TARGET_LDFLAGS))"
+    ports-game-penguincommand--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-game-penguincommand--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-game-penguincommand--ACBUILD_CPPFLAGS))"
+endif
+    ports-game-penguincommand--cfg-env += CC_FOR_BUILD="$(strip $(ports-game-penguincommand--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-game-penguincommand--HOST_CFLAGS) $(ports-game-penguincommand--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-game-penguincommand--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-game-penguincommand--HOST_CXXFLAGS) $(ports-game-penguincommand--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-game-penguincommand--ACBUILD_LDFLAGS) $(ports-game-penguincommand--s_flag))"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-game-penguincommand--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-penguincommand--cfg-env += CC_FOR_HOST="$(strip $(ports-game-penguincommand--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-game-penguincommand--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-penguincommand--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-game-penguincommand--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-game-penguincommand--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-penguincommand--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-game-penguincommand--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-game-penguincommand--nix) $(ports-game-penguincommand--s_flag))"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-game-penguincommand--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-penguincommand--cfg-env += CC_FOR_TARGET="$(strip $(ports-game-penguincommand--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-game-penguincommand--TARGET_CFLAGS) $(ports-game-penguincommand--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-game-penguincommand--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-game-penguincommand--TARGET_CXXFLAGS) $(ports-game-penguincommand--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-game-penguincommand--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-game-penguincommand--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-penguincommand--nix) $(ports-game-penguincommand--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-penguincommand--cfg-env += TARGET_CC="$(strip $(ports-game-penguincommand--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CFLAGS) $(ports-game-penguincommand--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-penguincommand--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CXXFLAGS) $(ports-game-penguincommand--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-game-penguincommand--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-penguincommand--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-penguincommand--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-penguincommand--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-penguincommand--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-penguincommand--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-game-penguincommand--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-game-penguincommand--cfg-env += CC="$(strip $(ports-game-penguincommand--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-game-penguincommand--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-game-penguincommand--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-game-penguincommand--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-game-penguincommand--cfg-env += CC_FOR_BUILD="$(ports-game-penguincommand--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-game-penguincommand--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-game-penguincommand--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-game-penguincommand--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-game-penguincommand--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-penguincommand--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-penguincommand--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-penguincommand--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-penguincommand--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-penguincommand--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-game-penguincommand--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-game-penguincommand--touchfileflag ?= $(ports-game-penguincommand--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-game-penguincommand-portdir)/$(ports-game-penguincommand--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-game-penguincommand--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-game-penguincommand--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-game-penguincommand--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-game-penguincommand-portdir)/$(ports-game-penguincommand--builddir)/." $(ports-game-penguincommand--pkgdir)/ && $(TOUCH) $@
+
+$(ports-game-penguincommand--touchfileflag) : $(ports-game-penguincommand--pkgdir)/.local-copy
+
+    ports-game-penguincommand--cfg-srcdir=$(ports-game-penguincommand--pkgdir)
+else
+    ports-game-penguincommand--cfg-srcdir=$(ports-game-penguincommand-portdir)/$(ports-game-penguincommand--builddir)
+endif
+ports-game-penguincommand--make-env += -C $(ports-game-penguincommand--pkgdir)
+
+.PHONY : ports-game-penguincommand- ports-game-penguincommand--clean ports-game-penguincommand--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-game-penguincommand--host : setup includes ports-game-penguincommand--quick
+#MM- ports-game-penguincommand--target : setup includes core-linklibs ports-game-penguincommand--quick
+#MM- ports-game-penguincommand-: ports-game-penguincommand--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-game-penguincommand--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-game-penguincommand--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-game-penguincommand--PROGDIR)/" $(ports-game-penguincommand--install_opts) \
+        $(ports-game-penguincommand--make-env) install -j1
+
+    ports-game-penguincommand--uninstall_command = \
+    $(RM) $(ports-game-penguincommand--installflag) && \
+    $(MAKE) PROGDIR="$(ports-game-penguincommand--PROGDIR)/" \
+    $(ports-game-penguincommand--install_opts) $(ports-game-penguincommand--make-env) uninstall
+else
+    ports-game-penguincommand--install_command   := true
+    ports-game-penguincommand--uninstall_command := true
+endif
+
+#MM- ports-game-penguincommand--quick :  ports-game-penguincommand--configure  ports-game-penguincommand--build_and_install-quick ports-game-penguincommand--make-package
+
+#MM
+ports-game-penguincommand--build_and_install-quick :  $(ports-game-penguincommand--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-game-penguincommand--installflag) : $(ports-game-penguincommand--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-penguincommand--volfunc, PROGDIR)" -q $(ports-game-penguincommand--make-env); then \
+	    $(RM) $(ports-game-penguincommand--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-game-penguincommand--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-penguincommand--volfunc, PROGDIR)" $(ports-game-penguincommand--make-env) && \
+	    $(ports-game-penguincommand--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-game-penguincommand--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-game-penguincommand--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-game-penguincommand-portdir)/$(ports-game-penguincommand--builddir) -exec $(TOUCH) -c -r $(ports-game-penguincommand--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-game-penguincommand--uninstall :
+	$(ports-game-penguincommand--uninstall_command)
+
+#MM
+ports-game-penguincommand--configure : $(ports-game-penguincommand--configflag)
+
+$(ports-game-penguincommand--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-game-penguincommand--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-game-penguincommand--configflag) : $(ports-game-penguincommand--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-game-penguincommand--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-game-penguincommand--pkgdir))"
+	$(ports-game-penguincommand--init-env)
+	$(Q)cd $(ports-game-penguincommand--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-game-penguincommand--cfg-env) $(TMP_SRCDIR)/configure $(ports-game-penguincommand--config_opts) $(PENGUINC_EXTRAOPTS) && \
+	$(TOUCH) $@
+
+#MM
+ports-game-penguincommand--clean : ports-game-penguincommand--uninstall
+	$(Q)$(RM) $(ports-game-penguincommand--pkgdir)
+
+.PHONY : ports-game-penguincommand--make-package ports-game-penguincommand--create-patch
+#MM ports-game-penguincommand--make-package : ports-game-penguincommand--quick
+
+#MM
+ports-game-penguincommand--make-package : $(ports-game-penguincommand--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-game-penguincommand--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-game-penguincommand-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-game-penguincommand--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-game-penguincommand-prefix)" ; \
+	    cd $(ports-game-penguincommand--package-dir) ; \
+	    tar -cvf $(ports-game-penguincommand--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-game-penguincommand--package-basename).tar ; \
+	fi
+
+#MM
+ports-game-penguincommand-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

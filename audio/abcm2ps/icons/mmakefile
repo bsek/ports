@@ -1,0 +1,55 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-audio-abcm2ps : ports-audio-abcm2ps-icons
+
+TARGETDIR := $(AROS_CONTRIB)/MultiMedia/Audio
+ICONS     := Abcm2ps
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-audio-abcm2ps-icons : $(BD_OBJS)
+
+ifeq (,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-audio-abcm2ps-icons-clean : FILES := $(BD_OBJS)
+#MM
+ports-audio-abcm2ps-icons-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-audio-abcm2ps-icons ports-audio-abcm2ps-icons-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

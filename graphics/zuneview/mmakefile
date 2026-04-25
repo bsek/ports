@@ -1,0 +1,912 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-graphics : ports-graphics-zuneview
+
+#MM  ports-graphics-zuneview : \
+#MM    includes linklibs ports-graphics-zuneview-fetch \
+#MM    ports-graphics-zuneview-cpy ports-graphics-zuneview-catalogs
+
+#MM  ports-graphics-zuneview-quick : ports-graphics-zuneview-fetch
+
+REPOSITORIES := http://prdownloads.sourceforge.net/zunetools \
+https://sourceforge.net/projects/zunetools/files/ZuneView
+ARCHBASE     := ZuneView_v0.41
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Gfx/ZuneView
+
+NOWARN_FLAGS :=
+USER_CFLAGS := $(CFLAGS_GNU11) $(NOWARN_FLAGS) -DZUNEVIEW -DAROS_ABI_V1
+USER_INCLUDES:= -I$(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/src
+
+FILES := \
+    SupportFunctions \
+    ListTreeHooks \
+    Picture_Filter \
+    Picture_Quantize \
+    Picture_Artistic \
+    Picture_Geometry \
+    Picture_IO \
+    Picture_Color \
+    Quant_Neu \
+    Quant_Yer \
+    Quant_Octree \
+    FilterFunctions \
+    mcc_Pictdisp \
+    Win_BCG \
+    Win_Color \
+    Win_Conv \
+    Win_Resize \
+    Win_Barrel \
+    Win_Save \
+    Win_Stat \
+    Win_Art \
+    Win_Polar \
+    Win_Rotation \
+    Win_Vigneting \
+    Win_Quantize \
+    Win_ZVSetting \
+    Win_Rename \
+    Win_Icon \
+    Win_Batch \
+    mcc_Thumbdisp \
+    mcc_Thumbnail \
+    mcc_Thumbgroup \
+    mcc_ScrollerPict \
+    mcc_Matrix \
+    mcc_Histdisp \
+    exif \
+    locale \
+    Picture_Masks \
+    Picture_Paint \
+    ZuneView \
+    WriteILBM
+
+FILES := $(addprefix $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/src/,$(FILES))
+
+
+.PHONY : ports-graphics-zuneview
+
+#MM- ports-graphics-zuneview : \
+#MM             ports-graphics-zuneview-$(CPU)
+
+#MM- ports-graphics-zuneview-$(ARCH)-$(CPU) : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-graphics-zuneview-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(CPU)
+
+#MM- ports-graphics-zuneview-$(ARCH) : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-graphics-zuneview-$(FAMILY) : \
+#MM             ports-graphics-zuneview-$(ARCH)
+
+#MM- ports-graphics-zuneview-$(CPU) : \
+#MM             ports-graphics-zuneview-$(FAMILY)
+#MM- ports-graphics-zuneview-quick : \
+#MM             ports-graphics-zuneview-$(CPU)-quick
+
+#MM- ports-graphics-zuneview-$(ARCH)-$(CPU)-quick : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-graphics-zuneview-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(CPU)-quick
+
+#MM- ports-graphics-zuneview-$(ARCH)-quick : \
+#MM             ports-graphics-zuneview-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-graphics-zuneview-$(FAMILY)-quick : \
+#MM             ports-graphics-zuneview-$(ARCH)-quick
+
+#MM- ports-graphics-zuneview-$(CPU)-quick : \
+#MM             ports-graphics-zuneview-$(FAMILY)-quick
+
+ports-graphics-zuneview_PROGNAME  := ZuneView
+ports-graphics-zuneview_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-graphics-zuneview_TARGETDIR := $(TARGETDIR)
+ports-graphics-zuneview_LINKER    := 
+ports-graphics-zuneview_LIBS := jpeg png mui
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-graphics-zuneview_LINKER),)
+    ports-graphics-zuneview_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-graphics-zuneview_FILES     := $(FILES)
+    ports-graphics-zuneview_OBJCFILES := 
+    ports-graphics-zuneview_ASMFILES  := 
+    ports-graphics-zuneview_CXXFILES := 
+else
+    ports-graphics-zuneview_FILES     := $(ports-graphics-zuneview_PROGNAME)
+    ports-graphics-zuneview_OBJCFILES :=
+    ports-graphics-zuneview_ASMFILES  :=
+    ports-graphics-zuneview_CXXFILES :=
+endif
+
+ports-graphics-zuneview_ARCHOBJS   := $(wildcard $(ports-graphics-zuneview_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-graphics-zuneview_ARCHFILES     := $(basename $(notdir $(ports-graphics-zuneview_ARCHOBJS)))
+else
+    ports-graphics-zuneview_ARCHFILES     := $(basename $(patsubst $(ports-graphics-zuneview_OBJDIR)/%,%,$(ports-graphics-zuneview_ARCHOBJS)))
+endif
+ports-graphics-zuneview_C_NARCHFILES := $(filter-out $(ports-graphics-zuneview_ARCHFILES),$(ports-graphics-zuneview_FILES))
+ports-graphics-zuneview_CXX_NARCHFILES := $(filter-out $(ports-graphics-zuneview_ARCHFILES),$(ports-graphics-zuneview_CXXFILES))
+ports-graphics-zuneview_OBJC_NARCHFILES := $(filter-out $(ports-graphics-zuneview_ARCHFILES),$(ports-graphics-zuneview_OBJCFILES))
+
+TMP_FILES := $(ports-graphics-zuneview_C_NARCHFILES) $(ports-graphics-zuneview_CXX_NARCHFILES) $(ports-graphics-zuneview_ASMFILES) $(ports-graphics-zuneview_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-graphics-zuneview_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-graphics-zuneview_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-graphics-zuneview_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(TMP_FILES))) )
+    ports-graphics-zuneview_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-graphics-zuneview_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-graphics-zuneview_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zuneview_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-graphics-zuneview_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-graphics-zuneview_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zuneview_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-graphics-zuneview_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-graphics-zuneview_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zuneview_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-graphics-zuneview_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-graphics-zuneview_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-graphics-zuneview_LDFLAGS          := 
+endif
+
+ports-graphics-zuneview_CSTATICFLAGS   := `echo "$(ports-graphics-zuneview_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-graphics-zuneview_CSTDCFLAGS   :=  `echo "$(ports-graphics-zuneview_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-graphics-zuneview_CPOSIXCFLAGS   :=  `echo "$(ports-graphics-zuneview_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-graphics-zuneview_LDFLAGS          += $(strip $(ports-graphics-zuneview_CSTATICFLAGS) $(ports-graphics-zuneview_CSTDCFLAGS) $(ports-graphics-zuneview_CPOSIXCFLAGS))
+
+ports-graphics-zuneview_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-graphics-zuneview_COVERAGE := yes
+ports-graphics-zuneview_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-graphics-zuneview_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-graphics-zuneview_CFLAGS    := $(strip $(ports-graphics-zuneview_COVERAGEFLAGS) $(ports-graphics-zuneview_CFLAGS))
+ports-graphics-zuneview_CXXFLAGS := $(strip $(ports-graphics-zuneview_COVERAGEFLAGS) $(ports-graphics-zuneview_CXXFLAGS))
+ports-graphics-zuneview_LIBS += $(ports-graphics-zuneview_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-graphics-zuneview_FUNCINSTR := yes
+ports-graphics-zuneview_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-graphics-zuneview_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-graphics-zuneview_CFLAGS    := $(strip $(ports-graphics-zuneview_INSTRFUNCFLAGS) $(ports-graphics-zuneview_CFLAGS))
+ports-graphics-zuneview_CXXFLAGS := $(strip $(ports-graphics-zuneview_INSTRFUNCFLAGS) $(ports-graphics-zuneview_CXXFLAGS))
+ports-graphics-zuneview_LIBS += $(ports-graphics-zuneview_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-graphics-zuneview_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-graphics-zuneview_CFLAGS))
+ports-graphics-zuneview_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-graphics-zuneview_CXXFLAGS))
+endif
+endif
+ports-graphics-zuneview_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-graphics-zuneview_DFLAGS     := 
+else
+    ports-graphics-zuneview_DFLAGS     := $(ports-graphics-zuneview_CFLAGS)
+endif
+ifneq (,)
+    ports-graphics-zuneview_DXXFLAGS     := 
+else
+    ports-graphics-zuneview_DXXFLAGS     := $(ports-graphics-zuneview_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-graphics-zuneview_LDFLAGS           := $(ports-graphics-zuneview_LDFLAGS)
+ports-graphics-zuneview_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-graphics-zuneview_LDFLAGS           := $(ports-graphics-zuneview_LDFLAGS)
+ports-graphics-zuneview_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_LDFLAGS           := $(ports-graphics-zuneview_LDFLAGS)
+ports-graphics-zuneview_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-graphics-zuneview_LDFLAGS   += -L
+endif
+
+#MM
+ports-graphics-zuneview-quick : ports-graphics-zuneview
+
+#MM ports-graphics-zuneview : includes-generate-deps core-linklibs
+ports-graphics-zuneview : $(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-graphics-zuneview_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-graphics-zuneview_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-graphics-zuneview_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-graphics-zuneview_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-graphics-zuneview_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-graphics-zuneview ports-graphics-zuneview-quick ports-graphics-zuneview-compress-quick),)
+
+ports-graphics-zuneview_CXXABSBASENAMES := $(foreach ports-graphics-zuneview_CXXBASE,$(ports-graphics-zuneview_CXX_NARCHFILES),$(if $(filter /%,$(ports-graphics-zuneview_CXXBASE)),$(ports-graphics-zuneview_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-graphics-zuneview_CXXBASE))))
+
+ifneq ($(ports-graphics-zuneview_CXXABSBASENAMES),)
+
+ports-graphics-zuneview_CXXBASENAMES := $(basename $(ports-graphics-zuneview_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-graphics-zuneview_MCXX_FILES  := $(strip $(foreach ports-graphics-zuneview_CXXBASE,$(ports-graphics-zuneview_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-graphics-zuneview_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-graphics-zuneview_EXT),$(ports-graphics-zuneview_CXXBASE)))))))
+
+ifeq (,)
+ports-graphics-zuneview_MCXX_SRCWILDCARD := %
+else
+ports-graphics-zuneview_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zuneview_OBJDIR),)
+  ports-graphics-zuneview_CXXTARGETS := $(notdir $(ports-graphics-zuneview_CXXBASENAMES:=.o))
+  ports-graphics-zuneview_CXXDTARGETS := $(notdir $(ports-graphics-zuneview_CXXBASENAMES:=.d))
+  ports-graphics-zuneview_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-graphics-zuneview_CXXTARGETS := $(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(ports-graphics-zuneview_CXXBASENAMES:=.o)))
+  ports-graphics-zuneview_CXXDTARGETS := $(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(ports-graphics-zuneview_CXXBASENAMES:=.d)))
+  ports-graphics-zuneview_MCXX_WILDCARD := $(ports-graphics-zuneview_OBJDIR)/%
+else
+  ports-graphics-zuneview_CXXTARGETS := $(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_CXXBASENAMES:=.o))
+  ports-graphics-zuneview_CXXDTARGETS := $(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_CXXBASENAMES:=.d))
+  ports-graphics-zuneview_MCXX_WILDCARD := $(ports-graphics-zuneview_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-graphics-zuneview_CXXTARGETS) $(ports-graphics-zuneview_CXXDTARGETS) : | $(ports-graphics-zuneview_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-graphics-zuneview_MCXX_CPPFLAGS := $(ports-graphics-zuneview_CPPFLAGS)
+ports-graphics-zuneview_CXXFLAGS := $(ports-graphics-zuneview_CXXFLAGS)
+ifeq ($(ports-graphics-zuneview_DXXFLAGS),)
+  ports-graphics-zuneview_DXXFLAGS := $(ports-graphics-zuneview_CXXFLAGS)
+else
+  ports-graphics-zuneview_DXXFLAGS := $(ports-graphics-zuneview_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-graphics-zuneview_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-graphics-zuneview_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-graphics-zuneview_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-graphics-zuneview_STRIP ?= $(HOST_STRIP)
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-graphics-zuneview_CXXCMD:=$(HOST_CXX)
+  ports-graphics-zuneview_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS) $(ports-graphics-zuneview_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zuneview_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-graphics-zuneview_CXXFLAGS))
+  ports-graphics-zuneview_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-graphics-zuneview_DXXFLAGS))
+  ports-graphics-zuneview_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-graphics-zuneview_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-graphics-zuneview_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-graphics-zuneview_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-graphics-zuneview_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-graphics-zuneview_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-graphics-zuneview_LDFLAGS ?= $(ports-graphics-zuneview_CXXLDFLAGS)
+  ports-graphics-zuneview_STRIP ?= $(TARGET_STRIP)
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-graphics-zuneview_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-graphics-zuneview_MCXX_CPPFLAGS := $(strip $(ports-graphics-zuneview_MCXX_CPPFLAGS) $(ports-graphics-zuneview_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zuneview_CXXFLAGS := $(strip $(ports-graphics-zuneview_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-graphics-zuneview_DXXFLAGS := $(ports-graphics-zuneview_DXXFLAGS)
+  ports-graphics-zuneview_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-graphics-zuneview_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-graphics-zuneview_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-graphics-zuneview_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-graphics-zuneview_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-graphics-zuneview_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-graphics-zuneview_LDFLAGS ?= $(ports-graphics-zuneview_CXXLDFLAGS)
+  ports-graphics-zuneview_STRIP ?= $(ECHO) >/dev/null
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-graphics-zuneview_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-graphics-zuneview_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS) $(ports-graphics-zuneview_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zuneview_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-graphics-zuneview_CXXFLAGS))
+  ports-graphics-zuneview_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-graphics-zuneview_DXXFLAGS))
+  ports-graphics-zuneview_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-graphics-zuneview_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-graphics-zuneview_CXXCMD) $(ports-graphics-zuneview_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zuneview_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) . $(ports-graphics-zuneview_CXXIQUOTE_END) $(strip $(ports-graphics-zuneview_CXXFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-graphics-zuneview_CXXCMD) $(ports-graphics-zuneview_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zuneview_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) . $(ports-graphics-zuneview_CXXIQUOTE_END) $(strip $(ports-graphics-zuneview_CXXFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-graphics-zuneview_CXXCMD) $(ports-graphics-zuneview_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zuneview_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_CXXIQUOTE) . $(ports-graphics-zuneview_CXXIQUOTE_END) $(strip $(ports-graphics-zuneview_CXXFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-graphics-zuneview_CXXCMD)" $(MKDEPEND) $(strip $(ports-graphics-zuneview_DXXFLAGS) $(ports-graphics-zuneview_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-graphics-zuneview_OBJDIR),)
+  $(foreach ports-graphics-zuneview_CXXFILE,$(ports-graphics-zuneview_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-graphics-zuneview_CXXFILE))),$(ports-graphics-zuneview_CXXFILE))))
+else
+  $(foreach ports-graphics-zuneview_CXXFILE,$(ports-graphics-zuneview_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(basename $(ports-graphics-zuneview_CXXFILE)))),$(ports-graphics-zuneview_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-graphics-zuneview_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-graphics-zuneview_MOBJC_SRCWILDCARD := %
+else
+ports-graphics-zuneview_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zuneview_OBJDIR),)
+  ports-graphics-zuneview_MOBJC_TARGETS := $(addsuffix .o,$(ports-graphics-zuneview_OBJC_NARCHFILES))
+  ports-graphics-zuneview_MOBJC_DTARGETS := $(addsuffix .d,$(ports-graphics-zuneview_OBJC_NARCHFILES))
+  ports-graphics-zuneview_MOBJC_WILDCARD := %
+else
+  ports-graphics-zuneview_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_OBJC_NARCHFILES)))
+  ports-graphics-zuneview_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_OBJC_NARCHFILES)))
+  ports-graphics-zuneview_MOBJC_WILDCARD := $(ports-graphics-zuneview_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-graphics-zuneview_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-graphics-zuneview_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-graphics-zuneview_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zuneview_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-graphics-zuneview_MOBJC_DIRS := $(foreach dir, $(ports-graphics-zuneview_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zuneview_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-graphics-zuneview_MOBJC_DIRS),)
+    ports-graphics-zuneview_MOBJC_DIRS := $(shell $(ECHO) $(ports-graphics-zuneview_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-graphics-zuneview_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-graphics-zuneview_CC := $(TARGET_CC)
+else
+  ports-graphics-zuneview_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-graphics-zuneview_MOBJC_CPPFLAGS := $(ports-graphics-zuneview_CPPFLAGS)
+ports-graphics-zuneview_OBJCFLAGS := $(ports-graphics-zuneview_CFLAGS)
+ports-graphics-zuneview_OBJCFLAGS := $(ports-graphics-zuneview_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-graphics-zuneview_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-graphics-zuneview_OBJCFLAGS)))
+ifeq ($(ports-graphics-zuneview_DFLAGS),)
+  ports-graphics-zuneview_OBJCDFLAGS := $(ports-graphics-zuneview_CFLAGS)
+else
+  ports-graphics-zuneview_OBJCDFLAGS := $(ports-graphics-zuneview_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-graphics-zuneview_LINK ?= $(strip $(ports-graphics-zuneview_CC) $(TARGET_SYSROOT))
+  ports-graphics-zuneview_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-graphics-zuneview_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-graphics-zuneview_STRIP ?= $(TARGET_STRIP)
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : CMD:=$(strip $(ports-graphics-zuneview_CC) $(TARGET_SYSROOT))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_MOBJC_CPPFLAGS:=$(strip $(ports-graphics-zuneview_MOBJC_CPPFLAGS) $(ports-graphics-zuneview_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCFLAGS:=$(strip $(ports-graphics-zuneview_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCDFLAGS:=$(ports-graphics-zuneview_OBJCDFLAGS)
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-graphics-zuneview_LINK ?= $(strip $(HOST_OBJC))
+  ports-graphics-zuneview_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-graphics-zuneview_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-graphics-zuneview_STRIP ?= $(HOST_STRIP)
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-graphics-zuneview_MOBJC_CPPFLAGS) $(ports-graphics-zuneview_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zuneview_OBJCFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zuneview_OBJCDFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-graphics-zuneview_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-graphics-zuneview_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-graphics-zuneview_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-graphics-zuneview_STRIP ?= $(ECHO) >/dev/null
+  ports-graphics-zuneview_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-graphics-zuneview_MOBJC_CPPFLAGS) $(ports-graphics-zuneview_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zuneview_OBJCFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zuneview_OBJCDFLAGS))
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-graphics-zuneview_MOBJC_TARGETS) $(ports-graphics-zuneview_MOBJC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-graphics-zuneview_MOBJC_TARGETS) : CPPFLAGS := $(ports-graphics-zuneview_MOBJC_CPPFLAGS)
+$(ports-graphics-zuneview_MOBJC_TARGETS) : CFLAGS := $(ports-graphics-zuneview_OBJCFLAGS)
+$(ports-graphics-zuneview_MOBJC_TARGETS) : $(ports-graphics-zuneview_MOBJC_WILDCARD).o : $(ports-graphics-zuneview_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-graphics-zuneview_MOBJC_DTARGETS) : $(ports-graphics-zuneview_MOBJC_WILDCARD).d : $(ports-graphics-zuneview_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-graphics-zuneview_OBJCDFLAGS) $(ports-graphics-zuneview_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-graphics-zuneview_MC_SRCWILDCARD := %
+else
+ports-graphics-zuneview_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zuneview_OBJDIR),)
+ports-graphics-zuneview_MC_TARGETS := $(addsuffix .o,$(ports-graphics-zuneview_C_NARCHFILES))
+ports-graphics-zuneview_MC_DTARGETS := $(addsuffix .d,$(ports-graphics-zuneview_C_NARCHFILES))
+ports-graphics-zuneview_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-graphics-zuneview_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(ports-graphics-zuneview_C_NARCHFILES))))
+    ports-graphics-zuneview_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(ports-graphics-zuneview_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-graphics-zuneview_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_C_NARCHFILES)))
+    ports-graphics-zuneview_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(ports-graphics-zuneview_C_NARCHFILES)))
+else
+    ports-graphics-zuneview_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(patsubst /%,%,$(ports-graphics-zuneview_C_NARCHFILES))))
+    ports-graphics-zuneview_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(patsubst /%,%,$(ports-graphics-zuneview_C_NARCHFILES))))
+endif
+endif
+ports-graphics-zuneview_MC_TGTWILDCARD := $(ports-graphics-zuneview_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : | $(addsuffix .c,$(ports-graphics-zuneview_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-graphics-zuneview_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-graphics-zuneview_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zuneview_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-graphics-zuneview_MC_DIRS := $(foreach dir, $(ports-graphics-zuneview_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zuneview_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-graphics-zuneview_MC_DIRS),)
+    ports-graphics-zuneview_MC_DIRS := $(shell $(ECHO) $(ports-graphics-zuneview_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-graphics-zuneview_MC_DIRS)
+endif
+
+endif
+
+ports-graphics-zuneview_MC_CPPFLAGS := $(ports-graphics-zuneview_CPPFLAGS)
+ports-graphics-zuneview_CFLAGS := $(ports-graphics-zuneview_CFLAGS)
+ifeq ($(ports-graphics-zuneview_DFLAGS),)
+  ports-graphics-zuneview_DFLAGS := $(ports-graphics-zuneview_CFLAGS)
+else
+  ports-graphics-zuneview_DFLAGS := $(ports-graphics-zuneview_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-graphics-zuneview_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-graphics-zuneview_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-graphics-zuneview_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-graphics-zuneview_STRIP ?= $(TARGET_STRIP)
+ports-graphics-zuneview_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_MC_CPPFLAGS:=$(strip $(ports-graphics-zuneview_MC_CPPFLAGS) $(ports-graphics-zuneview_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_CFLAGS:=$(strip $(ports-graphics-zuneview_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_DFLAGS:=$(ports-graphics-zuneview_DFLAGS)
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-graphics-zuneview_LINK ?= $(strip $(HOST_CC))
+ports-graphics-zuneview_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-graphics-zuneview_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-graphics-zuneview_STRIP ?= $(HOST_STRIP)
+ports-graphics-zuneview_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-graphics-zuneview_MC_CPPFLAGS) $(ports-graphics-zuneview_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zuneview_CFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zuneview_DFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(HOST_IQUOTE)
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-graphics-zuneview_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-graphics-zuneview_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-graphics-zuneview_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-graphics-zuneview_STRIP ?= $(ECHO) >/dev/null
+ports-graphics-zuneview_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-graphics-zuneview_MC_CPPFLAGS) $(ports-graphics-zuneview_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zuneview_CFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zuneview_DFLAGS))
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-graphics-zuneview_MC_TARGETS) $(ports-graphics-zuneview_MC_DTARGETS) : ports-graphics-zuneview_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-graphics-zuneview_MC_TARGETS) : CPPFLAGS := $(ports-graphics-zuneview_MC_CPPFLAGS)
+$(ports-graphics-zuneview_MC_TARGETS) : CFLAGS := $(ports-graphics-zuneview_CFLAGS)
+$(ports-graphics-zuneview_MC_TARGETS) : $(ports-graphics-zuneview_MC_TGTWILDCARD).o : $(ports-graphics-zuneview_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-graphics-zuneview_IQUOTE) $(dir $<) $(ports-graphics-zuneview_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zuneview_IQUOTE) . $(ports-graphics-zuneview_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-graphics-zuneview_MC_DTARGETS) : $(ports-graphics-zuneview_MC_TGTWILDCARD).d : $(ports-graphics-zuneview_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-graphics-zuneview_DFLAGS) $(ports-graphics-zuneview_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-graphics-zuneview_OBJDIR),)
+ports-graphics-zuneview-MA_TARGETS := $(addsuffix .o,$(ports-graphics-zuneview_ASMFILES))
+ports-graphics-zuneview-MA_WILDCARD := %
+else
+ports-graphics-zuneview-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zuneview_OBJDIR)/,$(notdir $(ports-graphics-zuneview_ASMFILES))))
+ports-graphics-zuneview-MA_WILDCARD := $(ports-graphics-zuneview_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-graphics-zuneview-MA_TARGETS) : | $(addsuffix .s,$(ports-graphics-zuneview_ASMFILES))
+
+# Be sure that all .c files are found
+ports-graphics-zuneview-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-graphics-zuneview-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zuneview_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-graphics-zuneview-MA_DIRS := $(foreach dir, $(ports-graphics-zuneview-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zuneview-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-graphics-zuneview-MA_DIRS),)
+    ports-graphics-zuneview-MA_DIRS := $(shell $(ECHO) $(ports-graphics-zuneview-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-graphics-zuneview-MA_DIRS)
+endif
+
+endif
+
+ports-graphics-zuneview-MA_ASSEMBLER ?= $(ports-graphics-zuneview_ASSEMBLER)
+
+$(ports-graphics-zuneview-MA_TARGETS) : ports-graphics-zuneview-MA_CMD:= $(ports-graphics-zuneview-MA_ASSEMBLER)
+
+$(ports-graphics-zuneview-MA_TARGETS) : CPPFLAGS := $(ports-graphics-zuneview_CPPFLAGS)
+$(ports-graphics-zuneview-MA_TARGETS) : AFLAGS := $(ports-graphics-zuneview_AFLAGS)
+$(ports-graphics-zuneview-MA_TARGETS) : $(ports-graphics-zuneview-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-graphics-zuneview-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-graphics-zuneview-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-graphics-zuneview-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-graphics-zuneview-link_LD_OPTS := 
+ports-graphics-zuneview-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-graphics-zuneview-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-graphics-zuneview-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-graphics-zuneview-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-graphics-zuneview-link_DIRS := $(subst -L ,-L,$(strip $(ports-graphics-zuneview_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-graphics-zuneview-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-graphics-zuneview-link_DIRS)))
+# Add trailing /
+ports-graphics-zuneview-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-graphics-zuneview-link_DIRS)))
+# Add normal linklib path
+ports-graphics-zuneview-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-graphics-zuneview-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-graphics-zuneview_LIBS) $(ports-graphics-zuneview-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-graphics-zuneview-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-graphics-zuneview-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-graphics-zuneview-link_DEPLIBS := $(foreach lib,$(ports-graphics-zuneview-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-graphics-zuneview-link_DIRS)))) \
+)
+
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : OBJDIR := $(ports-graphics-zuneview_OBJDIR)
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : OBJS := $(strip $(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_ARCHOBJS) $(USER_OBJS))
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : LDFLAGS := $(strip $(ports-graphics-zuneview_LDFLAGS))
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-graphics-zuneview_LIBS) $(ports-graphics-zuneview-link_EXTRA_LIBS)))
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-graphics-zuneview_ARCHLIBS))
+$(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : $(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_ARCHOBJS) $(USER_OBJS) $(ports-graphics-zuneview-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-graphics-zuneview_LINK) $(strip $(ports-graphics-zuneview_LD_OPTS) $(ports-graphics-zuneview-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-graphics-zuneview_LINK) $(strip $(ports-graphics-zuneview_LD_OPTS) $(ports-graphics-zuneview-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-graphics-zuneview_LINK) $(strip $(ports-graphics-zuneview_LD_OPTS) $(ports-graphics-zuneview-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-graphics-zuneview_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-graphics-zuneview_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-graphics-zuneview_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-graphics-zuneview_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-graphics-zuneview_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-graphics-zuneview_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-graphics-zuneview_DEPS),)
+  ifneq (ports-graphics-zuneview ports-graphics-zuneview-quick,)
+    ifneq ($(findstring $(TARGET),ports-graphics-zuneview ports-graphics-zuneview-quick),)
+      -include $(ports-graphics-zuneview_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-graphics-zuneview_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_DEPS) $(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME),)
+$(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_DEPS) $(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) : | $(ports-graphics-zuneview_OBJDIR) $(ports-graphics-zuneview_TARGETDIR)
+else
+$(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_DEPS) $(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) :: $(ports-graphics-zuneview_OBJDIR) $(ports-graphics-zuneview_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-graphics-zuneview_OBJDIR) $(ports-graphics-zuneview_TARGETDIR)
+
+
+ports-graphics-zuneview-clean : FILES := $(ports-graphics-zuneview_OBJS) $(ports-graphics-zuneview_TARGETDIR)/$(ports-graphics-zuneview_PROGNAME) $(ports-graphics-zuneview_DEPS)
+#MM
+ports-graphics-zuneview-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-graphics-zuneview"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-graphics-zuneview-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-graphics-zuneview-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-graphics-zuneview-fetch-location := $(PORTSDIR)/zuneview/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-graphics-zuneview-fetch-baseflag := -b 
+else
+    ports-graphics-zuneview-fetch-baseflag :=
+endif
+
+ports-graphics-zuneview-fetch-fetchedflag := $(ports-graphics-zuneview-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-graphics-zuneview-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "zip" -l $(ports-graphics-zuneview-fetch-location) \
+	-d $(PORTSDIR)/zuneview/$(ARCHBASE) $(ports-graphics-zuneview-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:ZuneView:-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-graphics-zuneview-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-graphics-zuneview-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-graphics-zuneview-create-patch
+
+ifneq (,)
+    ports-graphics-zuneview-create-patch-location := 
+else
+    ports-graphics-zuneview-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-graphics-zuneview-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (ZuneView,)
+    ports-graphics-zuneview-create-patch-srcdir   := ZuneView
+else
+    ports-graphics-zuneview-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-graphics-zuneview-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-graphics-zuneview-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-graphics-zuneview-create-patch-baseflag := -b /tmp
+    ports-graphics-zuneview-create-patch-base := 
+else
+    ports-graphics-zuneview-create-patch-baseflag :=
+    ports-graphics-zuneview-create-patch-base := $(PORTSDIR)/zuneview/$(ARCHBASE)
+endif
+
+#MM- ports-graphics-zuneview-create-patch :  ports-graphics-zuneview-create-patch-diff 
+#MM- ports-graphics-zuneview-create-patch-quick :  ports-graphics-zuneview-create-patch-diff 
+
+#MM
+ports-graphics-zuneview-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-graphics-zuneview-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-graphics-zuneview-create-patch-base)/$(ports-graphics-zuneview-create-patch-srcdir) $(ports-graphics-zuneview-create-patch-base)/tmp/$(ports-graphics-zuneview-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "zip" -f -l $(ports-graphics-zuneview-create-patch-location) -d $(PORTSDIR)/zuneview/$(ARCHBASE) $(ports-graphics-zuneview-create-patch-baseflag); \
+	$(MV) $(ports-graphics-zuneview-create-patch-base)/$(ports-graphics-zuneview-create-patch-srcdir) $(ports-graphics-zuneview-create-patch-base)/tmp/$(ports-graphics-zuneview-create-patch-srcdir) ; \
+	cd $(ports-graphics-zuneview-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-graphics-zuneview-create-patch-diffflag) $(ports-graphics-zuneview-create-patch-exclude) \
+	    $(ports-graphics-zuneview-create-patch-srcdir) \
+	    $(ports-graphics-zuneview-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-graphics-zuneview-create-patch-base)/tmp/$(ports-graphics-zuneview-create-patch-srcdir).aros $(ports-graphics-zuneview-create-patch-base)/$(ports-graphics-zuneview-create-patch-srcdir) ; \
+	$(RM) $(ports-graphics-zuneview-create-patch-base)/tmp
+
+CPFILES := ZuneView.info
+
+
+ports-graphics-zuneview-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-graphics-zuneview-cpy
+
+#MM
+ports-graphics-zuneview-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-graphics-zuneview-cpy_SRC)),$(ports-graphics-zuneview-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-graphics-zuneview-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+.PHONY : ports-graphics-zuneview-catalogs
+
+#MM
+ports-graphics-zuneview-catalogs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs)))' to '$(if $(filter /%,$(TARGETDIR)/Catalogs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Catalogs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Catalogs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Catalogs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Catalogs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/zuneview/$(ARCHBASE)/ZuneView/catalogs -d $(TARGETDIR)/Catalogs -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

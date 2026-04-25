@@ -1,0 +1,549 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-residualvm
+
+#MM- ports-emulation-residualvm : \
+#MM     aros-residualvm \
+#MM     aros-residualvm-themes-fetch \
+#MM     aros-residualvm-themes-copy
+
+#MM- aros-residualvm : \
+#MM     contrib-sdl \
+#MM     ports-libs-libmpeg \
+#MM     aros-residualvm-fetch
+
+https://github.com/residualvm/residualvm/archive/refs/tags/0.3.1.tar.gz
+
+PACKAGE      := residualvm
+VERSION      := 0.3.1
+TARGETDIR    := $(AROS_CONTRIB)/Emu/Residualvm
+REPOSITORIES := https://github.com/residualvm/residualvm/archive/refs/tags/$(VERSION)
+PATCHSPECS := $(PACKAGE)-$(VERSION)-sources-aros.diff:$(PACKAGE)-$(VERSION):-p1
+
+RESIDUALVM_OPTS=--host=$(AROS_TARGET_CPU)-aros --enable-verbose-build --enable-c++11 --enable-release --enable-freetype2 --datarootdir=$(TARGETDIR)
+RESIDUALVM_ENV=DESTDIR=$(TARGETDIR)
+NOWARN_FLAGS := -Wno-expansion-to-defined -Wno-variadic-macros \
+                $(NOWARN_CLASS_MEMACCESS) $(NOWARN_IMPLICIT_FALLTHROUGH) \
+                $(NOWARN_FORMAT_OVERFLOW)
+USER_CXXFLAGS := -fvisibility=hidden  -fvisibility-inlines-hidden
+USER_CPPFLAGS := -D__BSDSOCKET_NOLIBBASE__
+USER_INCLUDES := -I$(AROS_INCLUDES)/SDL -I$(AROS_CONTRIB_INCLUDES) $(NOWARN_FLAGS)
+USER_LDFLAGS := -static-libstdc++
+OPTIMIZATION_CFLAGS:=
+
+
+.PHONY: aros-residualvm-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    aros-residualvm-fetch-location := $(PORTSSOURCEDIR)
+else
+    aros-residualvm-fetch-location := $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifneq (,)
+    aros-residualvm-fetch-baseflag := -b 
+else
+    aros-residualvm-fetch-baseflag :=
+endif
+
+aros-residualvm-fetch-fetchedflag := $(aros-residualvm-fetch-location)/.$(PACKAGE)-$(VERSION)-sources-fetched
+
+#MM
+aros-residualvm-fetch :
+	$(Q)$(ECHO) "Fetching   $(PACKAGE)-$(VERSION)-sources ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(PACKAGE)-$(VERSION)-sources -s "tar.bz2 tar.gz" -l $(aros-residualvm-fetch-location) \
+	-d $(PORTSDIR)/$(PACKAGE) $(aros-residualvm-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(PATCHSPECS)"
+	$(Q)$(IF) ! $(TEST) -f $(aros-residualvm-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(aros-residualvm-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: aros-residualvm-create-patch
+
+ifneq (,)
+    aros-residualvm-create-patch-location := 
+else
+    aros-residualvm-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    aros-residualvm-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(PACKAGE)-$(VERSION),)
+    aros-residualvm-create-patch-srcdir   := $(PACKAGE)-$(VERSION)
+else
+    aros-residualvm-create-patch-srcdir   := $(PACKAGE)-$(VERSION)-sources
+endif
+
+ifeq (no,yes)
+    aros-residualvm-create-patch-diffflag   := --strip-trailing-cr
+else
+    aros-residualvm-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    aros-residualvm-create-patch-baseflag := -b /tmp
+    aros-residualvm-create-patch-base := 
+else
+    aros-residualvm-create-patch-baseflag :=
+    aros-residualvm-create-patch-base := $(PORTSDIR)/$(PACKAGE)
+endif
+
+#MM- aros-residualvm-create-patch :  aros-residualvm-create-patch-diff 
+#MM- aros-residualvm-create-patch-quick :  aros-residualvm-create-patch-diff 
+
+#MM
+aros-residualvm-create-patch-diff:
+	$(Q)$(FOR) dir in $(aros-residualvm-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(aros-residualvm-create-patch-base)/$(aros-residualvm-create-patch-srcdir) $(aros-residualvm-create-patch-base)/tmp/$(aros-residualvm-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(PACKAGE)-$(VERSION)-sources -s "tar.bz2 tar.gz" -f -l $(aros-residualvm-create-patch-location) -d $(PORTSDIR)/$(PACKAGE) $(aros-residualvm-create-patch-baseflag); \
+	$(MV) $(aros-residualvm-create-patch-base)/$(aros-residualvm-create-patch-srcdir) $(aros-residualvm-create-patch-base)/tmp/$(aros-residualvm-create-patch-srcdir) ; \
+	cd $(aros-residualvm-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(PACKAGE)-$(VERSION)-sources-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(aros-residualvm-create-patch-diffflag) $(aros-residualvm-create-patch-exclude) \
+	    $(aros-residualvm-create-patch-srcdir) \
+	    $(aros-residualvm-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(PACKAGE)-$(VERSION)-sources-aros-new.diff ; \
+	$(MV) $(aros-residualvm-create-patch-base)/tmp/$(aros-residualvm-create-patch-srcdir).aros $(aros-residualvm-create-patch-base)/$(aros-residualvm-create-patch-srcdir) ; \
+	$(RM) $(aros-residualvm-create-patch-base)/tmp
+
+
+ifneq ($(TARGETDIR),)
+    aros-residualvm-prefix := $(TARGETDIR)
+else
+    aros-residualvm-prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    aros-residualvm-aros_prefix := 
+else
+    aros-residualvm-aros_prefix := $(aros-residualvm-prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    aros-residualvm-nix    := $(BD_NIXFLAG)
+    aros-residualvm-volpfx := /
+    aros-residualvm-volsfx := /
+    
+    ifeq (no,)
+        aros-residualvm-nix_dir_layout := yes
+    endif
+else
+    aros-residualvm-volsfx := :
+    
+    ifeq (no,)
+        aros-residualvm-nix_dir_layout := no
+    endif
+endif
+
+aros-residualvm-volfunc = $(aros-residualvm-volpfx)$(notdir $1)$(aros-residualvm-volsfx)
+
+aros-residualvm-install_opts += prefix=$(aros-residualvm-prefix) \
+        exec_prefix=$(aros-residualvm-prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        aros-residualvm-pkgbasedir := $(HOSTGENDIR)
+    else
+        aros-residualvm-pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        aros-residualvm-pkgbasedir := $(GENDIR)
+    else
+        aros-residualvm-pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        aros-residualvm-pkgbasedir := 
+    else
+        aros-residualvm-pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq (,)
+    aros-residualvm-pkgdir := $(aros-residualvm-pkgbasedir)
+else
+    aros-residualvm-pkgdir := $(aros-residualvm-pkgbasedir)/
+endif
+
+aros-residualvm-configflag ?= $(aros-residualvm-pkgdir)/.configured
+aros-residualvm-installflag ?= $(aros-residualvm-pkgdir)/.installed
+
+ifeq ($(filter yes, $(aros-residualvm-nix_dir_layout) $(host)),yes)
+    aros-residualvm-PROGDIR      := $(aros-residualvm-aros_prefix)/bin
+    aros-residualvm-config_opts  := --prefix=$(aros-residualvm-aros_prefix)
+else
+    ifeq (no,yes)
+        aros-residualvm-config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        aros-residualvm-config_opts  := --prefix=$(aros-residualvm-aros_prefix)
+    endif
+
+    aros-residualvm-PROGDIR := $(aros-residualvm-aros_prefix)
+    
+    aros-residualvm-install_opts := bindir=$(aros-residualvm-prefix) \
+        sbindir=$(aros-residualvm-prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    aros-residualvm-s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+aros-residualvm-TARGET_LDFLAGS :=
+else
+aros-residualvm-TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    aros-residualvm-HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    aros-residualvm-KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    aros-residualvm-TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    aros-residualvm-TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(aros-residualvm-nix)
+endif
+endif
+aros-residualvm-TARGET_CC?=$(TARGET_CC)
+aros-residualvm-KERNEL_CC?=$(KERNEL_CC)
+aros-residualvm-HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    aros-residualvm-HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    aros-residualvm-KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    aros-residualvm-TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    aros-residualvm-TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(aros-residualvm-nix)
+endif
+endif
+aros-residualvm-TARGET_CXX?=$(TARGET_CXX)
+aros-residualvm-KERNEL_CXX?=$(KERNEL_CXX)
+aros-residualvm-HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    aros-residualvm-cfg-env := $(RESIDUALVM_ENV) \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(aros-residualvm-HOST_CC) $(aros-residualvm-HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(aros-residualvm-HOST_CXX) $(aros-residualvm-HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    aros-residualvm-cfg-env += TARGET_CC="$(strip $(aros-residualvm-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(aros-residualvm-KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(aros-residualvm-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(aros-residualvm-KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    aros-residualvm-cfg-env := $(RESIDUALVM_ENV) \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    aros-residualvm-cfg-env += \
+        CPP="$(strip $(aros-residualvm-CROSS_CPP) $(aros-residualvm-CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(aros-residualvm-CROSS_CPP) $(aros-residualvm-CROSS_SYSROOT))" \
+        CC="$(strip $(aros-residualvm-CROSS_CC) $(aros-residualvm-CROSS_SYSROOT))" \
+        CXX="$(strip $(aros-residualvm-CROSS_CXX) $(aros-residualvm-CROSS_SYSROOT))" \
+        LD="$(strip $(aros-residualvm-CROSS_LD))" \
+        AS="$(strip $(aros-residualvm-CROSS_AS))" \
+        AFLAGS="$(strip $(aros-residualvm-CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(aros-residualvm-CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(aros-residualvm-CROSS_RANLIB))" \
+        STRIP="$(strip $(aros-residualvm-CROSS_STRIP))" \
+        CFLAGS="$(strip $(aros-residualvm-CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(aros-residualvm-CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(aros-residualvm-CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(aros-residualvm-CROSS_LDFLAGS))"
+    aros-residualvm-cfg-env += CC_FOR_HOST="$(strip $(aros-residualvm-CROSS_CC) $(aros-residualvm-CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(aros-residualvm-CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(aros-residualvm-CROSS_CXX) $(aros-residualvm-CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(aros-residualvm-CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(aros-residualvm-CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(aros-residualvm-CROSS_LDFLAGS))"
+else
+    aros-residualvm-cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(aros-residualvm-TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(aros-residualvm-TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    aros-residualvm-cfg-env += CFLAGS="$(strip $(aros-residualvm-TARGET_CFLAGS) $(aros-residualvm-AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(aros-residualvm-TARGET_CXXFLAGS) $(aros-residualvm-AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    aros-residualvm-cfg-env += LDFLAGS="$(strip $(aros-residualvm-TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(aros-residualvm-nix) $(aros-residualvm-s_flag))"
+    aros-residualvm-cfg-env += LT_LDFLAGS="$(strip $(aros-residualvm-TARGET_LDFLAGS))"
+    aros-residualvm-cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    aros-residualvm-cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(aros-residualvm-ACBUILD_CPPFLAGS))"
+endif
+    aros-residualvm-cfg-env += CC_FOR_BUILD="$(strip $(aros-residualvm-HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(aros-residualvm-HOST_CFLAGS) $(aros-residualvm-ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(aros-residualvm-HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(aros-residualvm-HOST_CXXFLAGS) $(aros-residualvm-ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(aros-residualvm-ACBUILD_LDFLAGS) $(aros-residualvm-s_flag))"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(aros-residualvm-ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    aros-residualvm-cfg-env += CC_FOR_HOST="$(strip $(aros-residualvm-TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(aros-residualvm-ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(aros-residualvm-nix))" \
+        CXX_FOR_HOST="$(strip $(aros-residualvm-TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(aros-residualvm-ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(aros-residualvm-nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(aros-residualvm-ACHOST_LDFLAGS) $(USER_LDFLAGS) $(aros-residualvm-nix) $(aros-residualvm-s_flag))"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(aros-residualvm-ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    aros-residualvm-cfg-env += CC_FOR_TARGET="$(strip $(aros-residualvm-TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(aros-residualvm-TARGET_CFLAGS) $(aros-residualvm-ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(aros-residualvm-TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(aros-residualvm-TARGET_CXXFLAGS) $(aros-residualvm-ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(aros-residualvm-TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(aros-residualvm-ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(aros-residualvm-nix) $(aros-residualvm-s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    aros-residualvm-cfg-env += TARGET_CC="$(strip $(aros-residualvm-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(aros-residualvm-KERNEL_CFLAGS) $(aros-residualvm-ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(aros-residualvm-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(aros-residualvm-KERNEL_CXXFLAGS) $(aros-residualvm-ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (no,yes)
+    aros-residualvm-config_opts += --target=$(AROS_TARGET_CPU)-aros
+    aros-residualvm-config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    aros-residualvm-config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (no,yes)
+    aros-residualvm-config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    aros-residualvm-config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    aros-residualvm-config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    aros-residualvm-cfg-env := $(RESIDUALVM_ENV) \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    aros-residualvm-cfg-env += CC="$(strip $(aros-residualvm-KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(aros-residualvm-KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(aros-residualvm-KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(aros-residualvm-KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    aros-residualvm-cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    aros-residualvm-cfg-env += CC_FOR_BUILD="$(aros-residualvm-HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(aros-residualvm-HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(aros-residualvm-HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(aros-residualvm-HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (no,yes)
+    aros-residualvm-config_opts += --target=$(AROS_TARGET_CPU)-aros
+    aros-residualvm-config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    aros-residualvm-config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (no,yes)
+    aros-residualvm-config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    aros-residualvm-config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    aros-residualvm-config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (yes,yes)
+    BUILD_ENV := $(aros-residualvm-cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+aros-residualvm-touchfileflag ?= $(aros-residualvm-pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(aros-residualvm-pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(aros-residualvm-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(aros-residualvm-pkgdir)))'"
+	$(Q)$(CP) -Rf "$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/." $(aros-residualvm-pkgdir)/ && $(TOUCH) $@
+
+$(aros-residualvm-touchfileflag) : $(aros-residualvm-pkgdir)/.local-copy
+
+    aros-residualvm-cfg-srcdir=$(aros-residualvm-pkgdir)
+else
+    aros-residualvm-cfg-srcdir=$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)
+endif
+aros-residualvm-make-env += -C $(aros-residualvm-pkgdir)
+
+.PHONY : aros-residualvm aros-residualvm-clean aros-residualvm-build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- aros-residualvm-host : setup includes aros-residualvm-quick
+#MM- aros-residualvm-target : setup includes core-linklibs aros-residualvm-quick
+#MM- aros-residualvm: aros-residualvm-target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    aros-residualvm-install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(aros-residualvm-pkgdir))" && \
+        $(MAKE) PROGDIR="$(aros-residualvm-PROGDIR)/" $(aros-residualvm-install_opts) \
+        $(aros-residualvm-make-env) install -j1
+
+    aros-residualvm-uninstall_command = \
+    $(RM) $(aros-residualvm-installflag) && \
+    $(MAKE) PROGDIR="$(aros-residualvm-PROGDIR)/" \
+    $(aros-residualvm-install_opts) $(aros-residualvm-make-env) uninstall
+else
+    aros-residualvm-install_command   := true
+    aros-residualvm-uninstall_command := true
+endif
+
+#MM- aros-residualvm-quick :  aros-residualvm-configure  aros-residualvm-build_and_install-quick 
+
+#MM
+aros-residualvm-build_and_install-quick :  $(aros-residualvm-installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(aros-residualvm-installflag) : $(aros-residualvm-configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call aros-residualvm-volfunc, PROGDIR)" -q $(aros-residualvm-make-env); then \
+	    $(RM) $(aros-residualvm-installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(aros-residualvm-pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call aros-residualvm-volfunc, PROGDIR)" $(aros-residualvm-make-env) && \
+	    $(aros-residualvm-install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(aros-residualvm-touchfileflag):
+	$(Q)$(FOR) dir in $(aros-residualvm-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION) -exec $(TOUCH) -c -r $(aros-residualvm-cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+aros-residualvm-uninstall :
+	$(aros-residualvm-uninstall_command)
+
+#MM
+aros-residualvm-configure : $(aros-residualvm-configflag)
+
+$(aros-residualvm-configflag) : TMP_SRCDIR := $(shell $(ECHO) $(aros-residualvm-cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(aros-residualvm-configflag) : $(aros-residualvm-touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(aros-residualvm-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(aros-residualvm-pkgdir))"
+	$(aros-residualvm-init-env)
+	$(Q)cd $(aros-residualvm-pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(aros-residualvm-cfg-env) $(TMP_SRCDIR)/configure $(aros-residualvm-config_opts) $(RESIDUALVM_OPTS) && \
+	$(TOUCH) $@
+
+#MM
+aros-residualvm-clean : aros-residualvm-uninstall
+	$(Q)$(RM) $(aros-residualvm-pkgdir)
+
+#%fetch_and_build mmake=aros-residualvm prefix="$(TARGETDIR)" \
+#    package="$(PACKAGE)-$(VERSION)-sources" suffixes="tar.bz2 tar.gz" \
+#    package_repo="$(REPOSITORIES)" patch=no extraoptions="$(RESIDUALVM_OPTS)" \
+#    crossbuild=no use_build_env=yes buildflags=no nix=no nix_dir_layout=no gnuflags=no
+
+#MM
+ports-emulation-residualvm-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

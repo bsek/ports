@@ -1,0 +1,1128 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-office : ports-office-muibase
+
+#MM  ports-office-muibase : includes linklibs contrib-zune-classes-nlist ports-office-muibase-fetch \
+#MM  ports-office-muibase-create ports-office-muibase-install ports-office-muibase-catalogs
+
+#MM- ports-office-muibase-install : ports-office-muibase-fetch \
+#MM  ports-office-muibase-demos ports-office-muibase-images \
+#MM  ports-office-muibase-icons ports-office-muibase-rexx \
+#MM  ports-office-muibase-instimages ports-office-muibase-projects \
+#MM  ports-office-muibase-cpy ports-office-muibase-readme
+
+#MM  ports-office-muibase-quick : ports-office-muibase-fetch
+
+MB_VERSION   := 3
+MB_REVISION  := 3
+MB_VERSTR    := 3.3
+
+REPOSITORIES := sf://beebase
+ARCHBASE     := MUIbase-$(MB_VERSTR)
+ARCHPKGBASE     := MUIbaseSource-$(MB_VERSTR)
+TARGETDIR    := $(AROS_CONTRIB)/Office/MUIbase
+BASE_SRCD    := src/base
+LANG_SRCD    := src/lang
+AMIGA_SRCD   := src/amiga
+MUI_SRCD     := src/amiga/mui
+MUIEXT_SRCD  := src/amiga/mui/extclasses
+POD          := src/po
+
+FROMAM       := $(PORTSDIR)/muibase/$(ARCHBASE)/install/amiga
+FROMSH       := $(PORTSDIR)/muibase/$(ARCHBASE)/install/share
+FROMDOC      := $(PORTSDIR)/muibase/$(ARCHBASE)/doc/text
+
+NOWARN_FLAGS := $(NOWARN_IMPLICIT_FUNCTION_DECL) $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_INCLUDES:= -I$(PORTSDIR)/muibase/$(ARCHBASE)/src -I$(PORTSDIR)/muibase/$(ARCHBASE)/$(BASE_SRCD) \
+                -I$(PORTSDIR)/muibase/$(ARCHBASE)/$(AMIGA_SRCD) -I$(PORTSDIR)/muibase/$(ARCHBASE)/$(LANG_SRCD)
+USER_CFLAGS := $(CFLAGS_GNU11) $(CFLAGS_NO_STRICT_ALIASING) $(NOWARN_FLAGS)
+USER_CFLAGS += -DAMIGA -DMUI -DMBASE -DUSE_HOOKENTRY -DNO_INLINE_STDARG
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+
+DATE         := date
+
+
+BASE_SRCS := \
+	$(BASE_SRCD)/main \
+	$(BASE_SRCD)/error \
+	$(BASE_SRCD)/server \
+	$(BASE_SRCD)/project \
+	$(BASE_SRCD)/log \
+	$(BASE_SRCD)/table \
+	$(BASE_SRCD)/attribute \
+	$(BASE_SRCD)/record \
+	$(BASE_SRCD)/memo \
+	$(BASE_SRCD)/display \
+	$(BASE_SRCD)/recorddescription \
+	$(BASE_SRCD)/gui \
+	$(BASE_SRCD)/buildgui \
+	$(BASE_SRCD)/preferences \
+	$(BASE_SRCD)/requesters \
+	$(BASE_SRCD)/structureeditor \
+	$(BASE_SRCD)/queryeditor \
+	$(BASE_SRCD)/imexport \
+	$(BASE_SRCD)/filter \
+	$(BASE_SRCD)/order \
+	$(BASE_SRCD)/search \
+	$(BASE_SRCD)/menuproject \
+	$(BASE_SRCD)/menuprefs \
+	$(BASE_SRCD)/menulog \
+	$(BASE_SRCD)/menutable \
+	$(BASE_SRCD)/menuprogram \
+	$(BASE_SRCD)/menuhelp \
+	$(BASE_SRCD)/menueditor \
+	$(BASE_SRCD)/status \
+	$(BASE_SRCD)/name \
+	$(BASE_SRCD)/memory \
+	$(BASE_SRCD)/util \
+	$(BASE_SRCD)/formatmemo \
+	$(BASE_SRCD)/strhandle \
+	$(BASE_SRCD)/labels \
+	$(BASE_SRCD)/fileinfo \
+	$(BASE_SRCD)/textfile \
+	$(BASE_SRCD)/guidosutil \
+	$(BASE_SRCD)/filelock \
+	$(BASE_SRCD)/dosutil
+
+LANG_SRCS := \
+	$(LANG_SRCD)/compile \
+	$(LANG_SRCD)/program \
+	$(LANG_SRCD)/programbingen \
+	$(LANG_SRCD)/programbinexe \
+	$(LANG_SRCD)/stack \
+	$(LANG_SRCD)/heap \
+	$(LANG_SRCD)/global \
+	$(LANG_SRCD)/functable \
+	$(LANG_SRCD)/func \
+	$(LANG_SRCD)/funccmp \
+	$(LANG_SRCD)/funcmath \
+	$(LANG_SRCD)/funcstr \
+	$(LANG_SRCD)/funcdate \
+	$(LANG_SRCD)/funclist \
+	$(LANG_SRCD)/funcio \
+	$(LANG_SRCD)/funcsfw \
+	$(LANG_SRCD)/funcdb \
+	$(LANG_SRCD)/funcprintf \
+	$(LANG_SRCD)/funcreq
+
+AMIGA_SRCS := \
+	$(AMIGA_SRCD)/codeset \
+	$(AMIGA_SRCD)/adosutil \
+	$(AMIGA_SRCD)/font \
+	$(AMIGA_SRCD)/exec
+
+MUI_SRCS := \
+	$(MUI_SRCD)/mui \
+	$(MUI_SRCD)/rexx_mui \
+	$(MUI_SRCD)/requesters_mui \
+	$(MUI_SRCD)/break_mui \
+	$(MUI_SRCD)/structureeditor_mui \
+	$(MUI_SRCD)/table_mui \
+	$(MUI_SRCD)/attribute_mui \
+	$(MUI_SRCD)/display_mui \
+	$(MUI_SRCD)/displaytable_mui \
+	$(MUI_SRCD)/displayattribute_mui \
+	$(MUI_SRCD)/recorddescriptionspec_mui \
+	$(MUI_SRCD)/menu_mui \
+	$(MUI_SRCD)/imexport_mui \
+	$(MUI_SRCD)/ansiprint_mui \
+	$(MUI_SRCD)/buildgui_mui \
+	$(MUI_SRCD)/buildguiattribute_mui \
+	$(MUI_SRCD)/buildguitable_mui \
+	$(MUI_SRCD)/buildguiwindow_mui \
+	$(MUI_SRCD)/quicksearch_mui \
+	$(MUI_SRCD)/filter_mui \
+	$(MUI_SRCD)/order_mui \
+	$(MUI_SRCD)/search_mui \
+	$(MUI_SRCD)/queryeditor_mui \
+	$(MUI_SRCD)/programeditor_mui \
+	$(MUI_SRCD)/progoutput_mui \
+	$(MUI_SRCD)/setformats_mui
+
+MUIEXT_SRCS := \
+	$(MUIEXT_SRCD)/ExtEditor_mcc \
+	$(MUIEXT_SRCD)/ExtApplication_mcc \
+	$(MUIEXT_SRCD)/ExtWindow_mcc \
+	$(MUIEXT_SRCD)/StringText_mcc \
+	$(MUIEXT_SRCD)/RefAttrSelector_mcc \
+	$(MUIEXT_SRCD)/NewCycle_mcc \
+	$(MUIEXT_SRCD)/DDList_mcc \
+	$(MUIEXT_SRCD)/SFWList_mcc \
+	$(MUIEXT_SRCD)/EditLabels_mcc \
+	$(MUIEXT_SRCD)/ActGroup_mcc \
+	$(MUIEXT_SRCD)/PopEditLabels_mcc \
+	$(MUIEXT_SRCD)/DataTypes_mcc \
+	$(MUIEXT_SRCD)/WindowButton_mcc \
+
+POT_SRC = $(POD)/MUIbase.pot
+
+AUTO_SRCS := y.tab appstrings_cat
+
+FILES := \
+	$(MUI_SRCS) \
+	$(MUIEXT_SRCS) \
+ 	$(BASE_SRCS) \
+	$(LANG_SRCS) \
+	$(AMIGA_SRCS) \
+	$(AUTO_SRCS)
+FILES := $(addprefix $(PORTSDIR)/muibase/$(ARCHBASE)/,$(FILES))
+
+
+.PHONY : ports-office-muibase
+
+#MM- ports-office-muibase : \
+#MM             ports-office-muibase-$(CPU)
+
+#MM- ports-office-muibase-$(ARCH)-$(CPU) : \
+#MM             ports-office-muibase-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-office-muibase-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-office-muibase-$(ARCH)-$(CPU)
+
+#MM- ports-office-muibase-$(ARCH) : \
+#MM             ports-office-muibase-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-office-muibase-$(FAMILY) : \
+#MM             ports-office-muibase-$(ARCH)
+
+#MM- ports-office-muibase-$(CPU) : \
+#MM             ports-office-muibase-$(FAMILY)
+#MM- ports-office-muibase-quick : \
+#MM             ports-office-muibase-$(CPU)-quick
+
+#MM- ports-office-muibase-$(ARCH)-$(CPU)-quick : \
+#MM             ports-office-muibase-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-office-muibase-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-office-muibase-$(ARCH)-$(CPU)-quick
+
+#MM- ports-office-muibase-$(ARCH)-quick : \
+#MM             ports-office-muibase-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-office-muibase-$(FAMILY)-quick : \
+#MM             ports-office-muibase-$(ARCH)-quick
+
+#MM- ports-office-muibase-$(CPU)-quick : \
+#MM             ports-office-muibase-$(FAMILY)-quick
+
+ports-office-muibase_PROGNAME  := MUIbase
+ports-office-muibase_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-office-muibase_TARGETDIR := $(TARGETDIR)
+ports-office-muibase_LINKER    := 
+ports-office-muibase_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-office-muibase_LINKER),)
+    ports-office-muibase_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-office-muibase_FILES     := $(FILES)
+    ports-office-muibase_OBJCFILES := 
+    ports-office-muibase_ASMFILES  := 
+    ports-office-muibase_CXXFILES := 
+else
+    ports-office-muibase_FILES     := $(ports-office-muibase_PROGNAME)
+    ports-office-muibase_OBJCFILES :=
+    ports-office-muibase_ASMFILES  :=
+    ports-office-muibase_CXXFILES :=
+endif
+
+ports-office-muibase_ARCHOBJS   := $(wildcard $(ports-office-muibase_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-office-muibase_ARCHFILES     := $(basename $(notdir $(ports-office-muibase_ARCHOBJS)))
+else
+    ports-office-muibase_ARCHFILES     := $(basename $(patsubst $(ports-office-muibase_OBJDIR)/%,%,$(ports-office-muibase_ARCHOBJS)))
+endif
+ports-office-muibase_C_NARCHFILES := $(filter-out $(ports-office-muibase_ARCHFILES),$(ports-office-muibase_FILES))
+ports-office-muibase_CXX_NARCHFILES := $(filter-out $(ports-office-muibase_ARCHFILES),$(ports-office-muibase_CXXFILES))
+ports-office-muibase_OBJC_NARCHFILES := $(filter-out $(ports-office-muibase_ARCHFILES),$(ports-office-muibase_OBJCFILES))
+
+TMP_FILES := $(ports-office-muibase_C_NARCHFILES) $(ports-office-muibase_CXX_NARCHFILES) $(ports-office-muibase_ASMFILES) $(ports-office-muibase_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-office-muibase_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-office-muibase_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-office-muibase_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(TMP_FILES))) )
+    ports-office-muibase_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-office-muibase_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-office-muibase_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-office-muibase_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-office-muibase_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-office-muibase_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-office-muibase_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-office-muibase_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-office-muibase_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-office-muibase_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-office-muibase_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-office-muibase_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-office-muibase_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-office-muibase_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-office-muibase_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-office-muibase_LDFLAGS          := 
+endif
+
+ports-office-muibase_CSTATICFLAGS   := `echo "$(ports-office-muibase_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-office-muibase_CSTDCFLAGS   :=  `echo "$(ports-office-muibase_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-office-muibase_CPOSIXCFLAGS   :=  `echo "$(ports-office-muibase_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-office-muibase_LDFLAGS          += $(strip $(ports-office-muibase_CSTATICFLAGS) $(ports-office-muibase_CSTDCFLAGS) $(ports-office-muibase_CPOSIXCFLAGS))
+
+ports-office-muibase_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-office-muibase_COVERAGE := yes
+ports-office-muibase_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-office-muibase_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-office-muibase_CFLAGS    := $(strip $(ports-office-muibase_COVERAGEFLAGS) $(ports-office-muibase_CFLAGS))
+ports-office-muibase_CXXFLAGS := $(strip $(ports-office-muibase_COVERAGEFLAGS) $(ports-office-muibase_CXXFLAGS))
+ports-office-muibase_LIBS += $(ports-office-muibase_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-office-muibase_FUNCINSTR := yes
+ports-office-muibase_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-office-muibase_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-office-muibase_CFLAGS    := $(strip $(ports-office-muibase_INSTRFUNCFLAGS) $(ports-office-muibase_CFLAGS))
+ports-office-muibase_CXXFLAGS := $(strip $(ports-office-muibase_INSTRFUNCFLAGS) $(ports-office-muibase_CXXFLAGS))
+ports-office-muibase_LIBS += $(ports-office-muibase_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-office-muibase_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-office-muibase_CFLAGS))
+ports-office-muibase_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-office-muibase_CXXFLAGS))
+endif
+endif
+ports-office-muibase_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-office-muibase_DFLAGS     := 
+else
+    ports-office-muibase_DFLAGS     := $(ports-office-muibase_CFLAGS)
+endif
+ifneq (,)
+    ports-office-muibase_DXXFLAGS     := 
+else
+    ports-office-muibase_DXXFLAGS     := $(ports-office-muibase_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-office-muibase_LDFLAGS           := $(ports-office-muibase_LDFLAGS)
+ports-office-muibase_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-office-muibase_LDFLAGS           := $(ports-office-muibase_LDFLAGS)
+ports-office-muibase_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-office-muibase_LDFLAGS           := $(ports-office-muibase_LDFLAGS)
+ports-office-muibase_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-office-muibase_LDFLAGS   += -L
+endif
+
+#MM
+ports-office-muibase-quick : ports-office-muibase
+
+#MM ports-office-muibase : includes-generate-deps core-linklibs
+ports-office-muibase : $(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-office-muibase_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-office-muibase_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-office-muibase_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-office-muibase_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-office-muibase_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-office-muibase_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-office-muibase ports-office-muibase-quick ports-office-muibase-compress-quick),)
+
+ports-office-muibase_CXXABSBASENAMES := $(foreach ports-office-muibase_CXXBASE,$(ports-office-muibase_CXX_NARCHFILES),$(if $(filter /%,$(ports-office-muibase_CXXBASE)),$(ports-office-muibase_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-office-muibase_CXXBASE))))
+
+ifneq ($(ports-office-muibase_CXXABSBASENAMES),)
+
+ports-office-muibase_CXXBASENAMES := $(basename $(ports-office-muibase_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-office-muibase_MCXX_FILES  := $(strip $(foreach ports-office-muibase_CXXBASE,$(ports-office-muibase_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-office-muibase_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-office-muibase_EXT),$(ports-office-muibase_CXXBASE)))))))
+
+ifeq (,)
+ports-office-muibase_MCXX_SRCWILDCARD := %
+else
+ports-office-muibase_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-office-muibase_OBJDIR),)
+  ports-office-muibase_CXXTARGETS := $(notdir $(ports-office-muibase_CXXBASENAMES:=.o))
+  ports-office-muibase_CXXDTARGETS := $(notdir $(ports-office-muibase_CXXBASENAMES:=.d))
+  ports-office-muibase_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-office-muibase_CXXTARGETS := $(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(ports-office-muibase_CXXBASENAMES:=.o)))
+  ports-office-muibase_CXXDTARGETS := $(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(ports-office-muibase_CXXBASENAMES:=.d)))
+  ports-office-muibase_MCXX_WILDCARD := $(ports-office-muibase_OBJDIR)/%
+else
+  ports-office-muibase_CXXTARGETS := $(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_CXXBASENAMES:=.o))
+  ports-office-muibase_CXXDTARGETS := $(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_CXXBASENAMES:=.d))
+  ports-office-muibase_MCXX_WILDCARD := $(ports-office-muibase_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-office-muibase_CXXTARGETS) $(ports-office-muibase_CXXDTARGETS) : | $(ports-office-muibase_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-office-muibase_MCXX_CPPFLAGS := $(ports-office-muibase_CPPFLAGS)
+ports-office-muibase_CXXFLAGS := $(ports-office-muibase_CXXFLAGS)
+ifeq ($(ports-office-muibase_DXXFLAGS),)
+  ports-office-muibase_DXXFLAGS := $(ports-office-muibase_CXXFLAGS)
+else
+  ports-office-muibase_DXXFLAGS := $(ports-office-muibase_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-office-muibase_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-office-muibase_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-office-muibase_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-office-muibase_STRIP ?= $(HOST_STRIP)
+  ports-office-muibase_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-office-muibase_CXXCMD:=$(HOST_CXX)
+  ports-office-muibase_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS) $(ports-office-muibase_MCXX_EXTRA_CPPFLAGS))
+  ports-office-muibase_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-office-muibase_CXXFLAGS))
+  ports-office-muibase_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-office-muibase_DXXFLAGS))
+  ports-office-muibase_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-office-muibase_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-office-muibase_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-office-muibase_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-office-muibase_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-office-muibase_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-office-muibase_LDFLAGS ?= $(ports-office-muibase_CXXLDFLAGS)
+  ports-office-muibase_STRIP ?= $(TARGET_STRIP)
+  ports-office-muibase_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-office-muibase_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-office-muibase_MCXX_CPPFLAGS := $(strip $(ports-office-muibase_MCXX_CPPFLAGS) $(ports-office-muibase_MCXX_EXTRA_CPPFLAGS))
+  ports-office-muibase_CXXFLAGS := $(strip $(ports-office-muibase_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-office-muibase_DXXFLAGS := $(ports-office-muibase_DXXFLAGS)
+  ports-office-muibase_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-office-muibase_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-office-muibase_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-office-muibase_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-office-muibase_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-office-muibase_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-office-muibase_LDFLAGS ?= $(ports-office-muibase_CXXLDFLAGS)
+  ports-office-muibase_STRIP ?= $(ECHO) >/dev/null
+  ports-office-muibase_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-office-muibase_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-office-muibase_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS) $(ports-office-muibase_MCXX_EXTRA_CPPFLAGS))
+  ports-office-muibase_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-office-muibase_CXXFLAGS))
+  ports-office-muibase_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-office-muibase_DXXFLAGS))
+  ports-office-muibase_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-office-muibase_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-office-muibase_CXXCMD) $(ports-office-muibase_CXXIQUOTE) $(dir $(2)) $(ports-office-muibase_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) . $(ports-office-muibase_CXXIQUOTE_END) $(strip $(ports-office-muibase_CXXFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-office-muibase_CXXCMD) $(ports-office-muibase_CXXIQUOTE) $(dir $(2)) $(ports-office-muibase_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) . $(ports-office-muibase_CXXIQUOTE_END) $(strip $(ports-office-muibase_CXXFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-office-muibase_CXXCMD) $(ports-office-muibase_CXXIQUOTE) $(dir $(2)) $(ports-office-muibase_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_CXXIQUOTE) . $(ports-office-muibase_CXXIQUOTE_END) $(strip $(ports-office-muibase_CXXFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-office-muibase_CXXCMD)" $(MKDEPEND) $(strip $(ports-office-muibase_DXXFLAGS) $(ports-office-muibase_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-office-muibase_OBJDIR),)
+  $(foreach ports-office-muibase_CXXFILE,$(ports-office-muibase_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-office-muibase_CXXFILE))),$(ports-office-muibase_CXXFILE))))
+else
+  $(foreach ports-office-muibase_CXXFILE,$(ports-office-muibase_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(basename $(ports-office-muibase_CXXFILE)))),$(ports-office-muibase_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-office-muibase_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-office-muibase_MOBJC_SRCWILDCARD := %
+else
+ports-office-muibase_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-office-muibase_OBJDIR),)
+  ports-office-muibase_MOBJC_TARGETS := $(addsuffix .o,$(ports-office-muibase_OBJC_NARCHFILES))
+  ports-office-muibase_MOBJC_DTARGETS := $(addsuffix .d,$(ports-office-muibase_OBJC_NARCHFILES))
+  ports-office-muibase_MOBJC_WILDCARD := %
+else
+  ports-office-muibase_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_OBJC_NARCHFILES)))
+  ports-office-muibase_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_OBJC_NARCHFILES)))
+  ports-office-muibase_MOBJC_WILDCARD := $(ports-office-muibase_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-office-muibase_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-office-muibase_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-office-muibase_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-office-muibase_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-office-muibase_MOBJC_DIRS := $(foreach dir, $(ports-office-muibase_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-office-muibase_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-office-muibase_MOBJC_DIRS),)
+    ports-office-muibase_MOBJC_DIRS := $(shell $(ECHO) $(ports-office-muibase_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-office-muibase_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-office-muibase_CC := $(TARGET_CC)
+else
+  ports-office-muibase_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-office-muibase_MOBJC_CPPFLAGS := $(ports-office-muibase_CPPFLAGS)
+ports-office-muibase_OBJCFLAGS := $(ports-office-muibase_CFLAGS)
+ports-office-muibase_OBJCFLAGS := $(ports-office-muibase_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-office-muibase_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-office-muibase_OBJCFLAGS)))
+ifeq ($(ports-office-muibase_DFLAGS),)
+  ports-office-muibase_OBJCDFLAGS := $(ports-office-muibase_CFLAGS)
+else
+  ports-office-muibase_OBJCDFLAGS := $(ports-office-muibase_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-office-muibase_LINK ?= $(strip $(ports-office-muibase_CC) $(TARGET_SYSROOT))
+  ports-office-muibase_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-office-muibase_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-office-muibase_STRIP ?= $(TARGET_STRIP)
+  ports-office-muibase_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : CMD:=$(strip $(ports-office-muibase_CC) $(TARGET_SYSROOT))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_MOBJC_CPPFLAGS:=$(strip $(ports-office-muibase_MOBJC_CPPFLAGS) $(ports-office-muibase_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCFLAGS:=$(strip $(ports-office-muibase_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCDFLAGS:=$(ports-office-muibase_OBJCDFLAGS)
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-office-muibase_LINK ?= $(strip $(HOST_OBJC))
+  ports-office-muibase_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-office-muibase_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-office-muibase_STRIP ?= $(HOST_STRIP)
+  ports-office-muibase_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-office-muibase_MOBJC_CPPFLAGS) $(ports-office-muibase_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-office-muibase_OBJCFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-office-muibase_OBJCDFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-office-muibase_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-office-muibase_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-office-muibase_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-office-muibase_STRIP ?= $(ECHO) >/dev/null
+  ports-office-muibase_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-office-muibase_MOBJC_CPPFLAGS) $(ports-office-muibase_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-office-muibase_OBJCFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-office-muibase_OBJCDFLAGS))
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-office-muibase_MOBJC_TARGETS) $(ports-office-muibase_MOBJC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-office-muibase_MOBJC_TARGETS) : CPPFLAGS := $(ports-office-muibase_MOBJC_CPPFLAGS)
+$(ports-office-muibase_MOBJC_TARGETS) : CFLAGS := $(ports-office-muibase_OBJCFLAGS)
+$(ports-office-muibase_MOBJC_TARGETS) : $(ports-office-muibase_MOBJC_WILDCARD).o : $(ports-office-muibase_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-office-muibase_MOBJC_DTARGETS) : $(ports-office-muibase_MOBJC_WILDCARD).d : $(ports-office-muibase_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-office-muibase_OBJCDFLAGS) $(ports-office-muibase_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-office-muibase_MC_SRCWILDCARD := %
+else
+ports-office-muibase_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-office-muibase_OBJDIR),)
+ports-office-muibase_MC_TARGETS := $(addsuffix .o,$(ports-office-muibase_C_NARCHFILES))
+ports-office-muibase_MC_DTARGETS := $(addsuffix .d,$(ports-office-muibase_C_NARCHFILES))
+ports-office-muibase_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-office-muibase_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(ports-office-muibase_C_NARCHFILES))))
+    ports-office-muibase_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(ports-office-muibase_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-office-muibase_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_C_NARCHFILES)))
+    ports-office-muibase_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(ports-office-muibase_C_NARCHFILES)))
+else
+    ports-office-muibase_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(patsubst /%,%,$(ports-office-muibase_C_NARCHFILES))))
+    ports-office-muibase_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-office-muibase_OBJDIR)/,$(patsubst /%,%,$(ports-office-muibase_C_NARCHFILES))))
+endif
+endif
+ports-office-muibase_MC_TGTWILDCARD := $(ports-office-muibase_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : | $(addsuffix .c,$(ports-office-muibase_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-office-muibase_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-office-muibase_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-office-muibase_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-office-muibase_MC_DIRS := $(foreach dir, $(ports-office-muibase_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-office-muibase_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-office-muibase_MC_DIRS),)
+    ports-office-muibase_MC_DIRS := $(shell $(ECHO) $(ports-office-muibase_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-office-muibase_MC_DIRS)
+endif
+
+endif
+
+ports-office-muibase_MC_CPPFLAGS := $(ports-office-muibase_CPPFLAGS)
+ports-office-muibase_CFLAGS := $(ports-office-muibase_CFLAGS)
+ifeq ($(ports-office-muibase_DFLAGS),)
+  ports-office-muibase_DFLAGS := $(ports-office-muibase_CFLAGS)
+else
+  ports-office-muibase_DFLAGS := $(ports-office-muibase_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-office-muibase_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-office-muibase_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-office-muibase_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-office-muibase_STRIP ?= $(TARGET_STRIP)
+ports-office-muibase_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_MC_CPPFLAGS:=$(strip $(ports-office-muibase_MC_CPPFLAGS) $(ports-office-muibase_MC_EXTRA_CPPFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_CFLAGS:=$(strip $(ports-office-muibase_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_DFLAGS:=$(ports-office-muibase_DFLAGS)
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-office-muibase_LINK ?= $(strip $(HOST_CC))
+ports-office-muibase_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-office-muibase_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-office-muibase_STRIP ?= $(HOST_STRIP)
+ports-office-muibase_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-office-muibase_MC_CPPFLAGS) $(ports-office-muibase_MC_EXTRA_CPPFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-office-muibase_CFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-office-muibase_DFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE:=$(HOST_IQUOTE)
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-office-muibase_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-office-muibase_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-office-muibase_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-office-muibase_STRIP ?= $(ECHO) >/dev/null
+ports-office-muibase_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-office-muibase_MC_CPPFLAGS) $(ports-office-muibase_MC_EXTRA_CPPFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-office-muibase_CFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-office-muibase_DFLAGS))
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-office-muibase_MC_TARGETS) $(ports-office-muibase_MC_DTARGETS) : ports-office-muibase_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-office-muibase_MC_TARGETS) : CPPFLAGS := $(ports-office-muibase_MC_CPPFLAGS)
+$(ports-office-muibase_MC_TARGETS) : CFLAGS := $(ports-office-muibase_CFLAGS)
+$(ports-office-muibase_MC_TARGETS) : $(ports-office-muibase_MC_TGTWILDCARD).o : $(ports-office-muibase_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-office-muibase_IQUOTE) $(dir $<) $(ports-office-muibase_IQUOTE) $(TOP)/$(CURDIR) $(ports-office-muibase_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-office-muibase_IQUOTE) . $(ports-office-muibase_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-office-muibase_MC_DTARGETS) : $(ports-office-muibase_MC_TGTWILDCARD).d : $(ports-office-muibase_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-office-muibase_DFLAGS) $(ports-office-muibase_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-office-muibase_OBJDIR),)
+ports-office-muibase-MA_TARGETS := $(addsuffix .o,$(ports-office-muibase_ASMFILES))
+ports-office-muibase-MA_WILDCARD := %
+else
+ports-office-muibase-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-office-muibase_OBJDIR)/,$(notdir $(ports-office-muibase_ASMFILES))))
+ports-office-muibase-MA_WILDCARD := $(ports-office-muibase_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-office-muibase-MA_TARGETS) : | $(addsuffix .s,$(ports-office-muibase_ASMFILES))
+
+# Be sure that all .c files are found
+ports-office-muibase-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-office-muibase-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-office-muibase_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-office-muibase-MA_DIRS := $(foreach dir, $(ports-office-muibase-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-office-muibase-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-office-muibase-MA_DIRS),)
+    ports-office-muibase-MA_DIRS := $(shell $(ECHO) $(ports-office-muibase-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-office-muibase-MA_DIRS)
+endif
+
+endif
+
+ports-office-muibase-MA_ASSEMBLER ?= $(ports-office-muibase_ASSEMBLER)
+
+$(ports-office-muibase-MA_TARGETS) : ports-office-muibase-MA_CMD:= $(ports-office-muibase-MA_ASSEMBLER)
+
+$(ports-office-muibase-MA_TARGETS) : CPPFLAGS := $(ports-office-muibase_CPPFLAGS)
+$(ports-office-muibase-MA_TARGETS) : AFLAGS := $(ports-office-muibase_AFLAGS)
+$(ports-office-muibase-MA_TARGETS) : $(ports-office-muibase-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-office-muibase-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-office-muibase-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-office-muibase-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-office-muibase-link_LD_OPTS := 
+ports-office-muibase-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-office-muibase-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-office-muibase-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-office-muibase-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-office-muibase-link_DIRS := $(subst -L ,-L,$(strip $(ports-office-muibase_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-office-muibase-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-office-muibase-link_DIRS)))
+# Add trailing /
+ports-office-muibase-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-office-muibase-link_DIRS)))
+# Add normal linklib path
+ports-office-muibase-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-office-muibase-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-office-muibase_LIBS) $(ports-office-muibase-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-office-muibase-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-office-muibase-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-office-muibase-link_DEPLIBS := $(foreach lib,$(ports-office-muibase-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-office-muibase-link_DIRS)))) \
+)
+
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : OBJDIR := $(ports-office-muibase_OBJDIR)
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : OBJS := $(strip $(ports-office-muibase_OBJS) $(ports-office-muibase_ARCHOBJS) $(USER_OBJS))
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : LDFLAGS := $(strip $(ports-office-muibase_LDFLAGS))
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-office-muibase_LIBS) $(ports-office-muibase-link_EXTRA_LIBS)))
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-office-muibase_ARCHLIBS))
+$(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : $(ports-office-muibase_OBJS) $(ports-office-muibase_ARCHOBJS) $(USER_OBJS) $(ports-office-muibase-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-office-muibase_LINK) $(strip $(ports-office-muibase_LD_OPTS) $(ports-office-muibase-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-office-muibase_LINK) $(strip $(ports-office-muibase_LD_OPTS) $(ports-office-muibase-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-office-muibase_LINK) $(strip $(ports-office-muibase_LD_OPTS) $(ports-office-muibase-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-office-muibase_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-office-muibase_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-office-muibase_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-office-muibase_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-office-muibase_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-office-muibase_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-office-muibase_DEPS),)
+  ifneq (ports-office-muibase ports-office-muibase-quick,)
+    ifneq ($(findstring $(TARGET),ports-office-muibase ports-office-muibase-quick),)
+      -include $(ports-office-muibase_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-office-muibase_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-office-muibase_OBJS) $(ports-office-muibase_DEPS) $(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME),)
+$(ports-office-muibase_OBJS) $(ports-office-muibase_DEPS) $(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) : | $(ports-office-muibase_OBJDIR) $(ports-office-muibase_TARGETDIR)
+else
+$(ports-office-muibase_OBJS) $(ports-office-muibase_DEPS) $(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) :: $(ports-office-muibase_OBJDIR) $(ports-office-muibase_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-office-muibase_OBJDIR) $(ports-office-muibase_TARGETDIR)
+
+
+ports-office-muibase-clean : FILES := $(ports-office-muibase_OBJS) $(ports-office-muibase_TARGETDIR)/$(ports-office-muibase_PROGNAME) $(ports-office-muibase_DEPS)
+#MM
+ports-office-muibase-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-office-muibase"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-office-muibase-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-office-muibase-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-office-muibase-fetch-location := $(PORTSDIR)/muibase
+endif
+
+ifneq (,)
+    ports-office-muibase-fetch-baseflag := -b 
+else
+    ports-office-muibase-fetch-baseflag :=
+endif
+
+ports-office-muibase-fetch-fetchedflag := $(ports-office-muibase-fetch-location)/.$(ARCHPKGBASE)-fetched
+
+#MM
+ports-office-muibase-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHPKGBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHPKGBASE) -s "tgz" -l $(ports-office-muibase-fetch-location) \
+	-d $(PORTSDIR)/muibase $(ports-office-muibase-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHPKGBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-office-muibase-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-office-muibase-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-office-muibase-create-patch
+
+ifneq (,)
+    ports-office-muibase-create-patch-location := 
+else
+    ports-office-muibase-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-office-muibase-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-office-muibase-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-office-muibase-create-patch-srcdir   := $(ARCHPKGBASE)
+endif
+
+ifeq (no,yes)
+    ports-office-muibase-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-office-muibase-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-office-muibase-create-patch-baseflag := -b /tmp
+    ports-office-muibase-create-patch-base := 
+else
+    ports-office-muibase-create-patch-baseflag :=
+    ports-office-muibase-create-patch-base := $(PORTSDIR)/muibase
+endif
+
+#MM- ports-office-muibase-create-patch :  ports-office-muibase-create-patch-diff 
+#MM- ports-office-muibase-create-patch-quick :  ports-office-muibase-create-patch-diff 
+
+#MM
+ports-office-muibase-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-office-muibase-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-office-muibase-create-patch-base)/$(ports-office-muibase-create-patch-srcdir) $(ports-office-muibase-create-patch-base)/tmp/$(ports-office-muibase-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHPKGBASE) -s "tgz" -f -l $(ports-office-muibase-create-patch-location) -d $(PORTSDIR)/muibase $(ports-office-muibase-create-patch-baseflag); \
+	$(MV) $(ports-office-muibase-create-patch-base)/$(ports-office-muibase-create-patch-srcdir) $(ports-office-muibase-create-patch-base)/tmp/$(ports-office-muibase-create-patch-srcdir) ; \
+	cd $(ports-office-muibase-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHPKGBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-office-muibase-create-patch-diffflag) $(ports-office-muibase-create-patch-exclude) \
+	    $(ports-office-muibase-create-patch-srcdir) \
+	    $(ports-office-muibase-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHPKGBASE)-aros-new.diff ; \
+	$(MV) $(ports-office-muibase-create-patch-base)/tmp/$(ports-office-muibase-create-patch-srcdir).aros $(ports-office-muibase-create-patch-base)/$(ports-office-muibase-create-patch-srcdir) ; \
+	$(RM) $(ports-office-muibase-create-patch-base)/tmp
+
+##### Generate some source files #####
+
+#MM
+ports-office-muibase-create : appstrings_cat.h builddate.h version.h $(PORTSDIR)/muibase/$(ARCHBASE)/y.tab.c $(PORTSDIR)/muibase/$(ARCHBASE)/appstrings_cat.c
+	$(NOP)
+
+appstrings_cat.h : $(PORTSDIR)/muibase/$(ARCHBASE)/$(POT_SRC)
+	@$(ECHO) "Creating MUIbase catalog include file $@"
+	@$(FLEXCAT) QUIET $(PORTSDIR)/muibase/$(ARCHBASE)/$(POT_SRC) appstrings_cat.h=$(PORTSDIR)/muibase/$(ARCHBASE)/$(AMIGA_SRCD)/Catalogs/AutoC_h.sd
+
+builddate.h:
+	$(DATE) "+#define BUILD_YEAR \"%Y\"" > $@
+	$(DATE) "+#define BUILD_DATE \"%d.%m.%Y\"" >> $@
+
+version.h: $(PORTSDIR)/muibase/$(ARCHBASE)
+	$(ECHO) "#define MB_VERSION $(MB_VERSION)" > $@
+	$(ECHO) "#define MB_REVISION $(MB_REVISION)" >> $@
+	$(ECHO) "#define MB_VERSTR \"$(MB_VERSTR)\"" >> $@
+
+$(PORTSDIR)/muibase/$(ARCHBASE)/y.tab.c: $(PORTSDIR)/muibase/$(ARCHBASE)/$(LANG_SRCD)/parser.y $(PORTSDIR)/muibase/$(ARCHBASE)/lex.yy.c
+	yacc -o $@ $<
+
+$(PORTSDIR)/muibase/$(ARCHBASE)/lex.yy.c: $(PORTSDIR)/muibase/$(ARCHBASE)/$(LANG_SRCD)/scanner.l
+	flex -8 -o$@ $<
+
+$(PORTSDIR)/muibase/$(ARCHBASE)/appstrings_cat.c : $(PORTSDIR)/muibase/$(ARCHBASE)/$(POT_SRC)
+	@$(ECHO) "Creating MUIbase catalog code file $@"
+	@$(FLEXCAT) QUIET $(PORTSDIR)/muibase/$(ARCHBASE)/$(POT_SRC) $(PORTSDIR)/muibase/$(ARCHBASE)/appstrings_cat.c=$(PORTSDIR)/muibase/$(ARCHBASE)/$(AMIGA_SRCD)/Catalogs/AutoC_c.sd
+
+
+##### Copy files and directories #####
+
+
+ports-office-muibase-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/muibase/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-office-muibase-cpy
+
+#MM
+ports-office-muibase-cpy : | $(TARGETDIR) 
+	$(foreach file, AUTHORS COPYING, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-office-muibase-cpy_SRC)),$(ports-office-muibase-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-office-muibase-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+
+.PHONY : ports-office-muibase-demos
+
+#MM
+ports-office-muibase-demos :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(FROMSH)/demos),$(if $(filter $(SRCDIR)/%,$(abspath $(FROMSH)/demos)),$(patsubst $(SRCDIR)/%,%,$(abspath $(FROMSH)/demos)),$(patsubst $(TOP)/%,%,$(abspath $(FROMSH)/demos))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(FROMSH)/demos)))' to '$(if $(filter /%,$(TARGETDIR)/Demos),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Demos)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Demos)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Demos))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Demos)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(FROMSH)/demos -d $(TARGETDIR)/Demos -e 
+
+
+
+.PHONY : ports-office-muibase-images
+
+#MM
+ports-office-muibase-images :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(FROMSH)/images),$(if $(filter $(SRCDIR)/%,$(abspath $(FROMSH)/images)),$(patsubst $(SRCDIR)/%,%,$(abspath $(FROMSH)/images)),$(patsubst $(TOP)/%,%,$(abspath $(FROMSH)/images))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(FROMSH)/images)))' to '$(if $(filter /%,$(TARGETDIR)/Images),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Images)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Images)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Images))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Images)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(FROMSH)/images -d $(TARGETDIR)/Images -e 
+
+
+
+.PHONY : ports-office-muibase-icons
+
+#MM
+ports-office-muibase-icons :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(FROMAM)/png),$(if $(filter $(SRCDIR)/%,$(abspath $(FROMAM)/png)),$(patsubst $(SRCDIR)/%,%,$(abspath $(FROMAM)/png)),$(patsubst $(TOP)/%,%,$(abspath $(FROMAM)/png))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(FROMAM)/png)))' to '$(if $(filter /%,$(TARGETDIR)/..),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/..)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/..)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/..))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/..)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(FROMAM)/png -d $(TARGETDIR)/.. -e 
+
+
+
+.PHONY : ports-office-muibase-rexx
+
+#MM
+ports-office-muibase-rexx :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(FROMAM)/rexx),$(if $(filter $(SRCDIR)/%,$(abspath $(FROMAM)/rexx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(FROMAM)/rexx)),$(patsubst $(TOP)/%,%,$(abspath $(FROMAM)/rexx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(FROMAM)/rexx)))' to '$(if $(filter /%,$(TARGETDIR)/rexx),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/rexx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/rexx)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/rexx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/rexx)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(FROMAM)/rexx -d $(TARGETDIR)/rexx -e 
+
+
+
+.PHONY : ports-office-muibase-instimages
+
+#MM
+ports-office-muibase-instimages :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(FROMAM)/Images),$(if $(filter $(SRCDIR)/%,$(abspath $(FROMAM)/Images)),$(patsubst $(SRCDIR)/%,%,$(abspath $(FROMAM)/Images)),$(patsubst $(TOP)/%,%,$(abspath $(FROMAM)/Images))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(FROMAM)/Images)))' to '$(if $(filter /%,$(TARGETDIR)/Images),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Images)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Images)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Images))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Images)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(FROMAM)/Images -d $(TARGETDIR)/Images -e 
+
+
+
+##### Create ReadMe, LiesMich and LisezMoi #####
+
+#MM
+ports-office-muibase-readme : $(TARGETDIR)/ReadMe $(TARGETDIR)/LiesMich $(TARGETDIR)/LisezMoi
+
+$(TARGETDIR)/ReadMe : $(FROMDOC)/readme
+	iconv -f utf-8 -t iso-8859-1 $< -o $@
+
+$(TARGETDIR)/LiesMich : $(FROMDOC)/liesmich
+	iconv -f utf-8 -t iso-8859-1  $< -o $@
+
+$(TARGETDIR)/LisezMoi : $(FROMDOC)/lisezmoi
+	iconv -f utf-8 -t iso-8859-1  $< -o $@
+
+
+##### Create Projects drawer #####
+
+#MM
+ports-office-muibase-projects :
+	$(Q)$(IF) $(TEST) ! -d $(TARGETDIR)/Projects ; then $(MKDIR) $(TARGETDIR)/Projects ; else $(NOP) ; fi
+
+
+##### Create catalogs #####
+
+#MM
+ports-office-muibase-catalogs : $(TARGETDIR)/Catalogs/deutsch/MUIbase.catalog $(TARGETDIR)/Catalogs/french/MUIbase.catalog
+	$(NOP)
+
+$(TARGETDIR)/Catalogs/deutsch/MUIbase.catalog : $(PORTSDIR)/muibase/$(ARCHBASE)/src/po/de.po $(PORTSDIR)/muibase/$(ARCHBASE)/src/po/MUIbase.pot
+	@$(ECHO) "Creating $(CATNAME) catalog for language 'deutsch'."
+	@$(MKDIR) $(TARGETDIR)/Catalogs/deutsch
+	$(FLEXCAT) POFILE $< CATALOG $@
+
+$(TARGETDIR)/Catalogs/french/MUIbase.catalog : $(PORTSDIR)/muibase/$(ARCHBASE)/src/po/fr.po $(PORTSDIR)/muibase/$(ARCHBASE)/src/po/MUIbase.pot
+	@$(ECHO) "Creating $(CATNAME) catalog for language 'français'."
+	@$(MKDIR) $(TARGETDIR)/Catalogs/french
+	$(FLEXCAT) POFILE $< CATALOG $@
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

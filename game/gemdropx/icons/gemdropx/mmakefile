@@ -1,0 +1,55 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game-gemdropx-icons : ports-game-gemdropx-icons-gemdropx
+
+ICONS     := GemDropX README.txt
+TARGETDIR := $(AROS_CONTRIB)/Games/Puzzle/GemDropX
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-game-gemdropx-icons-gemdropx : $(BD_OBJS)
+
+ifeq (,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-game-gemdropx-icons-gemdropx-clean : FILES := $(BD_OBJS)
+#MM
+ports-game-gemdropx-icons-gemdropx-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-game-gemdropx-icons-gemdropx ports-game-gemdropx-icons-gemdropx-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

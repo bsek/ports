@@ -1,0 +1,611 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-devel : ports-devel-ctags
+
+PACKAGE      := ctags
+VERSION      := 5.8
+TARGETDIR    := $(AROS_CONTRIB)/$(AROS_DIR_DEVELOPER)/Ctags
+REPOSITORIES := sf://ctags
+CTAGS_OPTIONS=\
+        --enable-shell-globbing=no \
+        --disable-external-sort
+# ctags ignores CPPFLAGS, so push them in CFLAGS
+USER_CFLAGS := $(CFLAGS_GNU99) -D_GNU_SOURCE -DAMIGA -DAROS_SAFE_HEADERINLINE
+
+
+#MM- ports-devel-ctags-quick : ports-devel-ctags--quick
+#MM- ports-devel-ctags--quick : ports-devel-ctags--fetch
+#MM- ports-devel-ctags-fetch : ports-devel-ctags--fetch
+#MM- ports-devel-ctags-create-patch : ports-devel-ctags--create-patch
+#MM- ports-devel-ctags-create-patch-quick : ports-devel-ctags--create-patch
+ 
+ports-devel-ctags-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-devel-ctags-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-devel-ctags-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-devel-ctags-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-devel-ctags-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-devel-ctags--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-devel-ctags--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-devel-ctags--srcdir        ?= 
+else
+    ports-devel-ctags--srcdir        ?= $(ports-devel-ctags-archbase)
+endif
+
+ifneq (,)
+    ports-devel-ctags--builddir      ?= $(ports-devel-ctags--srcdir)/
+else
+    ports-devel-ctags--builddir      ?= $(ports-devel-ctags--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-devel-ctags--patches_specs ?= $(ports-devel-ctags--archbase)-aros.diff:$(ports-devel-ctags--srcdir):-f,-p1
+else
+    ports-devel-ctags--patches_specs ?= ::
+endif
+else
+    ports-devel-ctags--patches_specs ?= 
+endif
+
+
+.PHONY: ports-devel-ctags--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-devel-ctags--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-devel-ctags--fetch-location := $(ports-devel-ctags-portdir)
+endif
+
+ifneq (,)
+    ports-devel-ctags--fetch-baseflag := -b 
+else
+    ports-devel-ctags--fetch-baseflag :=
+endif
+
+ports-devel-ctags--fetch-fetchedflag := $(ports-devel-ctags--fetch-location)/.$(ports-devel-ctags--archbase)-fetched
+
+#MM
+ports-devel-ctags--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-devel-ctags--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-devel-ctags--archbase) -s "tar.gz" -l $(ports-devel-ctags--fetch-location) \
+	-d $(ports-devel-ctags-portdir) $(ports-devel-ctags--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-devel-ctags--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-devel-ctags--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-devel-ctags--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-devel-ctags--create-patch
+
+ifneq (,)
+    ports-devel-ctags--create-patch-location := 
+else
+    ports-devel-ctags--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-devel-ctags--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-devel-ctags--srcdir),)
+    ports-devel-ctags--create-patch-srcdir   := $(ports-devel-ctags--srcdir)
+else
+    ports-devel-ctags--create-patch-srcdir   := $(ports-devel-ctags--archbase)
+endif
+
+ifeq (no,yes)
+    ports-devel-ctags--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-devel-ctags--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-devel-ctags--create-patch-baseflag := -b /tmp
+    ports-devel-ctags--create-patch-base := 
+else
+    ports-devel-ctags--create-patch-baseflag :=
+    ports-devel-ctags--create-patch-base := $(ports-devel-ctags-portdir)
+endif
+
+#MM- ports-devel-ctags--create-patch :  ports-devel-ctags--create-patch-diff 
+#MM- ports-devel-ctags--create-patch-quick :  ports-devel-ctags--create-patch-diff 
+
+#MM
+ports-devel-ctags--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-devel-ctags--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-devel-ctags--create-patch-base)/$(ports-devel-ctags--create-patch-srcdir) $(ports-devel-ctags--create-patch-base)/tmp/$(ports-devel-ctags--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-devel-ctags--archbase) -s "tar.gz" -f -l $(ports-devel-ctags--create-patch-location) -d $(ports-devel-ctags-portdir) $(ports-devel-ctags--create-patch-baseflag); \
+	$(MV) $(ports-devel-ctags--create-patch-base)/$(ports-devel-ctags--create-patch-srcdir) $(ports-devel-ctags--create-patch-base)/tmp/$(ports-devel-ctags--create-patch-srcdir) ; \
+	cd $(ports-devel-ctags--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-devel-ctags--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-devel-ctags--create-patch-diffflag) $(ports-devel-ctags--create-patch-exclude) \
+	    $(ports-devel-ctags--create-patch-srcdir) \
+	    $(ports-devel-ctags--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-devel-ctags--archbase)-aros-new.diff ; \
+	$(MV) $(ports-devel-ctags--create-patch-base)/tmp/$(ports-devel-ctags--create-patch-srcdir).aros $(ports-devel-ctags--create-patch-base)/$(ports-devel-ctags--create-patch-srcdir) ; \
+	$(RM) $(ports-devel-ctags--create-patch-base)/tmp
+
+#MM ports-devel-ctags : ports-devel-ctags-
+#MM
+ports-devel-ctags:
+	$(Q)$(NOP)
+
+ports-devel-ctags--package-dir := $(ports-devel-ctags-portdir)/$(ports-devel-ctags--archbase)
+
+ports-devel-ctags--package-basename := \
+    $(DISTDIR)/Packages/$(ports-devel-ctags--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-devel-ctags--package := $(ports-devel-ctags--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-devel-ctags-prefix),)
+    ports-devel-ctags--prefix := $(ports-devel-ctags-prefix)
+else
+    ports-devel-ctags--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-devel-ctags--aros_prefix := 
+else
+    ports-devel-ctags--aros_prefix := $(ports-devel-ctags--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-devel-ctags--nix    := $(BD_NIXFLAG)
+    ports-devel-ctags--volpfx := /
+    ports-devel-ctags--volsfx := /
+    
+    ifeq (,)
+        ports-devel-ctags--nix_dir_layout := yes
+    endif
+else
+    ports-devel-ctags--volsfx := :
+    
+    ifeq (,)
+        ports-devel-ctags--nix_dir_layout := no
+    endif
+endif
+
+ports-devel-ctags--volfunc = $(ports-devel-ctags--volpfx)$(notdir $1)$(ports-devel-ctags--volsfx)
+
+ports-devel-ctags--install_opts += prefix=$(ports-devel-ctags--prefix) \
+        exec_prefix=$(ports-devel-ctags--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-devel-ctags--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-devel-ctags--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-devel-ctags--pkgbasedir := $(GENDIR)
+    else
+        ports-devel-ctags--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-devel-ctags--pkgbasedir := 
+    else
+        ports-devel-ctags--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-devel-ctags--pkgdir := $(ports-devel-ctags--pkgbasedir)
+else
+    ports-devel-ctags--pkgdir := $(ports-devel-ctags--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-devel-ctags--configflag ?= $(ports-devel-ctags--pkgdir)/.configured
+ports-devel-ctags--installflag ?= $(ports-devel-ctags--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-devel-ctags--nix_dir_layout) $(host)),yes)
+    ports-devel-ctags--PROGDIR      := $(ports-devel-ctags--aros_prefix)/bin
+    ports-devel-ctags--config_opts  := --prefix=$(ports-devel-ctags--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-devel-ctags--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-devel-ctags--config_opts  := --prefix=$(ports-devel-ctags--aros_prefix)
+    endif
+
+    ports-devel-ctags--PROGDIR := $(ports-devel-ctags--aros_prefix)
+    
+    ports-devel-ctags--install_opts := bindir=$(ports-devel-ctags--prefix) \
+        sbindir=$(ports-devel-ctags--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-devel-ctags--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-devel-ctags--TARGET_LDFLAGS :=
+else
+ports-devel-ctags--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-devel-ctags--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-devel-ctags--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-devel-ctags--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-devel-ctags--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-devel-ctags--nix)
+endif
+endif
+ports-devel-ctags--TARGET_CC?=$(TARGET_CC)
+ports-devel-ctags--KERNEL_CC?=$(KERNEL_CC)
+ports-devel-ctags--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-devel-ctags--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-devel-ctags--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-devel-ctags--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-devel-ctags--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-devel-ctags--nix)
+endif
+endif
+ports-devel-ctags--TARGET_CXX?=$(TARGET_CXX)
+ports-devel-ctags--KERNEL_CXX?=$(KERNEL_CXX)
+ports-devel-ctags--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-devel-ctags--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-devel-ctags--HOST_CC) $(ports-devel-ctags--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-devel-ctags--HOST_CXX) $(ports-devel-ctags--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-devel-ctags--cfg-env += TARGET_CC="$(strip $(ports-devel-ctags--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-devel-ctags--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-devel-ctags--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-devel-ctags--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-devel-ctags--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-devel-ctags--cfg-env += \
+        CPP="$(strip $(ports-devel-ctags--CROSS_CPP) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-devel-ctags--CROSS_CPP) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-devel-ctags--CROSS_CC) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-devel-ctags--CROSS_CXX) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-devel-ctags--CROSS_LD))" \
+        AS="$(strip $(ports-devel-ctags--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-devel-ctags--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-devel-ctags--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-devel-ctags--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-devel-ctags--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-devel-ctags--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-devel-ctags--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-devel-ctags--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-devel-ctags--CROSS_LDFLAGS))"
+    ports-devel-ctags--cfg-env += CC_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_CC) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_CXX) $(ports-devel-ctags--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-devel-ctags--CROSS_LDFLAGS))"
+else
+    ports-devel-ctags--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-devel-ctags--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-devel-ctags--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-devel-ctags--cfg-env += CFLAGS="$(strip $(ports-devel-ctags--TARGET_CFLAGS) $(ports-devel-ctags--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-devel-ctags--TARGET_CXXFLAGS) $(ports-devel-ctags--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-devel-ctags--cfg-env += LDFLAGS="$(strip $(ports-devel-ctags--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-devel-ctags--nix) $(ports-devel-ctags--s_flag))"
+    ports-devel-ctags--cfg-env += LT_LDFLAGS="$(strip $(ports-devel-ctags--TARGET_LDFLAGS))"
+    ports-devel-ctags--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-devel-ctags--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-devel-ctags--ACBUILD_CPPFLAGS))"
+endif
+    ports-devel-ctags--cfg-env += CC_FOR_BUILD="$(strip $(ports-devel-ctags--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-devel-ctags--HOST_CFLAGS) $(ports-devel-ctags--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-devel-ctags--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-devel-ctags--HOST_CXXFLAGS) $(ports-devel-ctags--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-devel-ctags--ACBUILD_LDFLAGS) $(ports-devel-ctags--s_flag))"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-devel-ctags--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-devel-ctags--cfg-env += CC_FOR_HOST="$(strip $(ports-devel-ctags--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-devel-ctags--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-devel-ctags--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-devel-ctags--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-devel-ctags--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-devel-ctags--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-devel-ctags--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-devel-ctags--nix) $(ports-devel-ctags--s_flag))"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-devel-ctags--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-devel-ctags--cfg-env += CC_FOR_TARGET="$(strip $(ports-devel-ctags--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-devel-ctags--TARGET_CFLAGS) $(ports-devel-ctags--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-devel-ctags--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-devel-ctags--TARGET_CXXFLAGS) $(ports-devel-ctags--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-devel-ctags--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-devel-ctags--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-devel-ctags--nix) $(ports-devel-ctags--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-devel-ctags--cfg-env += TARGET_CC="$(strip $(ports-devel-ctags--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-devel-ctags--KERNEL_CFLAGS) $(ports-devel-ctags--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-devel-ctags--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-devel-ctags--KERNEL_CXXFLAGS) $(ports-devel-ctags--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-devel-ctags--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-devel-ctags--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-devel-ctags--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-devel-ctags--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-devel-ctags--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-devel-ctags--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-devel-ctags--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-devel-ctags--cfg-env += CC="$(strip $(ports-devel-ctags--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-devel-ctags--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-devel-ctags--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-devel-ctags--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-devel-ctags--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-devel-ctags--cfg-env += CC_FOR_BUILD="$(ports-devel-ctags--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-devel-ctags--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-devel-ctags--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-devel-ctags--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-devel-ctags--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-devel-ctags--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-devel-ctags--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-devel-ctags--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-devel-ctags--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-devel-ctags--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-devel-ctags--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-devel-ctags--touchfileflag ?= $(ports-devel-ctags--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-devel-ctags-portdir)/$(ports-devel-ctags--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-devel-ctags--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-devel-ctags--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-devel-ctags--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-devel-ctags-portdir)/$(ports-devel-ctags--builddir)/." $(ports-devel-ctags--pkgdir)/ && $(TOUCH) $@
+
+$(ports-devel-ctags--touchfileflag) : $(ports-devel-ctags--pkgdir)/.local-copy
+
+    ports-devel-ctags--cfg-srcdir=$(ports-devel-ctags--pkgdir)
+else
+    ports-devel-ctags--cfg-srcdir=$(ports-devel-ctags-portdir)/$(ports-devel-ctags--builddir)
+endif
+ports-devel-ctags--make-env += -C $(ports-devel-ctags--pkgdir)
+
+.PHONY : ports-devel-ctags- ports-devel-ctags--clean ports-devel-ctags--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-devel-ctags--host : setup includes ports-devel-ctags--quick
+#MM- ports-devel-ctags--target : setup includes core-linklibs ports-devel-ctags--quick
+#MM- ports-devel-ctags-: ports-devel-ctags--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-devel-ctags--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-devel-ctags--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-devel-ctags--PROGDIR)/" $(ports-devel-ctags--install_opts) \
+        $(ports-devel-ctags--make-env) install -j1
+
+    ports-devel-ctags--uninstall_command = \
+    $(RM) $(ports-devel-ctags--installflag) && \
+    $(MAKE) PROGDIR="$(ports-devel-ctags--PROGDIR)/" \
+    $(ports-devel-ctags--install_opts) $(ports-devel-ctags--make-env) uninstall
+else
+    ports-devel-ctags--install_command   := true
+    ports-devel-ctags--uninstall_command := true
+endif
+
+#MM- ports-devel-ctags--quick :  ports-devel-ctags--configure  ports-devel-ctags--build_and_install-quick ports-devel-ctags--make-package
+
+#MM
+ports-devel-ctags--build_and_install-quick :  $(ports-devel-ctags--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-devel-ctags--installflag) : $(ports-devel-ctags--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-devel-ctags--volfunc, PROGDIR)" -q $(ports-devel-ctags--make-env); then \
+	    $(RM) $(ports-devel-ctags--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-devel-ctags--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-devel-ctags--volfunc, PROGDIR)" $(ports-devel-ctags--make-env) && \
+	    $(ports-devel-ctags--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-devel-ctags--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-devel-ctags--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-devel-ctags-portdir)/$(ports-devel-ctags--builddir) -exec $(TOUCH) -c -r $(ports-devel-ctags--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-devel-ctags--uninstall :
+	$(ports-devel-ctags--uninstall_command)
+
+#MM
+ports-devel-ctags--configure : $(ports-devel-ctags--configflag)
+
+$(ports-devel-ctags--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-devel-ctags--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-devel-ctags--configflag) : $(ports-devel-ctags--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-devel-ctags--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-devel-ctags--pkgdir))"
+	$(ports-devel-ctags--init-env)
+	$(Q)cd $(ports-devel-ctags--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-devel-ctags--cfg-env) $(TMP_SRCDIR)/configure $(ports-devel-ctags--config_opts) $(CTAGS_OPTIONS) && \
+	$(TOUCH) $@
+
+#MM
+ports-devel-ctags--clean : ports-devel-ctags--uninstall
+	$(Q)$(RM) $(ports-devel-ctags--pkgdir)
+
+.PHONY : ports-devel-ctags--make-package ports-devel-ctags--create-patch
+#MM ports-devel-ctags--make-package : ports-devel-ctags--quick
+
+#MM
+ports-devel-ctags--make-package : $(ports-devel-ctags--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-devel-ctags--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-devel-ctags-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-devel-ctags--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-devel-ctags-prefix)" ; \
+	    cd $(ports-devel-ctags--package-dir) ; \
+	    tar -cvf $(ports-devel-ctags--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-devel-ctags--package-basename).tar ; \
+	fi
+
+#MM
+ports-devel-ctags-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

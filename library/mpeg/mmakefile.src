@@ -2,7 +2,7 @@
 
 include $(SRCDIR)/config/aros-contrib.cfg
 
-REPOSITORIES := https://libmpeg2.sourceforge.io/files/
+REPOSITORIES := https://download.videolan.org/contrib/libmpeg2
 ARCHBASE := libmpeg2-0.5.1
 #PATCHSPEC := $(ARCHBASE)-aros.diff:$(ARCHBASE):-p1
 

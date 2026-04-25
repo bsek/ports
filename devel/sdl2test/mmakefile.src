@@ -1,0 +1,17 @@
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-devel : ports-devel-sdl2test
+
+#MM- ports-devel-sdl2test : contrib-sdl2
+
+TARGETDIR := $(AROS_CONTRIB)/Development/SDL2Test
+
+USER_INCLUDES := -I$(AROS_INCLUDES)/SDL2
+USER_CFLAGS := -D_GNU_SOURCE=1
+USER_LDFLAGS :=
+
+%build_prog mmake=ports-devel-sdl2test progname=sdl2test \
+    files=sdl2test targetdir=$(TARGETDIR) \
+    uselibs="SDL2"
+
+%common

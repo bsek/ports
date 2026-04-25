@@ -1,0 +1,607 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-devel : ports-devel-cflow
+
+PACKAGE      := cflow
+VERSION      := 1.5
+TARGETDIR    := $(AROS_CONTRIB)/$(AROS_DIR_DEVELOPER)/CFlow
+REPOSITORIES := gnu://cflow
+
+
+#MM- ports-devel-cflow-quick : ports-devel-cflow--quick
+#MM- ports-devel-cflow--quick : ports-devel-cflow--fetch
+#MM- ports-devel-cflow-fetch : ports-devel-cflow--fetch
+#MM- ports-devel-cflow-create-patch : ports-devel-cflow--create-patch
+#MM- ports-devel-cflow-create-patch-quick : ports-devel-cflow--create-patch
+ 
+ports-devel-cflow-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-devel-cflow-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-devel-cflow-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-devel-cflow-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-devel-cflow-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-devel-cflow--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-devel-cflow--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-devel-cflow--srcdir        ?= 
+else
+    ports-devel-cflow--srcdir        ?= $(ports-devel-cflow-archbase)
+endif
+
+ifneq (,)
+    ports-devel-cflow--builddir      ?= $(ports-devel-cflow--srcdir)/
+else
+    ports-devel-cflow--builddir      ?= $(ports-devel-cflow--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-devel-cflow--patches_specs ?= $(ports-devel-cflow--archbase)-aros.diff:$(ports-devel-cflow--srcdir):-f,-p1
+else
+    ports-devel-cflow--patches_specs ?= ::
+endif
+else
+    ports-devel-cflow--patches_specs ?= 
+endif
+
+
+.PHONY: ports-devel-cflow--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-devel-cflow--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-devel-cflow--fetch-location := $(ports-devel-cflow-portdir)
+endif
+
+ifneq (,)
+    ports-devel-cflow--fetch-baseflag := -b 
+else
+    ports-devel-cflow--fetch-baseflag :=
+endif
+
+ports-devel-cflow--fetch-fetchedflag := $(ports-devel-cflow--fetch-location)/.$(ports-devel-cflow--archbase)-fetched
+
+#MM
+ports-devel-cflow--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-devel-cflow--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-devel-cflow--archbase) -s "tar.bz2" -l $(ports-devel-cflow--fetch-location) \
+	-d $(ports-devel-cflow-portdir) $(ports-devel-cflow--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-devel-cflow--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-devel-cflow--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-devel-cflow--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-devel-cflow--create-patch
+
+ifneq (,)
+    ports-devel-cflow--create-patch-location := 
+else
+    ports-devel-cflow--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-devel-cflow--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-devel-cflow--srcdir),)
+    ports-devel-cflow--create-patch-srcdir   := $(ports-devel-cflow--srcdir)
+else
+    ports-devel-cflow--create-patch-srcdir   := $(ports-devel-cflow--archbase)
+endif
+
+ifeq (no,yes)
+    ports-devel-cflow--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-devel-cflow--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-devel-cflow--create-patch-baseflag := -b /tmp
+    ports-devel-cflow--create-patch-base := 
+else
+    ports-devel-cflow--create-patch-baseflag :=
+    ports-devel-cflow--create-patch-base := $(ports-devel-cflow-portdir)
+endif
+
+#MM- ports-devel-cflow--create-patch :  ports-devel-cflow--create-patch-diff 
+#MM- ports-devel-cflow--create-patch-quick :  ports-devel-cflow--create-patch-diff 
+
+#MM
+ports-devel-cflow--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-devel-cflow--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-devel-cflow--create-patch-base)/$(ports-devel-cflow--create-patch-srcdir) $(ports-devel-cflow--create-patch-base)/tmp/$(ports-devel-cflow--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-devel-cflow--archbase) -s "tar.bz2" -f -l $(ports-devel-cflow--create-patch-location) -d $(ports-devel-cflow-portdir) $(ports-devel-cflow--create-patch-baseflag); \
+	$(MV) $(ports-devel-cflow--create-patch-base)/$(ports-devel-cflow--create-patch-srcdir) $(ports-devel-cflow--create-patch-base)/tmp/$(ports-devel-cflow--create-patch-srcdir) ; \
+	cd $(ports-devel-cflow--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-devel-cflow--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-devel-cflow--create-patch-diffflag) $(ports-devel-cflow--create-patch-exclude) \
+	    $(ports-devel-cflow--create-patch-srcdir) \
+	    $(ports-devel-cflow--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-devel-cflow--archbase)-aros-new.diff ; \
+	$(MV) $(ports-devel-cflow--create-patch-base)/tmp/$(ports-devel-cflow--create-patch-srcdir).aros $(ports-devel-cflow--create-patch-base)/$(ports-devel-cflow--create-patch-srcdir) ; \
+	$(RM) $(ports-devel-cflow--create-patch-base)/tmp
+
+#MM ports-devel-cflow : ports-devel-cflow-
+#MM
+ports-devel-cflow:
+	$(Q)$(NOP)
+
+ports-devel-cflow--package-dir := $(ports-devel-cflow-portdir)/$(ports-devel-cflow--archbase)
+
+ports-devel-cflow--package-basename := \
+    $(DISTDIR)/Packages/$(ports-devel-cflow--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-devel-cflow--package := $(ports-devel-cflow--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-devel-cflow-prefix),)
+    ports-devel-cflow--prefix := $(ports-devel-cflow-prefix)
+else
+    ports-devel-cflow--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-devel-cflow--aros_prefix := 
+else
+    ports-devel-cflow--aros_prefix := $(ports-devel-cflow--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-devel-cflow--nix    := $(BD_NIXFLAG)
+    ports-devel-cflow--volpfx := /
+    ports-devel-cflow--volsfx := /
+    
+    ifeq (,)
+        ports-devel-cflow--nix_dir_layout := yes
+    endif
+else
+    ports-devel-cflow--volsfx := :
+    
+    ifeq (,)
+        ports-devel-cflow--nix_dir_layout := no
+    endif
+endif
+
+ports-devel-cflow--volfunc = $(ports-devel-cflow--volpfx)$(notdir $1)$(ports-devel-cflow--volsfx)
+
+ports-devel-cflow--install_opts += prefix=$(ports-devel-cflow--prefix) \
+        exec_prefix=$(ports-devel-cflow--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-devel-cflow--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-devel-cflow--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-devel-cflow--pkgbasedir := $(GENDIR)
+    else
+        ports-devel-cflow--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-devel-cflow--pkgbasedir := 
+    else
+        ports-devel-cflow--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-devel-cflow--pkgdir := $(ports-devel-cflow--pkgbasedir)
+else
+    ports-devel-cflow--pkgdir := $(ports-devel-cflow--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-devel-cflow--configflag ?= $(ports-devel-cflow--pkgdir)/.configured
+ports-devel-cflow--installflag ?= $(ports-devel-cflow--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-devel-cflow--nix_dir_layout) $(host)),yes)
+    ports-devel-cflow--PROGDIR      := $(ports-devel-cflow--aros_prefix)/bin
+    ports-devel-cflow--config_opts  := --prefix=$(ports-devel-cflow--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-devel-cflow--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-devel-cflow--config_opts  := --prefix=$(ports-devel-cflow--aros_prefix)
+    endif
+
+    ports-devel-cflow--PROGDIR := $(ports-devel-cflow--aros_prefix)
+    
+    ports-devel-cflow--install_opts := bindir=$(ports-devel-cflow--prefix) \
+        sbindir=$(ports-devel-cflow--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-devel-cflow--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-devel-cflow--TARGET_LDFLAGS :=
+else
+ports-devel-cflow--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-devel-cflow--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-devel-cflow--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-devel-cflow--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-devel-cflow--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-devel-cflow--nix)
+endif
+endif
+ports-devel-cflow--TARGET_CC?=$(TARGET_CC)
+ports-devel-cflow--KERNEL_CC?=$(KERNEL_CC)
+ports-devel-cflow--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-devel-cflow--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-devel-cflow--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-devel-cflow--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-devel-cflow--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-devel-cflow--nix)
+endif
+endif
+ports-devel-cflow--TARGET_CXX?=$(TARGET_CXX)
+ports-devel-cflow--KERNEL_CXX?=$(KERNEL_CXX)
+ports-devel-cflow--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-devel-cflow--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-devel-cflow--HOST_CC) $(ports-devel-cflow--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-devel-cflow--HOST_CXX) $(ports-devel-cflow--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-devel-cflow--cfg-env += TARGET_CC="$(strip $(ports-devel-cflow--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-devel-cflow--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-devel-cflow--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-devel-cflow--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-devel-cflow--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-devel-cflow--cfg-env += \
+        CPP="$(strip $(ports-devel-cflow--CROSS_CPP) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-devel-cflow--CROSS_CPP) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-devel-cflow--CROSS_CC) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-devel-cflow--CROSS_CXX) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-devel-cflow--CROSS_LD))" \
+        AS="$(strip $(ports-devel-cflow--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-devel-cflow--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-devel-cflow--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-devel-cflow--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-devel-cflow--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-devel-cflow--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-devel-cflow--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-devel-cflow--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-devel-cflow--CROSS_LDFLAGS))"
+    ports-devel-cflow--cfg-env += CC_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_CC) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_CXX) $(ports-devel-cflow--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-devel-cflow--CROSS_LDFLAGS))"
+else
+    ports-devel-cflow--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-devel-cflow--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-devel-cflow--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-devel-cflow--cfg-env += CFLAGS="$(strip $(ports-devel-cflow--TARGET_CFLAGS) $(ports-devel-cflow--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-devel-cflow--TARGET_CXXFLAGS) $(ports-devel-cflow--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-devel-cflow--cfg-env += LDFLAGS="$(strip $(ports-devel-cflow--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-devel-cflow--nix) $(ports-devel-cflow--s_flag))"
+    ports-devel-cflow--cfg-env += LT_LDFLAGS="$(strip $(ports-devel-cflow--TARGET_LDFLAGS))"
+    ports-devel-cflow--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-devel-cflow--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-devel-cflow--ACBUILD_CPPFLAGS))"
+endif
+    ports-devel-cflow--cfg-env += CC_FOR_BUILD="$(strip $(ports-devel-cflow--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-devel-cflow--HOST_CFLAGS) $(ports-devel-cflow--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-devel-cflow--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-devel-cflow--HOST_CXXFLAGS) $(ports-devel-cflow--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-devel-cflow--ACBUILD_LDFLAGS) $(ports-devel-cflow--s_flag))"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-devel-cflow--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-devel-cflow--cfg-env += CC_FOR_HOST="$(strip $(ports-devel-cflow--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-devel-cflow--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-devel-cflow--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-devel-cflow--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-devel-cflow--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-devel-cflow--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-devel-cflow--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-devel-cflow--nix) $(ports-devel-cflow--s_flag))"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-devel-cflow--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-devel-cflow--cfg-env += CC_FOR_TARGET="$(strip $(ports-devel-cflow--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-devel-cflow--TARGET_CFLAGS) $(ports-devel-cflow--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-devel-cflow--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-devel-cflow--TARGET_CXXFLAGS) $(ports-devel-cflow--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-devel-cflow--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-devel-cflow--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-devel-cflow--nix) $(ports-devel-cflow--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-devel-cflow--cfg-env += TARGET_CC="$(strip $(ports-devel-cflow--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-devel-cflow--KERNEL_CFLAGS) $(ports-devel-cflow--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-devel-cflow--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-devel-cflow--KERNEL_CXXFLAGS) $(ports-devel-cflow--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-devel-cflow--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-devel-cflow--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-devel-cflow--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-devel-cflow--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-devel-cflow--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-devel-cflow--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-devel-cflow--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-devel-cflow--cfg-env += CC="$(strip $(ports-devel-cflow--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-devel-cflow--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-devel-cflow--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-devel-cflow--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-devel-cflow--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-devel-cflow--cfg-env += CC_FOR_BUILD="$(ports-devel-cflow--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-devel-cflow--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-devel-cflow--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-devel-cflow--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-devel-cflow--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-devel-cflow--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-devel-cflow--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-devel-cflow--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-devel-cflow--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-devel-cflow--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-devel-cflow--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-devel-cflow--touchfileflag ?= $(ports-devel-cflow--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-devel-cflow-portdir)/$(ports-devel-cflow--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-devel-cflow--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-devel-cflow--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-devel-cflow--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-devel-cflow-portdir)/$(ports-devel-cflow--builddir)/." $(ports-devel-cflow--pkgdir)/ && $(TOUCH) $@
+
+$(ports-devel-cflow--touchfileflag) : $(ports-devel-cflow--pkgdir)/.local-copy
+
+    ports-devel-cflow--cfg-srcdir=$(ports-devel-cflow--pkgdir)
+else
+    ports-devel-cflow--cfg-srcdir=$(ports-devel-cflow-portdir)/$(ports-devel-cflow--builddir)
+endif
+ports-devel-cflow--make-env += -C $(ports-devel-cflow--pkgdir)
+
+.PHONY : ports-devel-cflow- ports-devel-cflow--clean ports-devel-cflow--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-devel-cflow--host : setup includes ports-devel-cflow--quick
+#MM- ports-devel-cflow--target : setup includes core-linklibs ports-devel-cflow--quick
+#MM- ports-devel-cflow-: ports-devel-cflow--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-devel-cflow--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-devel-cflow--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-devel-cflow--PROGDIR)/" $(ports-devel-cflow--install_opts) \
+        $(ports-devel-cflow--make-env) install -j1
+
+    ports-devel-cflow--uninstall_command = \
+    $(RM) $(ports-devel-cflow--installflag) && \
+    $(MAKE) PROGDIR="$(ports-devel-cflow--PROGDIR)/" \
+    $(ports-devel-cflow--install_opts) $(ports-devel-cflow--make-env) uninstall
+else
+    ports-devel-cflow--install_command   := true
+    ports-devel-cflow--uninstall_command := true
+endif
+
+#MM- ports-devel-cflow--quick :  ports-devel-cflow--configure  ports-devel-cflow--build_and_install-quick ports-devel-cflow--make-package
+
+#MM
+ports-devel-cflow--build_and_install-quick :  $(ports-devel-cflow--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-devel-cflow--installflag) : $(ports-devel-cflow--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-devel-cflow--volfunc, PROGDIR)" -q $(ports-devel-cflow--make-env); then \
+	    $(RM) $(ports-devel-cflow--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-devel-cflow--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-devel-cflow--volfunc, PROGDIR)" $(ports-devel-cflow--make-env) && \
+	    $(ports-devel-cflow--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-devel-cflow--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-devel-cflow--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-devel-cflow-portdir)/$(ports-devel-cflow--builddir) -exec $(TOUCH) -c -r $(ports-devel-cflow--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-devel-cflow--uninstall :
+	$(ports-devel-cflow--uninstall_command)
+
+#MM
+ports-devel-cflow--configure : $(ports-devel-cflow--configflag)
+
+$(ports-devel-cflow--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-devel-cflow--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-devel-cflow--configflag) : $(ports-devel-cflow--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-devel-cflow--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-devel-cflow--pkgdir))"
+	$(ports-devel-cflow--init-env)
+	$(Q)cd $(ports-devel-cflow--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-devel-cflow--cfg-env) $(TMP_SRCDIR)/configure $(ports-devel-cflow--config_opts)  && \
+	$(TOUCH) $@
+
+#MM
+ports-devel-cflow--clean : ports-devel-cflow--uninstall
+	$(Q)$(RM) $(ports-devel-cflow--pkgdir)
+
+.PHONY : ports-devel-cflow--make-package ports-devel-cflow--create-patch
+#MM ports-devel-cflow--make-package : ports-devel-cflow--quick
+
+#MM
+ports-devel-cflow--make-package : $(ports-devel-cflow--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-devel-cflow--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-devel-cflow-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-devel-cflow--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-devel-cflow-prefix)" ; \
+	    cd $(ports-devel-cflow--package-dir) ; \
+	    tar -cvf $(ports-devel-cflow--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-devel-cflow--package-basename).tar ; \
+	fi
+
+
+#MM
+ports-devel-cflow-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

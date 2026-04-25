@@ -103,6 +103,14 @@ inline WORD KeymapMapRawKey(struct InputEvent *event, STRPTR buffer,
 		struct Library *, KeymapBase, 7, Keymap);
 }
 
+// intuition.library SetWindowPointer wrapper (macro undef'd in aros_compat.h)
+inline void IntuiSetWindowPointer(struct ::Window *win, struct TagItem *tags) {
+	AROS_LC2NR(void, SetWindowPointerA,
+		AROS_LCA(struct ::Window *, win, A0),
+		AROS_LCA(struct TagItem *, tags, A1),
+		struct IntuitionBase *, IntuitionBase, 136, Intuition);
+}
+
 // MUI C++ helpers (get/set are C-only macros)
 inline BOOL MUIGet(Object *obj, ULONG attr, IPTR *storage) {
 	return GetAttr(attr, obj, storage);

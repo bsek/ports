@@ -1,0 +1,55 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game-interlogic : ports-game-interlogic-icons
+
+ICONS     := InterLogic
+TARGETDIR := $(AROS_CONTRIB)/Games/Puzzle
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-game-interlogic-icons : $(BD_OBJS)
+
+ifeq (,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-game-interlogic-icons-clean : FILES := $(BD_OBJS)
+#MM
+ports-game-interlogic-icons-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-game-interlogic-icons ports-game-interlogic-icons-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

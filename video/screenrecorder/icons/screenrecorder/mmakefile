@@ -1,0 +1,56 @@
+# Copyright © 2004, The AROS Development Team. All rights reserved.
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-video-screenrecorder-icons : ports-video-screenrecorder-icons-screenrecorder
+
+ICONS     := ScreenRecorder
+TARGETDIR := $(AROS_CONTRIB)/MultiMedia/Video/ScreenRecorder
+
+
+BD_OBJS := $(addprefix  $(TARGETDIR)/, $(addsuffix .info,$(ICONS)))
+
+#MM
+ports-video-screenrecorder-icons-screenrecorder : $(BD_OBJS)
+
+ifeq ($(ICONS)-$(AROS_TARGET_ICONSET).png,)
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/%.png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+else
+
+$(TARGETDIR)/%.info : $(SRCDIR)/$(CURDIR)/%.info.src $(SRCDIR)/$(CURDIR)/$(ICONS)-$(AROS_TARGET_ICONSET).png
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ILBMTOICON) $+ $@
+
+endif
+
+
+ifneq ($(BD_OBJS),)
+$(BD_OBJS) : | $(TARGETDIR)
+else
+$(BD_OBJS) :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+ports-video-screenrecorder-icons-screenrecorder-clean : FILES := $(BD_OBJS)
+#MM
+ports-video-screenrecorder-icons-screenrecorder-clean ::
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-video-screenrecorder-icons-screenrecorder ports-video-screenrecorder-icons-screenrecorder-clean
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

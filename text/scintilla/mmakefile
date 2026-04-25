@@ -1,0 +1,1371 @@
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-scintilla
+#MM  ports-text-scintilla : includes linklibs workbench-libs-zunegfx
+
+SCINTILLA_DIR := $(SRCDIR)/ports/text/scintilla
+
+USER_CXXFLAGS := -std=c++17 \
+    -DPLAT_AROS=1 \
+    -DSCI_LEXER \
+    -fexceptions \
+    -include $(SCINTILLA_DIR)/aros/aros_compat.h \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/src
+
+USER_INCLUDES := \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/src \
+    -I$(AROS_INCLUDES)
+
+# Core Scintilla source files (platform-independent)
+CORE_FILES := \
+    $(SCINTILLA_DIR)/src/AutoComplete \
+    $(SCINTILLA_DIR)/src/CallTip \
+    $(SCINTILLA_DIR)/src/CaseConvert \
+    $(SCINTILLA_DIR)/src/CaseFolder \
+    $(SCINTILLA_DIR)/src/CellBuffer \
+    $(SCINTILLA_DIR)/src/ChangeHistory \
+    $(SCINTILLA_DIR)/src/CharClassify \
+    $(SCINTILLA_DIR)/src/CharacterCategoryMap \
+    $(SCINTILLA_DIR)/src/CharacterType \
+    $(SCINTILLA_DIR)/src/ContractionState \
+    $(SCINTILLA_DIR)/src/DBCS \
+    $(SCINTILLA_DIR)/src/Decoration \
+    $(SCINTILLA_DIR)/src/Document \
+    $(SCINTILLA_DIR)/src/EditModel \
+    $(SCINTILLA_DIR)/src/EditView \
+    $(SCINTILLA_DIR)/src/Editor \
+    $(SCINTILLA_DIR)/src/Geometry \
+    $(SCINTILLA_DIR)/src/Indicator \
+    $(SCINTILLA_DIR)/src/KeyMap \
+    $(SCINTILLA_DIR)/src/LineMarker \
+    $(SCINTILLA_DIR)/src/MarginView \
+    $(SCINTILLA_DIR)/src/PerLine \
+    $(SCINTILLA_DIR)/src/PositionCache \
+    $(SCINTILLA_DIR)/src/RESearch \
+    $(SCINTILLA_DIR)/src/RunStyles \
+    $(SCINTILLA_DIR)/src/ScintillaBase \
+    $(SCINTILLA_DIR)/src/Selection \
+    $(SCINTILLA_DIR)/src/Style \
+    $(SCINTILLA_DIR)/src/UndoHistory \
+    $(SCINTILLA_DIR)/src/UniConversion \
+    $(SCINTILLA_DIR)/src/UniqueString \
+    $(SCINTILLA_DIR)/src/ViewStyle \
+    $(SCINTILLA_DIR)/src/XPM
+
+# AROS platform-specific files
+AROS_FILES := \
+    $(SCINTILLA_DIR)/aros/PlatAROS \
+    $(SCINTILLA_DIR)/aros/ScintillaAROS
+
+FILES := $(CORE_FILES) $(AROS_FILES)
+
+
+#MM- ports-text-scintilla : \
+#MM             ports-text-scintilla-$(CPU)
+
+#MM- ports-text-scintilla-$(ARCH)-$(CPU) : \
+#MM             ports-text-scintilla-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-scintilla-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-scintilla-$(ARCH)-$(CPU)
+
+#MM- ports-text-scintilla-$(ARCH) : \
+#MM             ports-text-scintilla-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-scintilla-$(FAMILY) : \
+#MM             ports-text-scintilla-$(ARCH)
+
+#MM- ports-text-scintilla-$(CPU) : \
+#MM             ports-text-scintilla-$(FAMILY)
+
+# assign and generate the local variables used in this macro
+ports-text-scintilla_LIBNAME           := Scintilla
+ports-text-scintilla_LINKLIB           := $(AROS_LIB)/libScintilla.a
+
+ports-text-scintilla_FILES             ?= 
+ports-text-scintilla_ASMFILES          := 
+ports-text-scintilla_OBJCFILES         := 
+ports-text-scintilla_CXXFILES          := $(FILES)
+
+ports-text-scintilla_OBJDIR            ?= $(GENDIR)/$(CURDIR)
+ports-text-scintilla_ARCHOBJS          := $(wildcard $(ports-text-scintilla_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-scintilla_ARCHFILES     := $(basename $(notdir $(ports-text-scintilla_ARCHOBJS)))
+else
+    ports-text-scintilla_ARCHFILES     := $(basename $(patsubst $(ports-text-scintilla_OBJDIR)/%,%,$(ports-text-scintilla_ARCHOBJS)))
+endif
+ports-text-scintilla_C_NARCHFILES      := $(filter-out $(ports-text-scintilla_ARCHFILES),$(ports-text-scintilla_FILES))
+ports-text-scintilla_C_FILES           ?= $(ports-text-scintilla_C_NARCHFILES)
+ports-text-scintilla_CXX_NARCHFILES    := $(filter-out $(ports-text-scintilla_ARCHFILES),$(ports-text-scintilla_CXXFILES))
+ports-text-scintilla_CXX_FILES         ?= $(ports-text-scintilla_CXX_NARCHFILES)
+ports-text-scintilla_OBJC_NARCHFILES   := $(filter-out $(ports-text-scintilla_ARCHFILES),$(ports-text-scintilla_OBJCFILES))
+ports-text-scintilla_OBJC_FILES        ?= $(ports-text-scintilla_OBJC_NARCHFILES)
+
+ifeq (no,no)
+    ports-text-scintilla_OBJ_FILES     ?= $(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_C_NARCHFILES:=.o) $(ports-text-scintilla_CXX_NARCHFILES:=.o) $(ports-text-scintilla_ASMFILES:=.o) $(ports-text-scintilla_OBJC_NARCHFILES:=.o)))
+else
+    ports-text-scintilla_OBJ_FILES     ?= $(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_C_NARCHFILES:=.o) $(ports-text-scintilla_CXX_NARCHFILES:=.o) $(ports-text-scintilla_ASMFILES:=.o) $(ports-text-scintilla_OBJC_NARCHFILES:=.o))
+endif
+ports-text-scintilla_OBJS              ?= $(ports-text-scintilla_ARCHOBJS) $(ports-text-scintilla_OBJ_FILES) 
+ports-text-scintilla_DEPS              := $(patsubst %.o,%.d,$(ports-text-scintilla_OBJS))
+
+ports-text-scintilla_CPPFLAGS          := $(CPPFLAGS)
+ifneq (,)
+    ports-text-scintilla_CPPFLAGS      += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-scintilla_CFLAGS            := $(CFLAGS)
+endif
+ifeq (target,host)
+ports-text-scintilla_CFLAGS            := $(HOST_CFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-scintilla_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS))
+endif
+else
+ports-text-scintilla_CFLAGS            := 
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-scintilla_CXXFLAGS            := $(CXXFLAGS)
+endif
+ifeq (target,host)
+ports-text-scintilla_CXXFLAGS            := $(HOST_CXXFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-scintilla_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-scintilla_CXXFLAGS          := 
+endif
+
+ifeq ($(TARGET_LTO),yes)
+ifeq (target,target)
+        ports-text-scintilla_CFLAGS    := $(strip $(LTO_CFLAGS) $(ports-text-scintilla_CFLAGS))
+        ports-text-scintilla_CXXFLAGS  := $(strip $(LTO_CFLAGS) $(ports-text-scintilla_CXXFLAGS))
+endif
+endif
+ports-text-scintilla_AFLAGS            := $(AFLAGS)
+ports-text-scintilla_DFLAGS            := 
+ifneq (,)
+    ports-text-scintilla_DFLAGS        := 
+else
+    ports-text-scintilla_DFLAGS        := $(ports-text-scintilla_CFLAGS)
+endif
+ports-text-scintilla_DXXFLAGS          := 
+ifneq (,)
+    ports-text-scintilla_DXXFLAGS      := 
+else
+    ports-text-scintilla_DXXFLAGS      := $(ports-text-scintilla_CXXFLAGS)
+endif
+
+.PHONY : ports-text-scintilla ports-text-scintilla-clean ports-text-scintilla-quick
+
+#MM
+ports-text-scintilla-quick : ports-text-scintilla
+
+#MM ports-text-scintilla : includes-generate-deps
+ports-text-scintilla : $(ports-text-scintilla_LINKLIB)
+
+ifneq ($(filter $(TARGET),ports-text-scintilla ports-text-scintilla-quick),)
+
+
+ports-text-scintilla_CXXABSBASENAMES := $(foreach ports-text-scintilla_CXXBASE,$(ports-text-scintilla_CXX_FILES),$(if $(filter /%,$(ports-text-scintilla_CXXBASE)),$(ports-text-scintilla_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-scintilla_CXXBASE))))
+
+ifneq ($(ports-text-scintilla_CXXABSBASENAMES),)
+
+ports-text-scintilla_CXXBASENAMES := $(basename $(ports-text-scintilla_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-scintilla_MCXX_FILES  := $(strip $(foreach ports-text-scintilla_CXXBASE,$(ports-text-scintilla_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-scintilla_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-scintilla_EXT),$(ports-text-scintilla_CXXBASE)))))))
+
+ifeq (,)
+ports-text-scintilla_MCXX_SRCWILDCARD := %
+else
+ports-text-scintilla_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla_OBJDIR),)
+  ports-text-scintilla_CXXTARGETS := $(notdir $(ports-text-scintilla_CXXBASENAMES:=.o))
+  ports-text-scintilla_CXXDTARGETS := $(notdir $(ports-text-scintilla_CXXBASENAMES:=.d))
+  ports-text-scintilla_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-scintilla_CXXTARGETS := $(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_CXXBASENAMES:=.o)))
+  ports-text-scintilla_CXXDTARGETS := $(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_CXXBASENAMES:=.d)))
+  ports-text-scintilla_MCXX_WILDCARD := $(ports-text-scintilla_OBJDIR)/%
+else
+  ports-text-scintilla_CXXTARGETS := $(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_CXXBASENAMES:=.o))
+  ports-text-scintilla_CXXDTARGETS := $(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_CXXBASENAMES:=.d))
+  ports-text-scintilla_MCXX_WILDCARD := $(ports-text-scintilla_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-scintilla_CXXTARGETS) $(ports-text-scintilla_CXXDTARGETS) : | $(ports-text-scintilla_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-scintilla_MCXX_CPPFLAGS := $(ports-text-scintilla_CPPFLAGS)
+ports-text-scintilla_CXXFLAGS := $(ports-text-scintilla_CXXFLAGS)
+ifeq ($(ports-text-scintilla_DXXFLAGS),)
+  ports-text-scintilla_DXXFLAGS := $(ports-text-scintilla_CXXFLAGS)
+else
+  ports-text-scintilla_DXXFLAGS := $(ports-text-scintilla_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-scintilla_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-scintilla_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-scintilla_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-scintilla_STRIP ?= $(HOST_STRIP)
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-scintilla_CXXCMD:=$(HOST_CXX)
+  ports-text-scintilla_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS) $(ports-text-scintilla_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-scintilla_CXXFLAGS))
+  ports-text-scintilla_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-scintilla_DXXFLAGS))
+  ports-text-scintilla_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-scintilla_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-scintilla_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-scintilla_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-scintilla_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-scintilla_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-scintilla_LDFLAGS ?= $(ports-text-scintilla_CXXLDFLAGS)
+  ports-text-scintilla_STRIP ?= $(TARGET_STRIP)
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-scintilla_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-scintilla_MCXX_CPPFLAGS := $(strip $(ports-text-scintilla_MCXX_CPPFLAGS) $(ports-text-scintilla_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla_CXXFLAGS := $(strip $(ports-text-scintilla_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-scintilla_DXXFLAGS := $(ports-text-scintilla_DXXFLAGS)
+  ports-text-scintilla_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-scintilla_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-scintilla_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-scintilla_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-scintilla_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-scintilla_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-scintilla_LDFLAGS ?= $(ports-text-scintilla_CXXLDFLAGS)
+  ports-text-scintilla_STRIP ?= $(ECHO) >/dev/null
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-scintilla_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-scintilla_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS) $(ports-text-scintilla_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-scintilla_CXXFLAGS))
+  ports-text-scintilla_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-scintilla_DXXFLAGS))
+  ports-text-scintilla_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-scintilla_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-scintilla_CXXCMD) $(ports-text-scintilla_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) . $(ports-text-scintilla_CXXIQUOTE_END) $(strip $(ports-text-scintilla_CXXFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-scintilla_CXXCMD) $(ports-text-scintilla_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) . $(ports-text-scintilla_CXXIQUOTE_END) $(strip $(ports-text-scintilla_CXXFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-scintilla_CXXCMD) $(ports-text-scintilla_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_CXXIQUOTE) . $(ports-text-scintilla_CXXIQUOTE_END) $(strip $(ports-text-scintilla_CXXFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-scintilla_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-scintilla_DXXFLAGS) $(ports-text-scintilla_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-scintilla_OBJDIR),)
+  $(foreach ports-text-scintilla_CXXFILE,$(ports-text-scintilla_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-scintilla_CXXFILE))),$(ports-text-scintilla_CXXFILE))))
+else
+  $(foreach ports-text-scintilla_CXXFILE,$(ports-text-scintilla_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(basename $(ports-text-scintilla_CXXFILE)))),$(ports-text-scintilla_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-scintilla_OBJC_FILES),)
+
+ifeq (,)
+ports-text-scintilla_MOBJC_SRCWILDCARD := %
+else
+ports-text-scintilla_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla_OBJDIR),)
+  ports-text-scintilla_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-scintilla_OBJC_FILES))
+  ports-text-scintilla_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-scintilla_OBJC_FILES))
+  ports-text-scintilla_MOBJC_WILDCARD := %
+else
+  ports-text-scintilla_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_OBJC_FILES)))
+  ports-text-scintilla_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_OBJC_FILES)))
+  ports-text-scintilla_MOBJC_WILDCARD := $(ports-text-scintilla_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-scintilla_OBJC_FILES))
+
+  # Be sure that all .m files are found
+  ports-text-scintilla_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-scintilla_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla_OBJC_FILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-scintilla_MOBJC_DIRS := $(foreach dir, $(ports-text-scintilla_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-scintilla_MOBJC_DIRS),)
+    ports-text-scintilla_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-scintilla_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-scintilla_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-scintilla_CC := $(TARGET_CC)
+else
+  ports-text-scintilla_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-scintilla_MOBJC_CPPFLAGS := $(ports-text-scintilla_CPPFLAGS)
+ports-text-scintilla_OBJCFLAGS := $(ports-text-scintilla_CFLAGS)
+ports-text-scintilla_OBJCFLAGS := $(ports-text-scintilla_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-scintilla_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-scintilla_OBJCFLAGS)))
+ifeq ($(ports-text-scintilla_DFLAGS),)
+  ports-text-scintilla_OBJCDFLAGS := $(ports-text-scintilla_CFLAGS)
+else
+  ports-text-scintilla_OBJCDFLAGS := $(ports-text-scintilla_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-scintilla_LINK ?= $(strip $(ports-text-scintilla_CC) $(TARGET_SYSROOT))
+  ports-text-scintilla_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-scintilla_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-scintilla_STRIP ?= $(TARGET_STRIP)
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-scintilla_CC) $(TARGET_SYSROOT))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_MOBJC_CPPFLAGS:=$(strip $(ports-text-scintilla_MOBJC_CPPFLAGS) $(ports-text-scintilla_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCFLAGS:=$(strip $(ports-text-scintilla_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCDFLAGS:=$(ports-text-scintilla_OBJCDFLAGS)
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-scintilla_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-scintilla_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-scintilla_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-scintilla_STRIP ?= $(HOST_STRIP)
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-scintilla_MOBJC_CPPFLAGS) $(ports-text-scintilla_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla_OBJCFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla_OBJCDFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-scintilla_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-scintilla_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-scintilla_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-scintilla_STRIP ?= $(ECHO) >/dev/null
+  ports-text-scintilla_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-scintilla_MOBJC_CPPFLAGS) $(ports-text-scintilla_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla_OBJCFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla_OBJCDFLAGS))
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-scintilla_MOBJC_TARGETS) $(ports-text-scintilla_MOBJC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-scintilla_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-scintilla_MOBJC_CPPFLAGS)
+$(ports-text-scintilla_MOBJC_TARGETS) : CFLAGS := $(ports-text-scintilla_OBJCFLAGS)
+$(ports-text-scintilla_MOBJC_TARGETS) : $(ports-text-scintilla_MOBJC_WILDCARD).o : $(ports-text-scintilla_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-scintilla_MOBJC_DTARGETS) : $(ports-text-scintilla_MOBJC_WILDCARD).d : $(ports-text-scintilla_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-scintilla_OBJCDFLAGS) $(ports-text-scintilla_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-scintilla_MC_SRCWILDCARD := %
+else
+ports-text-scintilla_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla_OBJDIR),)
+ports-text-scintilla_MC_TARGETS := $(addsuffix .o,$(ports-text-scintilla_C_FILES))
+ports-text-scintilla_MC_DTARGETS := $(addsuffix .d,$(ports-text-scintilla_C_FILES))
+ports-text-scintilla_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-scintilla_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_C_FILES))))
+    ports-text-scintilla_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_C_FILES))))
+else
+ifeq (,)
+    ports-text-scintilla_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_C_FILES)))
+    ports-text-scintilla_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(ports-text-scintilla_C_FILES)))
+else
+    ports-text-scintilla_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(patsubst /%,%,$(ports-text-scintilla_C_FILES))))
+    ports-text-scintilla_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(patsubst /%,%,$(ports-text-scintilla_C_FILES))))
+endif
+endif
+ports-text-scintilla_MC_TGTWILDCARD := $(ports-text-scintilla_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-scintilla_C_FILES))
+
+# Be sure that all .c files are found
+ports-text-scintilla_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-scintilla_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla_C_FILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-scintilla_MC_DIRS := $(foreach dir, $(ports-text-scintilla_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-scintilla_MC_DIRS),)
+    ports-text-scintilla_MC_DIRS := $(shell $(ECHO) $(ports-text-scintilla_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-scintilla_MC_DIRS)
+endif
+
+endif
+
+ports-text-scintilla_MC_CPPFLAGS := $(ports-text-scintilla_CPPFLAGS)
+ports-text-scintilla_CFLAGS := $(ports-text-scintilla_CFLAGS)
+ifeq ($(ports-text-scintilla_DFLAGS),)
+  ports-text-scintilla_DFLAGS := $(ports-text-scintilla_CFLAGS)
+else
+  ports-text-scintilla_DFLAGS := $(ports-text-scintilla_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-scintilla_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-scintilla_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-scintilla_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-scintilla_STRIP ?= $(TARGET_STRIP)
+ports-text-scintilla_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_MC_CPPFLAGS:=$(strip $(ports-text-scintilla_MC_CPPFLAGS) $(ports-text-scintilla_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_CFLAGS:=$(strip $(ports-text-scintilla_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_DFLAGS:=$(ports-text-scintilla_DFLAGS)
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-scintilla_LINK ?= $(strip $(HOST_CC))
+ports-text-scintilla_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-scintilla_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-scintilla_STRIP ?= $(HOST_STRIP)
+ports-text-scintilla_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-scintilla_MC_CPPFLAGS) $(ports-text-scintilla_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla_CFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla_DFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-scintilla_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-scintilla_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-scintilla_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-scintilla_STRIP ?= $(ECHO) >/dev/null
+ports-text-scintilla_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-scintilla_MC_CPPFLAGS) $(ports-text-scintilla_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla_CFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla_DFLAGS))
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-scintilla_MC_TARGETS) $(ports-text-scintilla_MC_DTARGETS) : ports-text-scintilla_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-scintilla_MC_TARGETS) : CPPFLAGS := $(ports-text-scintilla_MC_CPPFLAGS)
+$(ports-text-scintilla_MC_TARGETS) : CFLAGS := $(ports-text-scintilla_CFLAGS)
+$(ports-text-scintilla_MC_TARGETS) : $(ports-text-scintilla_MC_TGTWILDCARD).o : $(ports-text-scintilla_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-scintilla_IQUOTE) $(dir $<) $(ports-text-scintilla_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla_IQUOTE) . $(ports-text-scintilla_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-scintilla_MC_DTARGETS) : $(ports-text-scintilla_MC_TGTWILDCARD).d : $(ports-text-scintilla_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-scintilla_DFLAGS) $(ports-text-scintilla_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-scintilla_OBJDIR),)
+ports-text-scintilla-MA_TARGETS := $(addsuffix .o,$(ports-text-scintilla_ASMFILES))
+ports-text-scintilla-MA_WILDCARD := %
+else
+ports-text-scintilla-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla_OBJDIR)/,$(notdir $(ports-text-scintilla_ASMFILES))))
+ports-text-scintilla-MA_WILDCARD := $(ports-text-scintilla_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-scintilla-MA_TARGETS) : | $(addsuffix .s,$(ports-text-scintilla_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-scintilla-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-scintilla-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-scintilla-MA_DIRS := $(foreach dir, $(ports-text-scintilla-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-scintilla-MA_DIRS),)
+    ports-text-scintilla-MA_DIRS := $(shell $(ECHO) $(ports-text-scintilla-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-scintilla-MA_DIRS)
+endif
+
+endif
+
+ports-text-scintilla-MA_ASSEMBLER ?= $(ports-text-scintilla_ASSEMBLER)
+
+$(ports-text-scintilla-MA_TARGETS) : ports-text-scintilla-MA_CMD:= $(ports-text-scintilla-MA_ASSEMBLER)
+
+$(ports-text-scintilla-MA_TARGETS) : CPPFLAGS := $(ports-text-scintilla_CPPFLAGS)
+$(ports-text-scintilla-MA_TARGETS) : AFLAGS := $(ports-text-scintilla_AFLAGS)
+$(ports-text-scintilla-MA_TARGETS) : $(ports-text-scintilla-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-scintilla-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-scintilla-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-scintilla-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ifeq (target,target)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_AR:=$(AR)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_RANLIB:=$(RANLIB)
+endif
+ifeq (target,host)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_AR:=$(HOST_AR)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_RANLIB:=$(HOST_RANLIB)
+endif
+ifeq (target,kernel)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_AR:=$(KERNEL_AR)
+$(AROS_LIB)/libScintilla.a : ports-text-scintilla_RANLIB:=$(KERNEL_RANLIB)
+endif
+
+$(AROS_LIB)/libScintilla.a : $(ports-text-scintilla_OBJS)
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ports-text-scintilla_AR) $@ $^
+	$(Q)$(ports-text-scintilla_RANLIB) $@
+endif
+
+ifneq ($(ports-text-scintilla_DEPS),)
+  ifneq (ports-text-scintilla ports-text-scintilla-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-scintilla ports-text-scintilla-quick),)
+      -include $(ports-text-scintilla_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-scintilla_DEPS)
+    endif
+  endif
+endif
+
+
+
+ifneq ($(ports-text-scintilla_OBJS) $(ports-text-scintilla_DEPS) $(ports-text-scintilla_LINKLIB),)
+$(ports-text-scintilla_OBJS) $(ports-text-scintilla_DEPS) $(ports-text-scintilla_LINKLIB) : | $(ports-text-scintilla_OBJDIR) $(AROS_LIB)
+else
+$(ports-text-scintilla_OBJS) $(ports-text-scintilla_DEPS) $(ports-text-scintilla_LINKLIB) :: $(ports-text-scintilla_OBJDIR) $(AROS_LIB)
+endif
+
+GLOB_MKDIRS += $(ports-text-scintilla_OBJDIR) $(AROS_LIB)
+
+
+ports-text-scintilla-clean : FILES := $(ports-text-scintilla_OBJS) $(ports-text-scintilla_LINKLIB) $(ports-text-scintilla_DEPS)
+#MM
+ports-text-scintilla-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-scintilla"
+	$(Q)$(RM) $(FILES)
+
+
+#-----------------------------------------------------------------------
+# Test application
+#-----------------------------------------------------------------------
+
+#MM  ports-text-scintilla-test : ports-text-scintilla workbench-libs-zunegfx
+
+TEST_CXXFLAGS := -std=c++17 \
+    -fexceptions \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/aros
+
+TEST_FILES := $(SCINTILLA_DIR)/aros/test
+
+USER_CXXFLAGS := $(TEST_CXXFLAGS)
+
+
+.PHONY : ports-text-scintilla-test
+
+#MM- ports-text-scintilla-test : \
+#MM             ports-text-scintilla-test-$(CPU)
+
+#MM- ports-text-scintilla-test-$(ARCH)-$(CPU) : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-scintilla-test-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(CPU)
+
+#MM- ports-text-scintilla-test-$(ARCH) : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-scintilla-test-$(FAMILY) : \
+#MM             ports-text-scintilla-test-$(ARCH)
+
+#MM- ports-text-scintilla-test-$(CPU) : \
+#MM             ports-text-scintilla-test-$(FAMILY)
+#MM- ports-text-scintilla-test-quick : \
+#MM             ports-text-scintilla-test-$(CPU)-quick
+
+#MM- ports-text-scintilla-test-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-scintilla-test-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-scintilla-test-$(ARCH)-quick : \
+#MM             ports-text-scintilla-test-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-scintilla-test-$(FAMILY)-quick : \
+#MM             ports-text-scintilla-test-$(ARCH)-quick
+
+#MM- ports-text-scintilla-test-$(CPU)-quick : \
+#MM             ports-text-scintilla-test-$(FAMILY)-quick
+
+ports-text-scintilla-test_PROGNAME  := ScintillaTest
+ports-text-scintilla-test_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-scintilla-test_TARGETDIR := $(AROS_TESTS)/Scintilla
+ports-text-scintilla-test_LINKER    := 
+ports-text-scintilla-test_LIBS := Scintilla zunegfx stdc++
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-scintilla-test_LINKER),)
+    ports-text-scintilla-test_LINKER := target
+endif
+
+ifneq ("$(strip  $(TEST_FILES)  )","")
+    ports-text-scintilla-test_FILES     := 
+    ports-text-scintilla-test_OBJCFILES := 
+    ports-text-scintilla-test_ASMFILES  := 
+    ports-text-scintilla-test_CXXFILES := $(TEST_FILES)
+else
+    ports-text-scintilla-test_FILES     := $(ports-text-scintilla-test_PROGNAME)
+    ports-text-scintilla-test_OBJCFILES :=
+    ports-text-scintilla-test_ASMFILES  :=
+    ports-text-scintilla-test_CXXFILES :=
+endif
+
+ports-text-scintilla-test_ARCHOBJS   := $(wildcard $(ports-text-scintilla-test_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-scintilla-test_ARCHFILES     := $(basename $(notdir $(ports-text-scintilla-test_ARCHOBJS)))
+else
+    ports-text-scintilla-test_ARCHFILES     := $(basename $(patsubst $(ports-text-scintilla-test_OBJDIR)/%,%,$(ports-text-scintilla-test_ARCHOBJS)))
+endif
+ports-text-scintilla-test_C_NARCHFILES := $(filter-out $(ports-text-scintilla-test_ARCHFILES),$(ports-text-scintilla-test_FILES))
+ports-text-scintilla-test_CXX_NARCHFILES := $(filter-out $(ports-text-scintilla-test_ARCHFILES),$(ports-text-scintilla-test_CXXFILES))
+ports-text-scintilla-test_OBJC_NARCHFILES := $(filter-out $(ports-text-scintilla-test_ARCHFILES),$(ports-text-scintilla-test_OBJCFILES))
+
+TMP_FILES := $(ports-text-scintilla-test_C_NARCHFILES) $(ports-text-scintilla-test_CXX_NARCHFILES) $(ports-text-scintilla-test_ASMFILES) $(ports-text-scintilla-test_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-scintilla-test_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-scintilla-test_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-scintilla-test_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-scintilla-test_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-scintilla-test_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-scintilla-test_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-scintilla-test_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-scintilla-test_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-scintilla-test_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-scintilla-test_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-scintilla-test_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-scintilla-test_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-scintilla-test_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-scintilla-test_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-scintilla-test_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-scintilla-test_LDFLAGS          := 
+endif
+
+ports-text-scintilla-test_CSTATICFLAGS   := `echo "$(ports-text-scintilla-test_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-scintilla-test_CSTDCFLAGS   :=  `echo "$(ports-text-scintilla-test_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-scintilla-test_CPOSIXCFLAGS   :=  `echo "$(ports-text-scintilla-test_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-scintilla-test_LDFLAGS          += $(strip $(ports-text-scintilla-test_CSTATICFLAGS) $(ports-text-scintilla-test_CSTDCFLAGS) $(ports-text-scintilla-test_CPOSIXCFLAGS))
+
+ports-text-scintilla-test_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-scintilla-test_COVERAGE := yes
+ports-text-scintilla-test_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-scintilla-test_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-scintilla-test_CFLAGS    := $(strip $(ports-text-scintilla-test_COVERAGEFLAGS) $(ports-text-scintilla-test_CFLAGS))
+ports-text-scintilla-test_CXXFLAGS := $(strip $(ports-text-scintilla-test_COVERAGEFLAGS) $(ports-text-scintilla-test_CXXFLAGS))
+ports-text-scintilla-test_LIBS += $(ports-text-scintilla-test_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-scintilla-test_FUNCINSTR := yes
+ports-text-scintilla-test_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-scintilla-test_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-scintilla-test_CFLAGS    := $(strip $(ports-text-scintilla-test_INSTRFUNCFLAGS) $(ports-text-scintilla-test_CFLAGS))
+ports-text-scintilla-test_CXXFLAGS := $(strip $(ports-text-scintilla-test_INSTRFUNCFLAGS) $(ports-text-scintilla-test_CXXFLAGS))
+ports-text-scintilla-test_LIBS += $(ports-text-scintilla-test_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-scintilla-test_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-scintilla-test_CFLAGS))
+ports-text-scintilla-test_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-scintilla-test_CXXFLAGS))
+endif
+endif
+ports-text-scintilla-test_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-scintilla-test_DFLAGS     := 
+else
+    ports-text-scintilla-test_DFLAGS     := $(ports-text-scintilla-test_CFLAGS)
+endif
+ifneq (,)
+    ports-text-scintilla-test_DXXFLAGS     := 
+else
+    ports-text-scintilla-test_DXXFLAGS     := $(ports-text-scintilla-test_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-scintilla-test_LDFLAGS           := $(ports-text-scintilla-test_LDFLAGS)
+ports-text-scintilla-test_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-scintilla-test_LDFLAGS           := $(ports-text-scintilla-test_LDFLAGS)
+ports-text-scintilla-test_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_LDFLAGS           := $(ports-text-scintilla-test_LDFLAGS)
+ports-text-scintilla-test_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-scintilla-test_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-scintilla-test-quick : ports-text-scintilla-test
+
+#MM ports-text-scintilla-test : includes-generate-deps core-linklibs
+ports-text-scintilla-test : $(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-scintilla-test_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-scintilla-test_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-scintilla-test_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-scintilla-test_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-scintilla-test_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-scintilla-test ports-text-scintilla-test-quick ports-text-scintilla-test-compress-quick),)
+
+ports-text-scintilla-test_CXXABSBASENAMES := $(foreach ports-text-scintilla-test_CXXBASE,$(ports-text-scintilla-test_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-scintilla-test_CXXBASE)),$(ports-text-scintilla-test_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-scintilla-test_CXXBASE))))
+
+ifneq ($(ports-text-scintilla-test_CXXABSBASENAMES),)
+
+ports-text-scintilla-test_CXXBASENAMES := $(basename $(ports-text-scintilla-test_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-scintilla-test_MCXX_FILES  := $(strip $(foreach ports-text-scintilla-test_CXXBASE,$(ports-text-scintilla-test_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-scintilla-test_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-scintilla-test_EXT),$(ports-text-scintilla-test_CXXBASE)))))))
+
+ifeq (,)
+ports-text-scintilla-test_MCXX_SRCWILDCARD := %
+else
+ports-text-scintilla-test_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla-test_OBJDIR),)
+  ports-text-scintilla-test_CXXTARGETS := $(notdir $(ports-text-scintilla-test_CXXBASENAMES:=.o))
+  ports-text-scintilla-test_CXXDTARGETS := $(notdir $(ports-text-scintilla-test_CXXBASENAMES:=.d))
+  ports-text-scintilla-test_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-scintilla-test_CXXTARGETS := $(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(ports-text-scintilla-test_CXXBASENAMES:=.o)))
+  ports-text-scintilla-test_CXXDTARGETS := $(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(ports-text-scintilla-test_CXXBASENAMES:=.d)))
+  ports-text-scintilla-test_MCXX_WILDCARD := $(ports-text-scintilla-test_OBJDIR)/%
+else
+  ports-text-scintilla-test_CXXTARGETS := $(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_CXXBASENAMES:=.o))
+  ports-text-scintilla-test_CXXDTARGETS := $(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_CXXBASENAMES:=.d))
+  ports-text-scintilla-test_MCXX_WILDCARD := $(ports-text-scintilla-test_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-scintilla-test_CXXTARGETS) $(ports-text-scintilla-test_CXXDTARGETS) : | $(ports-text-scintilla-test_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-scintilla-test_MCXX_CPPFLAGS := $(ports-text-scintilla-test_CPPFLAGS)
+ports-text-scintilla-test_CXXFLAGS := $(ports-text-scintilla-test_CXXFLAGS)
+ifeq ($(ports-text-scintilla-test_DXXFLAGS),)
+  ports-text-scintilla-test_DXXFLAGS := $(ports-text-scintilla-test_CXXFLAGS)
+else
+  ports-text-scintilla-test_DXXFLAGS := $(ports-text-scintilla-test_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-scintilla-test_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-scintilla-test_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-scintilla-test_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-scintilla-test_STRIP ?= $(HOST_STRIP)
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-scintilla-test_CXXCMD:=$(HOST_CXX)
+  ports-text-scintilla-test_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS) $(ports-text-scintilla-test_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla-test_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-scintilla-test_CXXFLAGS))
+  ports-text-scintilla-test_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-scintilla-test_DXXFLAGS))
+  ports-text-scintilla-test_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-scintilla-test_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-scintilla-test_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-scintilla-test_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-scintilla-test_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-scintilla-test_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-scintilla-test_LDFLAGS ?= $(ports-text-scintilla-test_CXXLDFLAGS)
+  ports-text-scintilla-test_STRIP ?= $(TARGET_STRIP)
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-scintilla-test_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-scintilla-test_MCXX_CPPFLAGS := $(strip $(ports-text-scintilla-test_MCXX_CPPFLAGS) $(ports-text-scintilla-test_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla-test_CXXFLAGS := $(strip $(ports-text-scintilla-test_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-scintilla-test_DXXFLAGS := $(ports-text-scintilla-test_DXXFLAGS)
+  ports-text-scintilla-test_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-scintilla-test_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-scintilla-test_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-scintilla-test_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-scintilla-test_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-scintilla-test_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-scintilla-test_LDFLAGS ?= $(ports-text-scintilla-test_CXXLDFLAGS)
+  ports-text-scintilla-test_STRIP ?= $(ECHO) >/dev/null
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-scintilla-test_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-scintilla-test_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS) $(ports-text-scintilla-test_MCXX_EXTRA_CPPFLAGS))
+  ports-text-scintilla-test_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-scintilla-test_CXXFLAGS))
+  ports-text-scintilla-test_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-scintilla-test_DXXFLAGS))
+  ports-text-scintilla-test_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-scintilla-test_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-scintilla-test_CXXCMD) $(ports-text-scintilla-test_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla-test_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) . $(ports-text-scintilla-test_CXXIQUOTE_END) $(strip $(ports-text-scintilla-test_CXXFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-scintilla-test_CXXCMD) $(ports-text-scintilla-test_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla-test_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) . $(ports-text-scintilla-test_CXXIQUOTE_END) $(strip $(ports-text-scintilla-test_CXXFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-scintilla-test_CXXCMD) $(ports-text-scintilla-test_CXXIQUOTE) $(dir $(2)) $(ports-text-scintilla-test_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_CXXIQUOTE) . $(ports-text-scintilla-test_CXXIQUOTE_END) $(strip $(ports-text-scintilla-test_CXXFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-scintilla-test_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-scintilla-test_DXXFLAGS) $(ports-text-scintilla-test_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-scintilla-test_OBJDIR),)
+  $(foreach ports-text-scintilla-test_CXXFILE,$(ports-text-scintilla-test_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-scintilla-test_CXXFILE))),$(ports-text-scintilla-test_CXXFILE))))
+else
+  $(foreach ports-text-scintilla-test_CXXFILE,$(ports-text-scintilla-test_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(basename $(ports-text-scintilla-test_CXXFILE)))),$(ports-text-scintilla-test_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-scintilla-test_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-scintilla-test_MOBJC_SRCWILDCARD := %
+else
+ports-text-scintilla-test_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla-test_OBJDIR),)
+  ports-text-scintilla-test_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-scintilla-test_OBJC_NARCHFILES))
+  ports-text-scintilla-test_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-scintilla-test_OBJC_NARCHFILES))
+  ports-text-scintilla-test_MOBJC_WILDCARD := %
+else
+  ports-text-scintilla-test_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_OBJC_NARCHFILES)))
+  ports-text-scintilla-test_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_OBJC_NARCHFILES)))
+  ports-text-scintilla-test_MOBJC_WILDCARD := $(ports-text-scintilla-test_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-scintilla-test_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-scintilla-test_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-scintilla-test_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla-test_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-scintilla-test_MOBJC_DIRS := $(foreach dir, $(ports-text-scintilla-test_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla-test_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-scintilla-test_MOBJC_DIRS),)
+    ports-text-scintilla-test_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-scintilla-test_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-scintilla-test_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-scintilla-test_CC := $(TARGET_CC)
+else
+  ports-text-scintilla-test_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-scintilla-test_MOBJC_CPPFLAGS := $(ports-text-scintilla-test_CPPFLAGS)
+ports-text-scintilla-test_OBJCFLAGS := $(ports-text-scintilla-test_CFLAGS)
+ports-text-scintilla-test_OBJCFLAGS := $(ports-text-scintilla-test_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-scintilla-test_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-scintilla-test_OBJCFLAGS)))
+ifeq ($(ports-text-scintilla-test_DFLAGS),)
+  ports-text-scintilla-test_OBJCDFLAGS := $(ports-text-scintilla-test_CFLAGS)
+else
+  ports-text-scintilla-test_OBJCDFLAGS := $(ports-text-scintilla-test_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-scintilla-test_LINK ?= $(strip $(ports-text-scintilla-test_CC) $(TARGET_SYSROOT))
+  ports-text-scintilla-test_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-scintilla-test_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-scintilla-test_STRIP ?= $(TARGET_STRIP)
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-scintilla-test_CC) $(TARGET_SYSROOT))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_MOBJC_CPPFLAGS:=$(strip $(ports-text-scintilla-test_MOBJC_CPPFLAGS) $(ports-text-scintilla-test_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCFLAGS:=$(strip $(ports-text-scintilla-test_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCDFLAGS:=$(ports-text-scintilla-test_OBJCDFLAGS)
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-scintilla-test_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-scintilla-test_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-scintilla-test_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-scintilla-test_STRIP ?= $(HOST_STRIP)
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-scintilla-test_MOBJC_CPPFLAGS) $(ports-text-scintilla-test_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla-test_OBJCFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla-test_OBJCDFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-scintilla-test_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-scintilla-test_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-scintilla-test_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-scintilla-test_STRIP ?= $(ECHO) >/dev/null
+  ports-text-scintilla-test_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-scintilla-test_MOBJC_CPPFLAGS) $(ports-text-scintilla-test_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla-test_OBJCFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla-test_OBJCDFLAGS))
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-scintilla-test_MOBJC_TARGETS) $(ports-text-scintilla-test_MOBJC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-scintilla-test_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-scintilla-test_MOBJC_CPPFLAGS)
+$(ports-text-scintilla-test_MOBJC_TARGETS) : CFLAGS := $(ports-text-scintilla-test_OBJCFLAGS)
+$(ports-text-scintilla-test_MOBJC_TARGETS) : $(ports-text-scintilla-test_MOBJC_WILDCARD).o : $(ports-text-scintilla-test_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-scintilla-test_MOBJC_DTARGETS) : $(ports-text-scintilla-test_MOBJC_WILDCARD).d : $(ports-text-scintilla-test_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-scintilla-test_OBJCDFLAGS) $(ports-text-scintilla-test_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-scintilla-test_MC_SRCWILDCARD := %
+else
+ports-text-scintilla-test_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-scintilla-test_OBJDIR),)
+ports-text-scintilla-test_MC_TARGETS := $(addsuffix .o,$(ports-text-scintilla-test_C_NARCHFILES))
+ports-text-scintilla-test_MC_DTARGETS := $(addsuffix .d,$(ports-text-scintilla-test_C_NARCHFILES))
+ports-text-scintilla-test_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-scintilla-test_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(ports-text-scintilla-test_C_NARCHFILES))))
+    ports-text-scintilla-test_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(ports-text-scintilla-test_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-scintilla-test_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_C_NARCHFILES)))
+    ports-text-scintilla-test_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(ports-text-scintilla-test_C_NARCHFILES)))
+else
+    ports-text-scintilla-test_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(patsubst /%,%,$(ports-text-scintilla-test_C_NARCHFILES))))
+    ports-text-scintilla-test_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(patsubst /%,%,$(ports-text-scintilla-test_C_NARCHFILES))))
+endif
+endif
+ports-text-scintilla-test_MC_TGTWILDCARD := $(ports-text-scintilla-test_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-scintilla-test_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-scintilla-test_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-scintilla-test_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla-test_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-scintilla-test_MC_DIRS := $(foreach dir, $(ports-text-scintilla-test_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla-test_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-scintilla-test_MC_DIRS),)
+    ports-text-scintilla-test_MC_DIRS := $(shell $(ECHO) $(ports-text-scintilla-test_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-scintilla-test_MC_DIRS)
+endif
+
+endif
+
+ports-text-scintilla-test_MC_CPPFLAGS := $(ports-text-scintilla-test_CPPFLAGS)
+ports-text-scintilla-test_CFLAGS := $(ports-text-scintilla-test_CFLAGS)
+ifeq ($(ports-text-scintilla-test_DFLAGS),)
+  ports-text-scintilla-test_DFLAGS := $(ports-text-scintilla-test_CFLAGS)
+else
+  ports-text-scintilla-test_DFLAGS := $(ports-text-scintilla-test_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-scintilla-test_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-scintilla-test_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-scintilla-test_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-scintilla-test_STRIP ?= $(TARGET_STRIP)
+ports-text-scintilla-test_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_MC_CPPFLAGS:=$(strip $(ports-text-scintilla-test_MC_CPPFLAGS) $(ports-text-scintilla-test_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_CFLAGS:=$(strip $(ports-text-scintilla-test_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_DFLAGS:=$(ports-text-scintilla-test_DFLAGS)
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-scintilla-test_LINK ?= $(strip $(HOST_CC))
+ports-text-scintilla-test_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-scintilla-test_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-scintilla-test_STRIP ?= $(HOST_STRIP)
+ports-text-scintilla-test_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-scintilla-test_MC_CPPFLAGS) $(ports-text-scintilla-test_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla-test_CFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-scintilla-test_DFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-scintilla-test_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-scintilla-test_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-scintilla-test_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-scintilla-test_STRIP ?= $(ECHO) >/dev/null
+ports-text-scintilla-test_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-scintilla-test_MC_CPPFLAGS) $(ports-text-scintilla-test_MC_EXTRA_CPPFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla-test_CFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-scintilla-test_DFLAGS))
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-scintilla-test_MC_TARGETS) $(ports-text-scintilla-test_MC_DTARGETS) : ports-text-scintilla-test_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-scintilla-test_MC_TARGETS) : CPPFLAGS := $(ports-text-scintilla-test_MC_CPPFLAGS)
+$(ports-text-scintilla-test_MC_TARGETS) : CFLAGS := $(ports-text-scintilla-test_CFLAGS)
+$(ports-text-scintilla-test_MC_TARGETS) : $(ports-text-scintilla-test_MC_TGTWILDCARD).o : $(ports-text-scintilla-test_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-scintilla-test_IQUOTE) $(dir $<) $(ports-text-scintilla-test_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-scintilla-test_IQUOTE) . $(ports-text-scintilla-test_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-scintilla-test_MC_DTARGETS) : $(ports-text-scintilla-test_MC_TGTWILDCARD).d : $(ports-text-scintilla-test_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-scintilla-test_DFLAGS) $(ports-text-scintilla-test_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-scintilla-test_OBJDIR),)
+ports-text-scintilla-test-MA_TARGETS := $(addsuffix .o,$(ports-text-scintilla-test_ASMFILES))
+ports-text-scintilla-test-MA_WILDCARD := %
+else
+ports-text-scintilla-test-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-scintilla-test_OBJDIR)/,$(notdir $(ports-text-scintilla-test_ASMFILES))))
+ports-text-scintilla-test-MA_WILDCARD := $(ports-text-scintilla-test_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-scintilla-test-MA_TARGETS) : | $(addsuffix .s,$(ports-text-scintilla-test_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-scintilla-test-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-scintilla-test-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-scintilla-test_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-scintilla-test-MA_DIRS := $(foreach dir, $(ports-text-scintilla-test-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-scintilla-test-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-scintilla-test-MA_DIRS),)
+    ports-text-scintilla-test-MA_DIRS := $(shell $(ECHO) $(ports-text-scintilla-test-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-scintilla-test-MA_DIRS)
+endif
+
+endif
+
+ports-text-scintilla-test-MA_ASSEMBLER ?= $(ports-text-scintilla-test_ASSEMBLER)
+
+$(ports-text-scintilla-test-MA_TARGETS) : ports-text-scintilla-test-MA_CMD:= $(ports-text-scintilla-test-MA_ASSEMBLER)
+
+$(ports-text-scintilla-test-MA_TARGETS) : CPPFLAGS := $(ports-text-scintilla-test_CPPFLAGS)
+$(ports-text-scintilla-test-MA_TARGETS) : AFLAGS := $(ports-text-scintilla-test_AFLAGS)
+$(ports-text-scintilla-test-MA_TARGETS) : $(ports-text-scintilla-test-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-scintilla-test-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-scintilla-test-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-scintilla-test-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-scintilla-test-link_LD_OPTS := 
+ports-text-scintilla-test-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-scintilla-test-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-scintilla-test-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-scintilla-test-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-scintilla-test-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-scintilla-test_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-scintilla-test-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-scintilla-test-link_DIRS)))
+# Add trailing /
+ports-text-scintilla-test-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-scintilla-test-link_DIRS)))
+# Add normal linklib path
+ports-text-scintilla-test-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-scintilla-test-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-scintilla-test_LIBS) $(ports-text-scintilla-test-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-scintilla-test-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-scintilla-test-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-scintilla-test-link_DEPLIBS := $(foreach lib,$(ports-text-scintilla-test-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-scintilla-test-link_DIRS)))) \
+)
+
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : OBJDIR := $(ports-text-scintilla-test_OBJDIR)
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : OBJS := $(strip $(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_ARCHOBJS) $(USER_OBJS))
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : LDFLAGS := $(strip $(ports-text-scintilla-test_LDFLAGS))
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-scintilla-test_LIBS) $(ports-text-scintilla-test-link_EXTRA_LIBS)))
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-scintilla-test_ARCHLIBS))
+$(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : $(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_ARCHOBJS) $(USER_OBJS) $(ports-text-scintilla-test-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-scintilla-test_LINK) $(strip $(ports-text-scintilla-test_LD_OPTS) $(ports-text-scintilla-test-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-scintilla-test_LINK) $(strip $(ports-text-scintilla-test_LD_OPTS) $(ports-text-scintilla-test-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-scintilla-test_LINK) $(strip $(ports-text-scintilla-test_LD_OPTS) $(ports-text-scintilla-test-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-scintilla-test_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-scintilla-test_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-scintilla-test_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-scintilla-test_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-scintilla-test_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-scintilla-test_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-scintilla-test_DEPS),)
+  ifneq (ports-text-scintilla-test ports-text-scintilla-test-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-scintilla-test ports-text-scintilla-test-quick),)
+      -include $(ports-text-scintilla-test_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-scintilla-test_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_DEPS) $(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME),)
+$(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_DEPS) $(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) : | $(ports-text-scintilla-test_OBJDIR) $(ports-text-scintilla-test_TARGETDIR)
+else
+$(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_DEPS) $(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) :: $(ports-text-scintilla-test_OBJDIR) $(ports-text-scintilla-test_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-scintilla-test_OBJDIR) $(ports-text-scintilla-test_TARGETDIR)
+
+
+ports-text-scintilla-test-clean : FILES := $(ports-text-scintilla-test_OBJS) $(ports-text-scintilla-test_TARGETDIR)/$(ports-text-scintilla-test_PROGNAME) $(ports-text-scintilla-test_DEPS)
+#MM
+ports-text-scintilla-test-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-scintilla-test"
+	$(Q)$(RM) $(FILES)
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

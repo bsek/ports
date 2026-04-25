@@ -1,0 +1,632 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-dosbox
+
+#MM- ports-emulation-dosbox : contrib-sdl contrib-sdl-sdl-sound ports-emulation-dosbox-cpy
+
+PACKAGE      := dosbox
+VERSION      := 0.74
+TARGETDIR    := $(AROS_CONTRIB)/Emu/DOSBox
+REPOSITORIES := sf://dosbox
+
+USER_CXXFLAGS  := -std=gnu++98 -static-libstdc++ $(CFLAGS_EXCEPTIONS) $(CFLAGS_PERMISSIVE)
+USER_CPPFLAGS := -DPOSIXC_NOINLINE_VAARGS
+USER_INCLUDES := -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+
+#MM- ports-emulation-dosbox-quick : ports-emulation-dosbox--quick
+#MM- ports-emulation-dosbox--quick : ports-emulation-dosbox--fetch
+#MM- ports-emulation-dosbox-fetch : ports-emulation-dosbox--fetch
+#MM- ports-emulation-dosbox-create-patch : ports-emulation-dosbox--create-patch
+#MM- ports-emulation-dosbox-create-patch-quick : ports-emulation-dosbox--create-patch
+ 
+ports-emulation-dosbox-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-emulation-dosbox-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-emulation-dosbox-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-emulation-dosbox-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-emulation-dosbox-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-emulation-dosbox--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--srcdir        ?= 
+else
+    ports-emulation-dosbox--srcdir        ?= $(ports-emulation-dosbox-archbase)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--builddir      ?= $(ports-emulation-dosbox--srcdir)/
+else
+    ports-emulation-dosbox--builddir      ?= $(ports-emulation-dosbox--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-emulation-dosbox--patches_specs ?= $(ports-emulation-dosbox--archbase)-aros.diff:$(ports-emulation-dosbox--srcdir):-f,-p1
+else
+    ports-emulation-dosbox--patches_specs ?= ::
+endif
+else
+    ports-emulation-dosbox--patches_specs ?= 
+endif
+
+
+.PHONY: ports-emulation-dosbox--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-emulation-dosbox--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-emulation-dosbox--fetch-location := $(ports-emulation-dosbox-portdir)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--fetch-baseflag := -b 
+else
+    ports-emulation-dosbox--fetch-baseflag :=
+endif
+
+ports-emulation-dosbox--fetch-fetchedflag := $(ports-emulation-dosbox--fetch-location)/.$(ports-emulation-dosbox--archbase)-fetched
+
+#MM
+ports-emulation-dosbox--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-emulation-dosbox--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-emulation-dosbox--archbase) -s "tar.gz" -l $(ports-emulation-dosbox--fetch-location) \
+	-d $(ports-emulation-dosbox-portdir) $(ports-emulation-dosbox--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-emulation-dosbox--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-emulation-dosbox--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-emulation-dosbox--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-emulation-dosbox--create-patch
+
+ifneq (,)
+    ports-emulation-dosbox--create-patch-location := 
+else
+    ports-emulation-dosbox--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-emulation-dosbox--srcdir),)
+    ports-emulation-dosbox--create-patch-srcdir   := $(ports-emulation-dosbox--srcdir)
+else
+    ports-emulation-dosbox--create-patch-srcdir   := $(ports-emulation-dosbox--archbase)
+endif
+
+ifeq (no,yes)
+    ports-emulation-dosbox--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-emulation-dosbox--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--create-patch-baseflag := -b /tmp
+    ports-emulation-dosbox--create-patch-base := 
+else
+    ports-emulation-dosbox--create-patch-baseflag :=
+    ports-emulation-dosbox--create-patch-base := $(ports-emulation-dosbox-portdir)
+endif
+
+#MM- ports-emulation-dosbox--create-patch :  ports-emulation-dosbox--create-patch-diff 
+#MM- ports-emulation-dosbox--create-patch-quick :  ports-emulation-dosbox--create-patch-diff 
+
+#MM
+ports-emulation-dosbox--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-emulation-dosbox--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-emulation-dosbox--create-patch-base)/$(ports-emulation-dosbox--create-patch-srcdir) $(ports-emulation-dosbox--create-patch-base)/tmp/$(ports-emulation-dosbox--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-emulation-dosbox--archbase) -s "tar.gz" -f -l $(ports-emulation-dosbox--create-patch-location) -d $(ports-emulation-dosbox-portdir) $(ports-emulation-dosbox--create-patch-baseflag); \
+	$(MV) $(ports-emulation-dosbox--create-patch-base)/$(ports-emulation-dosbox--create-patch-srcdir) $(ports-emulation-dosbox--create-patch-base)/tmp/$(ports-emulation-dosbox--create-patch-srcdir) ; \
+	cd $(ports-emulation-dosbox--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-emulation-dosbox--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-emulation-dosbox--create-patch-diffflag) $(ports-emulation-dosbox--create-patch-exclude) \
+	    $(ports-emulation-dosbox--create-patch-srcdir) \
+	    $(ports-emulation-dosbox--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-emulation-dosbox--archbase)-aros-new.diff ; \
+	$(MV) $(ports-emulation-dosbox--create-patch-base)/tmp/$(ports-emulation-dosbox--create-patch-srcdir).aros $(ports-emulation-dosbox--create-patch-base)/$(ports-emulation-dosbox--create-patch-srcdir) ; \
+	$(RM) $(ports-emulation-dosbox--create-patch-base)/tmp
+
+#MM ports-emulation-dosbox : ports-emulation-dosbox-
+#MM
+ports-emulation-dosbox:
+	$(Q)$(NOP)
+
+ports-emulation-dosbox--package-dir := $(ports-emulation-dosbox-portdir)/$(ports-emulation-dosbox--archbase)
+
+ports-emulation-dosbox--package-basename := \
+    $(DISTDIR)/Packages/$(ports-emulation-dosbox--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-emulation-dosbox--package := $(ports-emulation-dosbox--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-emulation-dosbox-prefix),)
+    ports-emulation-dosbox--prefix := $(ports-emulation-dosbox-prefix)
+else
+    ports-emulation-dosbox--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-emulation-dosbox--aros_prefix := 
+else
+    ports-emulation-dosbox--aros_prefix := $(ports-emulation-dosbox--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-emulation-dosbox--nix    := $(BD_NIXFLAG)
+    ports-emulation-dosbox--volpfx := /
+    ports-emulation-dosbox--volsfx := /
+    
+    ifeq (no,)
+        ports-emulation-dosbox--nix_dir_layout := yes
+    endif
+else
+    ports-emulation-dosbox--volsfx := :
+    
+    ifeq (no,)
+        ports-emulation-dosbox--nix_dir_layout := no
+    endif
+endif
+
+ports-emulation-dosbox--volfunc = $(ports-emulation-dosbox--volpfx)$(notdir $1)$(ports-emulation-dosbox--volsfx)
+
+ports-emulation-dosbox--install_opts += prefix=$(ports-emulation-dosbox--prefix) \
+        exec_prefix=$(ports-emulation-dosbox--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-emulation-dosbox--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-emulation-dosbox--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-emulation-dosbox--pkgbasedir := $(GENDIR)
+    else
+        ports-emulation-dosbox--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-emulation-dosbox--pkgbasedir := 
+    else
+        ports-emulation-dosbox--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-emulation-dosbox--pkgdir := $(ports-emulation-dosbox--pkgbasedir)
+else
+    ports-emulation-dosbox--pkgdir := $(ports-emulation-dosbox--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-emulation-dosbox--configflag ?= $(ports-emulation-dosbox--pkgdir)/.configured
+ports-emulation-dosbox--installflag ?= $(ports-emulation-dosbox--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-emulation-dosbox--nix_dir_layout) $(host)),yes)
+    ports-emulation-dosbox--PROGDIR      := $(ports-emulation-dosbox--aros_prefix)/bin
+    ports-emulation-dosbox--config_opts  := --prefix=$(ports-emulation-dosbox--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-emulation-dosbox--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-emulation-dosbox--config_opts  := --prefix=$(ports-emulation-dosbox--aros_prefix)
+    endif
+
+    ports-emulation-dosbox--PROGDIR := $(ports-emulation-dosbox--aros_prefix)
+    
+    ports-emulation-dosbox--install_opts := bindir=$(ports-emulation-dosbox--prefix) \
+        sbindir=$(ports-emulation-dosbox--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-emulation-dosbox--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-emulation-dosbox--TARGET_LDFLAGS :=
+else
+ports-emulation-dosbox--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-emulation-dosbox--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-emulation-dosbox--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-emulation-dosbox--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-emulation-dosbox--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-emulation-dosbox--nix)
+endif
+endif
+ports-emulation-dosbox--TARGET_CC?=$(TARGET_CC)
+ports-emulation-dosbox--KERNEL_CC?=$(KERNEL_CC)
+ports-emulation-dosbox--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-emulation-dosbox--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-emulation-dosbox--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-emulation-dosbox--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-emulation-dosbox--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-emulation-dosbox--nix)
+endif
+endif
+ports-emulation-dosbox--TARGET_CXX?=$(TARGET_CXX)
+ports-emulation-dosbox--KERNEL_CXX?=$(KERNEL_CXX)
+ports-emulation-dosbox--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-emulation-dosbox--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-emulation-dosbox--HOST_CC) $(ports-emulation-dosbox--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-emulation-dosbox--HOST_CXX) $(ports-emulation-dosbox--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-emulation-dosbox--cfg-env += TARGET_CC="$(strip $(ports-emulation-dosbox--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-emulation-dosbox--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-emulation-dosbox--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-emulation-dosbox--cfg-env += \
+        CPP="$(strip $(ports-emulation-dosbox--CROSS_CPP) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-emulation-dosbox--CROSS_CPP) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-emulation-dosbox--CROSS_CC) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-emulation-dosbox--CROSS_CXX) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-emulation-dosbox--CROSS_LD))" \
+        AS="$(strip $(ports-emulation-dosbox--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-emulation-dosbox--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-emulation-dosbox--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-emulation-dosbox--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-emulation-dosbox--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-emulation-dosbox--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-emulation-dosbox--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-emulation-dosbox--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-emulation-dosbox--CROSS_LDFLAGS))"
+    ports-emulation-dosbox--cfg-env += CC_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_CC) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_CXX) $(ports-emulation-dosbox--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-emulation-dosbox--CROSS_LDFLAGS))"
+else
+    ports-emulation-dosbox--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-emulation-dosbox--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-emulation-dosbox--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-emulation-dosbox--cfg-env += CFLAGS="$(strip $(ports-emulation-dosbox--TARGET_CFLAGS) $(ports-emulation-dosbox--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-emulation-dosbox--TARGET_CXXFLAGS) $(ports-emulation-dosbox--AC_CXXFLAGS) $(USER_CXXFLAGS))"
+    ports-emulation-dosbox--cfg-env += LDFLAGS="$(strip $(ports-emulation-dosbox--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-emulation-dosbox--nix) $(ports-emulation-dosbox--s_flag))"
+    ports-emulation-dosbox--cfg-env += LT_LDFLAGS="$(strip $(ports-emulation-dosbox--TARGET_LDFLAGS))"
+    ports-emulation-dosbox--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-emulation-dosbox--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-emulation-dosbox--ACBUILD_CPPFLAGS))"
+endif
+    ports-emulation-dosbox--cfg-env += CC_FOR_BUILD="$(strip $(ports-emulation-dosbox--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-emulation-dosbox--HOST_CFLAGS) $(ports-emulation-dosbox--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-emulation-dosbox--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-emulation-dosbox--HOST_CXXFLAGS) $(ports-emulation-dosbox--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-emulation-dosbox--ACBUILD_LDFLAGS) $(ports-emulation-dosbox--s_flag))"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-emulation-dosbox--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-emulation-dosbox--cfg-env += CC_FOR_HOST="$(strip $(ports-emulation-dosbox--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-emulation-dosbox--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-emulation-dosbox--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-emulation-dosbox--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-emulation-dosbox--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(USER_CXXFLAGS) $(ports-emulation-dosbox--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-emulation-dosbox--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-emulation-dosbox--nix) $(ports-emulation-dosbox--s_flag))"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-emulation-dosbox--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-emulation-dosbox--cfg-env += CC_FOR_TARGET="$(strip $(ports-emulation-dosbox--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-emulation-dosbox--TARGET_CFLAGS) $(ports-emulation-dosbox--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-emulation-dosbox--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-emulation-dosbox--TARGET_CXXFLAGS) $(ports-emulation-dosbox--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(USER_CXXFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-emulation-dosbox--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-emulation-dosbox--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-emulation-dosbox--nix) $(ports-emulation-dosbox--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-emulation-dosbox--cfg-env += TARGET_CC="$(strip $(ports-emulation-dosbox--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CFLAGS) $(ports-emulation-dosbox--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-emulation-dosbox--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CXXFLAGS) $(ports-emulation-dosbox--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-emulation-dosbox--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-emulation-dosbox--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-emulation-dosbox--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-emulation-dosbox--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-emulation-dosbox--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-emulation-dosbox--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-emulation-dosbox--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-emulation-dosbox--cfg-env += CC="$(strip $(ports-emulation-dosbox--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-emulation-dosbox--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-emulation-dosbox--KERNEL_CXXFLAGS) $(USER_CXXFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-emulation-dosbox--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-emulation-dosbox--cfg-env += CC_FOR_BUILD="$(ports-emulation-dosbox--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-emulation-dosbox--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-emulation-dosbox--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-emulation-dosbox--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-emulation-dosbox--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-emulation-dosbox--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-emulation-dosbox--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-emulation-dosbox--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-emulation-dosbox--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-emulation-dosbox--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-emulation-dosbox--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-emulation-dosbox--touchfileflag ?= $(ports-emulation-dosbox--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-emulation-dosbox-portdir)/$(ports-emulation-dosbox--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-emulation-dosbox--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-emulation-dosbox--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-emulation-dosbox--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-emulation-dosbox-portdir)/$(ports-emulation-dosbox--builddir)/." $(ports-emulation-dosbox--pkgdir)/ && $(TOUCH) $@
+
+$(ports-emulation-dosbox--touchfileflag) : $(ports-emulation-dosbox--pkgdir)/.local-copy
+
+    ports-emulation-dosbox--cfg-srcdir=$(ports-emulation-dosbox--pkgdir)
+else
+    ports-emulation-dosbox--cfg-srcdir=$(ports-emulation-dosbox-portdir)/$(ports-emulation-dosbox--builddir)
+endif
+ports-emulation-dosbox--make-env += -C $(ports-emulation-dosbox--pkgdir)
+
+.PHONY : ports-emulation-dosbox- ports-emulation-dosbox--clean ports-emulation-dosbox--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-emulation-dosbox--host : setup includes ports-emulation-dosbox--quick
+#MM- ports-emulation-dosbox--target : setup includes core-linklibs ports-emulation-dosbox--quick
+#MM- ports-emulation-dosbox-: ports-emulation-dosbox--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-emulation-dosbox--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-emulation-dosbox--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-emulation-dosbox--PROGDIR)/" $(ports-emulation-dosbox--install_opts) \
+        $(ports-emulation-dosbox--make-env) install -j1
+
+    ports-emulation-dosbox--uninstall_command = \
+    $(RM) $(ports-emulation-dosbox--installflag) && \
+    $(MAKE) PROGDIR="$(ports-emulation-dosbox--PROGDIR)/" \
+    $(ports-emulation-dosbox--install_opts) $(ports-emulation-dosbox--make-env) uninstall
+else
+    ports-emulation-dosbox--install_command   := true
+    ports-emulation-dosbox--uninstall_command := true
+endif
+
+#MM- ports-emulation-dosbox--quick :  ports-emulation-dosbox--configure  ports-emulation-dosbox--build_and_install-quick ports-emulation-dosbox--make-package
+
+#MM
+ports-emulation-dosbox--build_and_install-quick :  $(ports-emulation-dosbox--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-emulation-dosbox--installflag) : $(ports-emulation-dosbox--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-emulation-dosbox--volfunc, PROGDIR)" -q $(ports-emulation-dosbox--make-env); then \
+	    $(RM) $(ports-emulation-dosbox--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-emulation-dosbox--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-emulation-dosbox--volfunc, PROGDIR)" $(ports-emulation-dosbox--make-env) && \
+	    $(ports-emulation-dosbox--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-emulation-dosbox--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-emulation-dosbox--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-emulation-dosbox-portdir)/$(ports-emulation-dosbox--builddir) -exec $(TOUCH) -c -r $(ports-emulation-dosbox--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-emulation-dosbox--uninstall :
+	$(ports-emulation-dosbox--uninstall_command)
+
+#MM
+ports-emulation-dosbox--configure : $(ports-emulation-dosbox--configflag)
+
+$(ports-emulation-dosbox--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-emulation-dosbox--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-emulation-dosbox--configflag) : $(ports-emulation-dosbox--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-emulation-dosbox--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-emulation-dosbox--pkgdir))"
+	$(ports-emulation-dosbox--init-env)
+	$(Q)cd $(ports-emulation-dosbox--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-emulation-dosbox--cfg-env) $(TMP_SRCDIR)/configure $(ports-emulation-dosbox--config_opts) --datarootdir='$$(PROGDIR)data' && \
+	$(TOUCH) $@
+
+#MM
+ports-emulation-dosbox--clean : ports-emulation-dosbox--uninstall
+	$(Q)$(RM) $(ports-emulation-dosbox--pkgdir)
+
+.PHONY : ports-emulation-dosbox--make-package ports-emulation-dosbox--create-patch
+#MM ports-emulation-dosbox--make-package : ports-emulation-dosbox--quick
+
+#MM
+ports-emulation-dosbox--make-package : $(ports-emulation-dosbox--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-emulation-dosbox--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-emulation-dosbox-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-emulation-dosbox--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-emulation-dosbox-prefix)" ; \
+	    cd $(ports-emulation-dosbox--package-dir) ; \
+	    tar -cvf $(ports-emulation-dosbox--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-emulation-dosbox--package-basename).tar ; \
+	fi
+
+
+ports-emulation-dosbox-cpy_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/.dosbox
+else
+setup :: $(TARGETDIR)/.dosbox
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/.dosbox
+
+
+.PHONY : ports-emulation-dosbox-cpy
+
+#MM
+ports-emulation-dosbox-cpy : | $(TARGETDIR)/.dosbox 
+	$(foreach file, dosbox-0.74.conf, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-emulation-dosbox-cpy_SRC)),$(ports-emulation-dosbox-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-emulation-dosbox-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/.dosbox/, $(file))))
+
+
+#MM
+ports-emulation-dosbox-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,857 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-audio : ports-audio-abcm2ps
+
+#MM  ports-audio-abcm2ps : \
+#MM    includes linklibs \
+#MM    ports-audio-abcm2ps-formats \
+#MM    ports-audio-abcm2ps-docs \
+#MM    ports-audio-abcm2ps-fetch
+
+#MM  ports-audio-abcm2ps-formats : ports-audio-abcm2ps-fetch
+#MM  ports-audio-abcm2ps-docs : ports-audio-abcm2ps-fetch
+
+REPOSITORIES := \
+    https://github.com/leesavide/abcm2ps/archive \
+    http://ftp.dei.uc.pt/pub/linux/gentoo/distfiles/
+
+ARCHBASE     := 8.14.13
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Audio/Abcm2ps
+
+NOWARN_FLAGS := $(NOWARN_UNINITIALIZED)
+USER_CFLAGS  := $(CFLAGS_GNU99) $(NOWARN_FLAGS) \
+    -DPOSIXC_NO_VAARGS \
+    -DA4_FORMAT=1 \
+    -DDEFAULT_FDIR="\"PROGDIR:Formats\"" \
+    -DVERSION="\"8.14.13\"" \
+    -DVDATE="\"2022-01-29\""
+
+FILES := \
+    abcm2ps \
+    abcparse \
+    buffer \
+    deco \
+    draw \
+    format \
+    front \
+    glyph \
+    music \
+    parse \
+    subs \
+    svg \
+    syms
+FILES := $(addprefix $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE)/,$(FILES))
+
+
+.PHONY : ports-audio-abcm2ps
+
+#MM- ports-audio-abcm2ps : \
+#MM             ports-audio-abcm2ps-$(CPU)
+
+#MM- ports-audio-abcm2ps-$(ARCH)-$(CPU) : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-audio-abcm2ps-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(CPU)
+
+#MM- ports-audio-abcm2ps-$(ARCH) : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-audio-abcm2ps-$(FAMILY) : \
+#MM             ports-audio-abcm2ps-$(ARCH)
+
+#MM- ports-audio-abcm2ps-$(CPU) : \
+#MM             ports-audio-abcm2ps-$(FAMILY)
+#MM- ports-audio-abcm2ps-quick : \
+#MM             ports-audio-abcm2ps-$(CPU)-quick
+
+#MM- ports-audio-abcm2ps-$(ARCH)-$(CPU)-quick : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-audio-abcm2ps-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(CPU)-quick
+
+#MM- ports-audio-abcm2ps-$(ARCH)-quick : \
+#MM             ports-audio-abcm2ps-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-audio-abcm2ps-$(FAMILY)-quick : \
+#MM             ports-audio-abcm2ps-$(ARCH)-quick
+
+#MM- ports-audio-abcm2ps-$(CPU)-quick : \
+#MM             ports-audio-abcm2ps-$(FAMILY)-quick
+
+ports-audio-abcm2ps_PROGNAME  := Abcm2ps
+ports-audio-abcm2ps_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-audio-abcm2ps_TARGETDIR := $(TARGETDIR)
+ports-audio-abcm2ps_LINKER    := 
+ports-audio-abcm2ps_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-audio-abcm2ps_LINKER),)
+    ports-audio-abcm2ps_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-audio-abcm2ps_FILES     := $(FILES)
+    ports-audio-abcm2ps_OBJCFILES := 
+    ports-audio-abcm2ps_ASMFILES  := 
+    ports-audio-abcm2ps_CXXFILES := 
+else
+    ports-audio-abcm2ps_FILES     := $(ports-audio-abcm2ps_PROGNAME)
+    ports-audio-abcm2ps_OBJCFILES :=
+    ports-audio-abcm2ps_ASMFILES  :=
+    ports-audio-abcm2ps_CXXFILES :=
+endif
+
+ports-audio-abcm2ps_ARCHOBJS   := $(wildcard $(ports-audio-abcm2ps_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-audio-abcm2ps_ARCHFILES     := $(basename $(notdir $(ports-audio-abcm2ps_ARCHOBJS)))
+else
+    ports-audio-abcm2ps_ARCHFILES     := $(basename $(patsubst $(ports-audio-abcm2ps_OBJDIR)/%,%,$(ports-audio-abcm2ps_ARCHOBJS)))
+endif
+ports-audio-abcm2ps_C_NARCHFILES := $(filter-out $(ports-audio-abcm2ps_ARCHFILES),$(ports-audio-abcm2ps_FILES))
+ports-audio-abcm2ps_CXX_NARCHFILES := $(filter-out $(ports-audio-abcm2ps_ARCHFILES),$(ports-audio-abcm2ps_CXXFILES))
+ports-audio-abcm2ps_OBJC_NARCHFILES := $(filter-out $(ports-audio-abcm2ps_ARCHFILES),$(ports-audio-abcm2ps_OBJCFILES))
+
+TMP_FILES := $(ports-audio-abcm2ps_C_NARCHFILES) $(ports-audio-abcm2ps_CXX_NARCHFILES) $(ports-audio-abcm2ps_ASMFILES) $(ports-audio-abcm2ps_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-audio-abcm2ps_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-audio-abcm2ps_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-audio-abcm2ps_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(TMP_FILES))) )
+    ports-audio-abcm2ps_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-audio-abcm2ps_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-audio-abcm2ps_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-audio-abcm2ps_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-audio-abcm2ps_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-audio-abcm2ps_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-audio-abcm2ps_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-audio-abcm2ps_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-audio-abcm2ps_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-audio-abcm2ps_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-audio-abcm2ps_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-audio-abcm2ps_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-audio-abcm2ps_LDFLAGS          := 
+endif
+
+ports-audio-abcm2ps_CSTATICFLAGS   := `echo "$(ports-audio-abcm2ps_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-audio-abcm2ps_CSTDCFLAGS   :=  `echo "$(ports-audio-abcm2ps_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-audio-abcm2ps_CPOSIXCFLAGS   :=  `echo "$(ports-audio-abcm2ps_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-audio-abcm2ps_LDFLAGS          += $(strip $(ports-audio-abcm2ps_CSTATICFLAGS) $(ports-audio-abcm2ps_CSTDCFLAGS) $(ports-audio-abcm2ps_CPOSIXCFLAGS))
+
+ports-audio-abcm2ps_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-audio-abcm2ps_COVERAGE := yes
+ports-audio-abcm2ps_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-audio-abcm2ps_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-audio-abcm2ps_CFLAGS    := $(strip $(ports-audio-abcm2ps_COVERAGEFLAGS) $(ports-audio-abcm2ps_CFLAGS))
+ports-audio-abcm2ps_CXXFLAGS := $(strip $(ports-audio-abcm2ps_COVERAGEFLAGS) $(ports-audio-abcm2ps_CXXFLAGS))
+ports-audio-abcm2ps_LIBS += $(ports-audio-abcm2ps_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-audio-abcm2ps_FUNCINSTR := yes
+ports-audio-abcm2ps_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-audio-abcm2ps_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-audio-abcm2ps_CFLAGS    := $(strip $(ports-audio-abcm2ps_INSTRFUNCFLAGS) $(ports-audio-abcm2ps_CFLAGS))
+ports-audio-abcm2ps_CXXFLAGS := $(strip $(ports-audio-abcm2ps_INSTRFUNCFLAGS) $(ports-audio-abcm2ps_CXXFLAGS))
+ports-audio-abcm2ps_LIBS += $(ports-audio-abcm2ps_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-audio-abcm2ps_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-audio-abcm2ps_CFLAGS))
+ports-audio-abcm2ps_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-audio-abcm2ps_CXXFLAGS))
+endif
+endif
+ports-audio-abcm2ps_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-audio-abcm2ps_DFLAGS     := 
+else
+    ports-audio-abcm2ps_DFLAGS     := $(ports-audio-abcm2ps_CFLAGS)
+endif
+ifneq (,)
+    ports-audio-abcm2ps_DXXFLAGS     := 
+else
+    ports-audio-abcm2ps_DXXFLAGS     := $(ports-audio-abcm2ps_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-audio-abcm2ps_LDFLAGS           := $(ports-audio-abcm2ps_LDFLAGS)
+ports-audio-abcm2ps_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-audio-abcm2ps_LDFLAGS           := $(ports-audio-abcm2ps_LDFLAGS)
+ports-audio-abcm2ps_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_LDFLAGS           := $(ports-audio-abcm2ps_LDFLAGS)
+ports-audio-abcm2ps_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-audio-abcm2ps_LDFLAGS   += -L
+endif
+
+#MM
+ports-audio-abcm2ps-quick : ports-audio-abcm2ps
+
+#MM ports-audio-abcm2ps : includes-generate-deps core-linklibs
+ports-audio-abcm2ps : $(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-audio-abcm2ps_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-audio-abcm2ps_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-audio-abcm2ps_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-audio-abcm2ps_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-audio-abcm2ps_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-audio-abcm2ps ports-audio-abcm2ps-quick ports-audio-abcm2ps-compress-quick),)
+
+ports-audio-abcm2ps_CXXABSBASENAMES := $(foreach ports-audio-abcm2ps_CXXBASE,$(ports-audio-abcm2ps_CXX_NARCHFILES),$(if $(filter /%,$(ports-audio-abcm2ps_CXXBASE)),$(ports-audio-abcm2ps_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-audio-abcm2ps_CXXBASE))))
+
+ifneq ($(ports-audio-abcm2ps_CXXABSBASENAMES),)
+
+ports-audio-abcm2ps_CXXBASENAMES := $(basename $(ports-audio-abcm2ps_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-audio-abcm2ps_MCXX_FILES  := $(strip $(foreach ports-audio-abcm2ps_CXXBASE,$(ports-audio-abcm2ps_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-audio-abcm2ps_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-audio-abcm2ps_EXT),$(ports-audio-abcm2ps_CXXBASE)))))))
+
+ifeq (,)
+ports-audio-abcm2ps_MCXX_SRCWILDCARD := %
+else
+ports-audio-abcm2ps_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-audio-abcm2ps_OBJDIR),)
+  ports-audio-abcm2ps_CXXTARGETS := $(notdir $(ports-audio-abcm2ps_CXXBASENAMES:=.o))
+  ports-audio-abcm2ps_CXXDTARGETS := $(notdir $(ports-audio-abcm2ps_CXXBASENAMES:=.d))
+  ports-audio-abcm2ps_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-audio-abcm2ps_CXXTARGETS := $(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(ports-audio-abcm2ps_CXXBASENAMES:=.o)))
+  ports-audio-abcm2ps_CXXDTARGETS := $(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(ports-audio-abcm2ps_CXXBASENAMES:=.d)))
+  ports-audio-abcm2ps_MCXX_WILDCARD := $(ports-audio-abcm2ps_OBJDIR)/%
+else
+  ports-audio-abcm2ps_CXXTARGETS := $(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_CXXBASENAMES:=.o))
+  ports-audio-abcm2ps_CXXDTARGETS := $(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_CXXBASENAMES:=.d))
+  ports-audio-abcm2ps_MCXX_WILDCARD := $(ports-audio-abcm2ps_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-audio-abcm2ps_CXXTARGETS) $(ports-audio-abcm2ps_CXXDTARGETS) : | $(ports-audio-abcm2ps_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-audio-abcm2ps_MCXX_CPPFLAGS := $(ports-audio-abcm2ps_CPPFLAGS)
+ports-audio-abcm2ps_CXXFLAGS := $(ports-audio-abcm2ps_CXXFLAGS)
+ifeq ($(ports-audio-abcm2ps_DXXFLAGS),)
+  ports-audio-abcm2ps_DXXFLAGS := $(ports-audio-abcm2ps_CXXFLAGS)
+else
+  ports-audio-abcm2ps_DXXFLAGS := $(ports-audio-abcm2ps_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-audio-abcm2ps_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-audio-abcm2ps_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-audio-abcm2ps_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-audio-abcm2ps_STRIP ?= $(HOST_STRIP)
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-audio-abcm2ps_CXXCMD:=$(HOST_CXX)
+  ports-audio-abcm2ps_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS) $(ports-audio-abcm2ps_MCXX_EXTRA_CPPFLAGS))
+  ports-audio-abcm2ps_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-audio-abcm2ps_CXXFLAGS))
+  ports-audio-abcm2ps_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-audio-abcm2ps_DXXFLAGS))
+  ports-audio-abcm2ps_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-audio-abcm2ps_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-audio-abcm2ps_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-audio-abcm2ps_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-audio-abcm2ps_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-audio-abcm2ps_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-audio-abcm2ps_LDFLAGS ?= $(ports-audio-abcm2ps_CXXLDFLAGS)
+  ports-audio-abcm2ps_STRIP ?= $(TARGET_STRIP)
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-audio-abcm2ps_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-audio-abcm2ps_MCXX_CPPFLAGS := $(strip $(ports-audio-abcm2ps_MCXX_CPPFLAGS) $(ports-audio-abcm2ps_MCXX_EXTRA_CPPFLAGS))
+  ports-audio-abcm2ps_CXXFLAGS := $(strip $(ports-audio-abcm2ps_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-audio-abcm2ps_DXXFLAGS := $(ports-audio-abcm2ps_DXXFLAGS)
+  ports-audio-abcm2ps_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-audio-abcm2ps_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-audio-abcm2ps_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-audio-abcm2ps_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-audio-abcm2ps_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-audio-abcm2ps_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-audio-abcm2ps_LDFLAGS ?= $(ports-audio-abcm2ps_CXXLDFLAGS)
+  ports-audio-abcm2ps_STRIP ?= $(ECHO) >/dev/null
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-audio-abcm2ps_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-audio-abcm2ps_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS) $(ports-audio-abcm2ps_MCXX_EXTRA_CPPFLAGS))
+  ports-audio-abcm2ps_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-audio-abcm2ps_CXXFLAGS))
+  ports-audio-abcm2ps_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-audio-abcm2ps_DXXFLAGS))
+  ports-audio-abcm2ps_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-audio-abcm2ps_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-audio-abcm2ps_CXXCMD) $(ports-audio-abcm2ps_CXXIQUOTE) $(dir $(2)) $(ports-audio-abcm2ps_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) . $(ports-audio-abcm2ps_CXXIQUOTE_END) $(strip $(ports-audio-abcm2ps_CXXFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-audio-abcm2ps_CXXCMD) $(ports-audio-abcm2ps_CXXIQUOTE) $(dir $(2)) $(ports-audio-abcm2ps_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) . $(ports-audio-abcm2ps_CXXIQUOTE_END) $(strip $(ports-audio-abcm2ps_CXXFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-audio-abcm2ps_CXXCMD) $(ports-audio-abcm2ps_CXXIQUOTE) $(dir $(2)) $(ports-audio-abcm2ps_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_CXXIQUOTE) . $(ports-audio-abcm2ps_CXXIQUOTE_END) $(strip $(ports-audio-abcm2ps_CXXFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-audio-abcm2ps_CXXCMD)" $(MKDEPEND) $(strip $(ports-audio-abcm2ps_DXXFLAGS) $(ports-audio-abcm2ps_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-audio-abcm2ps_OBJDIR),)
+  $(foreach ports-audio-abcm2ps_CXXFILE,$(ports-audio-abcm2ps_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-audio-abcm2ps_CXXFILE))),$(ports-audio-abcm2ps_CXXFILE))))
+else
+  $(foreach ports-audio-abcm2ps_CXXFILE,$(ports-audio-abcm2ps_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(basename $(ports-audio-abcm2ps_CXXFILE)))),$(ports-audio-abcm2ps_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-audio-abcm2ps_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-audio-abcm2ps_MOBJC_SRCWILDCARD := %
+else
+ports-audio-abcm2ps_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-audio-abcm2ps_OBJDIR),)
+  ports-audio-abcm2ps_MOBJC_TARGETS := $(addsuffix .o,$(ports-audio-abcm2ps_OBJC_NARCHFILES))
+  ports-audio-abcm2ps_MOBJC_DTARGETS := $(addsuffix .d,$(ports-audio-abcm2ps_OBJC_NARCHFILES))
+  ports-audio-abcm2ps_MOBJC_WILDCARD := %
+else
+  ports-audio-abcm2ps_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_OBJC_NARCHFILES)))
+  ports-audio-abcm2ps_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_OBJC_NARCHFILES)))
+  ports-audio-abcm2ps_MOBJC_WILDCARD := $(ports-audio-abcm2ps_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-audio-abcm2ps_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-audio-abcm2ps_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-audio-abcm2ps_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-audio-abcm2ps_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-audio-abcm2ps_MOBJC_DIRS := $(foreach dir, $(ports-audio-abcm2ps_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-audio-abcm2ps_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-audio-abcm2ps_MOBJC_DIRS),)
+    ports-audio-abcm2ps_MOBJC_DIRS := $(shell $(ECHO) $(ports-audio-abcm2ps_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-audio-abcm2ps_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-audio-abcm2ps_CC := $(TARGET_CC)
+else
+  ports-audio-abcm2ps_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-audio-abcm2ps_MOBJC_CPPFLAGS := $(ports-audio-abcm2ps_CPPFLAGS)
+ports-audio-abcm2ps_OBJCFLAGS := $(ports-audio-abcm2ps_CFLAGS)
+ports-audio-abcm2ps_OBJCFLAGS := $(ports-audio-abcm2ps_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-audio-abcm2ps_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-audio-abcm2ps_OBJCFLAGS)))
+ifeq ($(ports-audio-abcm2ps_DFLAGS),)
+  ports-audio-abcm2ps_OBJCDFLAGS := $(ports-audio-abcm2ps_CFLAGS)
+else
+  ports-audio-abcm2ps_OBJCDFLAGS := $(ports-audio-abcm2ps_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-audio-abcm2ps_LINK ?= $(strip $(ports-audio-abcm2ps_CC) $(TARGET_SYSROOT))
+  ports-audio-abcm2ps_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-audio-abcm2ps_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-audio-abcm2ps_STRIP ?= $(TARGET_STRIP)
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : CMD:=$(strip $(ports-audio-abcm2ps_CC) $(TARGET_SYSROOT))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_MOBJC_CPPFLAGS:=$(strip $(ports-audio-abcm2ps_MOBJC_CPPFLAGS) $(ports-audio-abcm2ps_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCFLAGS:=$(strip $(ports-audio-abcm2ps_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCDFLAGS:=$(ports-audio-abcm2ps_OBJCDFLAGS)
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-audio-abcm2ps_LINK ?= $(strip $(HOST_OBJC))
+  ports-audio-abcm2ps_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-audio-abcm2ps_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-audio-abcm2ps_STRIP ?= $(HOST_STRIP)
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-audio-abcm2ps_MOBJC_CPPFLAGS) $(ports-audio-abcm2ps_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-audio-abcm2ps_OBJCFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-audio-abcm2ps_OBJCDFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-audio-abcm2ps_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-audio-abcm2ps_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-audio-abcm2ps_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-audio-abcm2ps_STRIP ?= $(ECHO) >/dev/null
+  ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-audio-abcm2ps_MOBJC_CPPFLAGS) $(ports-audio-abcm2ps_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-audio-abcm2ps_OBJCFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-audio-abcm2ps_OBJCDFLAGS))
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-audio-abcm2ps_MOBJC_TARGETS) $(ports-audio-abcm2ps_MOBJC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-audio-abcm2ps_MOBJC_TARGETS) : CPPFLAGS := $(ports-audio-abcm2ps_MOBJC_CPPFLAGS)
+$(ports-audio-abcm2ps_MOBJC_TARGETS) : CFLAGS := $(ports-audio-abcm2ps_OBJCFLAGS)
+$(ports-audio-abcm2ps_MOBJC_TARGETS) : $(ports-audio-abcm2ps_MOBJC_WILDCARD).o : $(ports-audio-abcm2ps_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-audio-abcm2ps_MOBJC_DTARGETS) : $(ports-audio-abcm2ps_MOBJC_WILDCARD).d : $(ports-audio-abcm2ps_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-audio-abcm2ps_OBJCDFLAGS) $(ports-audio-abcm2ps_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-audio-abcm2ps_MC_SRCWILDCARD := %
+else
+ports-audio-abcm2ps_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-audio-abcm2ps_OBJDIR),)
+ports-audio-abcm2ps_MC_TARGETS := $(addsuffix .o,$(ports-audio-abcm2ps_C_NARCHFILES))
+ports-audio-abcm2ps_MC_DTARGETS := $(addsuffix .d,$(ports-audio-abcm2ps_C_NARCHFILES))
+ports-audio-abcm2ps_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-audio-abcm2ps_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(ports-audio-abcm2ps_C_NARCHFILES))))
+    ports-audio-abcm2ps_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(ports-audio-abcm2ps_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-audio-abcm2ps_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_C_NARCHFILES)))
+    ports-audio-abcm2ps_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(ports-audio-abcm2ps_C_NARCHFILES)))
+else
+    ports-audio-abcm2ps_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(patsubst /%,%,$(ports-audio-abcm2ps_C_NARCHFILES))))
+    ports-audio-abcm2ps_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(patsubst /%,%,$(ports-audio-abcm2ps_C_NARCHFILES))))
+endif
+endif
+ports-audio-abcm2ps_MC_TGTWILDCARD := $(ports-audio-abcm2ps_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : | $(addsuffix .c,$(ports-audio-abcm2ps_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-audio-abcm2ps_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-audio-abcm2ps_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-audio-abcm2ps_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-audio-abcm2ps_MC_DIRS := $(foreach dir, $(ports-audio-abcm2ps_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-audio-abcm2ps_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-audio-abcm2ps_MC_DIRS),)
+    ports-audio-abcm2ps_MC_DIRS := $(shell $(ECHO) $(ports-audio-abcm2ps_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-audio-abcm2ps_MC_DIRS)
+endif
+
+endif
+
+ports-audio-abcm2ps_MC_CPPFLAGS := $(ports-audio-abcm2ps_CPPFLAGS)
+ports-audio-abcm2ps_CFLAGS := $(ports-audio-abcm2ps_CFLAGS)
+ifeq ($(ports-audio-abcm2ps_DFLAGS),)
+  ports-audio-abcm2ps_DFLAGS := $(ports-audio-abcm2ps_CFLAGS)
+else
+  ports-audio-abcm2ps_DFLAGS := $(ports-audio-abcm2ps_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-audio-abcm2ps_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-audio-abcm2ps_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-audio-abcm2ps_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-audio-abcm2ps_STRIP ?= $(TARGET_STRIP)
+ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_MC_CPPFLAGS:=$(strip $(ports-audio-abcm2ps_MC_CPPFLAGS) $(ports-audio-abcm2ps_MC_EXTRA_CPPFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_CFLAGS:=$(strip $(ports-audio-abcm2ps_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_DFLAGS:=$(ports-audio-abcm2ps_DFLAGS)
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-audio-abcm2ps_LINK ?= $(strip $(HOST_CC))
+ports-audio-abcm2ps_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-audio-abcm2ps_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-audio-abcm2ps_STRIP ?= $(HOST_STRIP)
+ports-audio-abcm2ps_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-audio-abcm2ps_MC_CPPFLAGS) $(ports-audio-abcm2ps_MC_EXTRA_CPPFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-audio-abcm2ps_CFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-audio-abcm2ps_DFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(HOST_IQUOTE)
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-audio-abcm2ps_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-audio-abcm2ps_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-audio-abcm2ps_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-audio-abcm2ps_STRIP ?= $(ECHO) >/dev/null
+ports-audio-abcm2ps_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-audio-abcm2ps_MC_CPPFLAGS) $(ports-audio-abcm2ps_MC_EXTRA_CPPFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-audio-abcm2ps_CFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-audio-abcm2ps_DFLAGS))
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-audio-abcm2ps_MC_TARGETS) $(ports-audio-abcm2ps_MC_DTARGETS) : ports-audio-abcm2ps_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-audio-abcm2ps_MC_TARGETS) : CPPFLAGS := $(ports-audio-abcm2ps_MC_CPPFLAGS)
+$(ports-audio-abcm2ps_MC_TARGETS) : CFLAGS := $(ports-audio-abcm2ps_CFLAGS)
+$(ports-audio-abcm2ps_MC_TARGETS) : $(ports-audio-abcm2ps_MC_TGTWILDCARD).o : $(ports-audio-abcm2ps_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-audio-abcm2ps_IQUOTE) $(dir $<) $(ports-audio-abcm2ps_IQUOTE) $(TOP)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-audio-abcm2ps_IQUOTE) . $(ports-audio-abcm2ps_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-audio-abcm2ps_MC_DTARGETS) : $(ports-audio-abcm2ps_MC_TGTWILDCARD).d : $(ports-audio-abcm2ps_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-audio-abcm2ps_DFLAGS) $(ports-audio-abcm2ps_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-audio-abcm2ps_OBJDIR),)
+ports-audio-abcm2ps-MA_TARGETS := $(addsuffix .o,$(ports-audio-abcm2ps_ASMFILES))
+ports-audio-abcm2ps-MA_WILDCARD := %
+else
+ports-audio-abcm2ps-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-audio-abcm2ps_OBJDIR)/,$(notdir $(ports-audio-abcm2ps_ASMFILES))))
+ports-audio-abcm2ps-MA_WILDCARD := $(ports-audio-abcm2ps_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-audio-abcm2ps-MA_TARGETS) : | $(addsuffix .s,$(ports-audio-abcm2ps_ASMFILES))
+
+# Be sure that all .c files are found
+ports-audio-abcm2ps-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-audio-abcm2ps-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-audio-abcm2ps_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-audio-abcm2ps-MA_DIRS := $(foreach dir, $(ports-audio-abcm2ps-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-audio-abcm2ps-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-audio-abcm2ps-MA_DIRS),)
+    ports-audio-abcm2ps-MA_DIRS := $(shell $(ECHO) $(ports-audio-abcm2ps-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-audio-abcm2ps-MA_DIRS)
+endif
+
+endif
+
+ports-audio-abcm2ps-MA_ASSEMBLER ?= $(ports-audio-abcm2ps_ASSEMBLER)
+
+$(ports-audio-abcm2ps-MA_TARGETS) : ports-audio-abcm2ps-MA_CMD:= $(ports-audio-abcm2ps-MA_ASSEMBLER)
+
+$(ports-audio-abcm2ps-MA_TARGETS) : CPPFLAGS := $(ports-audio-abcm2ps_CPPFLAGS)
+$(ports-audio-abcm2ps-MA_TARGETS) : AFLAGS := $(ports-audio-abcm2ps_AFLAGS)
+$(ports-audio-abcm2ps-MA_TARGETS) : $(ports-audio-abcm2ps-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-audio-abcm2ps-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-audio-abcm2ps-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-audio-abcm2ps-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-audio-abcm2ps-link_LD_OPTS := 
+ports-audio-abcm2ps-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-audio-abcm2ps-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-audio-abcm2ps-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-audio-abcm2ps-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-audio-abcm2ps-link_DIRS := $(subst -L ,-L,$(strip $(ports-audio-abcm2ps_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-audio-abcm2ps-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-audio-abcm2ps-link_DIRS)))
+# Add trailing /
+ports-audio-abcm2ps-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-audio-abcm2ps-link_DIRS)))
+# Add normal linklib path
+ports-audio-abcm2ps-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-audio-abcm2ps-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-audio-abcm2ps_LIBS) $(ports-audio-abcm2ps-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-audio-abcm2ps-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-audio-abcm2ps-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-audio-abcm2ps-link_DEPLIBS := $(foreach lib,$(ports-audio-abcm2ps-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-audio-abcm2ps-link_DIRS)))) \
+)
+
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : OBJDIR := $(ports-audio-abcm2ps_OBJDIR)
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : OBJS := $(strip $(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_ARCHOBJS) $(USER_OBJS))
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : LDFLAGS := $(strip $(ports-audio-abcm2ps_LDFLAGS))
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-audio-abcm2ps_LIBS) $(ports-audio-abcm2ps-link_EXTRA_LIBS)))
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-audio-abcm2ps_ARCHLIBS))
+$(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : $(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_ARCHOBJS) $(USER_OBJS) $(ports-audio-abcm2ps-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-audio-abcm2ps_LINK) $(strip $(ports-audio-abcm2ps_LD_OPTS) $(ports-audio-abcm2ps-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-audio-abcm2ps_LINK) $(strip $(ports-audio-abcm2ps_LD_OPTS) $(ports-audio-abcm2ps-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-audio-abcm2ps_LINK) $(strip $(ports-audio-abcm2ps_LD_OPTS) $(ports-audio-abcm2ps-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-audio-abcm2ps_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-audio-abcm2ps_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-audio-abcm2ps_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-audio-abcm2ps_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-audio-abcm2ps_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-audio-abcm2ps_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-audio-abcm2ps_DEPS),)
+  ifneq (ports-audio-abcm2ps ports-audio-abcm2ps-quick,)
+    ifneq ($(findstring $(TARGET),ports-audio-abcm2ps ports-audio-abcm2ps-quick),)
+      -include $(ports-audio-abcm2ps_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-audio-abcm2ps_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_DEPS) $(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME),)
+$(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_DEPS) $(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) : | $(ports-audio-abcm2ps_OBJDIR) $(ports-audio-abcm2ps_TARGETDIR)
+else
+$(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_DEPS) $(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) :: $(ports-audio-abcm2ps_OBJDIR) $(ports-audio-abcm2ps_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-audio-abcm2ps_OBJDIR) $(ports-audio-abcm2ps_TARGETDIR)
+
+
+ports-audio-abcm2ps-clean : FILES := $(ports-audio-abcm2ps_OBJS) $(ports-audio-abcm2ps_TARGETDIR)/$(ports-audio-abcm2ps_PROGNAME) $(ports-audio-abcm2ps_DEPS)
+#MM
+ports-audio-abcm2ps-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-audio-abcm2ps"
+	$(Q)$(RM) $(FILES)
+
+
+
+
+.PHONY: ports-audio-abcm2ps-fetch
+
+ifneq ($(PORTSSOURCEDIR)/abcm2ps,)
+    ports-audio-abcm2ps-fetch-location := $(PORTSSOURCEDIR)/abcm2ps
+else
+    ports-audio-abcm2ps-fetch-location := $(PORTSDIR)/abcm2ps
+endif
+
+ifneq (,)
+    ports-audio-abcm2ps-fetch-baseflag := -b 
+else
+    ports-audio-abcm2ps-fetch-baseflag :=
+endif
+
+ports-audio-abcm2ps-fetch-fetchedflag := $(ports-audio-abcm2ps-fetch-location)/.v$(ARCHBASE)-fetched
+
+#MM
+ports-audio-abcm2ps-fetch :
+	$(Q)$(ECHO) "Fetching   v$(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a v$(ARCHBASE) -s "tar.gz" -l $(ports-audio-abcm2ps-fetch-location) \
+	-d $(PORTSDIR)/abcm2ps $(ports-audio-abcm2ps-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "abcm2ps-$(ARCHBASE)-aros.diff:abcm2ps-$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-audio-abcm2ps-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-audio-abcm2ps-fetch-fetchedflag) ; \
+	fi
+
+
+FORMATFILES := flute.fmt landscape.fmt musicfont.fmt
+
+ports-audio-abcm2ps-formats_SRC := $(shell $(ECHO) $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/Formats
+else
+setup :: $(TARGETDIR)/Formats
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/Formats
+
+
+.PHONY : ports-audio-abcm2ps-formats
+
+#MM
+ports-audio-abcm2ps-formats : | $(TARGETDIR)/Formats 
+	$(foreach file, $(FORMATFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-audio-abcm2ps-formats_SRC)),$(ports-audio-abcm2ps-formats_SRC),$(SRCDIR)/$(CURDIR)/$(ports-audio-abcm2ps-formats_SRC))/, $(file)) $(addprefix $(TARGETDIR)/Formats/, $(file))))
+
+
+
+DOCFILES := $(notdir \
+    $(call WILDCARD, $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE)/*.abc) \
+    $(call WILDCARD, $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE)/*.eps) \
+    $(call WILDCARD, $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE)/*.txt) \
+    $(call WILDCARD, $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE)/*.rst) \
+    ) README.md
+
+
+ports-audio-abcm2ps-docs_SRC := $(shell $(ECHO) $(PORTSDIR)/abcm2ps/abcm2ps-$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)/Docs
+else
+setup :: $(TARGETDIR)/Docs
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)/Docs
+
+
+.PHONY : ports-audio-abcm2ps-docs
+
+#MM
+ports-audio-abcm2ps-docs : | $(TARGETDIR)/Docs 
+	$(foreach file, $(DOCFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-audio-abcm2ps-docs_SRC)),$(ports-audio-abcm2ps-docs_SRC),$(SRCDIR)/$(CURDIR)/$(ports-audio-abcm2ps-docs_SRC))/, $(file)) $(addprefix $(TARGETDIR)/Docs/, $(file))))
+
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

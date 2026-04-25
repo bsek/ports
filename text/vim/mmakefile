@@ -1,0 +1,1780 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-vim
+
+#MM- ports-text-vim : \
+#MM    ports-text-vim-gvim \
+#MM    ports-text-vim-runtime \
+#MM    ports-text-vim-guide \
+#MM    ports-text-vim-xxd \
+#MM    ports-text-vim-fetch
+
+#MM  ports-text-vim-gvim : includes linklibs ports-text-vim-fetch
+#MM  ports-text-vim-guide : ports-text-vim-fetch
+#MM  ports-text-vim-xxd : includes linklibs ports-text-vim-fetch
+#MM  ports-text-vim-runtime : ports-text-vim-fetch
+#MM  ports-text-vim-quick : ports-text-vim-gvim-quick ports-text-vim-fetch
+
+#MM  ports-text-vim-clean : ports-text-vim-gvim ports-text-vim-xxd-clean
+
+REPOSITORIES := https://github.com/sodero/MUI-Vim/archive/refs/tags
+VIMVERS        := 8.2.4424
+ARCHBASE     := MUI-Vim-$(VIMVERS)
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Text/Vim
+
+NOWARN_FLAGS := $(NOWARN_STRICT_OVERFLOW) $(NOWARN_STRICT_ALIASING) \
+    $(NOWARN_MISLEADING_INDENTATION) $(NOWARN_INT_CONVERSION) \
+    $(NOWARN_BOOL_COMPARE) $(NOWARN_LOGICAL_NOT_PARENTHESES) \
+    $(NOWARN_POINTER_TO_INT_CAST)
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+VER:=8.2
+PAT:=4424
+BLD:=$(shell date +%d.%m.%Y || echo Unknown)
+
+PATCHLEVEL=$(PAT)
+BUILDDATE=$(BLD)
+BUILD=mui
+
+USER_CFLAGS := $(CFLAGS_GNU11) $(NOWARN_FLAGS)
+
+USER_CFLAGS += \
+    -DUSE_TMPNAM \
+    -Wall \
+    -Wno-pointer-sign \
+    -Wno-int-conversion \
+    -Wno-deprecated-declarations
+
+# Vim 'huge' build with MUI GUI
+ifeq ($(BUILD),mui)
+USER_CFLAGS += \
+    -DFEAT_GUI \
+    -DFEAT_GUI_MUI \
+    -DFEAT_BROWSE \
+	-DFEAT_MOUSE \
+    -DFEAT_TOOLBAR \
+    -DFEAT_HUGE \
+	-DHAVE_FSYNC
+endif
+
+USER_CFLAGS += -DMODIFIED_BY=\"'Ola Söder et al.'\" -DPATCHLEVEL=\"$(PATCHLEVEL)\" -DBUILDDATE=\"$(BUILDDATE)\"
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+USER_INCLUDES := -I$(PORTSDIR)/vim/$(ARCHBASE)/src/proto
+USER_LDFLAGS  := 
+
+# MUI GUI
+FILES := gui_mui gui
+
+# Common files
+FILES += \
+    alloc \
+    arabic \
+    arglist \
+    autocmd \
+    beval \
+    blob \
+    blowfish \
+    buffer \
+    bufwrite \
+    change \
+    charset \
+    cindent \
+    clientserver \
+    clipboard \
+    cmdhist \
+    cmdexpand \
+    crypt \
+    crypt_zip \
+    debugger \
+    dict \
+    diff \
+    digraph \
+    drawline \
+    drawscreen \
+    edit \
+    eval \
+    evalbuffer \
+    evalfunc \
+    evalvars \
+    evalwindow \
+    ex_cmds \
+    ex_cmds2 \
+    ex_docmd \
+    ex_eval \
+    ex_getln \
+    fileio \
+    filepath \
+    findfile \
+    float \
+    fold \
+    getchar \
+    gui_xim \
+    hardcopy \
+    hashtab \
+    help \
+    highlight \
+    if_cscope \
+    indent \
+    insexpand \
+    json \
+    list \
+    locale \
+    main \
+    mark \
+    map \
+    match \
+    mbyte \
+    memfile \
+    memline \
+    menu \
+    message \
+    misc1 \
+    misc2 \
+    mouse \
+    move \
+    normal \
+    ops \
+    option \
+    optionstr \
+    os_amiga \
+    popupmenu \
+    popupwin \
+    profiler \
+    quickfix \
+    regexp \
+    register \
+    screen \
+    scriptfile \
+    search \
+    session \
+    sha256 \
+    sign \
+    spell \
+    spellfile \
+    spellsuggest \
+    strings \
+    syntax \
+    tag \
+    term \
+    termlib \
+    testing \
+    textformat \
+    textobject \
+    textprop \
+    time \
+    typval \
+    ui \
+    undo \
+    usercmd \
+    userfunc \
+    version \
+    viminfo \
+    vim9cmds \
+    vim9compile \
+    vim9execute \
+    vim9expr \
+    vim9instr \
+    vim9script \
+    vim9type \
+    window \
+    xdiff/xdiffi \
+    xdiff/xemit \
+    xdiff/xhistogram \
+    xdiff/xpatience \
+    xdiff/xprepare \
+    xdiff/xutils
+
+FILES := $(addprefix $(PORTSDIR)/vim/$(ARCHBASE)/src/,$(FILES))
+
+
+.PHONY : ports-text-vim-gvim
+
+#MM- ports-text-vim-gvim : \
+#MM             ports-text-vim-gvim-$(CPU)
+
+#MM- ports-text-vim-gvim-$(ARCH)-$(CPU) : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-vim-gvim-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(CPU)
+
+#MM- ports-text-vim-gvim-$(ARCH) : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-vim-gvim-$(FAMILY) : \
+#MM             ports-text-vim-gvim-$(ARCH)
+
+#MM- ports-text-vim-gvim-$(CPU) : \
+#MM             ports-text-vim-gvim-$(FAMILY)
+#MM- ports-text-vim-gvim-quick : \
+#MM             ports-text-vim-gvim-$(CPU)-quick
+
+#MM- ports-text-vim-gvim-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-vim-gvim-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-vim-gvim-$(ARCH)-quick : \
+#MM             ports-text-vim-gvim-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-vim-gvim-$(FAMILY)-quick : \
+#MM             ports-text-vim-gvim-$(ARCH)-quick
+
+#MM- ports-text-vim-gvim-$(CPU)-quick : \
+#MM             ports-text-vim-gvim-$(FAMILY)-quick
+
+ports-text-vim-gvim_PROGNAME  := gVim
+ports-text-vim-gvim_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-vim-gvim_TARGETDIR := $(TARGETDIR)
+ports-text-vim-gvim_LINKER    := 
+ports-text-vim-gvim_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-vim-gvim_LINKER),)
+    ports-text-vim-gvim_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-vim-gvim_FILES     := $(FILES)
+    ports-text-vim-gvim_OBJCFILES := 
+    ports-text-vim-gvim_ASMFILES  := 
+    ports-text-vim-gvim_CXXFILES := 
+else
+    ports-text-vim-gvim_FILES     := $(ports-text-vim-gvim_PROGNAME)
+    ports-text-vim-gvim_OBJCFILES :=
+    ports-text-vim-gvim_ASMFILES  :=
+    ports-text-vim-gvim_CXXFILES :=
+endif
+
+ports-text-vim-gvim_ARCHOBJS   := $(wildcard $(ports-text-vim-gvim_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-vim-gvim_ARCHFILES     := $(basename $(notdir $(ports-text-vim-gvim_ARCHOBJS)))
+else
+    ports-text-vim-gvim_ARCHFILES     := $(basename $(patsubst $(ports-text-vim-gvim_OBJDIR)/%,%,$(ports-text-vim-gvim_ARCHOBJS)))
+endif
+ports-text-vim-gvim_C_NARCHFILES := $(filter-out $(ports-text-vim-gvim_ARCHFILES),$(ports-text-vim-gvim_FILES))
+ports-text-vim-gvim_CXX_NARCHFILES := $(filter-out $(ports-text-vim-gvim_ARCHFILES),$(ports-text-vim-gvim_CXXFILES))
+ports-text-vim-gvim_OBJC_NARCHFILES := $(filter-out $(ports-text-vim-gvim_ARCHFILES),$(ports-text-vim-gvim_OBJCFILES))
+
+TMP_FILES := $(ports-text-vim-gvim_C_NARCHFILES) $(ports-text-vim-gvim_CXX_NARCHFILES) $(ports-text-vim-gvim_ASMFILES) $(ports-text-vim-gvim_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-vim-gvim_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-vim-gvim_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-vim-gvim_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-vim-gvim_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-vim-gvim_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-vim-gvim_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-gvim_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-vim-gvim_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-vim-gvim_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-gvim_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-vim-gvim_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-vim-gvim_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-gvim_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-vim-gvim_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-vim-gvim_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-vim-gvim_LDFLAGS          := 
+endif
+
+ports-text-vim-gvim_CSTATICFLAGS   := `echo "$(ports-text-vim-gvim_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-vim-gvim_CSTDCFLAGS   :=  `echo "$(ports-text-vim-gvim_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-vim-gvim_CPOSIXCFLAGS   :=  `echo "$(ports-text-vim-gvim_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-vim-gvim_LDFLAGS          += $(strip $(ports-text-vim-gvim_CSTATICFLAGS) $(ports-text-vim-gvim_CSTDCFLAGS) $(ports-text-vim-gvim_CPOSIXCFLAGS))
+
+ports-text-vim-gvim_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-vim-gvim_COVERAGE := yes
+ports-text-vim-gvim_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-vim-gvim_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-vim-gvim_CFLAGS    := $(strip $(ports-text-vim-gvim_COVERAGEFLAGS) $(ports-text-vim-gvim_CFLAGS))
+ports-text-vim-gvim_CXXFLAGS := $(strip $(ports-text-vim-gvim_COVERAGEFLAGS) $(ports-text-vim-gvim_CXXFLAGS))
+ports-text-vim-gvim_LIBS += $(ports-text-vim-gvim_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-vim-gvim_FUNCINSTR := yes
+ports-text-vim-gvim_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-vim-gvim_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-vim-gvim_CFLAGS    := $(strip $(ports-text-vim-gvim_INSTRFUNCFLAGS) $(ports-text-vim-gvim_CFLAGS))
+ports-text-vim-gvim_CXXFLAGS := $(strip $(ports-text-vim-gvim_INSTRFUNCFLAGS) $(ports-text-vim-gvim_CXXFLAGS))
+ports-text-vim-gvim_LIBS += $(ports-text-vim-gvim_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-vim-gvim_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-vim-gvim_CFLAGS))
+ports-text-vim-gvim_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-vim-gvim_CXXFLAGS))
+endif
+endif
+ports-text-vim-gvim_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-vim-gvim_DFLAGS     := 
+else
+    ports-text-vim-gvim_DFLAGS     := $(ports-text-vim-gvim_CFLAGS)
+endif
+ifneq (,)
+    ports-text-vim-gvim_DXXFLAGS     := 
+else
+    ports-text-vim-gvim_DXXFLAGS     := $(ports-text-vim-gvim_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-vim-gvim_LDFLAGS           := $(ports-text-vim-gvim_LDFLAGS)
+ports-text-vim-gvim_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-vim-gvim_LDFLAGS           := $(ports-text-vim-gvim_LDFLAGS)
+ports-text-vim-gvim_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_LDFLAGS           := $(ports-text-vim-gvim_LDFLAGS)
+ports-text-vim-gvim_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-vim-gvim_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-vim-gvim-quick : ports-text-vim-gvim
+
+#MM ports-text-vim-gvim : includes-generate-deps core-linklibs
+ports-text-vim-gvim : $(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-vim-gvim_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-vim-gvim_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-vim-gvim_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-vim-gvim_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-vim-gvim_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-vim-gvim ports-text-vim-gvim-quick ports-text-vim-gvim-compress-quick),)
+
+ports-text-vim-gvim_CXXABSBASENAMES := $(foreach ports-text-vim-gvim_CXXBASE,$(ports-text-vim-gvim_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-vim-gvim_CXXBASE)),$(ports-text-vim-gvim_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-vim-gvim_CXXBASE))))
+
+ifneq ($(ports-text-vim-gvim_CXXABSBASENAMES),)
+
+ports-text-vim-gvim_CXXBASENAMES := $(basename $(ports-text-vim-gvim_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-vim-gvim_MCXX_FILES  := $(strip $(foreach ports-text-vim-gvim_CXXBASE,$(ports-text-vim-gvim_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-vim-gvim_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-vim-gvim_EXT),$(ports-text-vim-gvim_CXXBASE)))))))
+
+ifeq (,)
+ports-text-vim-gvim_MCXX_SRCWILDCARD := %
+else
+ports-text-vim-gvim_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-gvim_OBJDIR),)
+  ports-text-vim-gvim_CXXTARGETS := $(notdir $(ports-text-vim-gvim_CXXBASENAMES:=.o))
+  ports-text-vim-gvim_CXXDTARGETS := $(notdir $(ports-text-vim-gvim_CXXBASENAMES:=.d))
+  ports-text-vim-gvim_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-vim-gvim_CXXTARGETS := $(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(ports-text-vim-gvim_CXXBASENAMES:=.o)))
+  ports-text-vim-gvim_CXXDTARGETS := $(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(ports-text-vim-gvim_CXXBASENAMES:=.d)))
+  ports-text-vim-gvim_MCXX_WILDCARD := $(ports-text-vim-gvim_OBJDIR)/%
+else
+  ports-text-vim-gvim_CXXTARGETS := $(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_CXXBASENAMES:=.o))
+  ports-text-vim-gvim_CXXDTARGETS := $(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_CXXBASENAMES:=.d))
+  ports-text-vim-gvim_MCXX_WILDCARD := $(ports-text-vim-gvim_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-vim-gvim_CXXTARGETS) $(ports-text-vim-gvim_CXXDTARGETS) : | $(ports-text-vim-gvim_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-vim-gvim_MCXX_CPPFLAGS := $(ports-text-vim-gvim_CPPFLAGS)
+ports-text-vim-gvim_CXXFLAGS := $(ports-text-vim-gvim_CXXFLAGS)
+ifeq ($(ports-text-vim-gvim_DXXFLAGS),)
+  ports-text-vim-gvim_DXXFLAGS := $(ports-text-vim-gvim_CXXFLAGS)
+else
+  ports-text-vim-gvim_DXXFLAGS := $(ports-text-vim-gvim_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-vim-gvim_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-vim-gvim_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-vim-gvim_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-vim-gvim_STRIP ?= $(HOST_STRIP)
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-vim-gvim_CXXCMD:=$(HOST_CXX)
+  ports-text-vim-gvim_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS) $(ports-text-vim-gvim_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-gvim_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-vim-gvim_CXXFLAGS))
+  ports-text-vim-gvim_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-vim-gvim_DXXFLAGS))
+  ports-text-vim-gvim_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-vim-gvim_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-vim-gvim_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-vim-gvim_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-vim-gvim_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-vim-gvim_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-vim-gvim_LDFLAGS ?= $(ports-text-vim-gvim_CXXLDFLAGS)
+  ports-text-vim-gvim_STRIP ?= $(TARGET_STRIP)
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-vim-gvim_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-vim-gvim_MCXX_CPPFLAGS := $(strip $(ports-text-vim-gvim_MCXX_CPPFLAGS) $(ports-text-vim-gvim_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-gvim_CXXFLAGS := $(strip $(ports-text-vim-gvim_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-vim-gvim_DXXFLAGS := $(ports-text-vim-gvim_DXXFLAGS)
+  ports-text-vim-gvim_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-vim-gvim_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-vim-gvim_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-vim-gvim_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-vim-gvim_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-vim-gvim_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-vim-gvim_LDFLAGS ?= $(ports-text-vim-gvim_CXXLDFLAGS)
+  ports-text-vim-gvim_STRIP ?= $(ECHO) >/dev/null
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-vim-gvim_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-vim-gvim_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS) $(ports-text-vim-gvim_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-gvim_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-vim-gvim_CXXFLAGS))
+  ports-text-vim-gvim_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-vim-gvim_DXXFLAGS))
+  ports-text-vim-gvim_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-vim-gvim_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-vim-gvim_CXXCMD) $(ports-text-vim-gvim_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-gvim_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) . $(ports-text-vim-gvim_CXXIQUOTE_END) $(strip $(ports-text-vim-gvim_CXXFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-vim-gvim_CXXCMD) $(ports-text-vim-gvim_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-gvim_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) . $(ports-text-vim-gvim_CXXIQUOTE_END) $(strip $(ports-text-vim-gvim_CXXFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-vim-gvim_CXXCMD) $(ports-text-vim-gvim_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-gvim_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_CXXIQUOTE) . $(ports-text-vim-gvim_CXXIQUOTE_END) $(strip $(ports-text-vim-gvim_CXXFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-vim-gvim_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-vim-gvim_DXXFLAGS) $(ports-text-vim-gvim_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-vim-gvim_OBJDIR),)
+  $(foreach ports-text-vim-gvim_CXXFILE,$(ports-text-vim-gvim_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-vim-gvim_CXXFILE))),$(ports-text-vim-gvim_CXXFILE))))
+else
+  $(foreach ports-text-vim-gvim_CXXFILE,$(ports-text-vim-gvim_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(basename $(ports-text-vim-gvim_CXXFILE)))),$(ports-text-vim-gvim_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-vim-gvim_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-vim-gvim_MOBJC_SRCWILDCARD := %
+else
+ports-text-vim-gvim_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-gvim_OBJDIR),)
+  ports-text-vim-gvim_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-vim-gvim_OBJC_NARCHFILES))
+  ports-text-vim-gvim_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-vim-gvim_OBJC_NARCHFILES))
+  ports-text-vim-gvim_MOBJC_WILDCARD := %
+else
+  ports-text-vim-gvim_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_OBJC_NARCHFILES)))
+  ports-text-vim-gvim_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_OBJC_NARCHFILES)))
+  ports-text-vim-gvim_MOBJC_WILDCARD := $(ports-text-vim-gvim_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-vim-gvim_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-vim-gvim_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-vim-gvim_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-gvim_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-vim-gvim_MOBJC_DIRS := $(foreach dir, $(ports-text-vim-gvim_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-gvim_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-vim-gvim_MOBJC_DIRS),)
+    ports-text-vim-gvim_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-vim-gvim_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-vim-gvim_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-vim-gvim_CC := $(TARGET_CC)
+else
+  ports-text-vim-gvim_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-vim-gvim_MOBJC_CPPFLAGS := $(ports-text-vim-gvim_CPPFLAGS)
+ports-text-vim-gvim_OBJCFLAGS := $(ports-text-vim-gvim_CFLAGS)
+ports-text-vim-gvim_OBJCFLAGS := $(ports-text-vim-gvim_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-vim-gvim_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-vim-gvim_OBJCFLAGS)))
+ifeq ($(ports-text-vim-gvim_DFLAGS),)
+  ports-text-vim-gvim_OBJCDFLAGS := $(ports-text-vim-gvim_CFLAGS)
+else
+  ports-text-vim-gvim_OBJCDFLAGS := $(ports-text-vim-gvim_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-vim-gvim_LINK ?= $(strip $(ports-text-vim-gvim_CC) $(TARGET_SYSROOT))
+  ports-text-vim-gvim_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-vim-gvim_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-vim-gvim_STRIP ?= $(TARGET_STRIP)
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-vim-gvim_CC) $(TARGET_SYSROOT))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_MOBJC_CPPFLAGS:=$(strip $(ports-text-vim-gvim_MOBJC_CPPFLAGS) $(ports-text-vim-gvim_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCFLAGS:=$(strip $(ports-text-vim-gvim_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCDFLAGS:=$(ports-text-vim-gvim_OBJCDFLAGS)
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-vim-gvim_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-vim-gvim_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-vim-gvim_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-vim-gvim_STRIP ?= $(HOST_STRIP)
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-vim-gvim_MOBJC_CPPFLAGS) $(ports-text-vim-gvim_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-gvim_OBJCFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-gvim_OBJCDFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-vim-gvim_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-vim-gvim_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-vim-gvim_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-vim-gvim_STRIP ?= $(ECHO) >/dev/null
+  ports-text-vim-gvim_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-vim-gvim_MOBJC_CPPFLAGS) $(ports-text-vim-gvim_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-gvim_OBJCFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-gvim_OBJCDFLAGS))
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-vim-gvim_MOBJC_TARGETS) $(ports-text-vim-gvim_MOBJC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-vim-gvim_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-vim-gvim_MOBJC_CPPFLAGS)
+$(ports-text-vim-gvim_MOBJC_TARGETS) : CFLAGS := $(ports-text-vim-gvim_OBJCFLAGS)
+$(ports-text-vim-gvim_MOBJC_TARGETS) : $(ports-text-vim-gvim_MOBJC_WILDCARD).o : $(ports-text-vim-gvim_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-vim-gvim_MOBJC_DTARGETS) : $(ports-text-vim-gvim_MOBJC_WILDCARD).d : $(ports-text-vim-gvim_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-vim-gvim_OBJCDFLAGS) $(ports-text-vim-gvim_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-vim-gvim_MC_SRCWILDCARD := %
+else
+ports-text-vim-gvim_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-gvim_OBJDIR),)
+ports-text-vim-gvim_MC_TARGETS := $(addsuffix .o,$(ports-text-vim-gvim_C_NARCHFILES))
+ports-text-vim-gvim_MC_DTARGETS := $(addsuffix .d,$(ports-text-vim-gvim_C_NARCHFILES))
+ports-text-vim-gvim_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-vim-gvim_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(ports-text-vim-gvim_C_NARCHFILES))))
+    ports-text-vim-gvim_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(ports-text-vim-gvim_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-vim-gvim_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_C_NARCHFILES)))
+    ports-text-vim-gvim_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(ports-text-vim-gvim_C_NARCHFILES)))
+else
+    ports-text-vim-gvim_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(patsubst /%,%,$(ports-text-vim-gvim_C_NARCHFILES))))
+    ports-text-vim-gvim_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(patsubst /%,%,$(ports-text-vim-gvim_C_NARCHFILES))))
+endif
+endif
+ports-text-vim-gvim_MC_TGTWILDCARD := $(ports-text-vim-gvim_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-vim-gvim_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-vim-gvim_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-vim-gvim_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-gvim_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-vim-gvim_MC_DIRS := $(foreach dir, $(ports-text-vim-gvim_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-gvim_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-vim-gvim_MC_DIRS),)
+    ports-text-vim-gvim_MC_DIRS := $(shell $(ECHO) $(ports-text-vim-gvim_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-vim-gvim_MC_DIRS)
+endif
+
+endif
+
+ports-text-vim-gvim_MC_CPPFLAGS := $(ports-text-vim-gvim_CPPFLAGS)
+ports-text-vim-gvim_CFLAGS := $(ports-text-vim-gvim_CFLAGS)
+ifeq ($(ports-text-vim-gvim_DFLAGS),)
+  ports-text-vim-gvim_DFLAGS := $(ports-text-vim-gvim_CFLAGS)
+else
+  ports-text-vim-gvim_DFLAGS := $(ports-text-vim-gvim_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-vim-gvim_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-vim-gvim_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-vim-gvim_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-vim-gvim_STRIP ?= $(TARGET_STRIP)
+ports-text-vim-gvim_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_MC_CPPFLAGS:=$(strip $(ports-text-vim-gvim_MC_CPPFLAGS) $(ports-text-vim-gvim_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_CFLAGS:=$(strip $(ports-text-vim-gvim_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_DFLAGS:=$(ports-text-vim-gvim_DFLAGS)
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-vim-gvim_LINK ?= $(strip $(HOST_CC))
+ports-text-vim-gvim_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-vim-gvim_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-vim-gvim_STRIP ?= $(HOST_STRIP)
+ports-text-vim-gvim_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-vim-gvim_MC_CPPFLAGS) $(ports-text-vim-gvim_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-gvim_CFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-gvim_DFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-vim-gvim_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-vim-gvim_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-vim-gvim_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-vim-gvim_STRIP ?= $(ECHO) >/dev/null
+ports-text-vim-gvim_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-vim-gvim_MC_CPPFLAGS) $(ports-text-vim-gvim_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-gvim_CFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-gvim_DFLAGS))
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-vim-gvim_MC_TARGETS) $(ports-text-vim-gvim_MC_DTARGETS) : ports-text-vim-gvim_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-vim-gvim_MC_TARGETS) : CPPFLAGS := $(ports-text-vim-gvim_MC_CPPFLAGS)
+$(ports-text-vim-gvim_MC_TARGETS) : CFLAGS := $(ports-text-vim-gvim_CFLAGS)
+$(ports-text-vim-gvim_MC_TARGETS) : $(ports-text-vim-gvim_MC_TGTWILDCARD).o : $(ports-text-vim-gvim_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-vim-gvim_IQUOTE) $(dir $<) $(ports-text-vim-gvim_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-gvim_IQUOTE) . $(ports-text-vim-gvim_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-vim-gvim_MC_DTARGETS) : $(ports-text-vim-gvim_MC_TGTWILDCARD).d : $(ports-text-vim-gvim_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-vim-gvim_DFLAGS) $(ports-text-vim-gvim_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-vim-gvim_OBJDIR),)
+ports-text-vim-gvim-MA_TARGETS := $(addsuffix .o,$(ports-text-vim-gvim_ASMFILES))
+ports-text-vim-gvim-MA_WILDCARD := %
+else
+ports-text-vim-gvim-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-gvim_OBJDIR)/,$(notdir $(ports-text-vim-gvim_ASMFILES))))
+ports-text-vim-gvim-MA_WILDCARD := $(ports-text-vim-gvim_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-vim-gvim-MA_TARGETS) : | $(addsuffix .s,$(ports-text-vim-gvim_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-vim-gvim-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-vim-gvim-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-gvim_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-vim-gvim-MA_DIRS := $(foreach dir, $(ports-text-vim-gvim-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-gvim-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-vim-gvim-MA_DIRS),)
+    ports-text-vim-gvim-MA_DIRS := $(shell $(ECHO) $(ports-text-vim-gvim-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-vim-gvim-MA_DIRS)
+endif
+
+endif
+
+ports-text-vim-gvim-MA_ASSEMBLER ?= $(ports-text-vim-gvim_ASSEMBLER)
+
+$(ports-text-vim-gvim-MA_TARGETS) : ports-text-vim-gvim-MA_CMD:= $(ports-text-vim-gvim-MA_ASSEMBLER)
+
+$(ports-text-vim-gvim-MA_TARGETS) : CPPFLAGS := $(ports-text-vim-gvim_CPPFLAGS)
+$(ports-text-vim-gvim-MA_TARGETS) : AFLAGS := $(ports-text-vim-gvim_AFLAGS)
+$(ports-text-vim-gvim-MA_TARGETS) : $(ports-text-vim-gvim-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-vim-gvim-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-vim-gvim-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-vim-gvim-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-vim-gvim-link_LD_OPTS := 
+ports-text-vim-gvim-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-vim-gvim-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-vim-gvim-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-vim-gvim-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-vim-gvim-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-vim-gvim_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-vim-gvim-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-vim-gvim-link_DIRS)))
+# Add trailing /
+ports-text-vim-gvim-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-vim-gvim-link_DIRS)))
+# Add normal linklib path
+ports-text-vim-gvim-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-vim-gvim-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-vim-gvim_LIBS) $(ports-text-vim-gvim-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-vim-gvim-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-vim-gvim-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-vim-gvim-link_DEPLIBS := $(foreach lib,$(ports-text-vim-gvim-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-vim-gvim-link_DIRS)))) \
+)
+
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : OBJDIR := $(ports-text-vim-gvim_OBJDIR)
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : OBJS := $(strip $(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_ARCHOBJS) $(USER_OBJS))
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : LDFLAGS := $(strip $(ports-text-vim-gvim_LDFLAGS))
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-vim-gvim_LIBS) $(ports-text-vim-gvim-link_EXTRA_LIBS)))
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-vim-gvim_ARCHLIBS))
+$(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : $(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_ARCHOBJS) $(USER_OBJS) $(ports-text-vim-gvim-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-vim-gvim_LINK) $(strip $(ports-text-vim-gvim_LD_OPTS) $(ports-text-vim-gvim-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-vim-gvim_LINK) $(strip $(ports-text-vim-gvim_LD_OPTS) $(ports-text-vim-gvim-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-vim-gvim_LINK) $(strip $(ports-text-vim-gvim_LD_OPTS) $(ports-text-vim-gvim-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-vim-gvim_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-vim-gvim_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-vim-gvim_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-vim-gvim_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-vim-gvim_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-vim-gvim_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-vim-gvim_DEPS),)
+  ifneq (ports-text-vim-gvim ports-text-vim-gvim-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-vim-gvim ports-text-vim-gvim-quick),)
+      -include $(ports-text-vim-gvim_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-vim-gvim_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_DEPS) $(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME),)
+$(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_DEPS) $(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) : | $(ports-text-vim-gvim_OBJDIR) $(ports-text-vim-gvim_TARGETDIR)
+else
+$(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_DEPS) $(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) :: $(ports-text-vim-gvim_OBJDIR) $(ports-text-vim-gvim_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-vim-gvim_OBJDIR) $(ports-text-vim-gvim_TARGETDIR)
+
+
+ports-text-vim-gvim-clean : FILES := $(ports-text-vim-gvim_OBJS) $(ports-text-vim-gvim_TARGETDIR)/$(ports-text-vim-gvim_PROGNAME) $(ports-text-vim-gvim_DEPS)
+#MM
+ports-text-vim-gvim-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-vim-gvim"
+	$(Q)$(RM) $(FILES)
+
+
+############################################################################################
+
+USER_CFLAGS   :=
+USER_INCLUDES :=
+USER_LDFLAGE  :=
+FILES := $(PORTSDIR)/vim/$(ARCHBASE)/src/xxd/xxd
+VIMPATCHSPEC := $(VIMVERS)-aros.diff:$(ARCHBASE):-f,-p1
+
+
+.PHONY : ports-text-vim-xxd
+
+#MM- ports-text-vim-xxd : \
+#MM             ports-text-vim-xxd-$(CPU)
+
+#MM- ports-text-vim-xxd-$(ARCH)-$(CPU) : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-vim-xxd-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(CPU)
+
+#MM- ports-text-vim-xxd-$(ARCH) : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-vim-xxd-$(FAMILY) : \
+#MM             ports-text-vim-xxd-$(ARCH)
+
+#MM- ports-text-vim-xxd-$(CPU) : \
+#MM             ports-text-vim-xxd-$(FAMILY)
+#MM- ports-text-vim-xxd-quick : \
+#MM             ports-text-vim-xxd-$(CPU)-quick
+
+#MM- ports-text-vim-xxd-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-vim-xxd-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-vim-xxd-$(ARCH)-quick : \
+#MM             ports-text-vim-xxd-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-vim-xxd-$(FAMILY)-quick : \
+#MM             ports-text-vim-xxd-$(ARCH)-quick
+
+#MM- ports-text-vim-xxd-$(CPU)-quick : \
+#MM             ports-text-vim-xxd-$(FAMILY)-quick
+
+ports-text-vim-xxd_PROGNAME  := xxd
+ports-text-vim-xxd_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-vim-xxd_TARGETDIR := $(TARGETDIR)
+ports-text-vim-xxd_LINKER    := 
+ports-text-vim-xxd_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-vim-xxd_LINKER),)
+    ports-text-vim-xxd_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-vim-xxd_FILES     := $(FILES)
+    ports-text-vim-xxd_OBJCFILES := 
+    ports-text-vim-xxd_ASMFILES  := 
+    ports-text-vim-xxd_CXXFILES := 
+else
+    ports-text-vim-xxd_FILES     := $(ports-text-vim-xxd_PROGNAME)
+    ports-text-vim-xxd_OBJCFILES :=
+    ports-text-vim-xxd_ASMFILES  :=
+    ports-text-vim-xxd_CXXFILES :=
+endif
+
+ports-text-vim-xxd_ARCHOBJS   := $(wildcard $(ports-text-vim-xxd_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-vim-xxd_ARCHFILES     := $(basename $(notdir $(ports-text-vim-xxd_ARCHOBJS)))
+else
+    ports-text-vim-xxd_ARCHFILES     := $(basename $(patsubst $(ports-text-vim-xxd_OBJDIR)/%,%,$(ports-text-vim-xxd_ARCHOBJS)))
+endif
+ports-text-vim-xxd_C_NARCHFILES := $(filter-out $(ports-text-vim-xxd_ARCHFILES),$(ports-text-vim-xxd_FILES))
+ports-text-vim-xxd_CXX_NARCHFILES := $(filter-out $(ports-text-vim-xxd_ARCHFILES),$(ports-text-vim-xxd_CXXFILES))
+ports-text-vim-xxd_OBJC_NARCHFILES := $(filter-out $(ports-text-vim-xxd_ARCHFILES),$(ports-text-vim-xxd_OBJCFILES))
+
+TMP_FILES := $(ports-text-vim-xxd_C_NARCHFILES) $(ports-text-vim-xxd_CXX_NARCHFILES) $(ports-text-vim-xxd_ASMFILES) $(ports-text-vim-xxd_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-vim-xxd_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-vim-xxd_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-vim-xxd_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-vim-xxd_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-vim-xxd_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-vim-xxd_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-xxd_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-vim-xxd_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-vim-xxd_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-xxd_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-vim-xxd_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-vim-xxd_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-vim-xxd_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-vim-xxd_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-vim-xxd_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-vim-xxd_LDFLAGS          := 
+endif
+
+ports-text-vim-xxd_CSTATICFLAGS   := `echo "$(ports-text-vim-xxd_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-vim-xxd_CSTDCFLAGS   :=  `echo "$(ports-text-vim-xxd_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-vim-xxd_CPOSIXCFLAGS   :=  `echo "$(ports-text-vim-xxd_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-vim-xxd_LDFLAGS          += $(strip $(ports-text-vim-xxd_CSTATICFLAGS) $(ports-text-vim-xxd_CSTDCFLAGS) $(ports-text-vim-xxd_CPOSIXCFLAGS))
+
+ports-text-vim-xxd_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-vim-xxd_COVERAGE := yes
+ports-text-vim-xxd_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-vim-xxd_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-vim-xxd_CFLAGS    := $(strip $(ports-text-vim-xxd_COVERAGEFLAGS) $(ports-text-vim-xxd_CFLAGS))
+ports-text-vim-xxd_CXXFLAGS := $(strip $(ports-text-vim-xxd_COVERAGEFLAGS) $(ports-text-vim-xxd_CXXFLAGS))
+ports-text-vim-xxd_LIBS += $(ports-text-vim-xxd_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-vim-xxd_FUNCINSTR := yes
+ports-text-vim-xxd_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-vim-xxd_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-vim-xxd_CFLAGS    := $(strip $(ports-text-vim-xxd_INSTRFUNCFLAGS) $(ports-text-vim-xxd_CFLAGS))
+ports-text-vim-xxd_CXXFLAGS := $(strip $(ports-text-vim-xxd_INSTRFUNCFLAGS) $(ports-text-vim-xxd_CXXFLAGS))
+ports-text-vim-xxd_LIBS += $(ports-text-vim-xxd_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-vim-xxd_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-vim-xxd_CFLAGS))
+ports-text-vim-xxd_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-vim-xxd_CXXFLAGS))
+endif
+endif
+ports-text-vim-xxd_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-vim-xxd_DFLAGS     := 
+else
+    ports-text-vim-xxd_DFLAGS     := $(ports-text-vim-xxd_CFLAGS)
+endif
+ifneq (,)
+    ports-text-vim-xxd_DXXFLAGS     := 
+else
+    ports-text-vim-xxd_DXXFLAGS     := $(ports-text-vim-xxd_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-vim-xxd_LDFLAGS           := $(ports-text-vim-xxd_LDFLAGS)
+ports-text-vim-xxd_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-vim-xxd_LDFLAGS           := $(ports-text-vim-xxd_LDFLAGS)
+ports-text-vim-xxd_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_LDFLAGS           := $(ports-text-vim-xxd_LDFLAGS)
+ports-text-vim-xxd_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-vim-xxd_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-vim-xxd-quick : ports-text-vim-xxd
+
+#MM ports-text-vim-xxd : includes-generate-deps core-linklibs
+ports-text-vim-xxd : $(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-vim-xxd_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-vim-xxd_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-vim-xxd_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-vim-xxd_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-vim-xxd_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-vim-xxd ports-text-vim-xxd-quick ports-text-vim-xxd-compress-quick),)
+
+ports-text-vim-xxd_CXXABSBASENAMES := $(foreach ports-text-vim-xxd_CXXBASE,$(ports-text-vim-xxd_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-vim-xxd_CXXBASE)),$(ports-text-vim-xxd_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-vim-xxd_CXXBASE))))
+
+ifneq ($(ports-text-vim-xxd_CXXABSBASENAMES),)
+
+ports-text-vim-xxd_CXXBASENAMES := $(basename $(ports-text-vim-xxd_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-vim-xxd_MCXX_FILES  := $(strip $(foreach ports-text-vim-xxd_CXXBASE,$(ports-text-vim-xxd_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-vim-xxd_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-vim-xxd_EXT),$(ports-text-vim-xxd_CXXBASE)))))))
+
+ifeq (,)
+ports-text-vim-xxd_MCXX_SRCWILDCARD := %
+else
+ports-text-vim-xxd_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-xxd_OBJDIR),)
+  ports-text-vim-xxd_CXXTARGETS := $(notdir $(ports-text-vim-xxd_CXXBASENAMES:=.o))
+  ports-text-vim-xxd_CXXDTARGETS := $(notdir $(ports-text-vim-xxd_CXXBASENAMES:=.d))
+  ports-text-vim-xxd_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-vim-xxd_CXXTARGETS := $(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(ports-text-vim-xxd_CXXBASENAMES:=.o)))
+  ports-text-vim-xxd_CXXDTARGETS := $(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(ports-text-vim-xxd_CXXBASENAMES:=.d)))
+  ports-text-vim-xxd_MCXX_WILDCARD := $(ports-text-vim-xxd_OBJDIR)/%
+else
+  ports-text-vim-xxd_CXXTARGETS := $(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_CXXBASENAMES:=.o))
+  ports-text-vim-xxd_CXXDTARGETS := $(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_CXXBASENAMES:=.d))
+  ports-text-vim-xxd_MCXX_WILDCARD := $(ports-text-vim-xxd_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-vim-xxd_CXXTARGETS) $(ports-text-vim-xxd_CXXDTARGETS) : | $(ports-text-vim-xxd_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-vim-xxd_MCXX_CPPFLAGS := $(ports-text-vim-xxd_CPPFLAGS)
+ports-text-vim-xxd_CXXFLAGS := $(ports-text-vim-xxd_CXXFLAGS)
+ifeq ($(ports-text-vim-xxd_DXXFLAGS),)
+  ports-text-vim-xxd_DXXFLAGS := $(ports-text-vim-xxd_CXXFLAGS)
+else
+  ports-text-vim-xxd_DXXFLAGS := $(ports-text-vim-xxd_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-vim-xxd_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-vim-xxd_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-vim-xxd_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-vim-xxd_STRIP ?= $(HOST_STRIP)
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-vim-xxd_CXXCMD:=$(HOST_CXX)
+  ports-text-vim-xxd_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS) $(ports-text-vim-xxd_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-xxd_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-vim-xxd_CXXFLAGS))
+  ports-text-vim-xxd_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-vim-xxd_DXXFLAGS))
+  ports-text-vim-xxd_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-vim-xxd_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-vim-xxd_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-vim-xxd_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-vim-xxd_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-vim-xxd_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-vim-xxd_LDFLAGS ?= $(ports-text-vim-xxd_CXXLDFLAGS)
+  ports-text-vim-xxd_STRIP ?= $(TARGET_STRIP)
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-vim-xxd_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-vim-xxd_MCXX_CPPFLAGS := $(strip $(ports-text-vim-xxd_MCXX_CPPFLAGS) $(ports-text-vim-xxd_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-xxd_CXXFLAGS := $(strip $(ports-text-vim-xxd_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-vim-xxd_DXXFLAGS := $(ports-text-vim-xxd_DXXFLAGS)
+  ports-text-vim-xxd_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-vim-xxd_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-vim-xxd_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-vim-xxd_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-vim-xxd_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-vim-xxd_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-vim-xxd_LDFLAGS ?= $(ports-text-vim-xxd_CXXLDFLAGS)
+  ports-text-vim-xxd_STRIP ?= $(ECHO) >/dev/null
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-vim-xxd_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-vim-xxd_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS) $(ports-text-vim-xxd_MCXX_EXTRA_CPPFLAGS))
+  ports-text-vim-xxd_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-vim-xxd_CXXFLAGS))
+  ports-text-vim-xxd_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-vim-xxd_DXXFLAGS))
+  ports-text-vim-xxd_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-vim-xxd_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-vim-xxd_CXXCMD) $(ports-text-vim-xxd_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-xxd_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) . $(ports-text-vim-xxd_CXXIQUOTE_END) $(strip $(ports-text-vim-xxd_CXXFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-vim-xxd_CXXCMD) $(ports-text-vim-xxd_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-xxd_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) . $(ports-text-vim-xxd_CXXIQUOTE_END) $(strip $(ports-text-vim-xxd_CXXFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-vim-xxd_CXXCMD) $(ports-text-vim-xxd_CXXIQUOTE) $(dir $(2)) $(ports-text-vim-xxd_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_CXXIQUOTE) . $(ports-text-vim-xxd_CXXIQUOTE_END) $(strip $(ports-text-vim-xxd_CXXFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-vim-xxd_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-vim-xxd_DXXFLAGS) $(ports-text-vim-xxd_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-vim-xxd_OBJDIR),)
+  $(foreach ports-text-vim-xxd_CXXFILE,$(ports-text-vim-xxd_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-vim-xxd_CXXFILE))),$(ports-text-vim-xxd_CXXFILE))))
+else
+  $(foreach ports-text-vim-xxd_CXXFILE,$(ports-text-vim-xxd_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(basename $(ports-text-vim-xxd_CXXFILE)))),$(ports-text-vim-xxd_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-vim-xxd_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-vim-xxd_MOBJC_SRCWILDCARD := %
+else
+ports-text-vim-xxd_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-xxd_OBJDIR),)
+  ports-text-vim-xxd_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-vim-xxd_OBJC_NARCHFILES))
+  ports-text-vim-xxd_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-vim-xxd_OBJC_NARCHFILES))
+  ports-text-vim-xxd_MOBJC_WILDCARD := %
+else
+  ports-text-vim-xxd_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_OBJC_NARCHFILES)))
+  ports-text-vim-xxd_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_OBJC_NARCHFILES)))
+  ports-text-vim-xxd_MOBJC_WILDCARD := $(ports-text-vim-xxd_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-vim-xxd_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-vim-xxd_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-vim-xxd_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-xxd_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-vim-xxd_MOBJC_DIRS := $(foreach dir, $(ports-text-vim-xxd_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-xxd_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-vim-xxd_MOBJC_DIRS),)
+    ports-text-vim-xxd_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-vim-xxd_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-vim-xxd_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-vim-xxd_CC := $(TARGET_CC)
+else
+  ports-text-vim-xxd_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-vim-xxd_MOBJC_CPPFLAGS := $(ports-text-vim-xxd_CPPFLAGS)
+ports-text-vim-xxd_OBJCFLAGS := $(ports-text-vim-xxd_CFLAGS)
+ports-text-vim-xxd_OBJCFLAGS := $(ports-text-vim-xxd_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-vim-xxd_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-vim-xxd_OBJCFLAGS)))
+ifeq ($(ports-text-vim-xxd_DFLAGS),)
+  ports-text-vim-xxd_OBJCDFLAGS := $(ports-text-vim-xxd_CFLAGS)
+else
+  ports-text-vim-xxd_OBJCDFLAGS := $(ports-text-vim-xxd_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-vim-xxd_LINK ?= $(strip $(ports-text-vim-xxd_CC) $(TARGET_SYSROOT))
+  ports-text-vim-xxd_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-vim-xxd_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-vim-xxd_STRIP ?= $(TARGET_STRIP)
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-vim-xxd_CC) $(TARGET_SYSROOT))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_MOBJC_CPPFLAGS:=$(strip $(ports-text-vim-xxd_MOBJC_CPPFLAGS) $(ports-text-vim-xxd_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCFLAGS:=$(strip $(ports-text-vim-xxd_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCDFLAGS:=$(ports-text-vim-xxd_OBJCDFLAGS)
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-vim-xxd_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-vim-xxd_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-vim-xxd_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-vim-xxd_STRIP ?= $(HOST_STRIP)
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-vim-xxd_MOBJC_CPPFLAGS) $(ports-text-vim-xxd_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-xxd_OBJCFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-xxd_OBJCDFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-vim-xxd_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-vim-xxd_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-vim-xxd_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-vim-xxd_STRIP ?= $(ECHO) >/dev/null
+  ports-text-vim-xxd_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-vim-xxd_MOBJC_CPPFLAGS) $(ports-text-vim-xxd_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-xxd_OBJCFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-xxd_OBJCDFLAGS))
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-vim-xxd_MOBJC_TARGETS) $(ports-text-vim-xxd_MOBJC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-vim-xxd_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-vim-xxd_MOBJC_CPPFLAGS)
+$(ports-text-vim-xxd_MOBJC_TARGETS) : CFLAGS := $(ports-text-vim-xxd_OBJCFLAGS)
+$(ports-text-vim-xxd_MOBJC_TARGETS) : $(ports-text-vim-xxd_MOBJC_WILDCARD).o : $(ports-text-vim-xxd_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-vim-xxd_MOBJC_DTARGETS) : $(ports-text-vim-xxd_MOBJC_WILDCARD).d : $(ports-text-vim-xxd_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-vim-xxd_OBJCDFLAGS) $(ports-text-vim-xxd_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-vim-xxd_MC_SRCWILDCARD := %
+else
+ports-text-vim-xxd_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-vim-xxd_OBJDIR),)
+ports-text-vim-xxd_MC_TARGETS := $(addsuffix .o,$(ports-text-vim-xxd_C_NARCHFILES))
+ports-text-vim-xxd_MC_DTARGETS := $(addsuffix .d,$(ports-text-vim-xxd_C_NARCHFILES))
+ports-text-vim-xxd_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-vim-xxd_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(ports-text-vim-xxd_C_NARCHFILES))))
+    ports-text-vim-xxd_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(ports-text-vim-xxd_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-vim-xxd_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_C_NARCHFILES)))
+    ports-text-vim-xxd_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(ports-text-vim-xxd_C_NARCHFILES)))
+else
+    ports-text-vim-xxd_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(patsubst /%,%,$(ports-text-vim-xxd_C_NARCHFILES))))
+    ports-text-vim-xxd_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(patsubst /%,%,$(ports-text-vim-xxd_C_NARCHFILES))))
+endif
+endif
+ports-text-vim-xxd_MC_TGTWILDCARD := $(ports-text-vim-xxd_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-vim-xxd_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-vim-xxd_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-vim-xxd_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-xxd_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-vim-xxd_MC_DIRS := $(foreach dir, $(ports-text-vim-xxd_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-xxd_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-vim-xxd_MC_DIRS),)
+    ports-text-vim-xxd_MC_DIRS := $(shell $(ECHO) $(ports-text-vim-xxd_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-vim-xxd_MC_DIRS)
+endif
+
+endif
+
+ports-text-vim-xxd_MC_CPPFLAGS := $(ports-text-vim-xxd_CPPFLAGS)
+ports-text-vim-xxd_CFLAGS := $(ports-text-vim-xxd_CFLAGS)
+ifeq ($(ports-text-vim-xxd_DFLAGS),)
+  ports-text-vim-xxd_DFLAGS := $(ports-text-vim-xxd_CFLAGS)
+else
+  ports-text-vim-xxd_DFLAGS := $(ports-text-vim-xxd_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-vim-xxd_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-vim-xxd_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-vim-xxd_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-vim-xxd_STRIP ?= $(TARGET_STRIP)
+ports-text-vim-xxd_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_MC_CPPFLAGS:=$(strip $(ports-text-vim-xxd_MC_CPPFLAGS) $(ports-text-vim-xxd_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_CFLAGS:=$(strip $(ports-text-vim-xxd_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_DFLAGS:=$(ports-text-vim-xxd_DFLAGS)
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-vim-xxd_LINK ?= $(strip $(HOST_CC))
+ports-text-vim-xxd_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-vim-xxd_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-vim-xxd_STRIP ?= $(HOST_STRIP)
+ports-text-vim-xxd_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-vim-xxd_MC_CPPFLAGS) $(ports-text-vim-xxd_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-xxd_CFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-vim-xxd_DFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-vim-xxd_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-vim-xxd_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-vim-xxd_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-vim-xxd_STRIP ?= $(ECHO) >/dev/null
+ports-text-vim-xxd_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-vim-xxd_MC_CPPFLAGS) $(ports-text-vim-xxd_MC_EXTRA_CPPFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-xxd_CFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-vim-xxd_DFLAGS))
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-vim-xxd_MC_TARGETS) $(ports-text-vim-xxd_MC_DTARGETS) : ports-text-vim-xxd_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-vim-xxd_MC_TARGETS) : CPPFLAGS := $(ports-text-vim-xxd_MC_CPPFLAGS)
+$(ports-text-vim-xxd_MC_TARGETS) : CFLAGS := $(ports-text-vim-xxd_CFLAGS)
+$(ports-text-vim-xxd_MC_TARGETS) : $(ports-text-vim-xxd_MC_TGTWILDCARD).o : $(ports-text-vim-xxd_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-vim-xxd_IQUOTE) $(dir $<) $(ports-text-vim-xxd_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-vim-xxd_IQUOTE) . $(ports-text-vim-xxd_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-vim-xxd_MC_DTARGETS) : $(ports-text-vim-xxd_MC_TGTWILDCARD).d : $(ports-text-vim-xxd_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-vim-xxd_DFLAGS) $(ports-text-vim-xxd_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-vim-xxd_OBJDIR),)
+ports-text-vim-xxd-MA_TARGETS := $(addsuffix .o,$(ports-text-vim-xxd_ASMFILES))
+ports-text-vim-xxd-MA_WILDCARD := %
+else
+ports-text-vim-xxd-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-vim-xxd_OBJDIR)/,$(notdir $(ports-text-vim-xxd_ASMFILES))))
+ports-text-vim-xxd-MA_WILDCARD := $(ports-text-vim-xxd_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-vim-xxd-MA_TARGETS) : | $(addsuffix .s,$(ports-text-vim-xxd_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-vim-xxd-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-vim-xxd-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-vim-xxd_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-vim-xxd-MA_DIRS := $(foreach dir, $(ports-text-vim-xxd-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-vim-xxd-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-vim-xxd-MA_DIRS),)
+    ports-text-vim-xxd-MA_DIRS := $(shell $(ECHO) $(ports-text-vim-xxd-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-vim-xxd-MA_DIRS)
+endif
+
+endif
+
+ports-text-vim-xxd-MA_ASSEMBLER ?= $(ports-text-vim-xxd_ASSEMBLER)
+
+$(ports-text-vim-xxd-MA_TARGETS) : ports-text-vim-xxd-MA_CMD:= $(ports-text-vim-xxd-MA_ASSEMBLER)
+
+$(ports-text-vim-xxd-MA_TARGETS) : CPPFLAGS := $(ports-text-vim-xxd_CPPFLAGS)
+$(ports-text-vim-xxd-MA_TARGETS) : AFLAGS := $(ports-text-vim-xxd_AFLAGS)
+$(ports-text-vim-xxd-MA_TARGETS) : $(ports-text-vim-xxd-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-vim-xxd-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-vim-xxd-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-vim-xxd-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-vim-xxd-link_LD_OPTS := 
+ports-text-vim-xxd-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-vim-xxd-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-vim-xxd-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-vim-xxd-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-vim-xxd-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-vim-xxd_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-vim-xxd-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-vim-xxd-link_DIRS)))
+# Add trailing /
+ports-text-vim-xxd-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-vim-xxd-link_DIRS)))
+# Add normal linklib path
+ports-text-vim-xxd-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-vim-xxd-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-vim-xxd_LIBS) $(ports-text-vim-xxd-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-vim-xxd-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-vim-xxd-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-vim-xxd-link_DEPLIBS := $(foreach lib,$(ports-text-vim-xxd-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-vim-xxd-link_DIRS)))) \
+)
+
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : OBJDIR := $(ports-text-vim-xxd_OBJDIR)
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : OBJS := $(strip $(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_ARCHOBJS) $(USER_OBJS))
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : LDFLAGS := $(strip $(ports-text-vim-xxd_LDFLAGS))
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-vim-xxd_LIBS) $(ports-text-vim-xxd-link_EXTRA_LIBS)))
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-vim-xxd_ARCHLIBS))
+$(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : $(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_ARCHOBJS) $(USER_OBJS) $(ports-text-vim-xxd-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-vim-xxd_LINK) $(strip $(ports-text-vim-xxd_LD_OPTS) $(ports-text-vim-xxd-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-vim-xxd_LINK) $(strip $(ports-text-vim-xxd_LD_OPTS) $(ports-text-vim-xxd-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-vim-xxd_LINK) $(strip $(ports-text-vim-xxd_LD_OPTS) $(ports-text-vim-xxd-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-vim-xxd_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-vim-xxd_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-vim-xxd_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-vim-xxd_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-vim-xxd_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-vim-xxd_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-vim-xxd_DEPS),)
+  ifneq (ports-text-vim-xxd ports-text-vim-xxd-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-vim-xxd ports-text-vim-xxd-quick),)
+      -include $(ports-text-vim-xxd_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-vim-xxd_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_DEPS) $(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME),)
+$(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_DEPS) $(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) : | $(ports-text-vim-xxd_OBJDIR) $(ports-text-vim-xxd_TARGETDIR)
+else
+$(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_DEPS) $(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) :: $(ports-text-vim-xxd_OBJDIR) $(ports-text-vim-xxd_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-vim-xxd_OBJDIR) $(ports-text-vim-xxd_TARGETDIR)
+
+
+ports-text-vim-xxd-clean : FILES := $(ports-text-vim-xxd_OBJS) $(ports-text-vim-xxd_TARGETDIR)/$(ports-text-vim-xxd_PROGNAME) $(ports-text-vim-xxd_DEPS)
+#MM
+ports-text-vim-xxd-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-vim-xxd"
+	$(Q)$(RM) $(FILES)
+
+
+############################################################################################
+
+
+.PHONY: ports-text-vim-fetch
+
+ifneq ($(PORTSSOURCEDIR)/mui-vim,)
+    ports-text-vim-fetch-location := $(PORTSSOURCEDIR)/mui-vim
+else
+    ports-text-vim-fetch-location := $(PORTSDIR)/vim
+endif
+
+ifneq (,)
+    ports-text-vim-fetch-baseflag := -b 
+else
+    ports-text-vim-fetch-baseflag :=
+endif
+
+ports-text-vim-fetch-fetchedflag := $(ports-text-vim-fetch-location)/.$(VIMVERS)-fetched
+
+#MM
+ports-text-vim-fetch :
+	$(Q)$(ECHO) "Fetching   $(VIMVERS) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(VIMVERS) -s "tar.gz" -l $(ports-text-vim-fetch-location) \
+	-d $(PORTSDIR)/vim $(ports-text-vim-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(VIMPATCHSPEC)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-text-vim-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-text-vim-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-text-vim-create-patch
+
+ifneq ($(PORTSSOURCEDIR)/mui-vim,)
+    ports-text-vim-create-patch-location := $(PORTSSOURCEDIR)/mui-vim
+else
+    ports-text-vim-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-text-vim-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-text-vim-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-text-vim-create-patch-srcdir   := $(VIMVERS)
+endif
+
+ifeq (no,yes)
+    ports-text-vim-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-text-vim-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-text-vim-create-patch-baseflag := -b /tmp
+    ports-text-vim-create-patch-base := 
+else
+    ports-text-vim-create-patch-baseflag :=
+    ports-text-vim-create-patch-base := $(PORTSDIR)/vim
+endif
+
+#MM- ports-text-vim-create-patch :  ports-text-vim-create-patch-diff 
+#MM- ports-text-vim-create-patch-quick :  ports-text-vim-create-patch-diff 
+
+#MM
+ports-text-vim-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-text-vim-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-text-vim-create-patch-base)/$(ports-text-vim-create-patch-srcdir) $(ports-text-vim-create-patch-base)/tmp/$(ports-text-vim-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(VIMVERS) -s "tar.gz" -f -l $(ports-text-vim-create-patch-location) -d $(PORTSDIR)/vim $(ports-text-vim-create-patch-baseflag); \
+	$(MV) $(ports-text-vim-create-patch-base)/$(ports-text-vim-create-patch-srcdir) $(ports-text-vim-create-patch-base)/tmp/$(ports-text-vim-create-patch-srcdir) ; \
+	cd $(ports-text-vim-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(VIMVERS)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-text-vim-create-patch-diffflag) $(ports-text-vim-create-patch-exclude) \
+	    $(ports-text-vim-create-patch-srcdir) \
+	    $(ports-text-vim-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(VIMVERS)-aros-new.diff ; \
+	$(MV) $(ports-text-vim-create-patch-base)/tmp/$(ports-text-vim-create-patch-srcdir).aros $(ports-text-vim-create-patch-base)/$(ports-text-vim-create-patch-srcdir) ; \
+	$(RM) $(ports-text-vim-create-patch-base)/tmp
+
+############################################################################################
+
+
+.PHONY : ports-text-vim-runtime
+
+#MM
+ports-text-vim-runtime :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/vim/$(ARCHBASE)/runtime),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/vim/$(ARCHBASE)/runtime)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/vim/$(ARCHBASE)/runtime)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/vim/$(ARCHBASE)/runtime))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/vim/$(ARCHBASE)/runtime)))' to '$(if $(filter /%,$(TARGETDIR)/runtime),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/runtime)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/runtime)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/runtime))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/runtime)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/vim/$(ARCHBASE)/runtime -d $(TARGETDIR)/runtime -e 
+
+
+############################################################################################
+
+
+ports-text-vim-guide_SRC := $(shell $(ECHO) $(PORTSDIR)/vim/$(ARCHBASE)/dist | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-text-vim-guide
+
+#MM
+ports-text-vim-guide : | $(TARGETDIR) 
+	$(foreach file, MUI-Vim.guide, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-text-vim-guide_SRC)),$(ports-text-vim-guide_SRC),$(SRCDIR)/$(CURDIR)/$(ports-text-vim-guide_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

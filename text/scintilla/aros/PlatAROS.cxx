@@ -18,6 +18,7 @@
 #include <string_view>
 #include <vector>
 #include <map>
+#include <set>
 #include <optional>
 #include <algorithm>
 #include <memory>
@@ -49,6 +50,25 @@ struct Library *ZuneGfxBase = nullptr;
 
 using namespace Scintilla;
 using namespace Scintilla::Internal;
+
+//----------------------------------------------------------------------
+// Shared Window pointer for measuring surfaces
+//----------------------------------------------------------------------
+
+// Shared Window pointer for measuring surfaces and popup positioning.
+// TODO: For multiple editor instances, these need to be per-instance
+// (e.g. via a context struct set before DoPaint/HandleInput).
+static struct ::Window *sIntuiWindow = nullptr;
+
+void PlatAROS_SetWindow(struct ::Window *win) {
+	sIntuiWindow = win;
+}
+
+static Object *sEditorArea = nullptr;
+
+void PlatAROS_SetEditorArea(Object *area) {
+	sEditorArea = area;
+}
 
 //----------------------------------------------------------------------
 // Helpers
@@ -157,10 +177,6 @@ class SurfaceAROS : public Surface {
 	// Ensure the render context targets the correct surface before drawing
 	void ActivateTarget() {
 		if (rctx) {
-			if (rctx->target_board != board) {
-				D(bug("SCI: ActivateTarget SWITCHING target from %p to %p\n",
-					(void*)rctx->target_board, (void*)board));
-			}
 			ZuneSetTarget(rctx, board);  // board=NULL means RastPort
 		}
 	}
@@ -175,13 +191,12 @@ public:
 	// Init for measuring only (no drawing)
 	void Init(WindowID wid) override {
 		Release();
-		// For measuring we need a RenderContext. If wid is an Intuition Window*, use it.
-		struct ::Window *win = static_cast<struct ::Window *>(wid);
-		D(bug("SCI: Surface::Init(wid) wid=%p\n", wid));
+		// wid is a MUI Object* (not an Intuition Window*), so use the
+		// shared Window pointer set by ScintillaAROS::SetupRenderContext().
+		struct ::Window *win = sIntuiWindow;
 		if (win) {
 			rctx = ZuneCreateRenderContextForWindow(win, win->WScreen->ViewPort.ColorMap, BACKEND_CYBERGFX);
 			ownRctx = true;
-			D(bug("SCI: Surface::Init(wid) created rctx=%p\n", (void*)rctx));
 		}
 		inited = true;
 	}
@@ -196,19 +211,14 @@ public:
 		board = rctx ? rctx->target_board : nullptr;
 		ownBoard = false;
 		inited = true;
-		D(bug("SCI: Surface::Init(sid) rctx=%p board=%p (from target_board)\n",
-			(void*)rctx, (void*)board));
 	}
 
 	std::unique_ptr<Surface> AllocatePixMap(int width, int height) override {
-		// Offscreen pixmaps need a DrawingBoard so Copy() can blit to the window.
-		D(bug("SCI: AllocatePixMap(%d,%d) rctx=%p\n", width, height, (void*)rctx));
 		auto surf = std::make_unique<SurfaceAROS>();
 		if (rctx) {
 			struct DrawingBoard *db = ZuneCreateDrawingBoardForRenderContext(
 				rctx, static_cast<UWORD>(width), static_cast<UWORD>(height),
 				ZUNE_DRAWINGBOARD_ALPHA);
-			D(bug("SCI: AllocatePixMap created board=%p\n", (void*)db));
 			if (db) {
 				surf->rctx = rctx;
 				surf->ownRctx = false;
@@ -226,17 +236,13 @@ public:
 	}
 
 	void Release() noexcept override {
-		D(bug("SCI: Surface::Release rctx=%p board=%p ownRctx=%d ownBoard=%d\n",
-			(void*)rctx, (void*)board, ownRctx, ownBoard));
 		if (ownBoard && board && rctx) {
-			D(bug("SCI: Surface::Release destroying board=%p\n", (void*)board));
 			ZuneDestroyDrawingBoard(rctx, board);
 		}
 		board = nullptr;
 		ownBoard = false;
 
 		if (ownRctx && rctx) {
-			D(bug("SCI: Surface::Release destroying rctx=%p\n", (void*)rctx));
 			ZuneDestroyRenderContext(rctx);
 		}
 		rctx = nullptr;
@@ -339,10 +345,6 @@ public:
 		if (!rctx) return;
 		ActivateTarget();
 		struct ZuneRect zr = ToZuneRect(rc);
-		D(bug("SCI: FillRect (%d,%d %dx%d) color=%08x board=%p target=%p\n",
-			zr.x, zr.y, zr.width, zr.height,
-			(unsigned)ToZuneColor(fill.colour),
-			(void*)board, (void*)rctx->target_board));
 		struct ZuneBrush brush = ZUNE_BRUSH_LITERAL_SOLID(ToZuneColor(fill.colour));
 		ZuneFillRectangle(rctx, &zr, &brush);
 	}
@@ -456,17 +458,9 @@ public:
 	void Copy(PRectangle rc, Point from, Surface &surfaceSource) override {
 		if (!rctx) return;
 		SurfaceAROS *src = dynamic_cast<SurfaceAROS *>(&surfaceSource);
-		D(bug("SCI: Copy from=(%d,%d) to rc=(%d,%d,%d,%d) src=%p src->board=%p dst->board=%p\n",
-			(int)from.x, (int)from.y,
-			(int)rc.left, (int)rc.top, (int)rc.right, (int)rc.bottom,
-			(void*)src, src ? (void*)src->board : nullptr, (void*)board));
 		if (src && src->rctx) {
-			// Set source target (DrawingBoard or RastPort)
 			ZuneSetTarget(src->rctx, src->board);
-			// Set our target (DrawingBoard or RastPort)
 			ZuneSetTarget(rctx, board);
-			D(bug("SCI: Copy blit: src_rctx=%p dst_rctx=%p target_board after=%p\n",
-				(void*)src->rctx, (void*)rctx, (void*)rctx->target_board));
 			ZuneBlit(src->rctx, rctx,
 				static_cast<WORD>(from.x), static_cast<WORD>(from.y),
 				static_cast<WORD>(rc.left), static_cast<WORD>(rc.top),
@@ -483,10 +477,6 @@ public:
 		if (!rctx || text.empty()) return;
 		ActivateTarget();
 		SetFontOnContext(font_);
-		D(bug("SCI: DrawText '%.*s' at (%d,%d) board=%p\n",
-			(int)std::min(text.length(), (size_t)20), text.data(),
-			(int)rc.left, (int)(ybase - Ascent(font_)),
-			(void*)board));
 		XYPOSITION y = ybase - Ascent(font_);
 		struct ZunePoint pos = { static_cast<WORD>(rc.left), static_cast<WORD>(y) };
 		ZuneDrawTextBackground(rctx, &pos, text.data(), static_cast<UWORD>(text.length()),
@@ -502,16 +492,7 @@ public:
 
 	void DrawTextTransparent(PRectangle rc, const Font *font_, XYPOSITION ybase,
 			std::string_view text, ColourRGBA fore) override {
-		D(bug("SCI: DrawTextTransparent '%.*s' at (%d,%d) fore=%08x rctx=%p board=%p\n",
-			(int)std::min(text.length(), (size_t)30), text.data(),
-			(int)rc.left, (int)(ybase - Ascent(font_)),
-			(unsigned)ToZuneColor(fore),
-			(void*)rctx, (void*)board));
-		if (!rctx || text.empty()) {
-			D(bug("SCI: DrawTextTransparent SKIP rctx=%p empty=%d\n",
-				(void*)rctx, text.empty()));
-			return;
-		}
+		if (!rctx || text.empty()) return;
 		ActivateTarget();
 		SetFontOnContext(font_);
 		XYPOSITION y = ybase - Ascent(font_);
@@ -610,9 +591,6 @@ public:
 
 	void SetClip(PRectangle rc) override {
 		clipStack.push_back(rc);
-		D(bug("SCI: SetClip (%d,%d)-(%d,%d) depth=%d board=%p\n",
-			(int)rc.left, (int)rc.top, (int)rc.right, (int)rc.bottom,
-			(int)clipStack.size(), (void*)board));
 		if (!rctx) return;
 		ActivateTarget();
 
@@ -633,7 +611,6 @@ public:
 		if (!clipStack.empty()) {
 			clipStack.pop_back();
 		}
-		D(bug("SCI: PopClip depth=%d\n", (int)clipStack.size()));
 		if (!rctx) return;
 
 		if (clipStack.empty()) {
@@ -673,6 +650,55 @@ std::unique_ptr<Surface> Surface::Allocate(Technology technology) {
 }
 
 //----------------------------------------------------------------------
+// Popup window helper
+//----------------------------------------------------------------------
+
+// Track popup Intuition windows so we can distinguish them from MUI objects
+static std::set<void *> sPopupWindows;
+
+static bool IsPopupWindow(void *wid) {
+	return wid && sPopupWindows.count(wid) > 0;
+}
+
+// Forward declare for use in Window methods
+class ListBoxAROS;
+static ListBoxAROS *sActiveListBox = nullptr;
+static Scintilla::Internal::Window *sActiveListBoxWindow = nullptr;
+static void ListBoxHidePopupCall(ListBoxAROS *lb);
+
+struct ::Window *CreatePopupWindow(struct Screen *scr, LONG x, LONG y, LONG w, LONG h) {
+	struct ::Window *win = OpenWindowTags(nullptr,
+		WA_Left, x,
+		WA_Top, y,
+		WA_InnerWidth, w,
+		WA_InnerHeight, h,
+		WA_Borderless, TRUE,
+		WA_Activate, FALSE,
+		WA_RMBTrap, TRUE,
+		WA_CustomScreen, (IPTR)scr,
+		WA_BackFill, (IPTR)LAYERS_NOBACKFILL,
+		TAG_DONE);
+	if (win) {
+		sPopupWindows.insert(win);
+	}
+	return win;
+}
+
+// Calltip callbacks - set by ScintillaAROS::CreateCallTipWindow
+static void (*sCallTipShowFunc)(void *) = nullptr;
+static void (*sCallTipHideFunc)(void *) = nullptr;
+static void (*sCallTipPaintFunc)(void *) = nullptr;
+static void *sCallTipData = nullptr;
+static Scintilla::Internal::Window *sCallTipWindow = nullptr;
+
+void DestroyPopupWindow(struct ::Window *win) {
+	if (win) {
+		sPopupWindows.erase(win);
+		CloseWindow(win);
+	}
+}
+
+//----------------------------------------------------------------------
 // Window
 //----------------------------------------------------------------------
 
@@ -680,6 +706,13 @@ Scintilla::Internal::Window::~Window() noexcept {
 }
 
 void Scintilla::Internal::Window::Destroy() noexcept {
+	if (sActiveListBox && this == sActiveListBoxWindow) {
+		// ListBox popup: don't close the window yet, just let HidePopup handle it
+		ListBoxHidePopupCall(sActiveListBox);
+	} else if (IsPopupWindow(wid)) {
+		// Other popups (calltip): close immediately
+		DestroyPopupWindow(static_cast<struct ::Window *>(wid));
+	}
 	wid = nullptr;
 }
 
@@ -696,16 +729,58 @@ PRectangle Scintilla::Internal::Window::GetPosition() const {
 }
 
 void Scintilla::Internal::Window::SetPosition(PRectangle rc) {
-	// MUI handles layout — not directly positionable
+	if (!IsPopupWindow(wid)) return;
+	struct ::Window *win = static_cast<struct ::Window *>(wid);
+	ChangeWindowBox(win,
+		static_cast<LONG>(rc.left), static_cast<LONG>(rc.top),
+		static_cast<LONG>(rc.Width()), static_cast<LONG>(rc.Height()));
 }
 
+// Stored desired position for popups not yet created
+PRectangle sPendingPopupPos;
+
+// Trampoline functions - implemented after ListBoxAROS definition
+static void ListBoxShowPopup(ListBoxAROS *lb);
+static void ListBoxHidePopup(ListBoxAROS *lb);
+
 void Scintilla::Internal::Window::SetPositionRelative(PRectangle rc, const Scintilla::Internal::Window *relativeTo) {
-	// MUI handles layout
+	// Calculate absolute screen position: editor area position within MUI window + window position on screen
+	LONG parentX = 0, parentY = 0;
+	if (sEditorArea) {
+		MUIGet(sEditorArea, MUIA_LeftEdge, &parentX);
+		MUIGet(sEditorArea, MUIA_TopEdge, &parentY);
+	}
+	if (sIntuiWindow) {
+		parentX += sIntuiWindow->LeftEdge;
+		parentY += sIntuiWindow->TopEdge;
+	}
+
+	LONG x = parentX + static_cast<LONG>(rc.left);
+	LONG y = parentY + static_cast<LONG>(rc.top);
+	LONG w = static_cast<LONG>(rc.Width());
+	LONG h = static_cast<LONG>(rc.Height());
+
+	// Clamp to screen
+	if (sIntuiWindow) {
+		struct Screen *scr = sIntuiWindow->WScreen;
+		if (x + w > scr->Width) x = scr->Width - w;
+		if (y + h > scr->Height) y = scr->Height - h;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+	}
+
+	sPendingPopupPos = PRectangle(x, y, x + w, y + h);
+
+	if (IsPopupWindow(wid)) {
+		struct ::Window *win = static_cast<struct ::Window *>(wid);
+		ChangeWindowBox(win, x, y, w, h);
+	}
 }
 
 PRectangle Scintilla::Internal::Window::GetClientPosition() const {
-	if (!wid) return PRectangle();
-	Object *obj = static_cast<Object *>(wid);
+	// Use the editor area dimensions, not the whole group
+	Object *obj = sEditorArea ? sEditorArea : static_cast<Object *>(wid);
+	if (!obj) return PRectangle();
 	LONG width = 0, height = 0;
 	MUIGet(obj, MUIA_Width, &width);
 	MUIGet(obj, MUIA_Height, &height);
@@ -713,26 +788,160 @@ PRectangle Scintilla::Internal::Window::GetClientPosition() const {
 }
 
 void Scintilla::Internal::Window::Show(bool show) {
-	if (wid) {
+	// ListBox popup: create/destroy on demand
+	if (sActiveListBox && this == sActiveListBoxWindow) {
+		if (show) {
+			ListBoxShowPopup(sActiveListBox);
+		} else {
+			ListBoxHidePopup(sActiveListBox);
+		}
+		return;
+	}
+
+	// Calltip popup: create on show, destroy on hide
+	if (sCallTipWindow == this) {
+		if (show && sCallTipShowFunc) {
+			sCallTipShowFunc(sCallTipData);
+		} else if (!show && sCallTipHideFunc) {
+			sCallTipHideFunc(sCallTipData);
+		}
+		return;
+	}
+
+	if (!wid) return;
+	if (IsPopupWindow(wid)) {
+		if (show) {
+			WindowToFront(static_cast<struct ::Window *>(wid));
+
+		} else {
+			DestroyPopupWindow(static_cast<struct ::Window *>(wid));
+			wid = nullptr;
+		}
+	} else {
 		Object *obj = static_cast<Object *>(wid);
 		MUISet(obj, MUIA_ShowMe, show ? TRUE : FALSE);
 	}
 }
 
+void PlatAROS_SetCallTipWindow(Scintilla::Internal::Window *w) {
+	sCallTipWindow = w;
+}
+
+void PlatAROS_SetCallTipCallbacks(void (*showFunc)(void *), void (*hideFunc)(void *),
+		void (*paintFunc)(void *), void *data) {
+	sCallTipShowFunc = showFunc;
+	sCallTipHideFunc = hideFunc;
+	sCallTipPaintFunc = paintFunc;
+	sCallTipData = data;
+}
+
+// Dirty rectangle tracking for partial updates
+static PRectangle sDirtyRect;
+static bool sDirtyAll = false;
+
+void PlatAROS_GetDirtyRect(PRectangle *rc, bool *all) {
+	*rc = sDirtyRect;
+	*all = sDirtyAll;
+}
+
+void PlatAROS_ClearDirtyRect() {
+	sDirtyRect = PRectangle();
+	sDirtyAll = false;
+}
+
 void Scintilla::Internal::Window::InvalidateAll() {
-	if (wid) {
-		Object *obj = static_cast<Object *>(wid);
-		MUI_Redraw(obj, MADF_DRAWOBJECT);
+	if (sCallTipWindow == this && sCallTipPaintFunc) {
+		sCallTipPaintFunc(sCallTipData);
+		return;
 	}
+	sDirtyAll = true;
 }
 
 void Scintilla::Internal::Window::InvalidateRectangle(PRectangle rc) {
-	InvalidateAll();
+	if (sDirtyAll) return;
+	if (sDirtyRect.Empty()) {
+		sDirtyRect = rc;
+	} else {
+		// Union with existing dirty rect
+		if (rc.left < sDirtyRect.left) sDirtyRect.left = rc.left;
+		if (rc.top < sDirtyRect.top) sDirtyRect.top = rc.top;
+		if (rc.right > sDirtyRect.right) sDirtyRect.right = rc.right;
+		if (rc.bottom > sDirtyRect.bottom) sDirtyRect.bottom = rc.bottom;
+	}
+}
+
+// I-beam pointer for text cursor
+static Object *sIBeamPointer = nullptr;
+
+static Object *GetIBeamPointer() {
+	if (sIBeamPointer) return sIBeamPointer;
+
+	// Create a 16x16 2-color bitmap for the I-beam shape
+	struct BitMap *bm = AllocBitMap(16, 16, 2, BMF_CLEAR, nullptr);
+	if (!bm) return nullptr;
+
+	// Draw I-beam shape into plane 1 (color index 1 = foreground)
+	// Shape: top/bottom serifs + vertical bar
+	UBYTE *plane = reinterpret_cast<UBYTE *>(bm->Planes[1]);
+	UWORD stride = bm->BytesPerRow;
+	//  ..xx.xx.  = 0x36
+	//  ....x...  = 0x08
+	auto setRow = [&](int y, UBYTE val) { plane[y * stride] = val; };
+	setRow(2,  0x36);  // serifs top
+	setRow(3,  0x08);
+	setRow(4,  0x08);
+	setRow(5,  0x08);
+	setRow(6,  0x08);
+	setRow(7,  0x08);
+	setRow(8,  0x08);
+	setRow(9,  0x08);
+	setRow(10, 0x08);
+	setRow(11, 0x08);
+	setRow(12, 0x08);
+	setRow(13, 0x36);  // serifs bottom
+
+	sIBeamPointer = reinterpret_cast<Object *>(
+		NewObject(nullptr, (UBYTE *)"pointerclass",
+			POINTERA_BitMap, (IPTR)bm,
+			POINTERA_XOffset, -7,
+			POINTERA_YOffset, -8,
+			POINTERA_WordWidth, 1,
+			POINTERA_XResolution, POINTERXRESN_SCREENRES,
+			POINTERA_YResolution, POINTERYRESN_SCREENRES,
+			TAG_DONE));
+
+	if (!sIBeamPointer) {
+		FreeBitMap(bm);
+	}
+	return sIBeamPointer;
 }
 
 void Scintilla::Internal::Window::SetCursor(Cursor curs) {
-	// TODO: Set Intuition pointer based on cursor type
 	cursorLast = curs;
+	if (!sIntuiWindow) return;
+
+	struct TagItem tags[3] = {};
+	switch (curs) {
+	case Cursor::text: {
+		Object *ibeam = GetIBeamPointer();
+		if (ibeam) {
+			tags[0] = { WA_Pointer, (IPTR)ibeam };
+		} else {
+			tags[0] = { WA_Pointer, (IPTR)nullptr };
+		}
+		tags[1] = { TAG_DONE, 0 };
+		break;
+	}
+	case Cursor::wait:
+		tags[0] = { WA_BusyPointer, TRUE };
+		tags[1] = { TAG_DONE, 0 };
+		break;
+	default:
+		tags[0] = { WA_Pointer, (IPTR)nullptr };
+		tags[1] = { TAG_DONE, 0 };
+		break;
+	}
+	IntuiSetWindowPointer(sIntuiWindow, tags);
 }
 
 PRectangle Scintilla::Internal::Window::GetMonitorRect(Point pt) {
@@ -755,24 +964,165 @@ class ListBoxAROS : public ListBox {
 	std::vector<std::string> entries;
 	std::vector<int> entryTypes;
 	int selection = -1;
+	int scrollOffset = 0;  // first visible item index
 	IListBoxDelegate *delegate = nullptr;
+
+	struct ::Window *popupWin = nullptr;
+	struct RenderContext *popupRctx = nullptr;
+	struct Screen *parentScreen = nullptr;
+	struct TextFont *listFont = nullptr;
+
+	// Registered images for autocomplete icons
+	RGBAImageSet images;
+
+	// Colors from SetOptions
+	ULONG colFore = ZUNE_BLACK;
+	ULONG colBack = ZUNE_WHITE;
+	ULONG colForeSelected = ZUNE_WHITE;
+	ULONG colBackSelected = ZUNE_COLOR_ARGB32(255, 50, 100, 200);
+	float imageScale = 1.0f;
+
+	void PaintList() {
+		if (!popupWin || !popupRctx) return;
+
+		WORD w = popupWin->Width;
+		WORD h = popupWin->Height;
+
+		ZuneSetTarget(popupRctx, nullptr);
+		if (listFont) {
+			ZuneSetFont(popupRctx, listFont);
+		} else {
+			// Fallback: use the popup window's RastPort font
+			ZuneSetFont(popupRctx, popupWin->RPort->Font);
+		}
+
+		WORD borderWidth = 2;
+
+		struct ZuneRect rcAll = { borderWidth, borderWidth, static_cast<UWORD>(w-borderWidth*2), static_cast<UWORD>(h-borderWidth*2) };
+		struct ZuneBrush bgBrush = ZUNE_BRUSH_LITERAL_SOLID(colBack);
+		ZuneFillRectangleRoundedStyledAA(popupRctx, &rcAll, 3, borderWidth,
+			&bgBrush, ZUNE_COLOR_ARGB32(255, 60, 60, 60));
+
+		// Calculate icon column width
+		int iconW = 0;
+		if (images.GetHeight() > 0) {
+			iconW = static_cast<int>(lineHeight * imageScale) + 2;
+		}
+
+		WORD pad = borderWidth + 2;
+		int y = pad;
+		for (int i = scrollOffset; i < static_cast<int>(entries.size()) && y + lineHeight <= h - pad; i++) {
+			bool isSel = (i == selection);
+			ULONG fg = isSel ? colForeSelected : colFore;
+			ULONG bg = isSel ? colBackSelected : colBack;
+
+			// Draw icon if available for this entry type
+			int textX = pad + iconW;
+			if (iconW > 0 && entryTypes[i] >= 0) {
+				RGBAImage *img = images.Get(entryTypes[i]);
+				if (img) {
+					int drawH = static_cast<int>(lineHeight * imageScale);
+					int drawW = img->GetWidth() * drawH / img->GetHeight();
+					// RGBAImage stores RGBA, zunegfx wants ARGB - convert on the fly
+					int pixCount = img->GetWidth() * img->GetHeight();
+					std::vector<unsigned char> argb(pixCount * 4);
+					const unsigned char *rgba = img->Pixels();
+					for (int p = 0; p < pixCount; p++) {
+						argb[p * 4 + 0] = rgba[p * 4 + 3]; // A
+						argb[p * 4 + 1] = rgba[p * 4 + 0]; // R
+						argb[p * 4 + 2] = rgba[p * 4 + 1]; // G
+						argb[p * 4 + 3] = rgba[p * 4 + 2]; // B
+					}
+					struct ZuneTexture *tex = ZuneCreateTextureFromData(
+						popupRctx, argb.data(),
+						static_cast<UWORD>(img->GetWidth()),
+						static_cast<UWORD>(img->GetHeight()),
+						32, ZUNE_TEXTURE_FORMAT_ARGB32,
+						static_cast<ULONG>(img->GetWidth() * 4),
+						ZUNE_TEXTURE_ALPHA);
+					if (tex) {
+						struct ZuneRect dest = {
+							static_cast<WORD>(pad), static_cast<WORD>(y),
+							static_cast<UWORD>(drawW), static_cast<UWORD>(drawH) };
+						ZuneDrawTextureScaled(popupRctx, tex, &dest);
+						ZuneDestroyTexture(popupRctx, tex);
+					}
+				}
+			}
+
+			struct ZunePoint pos = { static_cast<WORD>(textX), static_cast<WORD>(y) };
+			ZuneDrawTextBackground(popupRctx, &pos, entries[i].c_str(),
+				static_cast<UWORD>(entries[i].length()), fg, bg);
+			y += lineHeight;
+		}
+	}
+
+	void DestroyPopup() {
+		if (popupRctx) {
+			ZuneDestroyRenderContext(popupRctx);
+			popupRctx = nullptr;
+		}
+		if (popupWin) {
+			DestroyPopupWindow(popupWin);
+			popupWin = nullptr;
+		}
+		// Don't clear wid here - let Window::Destroy() do that,
+		// so AutoComplete::Cancel() sees Created()==true and sets active=false
+	}
 
 public:
 	ListBoxAROS() noexcept = default;
-	~ListBoxAROS() noexcept override = default;
+	~ListBoxAROS() noexcept override {
+		DestroyPopup();
+	}
+
+	void ShowPopup() {
+		if (popupWin) {
+			PaintList();
+			return;
+		}
+		if (!parentScreen) return;
+
+		LONG x = static_cast<LONG>(sPendingPopupPos.left);
+		LONG y = static_cast<LONG>(sPendingPopupPos.top);
+		LONG w = static_cast<LONG>(sPendingPopupPos.Width());
+		LONG h = static_cast<LONG>(sPendingPopupPos.Height());
+		if (w < 10) w = 100;
+		if (h < 10) h = 50;
+
+		popupWin = CreatePopupWindow(parentScreen, x, y, w, h);
+		if (popupWin) {
+			popupRctx = ZuneCreateRenderContextForWindow(popupWin,
+				parentScreen->ViewPort.ColorMap, BACKEND_CYBERGFX);
+			wid = popupWin;
+			PaintList();
+		}
+	}
+
+	void HidePopup() {
+		if (sActiveListBox == this) {
+			sActiveListBox = nullptr;
+			sActiveListBoxWindow = nullptr;
+		}
+		DestroyPopup();
+	}
 
 	void SetFont(const Font *font) override {
 		const FontAROS *fa = dynamic_cast<const FontAROS *>(font);
 		if (fa && fa->tf) {
 			lineHeight = fa->tf->tf_YSize;
 			averageCharWidth = fa->tf->tf_XSize;
+			listFont = fa->tf;
 		}
 	}
 
 	void Create(Window &parent, int ctrlID, Point location, int lineHeight_,
 			bool unicodeMode_, Technology technology_) override {
 		lineHeight = lineHeight_;
-		// TODO: Create MUI List popup window
+		DestroyPopup();
+		parentScreen = sIntuiWindow ? sIntuiWindow->WScreen : nullptr;
+		sActiveListBox = this;
+		sActiveListBoxWindow = this;  // Window* from implicit upcast
 	}
 
 	void SetAverageCharWidth(int width) override {
@@ -795,7 +1145,9 @@ public:
 		}
 		int rows = std::min(visibleRows, static_cast<int>(entries.size()));
 		if (rows < 1) rows = 1;
-		return PRectangle(0, 0, maxWidth + 20, rows * lineHeight + 4);
+		int pad = 4;  // borderWidth + 2
+		return PRectangle(0, 0, maxWidth + 20 + pad * 2,
+			(rows + 2) * lineHeight + pad * 2);
 	}
 
 	int CaretFromEdge() override {
@@ -806,6 +1158,7 @@ public:
 		entries.clear();
 		entryTypes.clear();
 		selection = -1;
+		scrollOffset = 0;
 	}
 
 	void Append(char *s, int type) override {
@@ -819,11 +1172,23 @@ public:
 
 	void Select(int n) override {
 		selection = n;
+		if (popupWin && lineHeight > 0) {
+			int pad = 4;  // borderWidth + 2
+			int visibleItems = (popupWin->Height - pad * 2) / lineHeight;
+			if (visibleItems < 1) visibleItems = 1;
+			if (selection < scrollOffset) {
+				scrollOffset = selection;
+			} else if (selection >= scrollOffset + visibleItems) {
+				scrollOffset = selection - visibleItems + 1;
+			}
+			PaintList();
+		}
 	}
 
 	int GetSelection() override {
 		return selection;
 	}
+
 
 	int Find(const char *prefix) override {
 		std::string_view pfx(prefix);
@@ -843,14 +1208,18 @@ public:
 	}
 
 	void RegisterImage(int type, const char *xpm_data) override {
-		// TODO
+		if (!xpm_data) return;
+		XPM xpm(xpm_data);
+		images.AddImage(type, std::make_unique<RGBAImage>(xpm));
 	}
 
 	void RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) override {
-		// TODO
+		if (!pixelsImage || width <= 0 || height <= 0) return;
+		images.AddImage(type, std::make_unique<RGBAImage>(width, height, 1.0f, pixelsImage));
 	}
 
 	void ClearRegisteredImages() override {
+		images.Clear();
 	}
 
 	void SetDelegate(IListBoxDelegate *lbDelegate) override {
@@ -878,9 +1247,21 @@ public:
 	}
 
 	void SetOptions(ListOptions options_) override {
-		// TODO: Apply colors
+		if (options_.fore)
+			colFore = ToZuneColor(*options_.fore);
+		if (options_.back)
+			colBack = ToZuneColor(*options_.back);
+		if (options_.foreSelected)
+			colForeSelected = ToZuneColor(*options_.foreSelected);
+		if (options_.backSelected)
+			colBackSelected = ToZuneColor(*options_.backSelected);
+		imageScale = options_.imageScale;
 	}
 };
+
+static void ListBoxShowPopup(ListBoxAROS *lb) { lb->ShowPopup(); }
+static void ListBoxHidePopup(ListBoxAROS *lb) { lb->HidePopup(); }
+static void ListBoxHidePopupCall(ListBoxAROS *lb) { lb->HidePopup(); }
 
 ListBox::ListBox() noexcept = default;
 ListBox::~ListBox() noexcept = default;
@@ -893,20 +1274,173 @@ std::unique_ptr<ListBox> ListBox::Allocate() {
 // Menu
 //----------------------------------------------------------------------
 
+// Context menu data
+struct MenuItemData {
+	std::string label;
+	int cmd;
+	bool enabled;
+};
+static std::vector<MenuItemData> sMenuItems;
+struct ::Window *sMenuWin = nullptr;
+struct RenderContext *sMenuRctx = nullptr;
+static int sMenuSelection = -1;
+static int sMenuLineHeight = 12;
+
+static void DestroyMenuPopup() {
+	if (sMenuRctx) {
+		ZuneDestroyRenderContext(sMenuRctx);
+		sMenuRctx = nullptr;
+	}
+	if (sMenuWin) {
+		DestroyPopupWindow(sMenuWin);
+		sMenuWin = nullptr;
+	}
+	sMenuItems.clear();
+	sMenuSelection = -1;
+}
+
+static void PaintMenuPopup() {
+	if (!sMenuWin || !sMenuRctx) return;
+	WORD w = sMenuWin->Width;
+	WORD h = sMenuWin->Height;
+
+	ZuneSetTarget(sMenuRctx, nullptr);
+	if (sMenuWin->RPort->Font)
+		ZuneSetFont(sMenuRctx, sMenuWin->RPort->Font);
+
+	struct ZuneRect rcAll = { 0, 0, static_cast<UWORD>(w), static_cast<UWORD>(h) };
+	struct ZuneBrush bgBrush = ZUNE_BRUSH_LITERAL_SOLID(ZUNE_COLOR_ARGB32(255, 240, 240, 240));
+	ZuneFillRectangleRoundedStyledAA(sMenuRctx, &rcAll, 4, 1,
+		&bgBrush, ZUNE_COLOR_ARGB32(255, 160, 160, 160));
+
+	WORD pad = 4;
+	int y = pad;
+	for (int i = 0; i < static_cast<int>(sMenuItems.size()); i++) {
+		const auto &item = sMenuItems[i];
+		if (item.label.empty()) {
+			// Separator
+			struct ZunePoint p1 = { pad, static_cast<WORD>(y + 3) };
+			struct ZunePoint p2 = { static_cast<WORD>(w - pad), static_cast<WORD>(y + 3) };
+			ZuneDrawLine(sMenuRctx, &p1, &p2, ZUNE_COLOR_ARGB32(255, 180, 180, 180));
+			y += 7;
+		} else {
+			struct ZunePoint pos = { static_cast<WORD>(pad + 2), static_cast<WORD>(y) };
+			ULONG fg = item.enabled ? ZUNE_BLACK : ZUNE_COLOR_ARGB32(255, 160, 160, 160);
+			ULONG bg = (i == sMenuSelection) ?
+				ZUNE_COLOR_ARGB32(255, 50, 100, 200) :
+				ZUNE_COLOR_ARGB32(255, 240, 240, 240);
+			if (i == sMenuSelection) fg = ZUNE_WHITE;
+			ZuneDrawTextBackground(sMenuRctx, &pos, item.label.c_str(),
+				static_cast<UWORD>(item.label.length()), fg, bg);
+			y += sMenuLineHeight;
+		}
+	}
+}
+
+// ScintillaBase::Command callback - set by ScintillaAROS
+static void (*sMenuCommandFunc)(void *, int) = nullptr;
+static void *sMenuCommandData = nullptr;
+
+void PlatAROS_SetMenuCommand(void (*func)(void *, int), void *data) {
+	sMenuCommandFunc = func;
+	sMenuCommandData = data;
+}
+
+void PlatAROS_HandleMenuClick(int screenX, int screenY,
+		void (*commandFunc)(void *, int), void *commandData) {
+	if (!sMenuWin) return;
+
+	// Check if click is inside menu window
+	int mx = screenX - sMenuWin->LeftEdge;
+	int my = screenY - sMenuWin->TopEdge;
+
+	if (mx < 0 || my < 0 || mx >= sMenuWin->Width || my >= sMenuWin->Height) {
+		// Clicked outside - close menu
+		DestroyMenuPopup();
+		return;
+	}
+
+	// Find which item was clicked
+	WORD pad = 4;
+	int y = pad;
+	for (int i = 0; i < static_cast<int>(sMenuItems.size()); i++) {
+		const auto &item = sMenuItems[i];
+		int itemH = item.label.empty() ? 7 : sMenuLineHeight;
+		if (my >= y && my < y + itemH && !item.label.empty() && item.enabled) {
+			int cmd = item.cmd;
+			DestroyMenuPopup();
+			if (commandFunc) commandFunc(commandData, cmd);
+			return;
+		}
+		y += itemH;
+	}
+	DestroyMenuPopup();
+}
+
+void PlatAROS_AddMenuItem(const char *label, int cmd, bool enabled) {
+	sMenuItems.push_back({ label ? label : "", cmd, enabled });
+}
+
 Scintilla::Internal::Menu::Menu() noexcept : mid(nullptr) {
 }
 
 void Scintilla::Internal::Menu::CreatePopUp() {
-	// TODO: Create Intuition/MUI popup menu
-	Destroy();
+	DestroyMenuPopup();
+	mid = reinterpret_cast<MenuID>(1);  // non-null to indicate active
 }
 
 void Scintilla::Internal::Menu::Destroy() noexcept {
+	DestroyMenuPopup();
 	mid = nullptr;
 }
 
 void Scintilla::Internal::Menu::Show(Point pt, const Scintilla::Internal::Window &w) {
-	// TODO: Show popup menu at coordinates
+	if (sMenuItems.empty() || !sIntuiWindow) return;
+
+	// Calculate menu size
+	int maxWidth = 80;
+	int totalHeight = 8;  // padding
+	sMenuLineHeight = sIntuiWindow->RPort->Font ? sIntuiWindow->RPort->Font->tf_YSize : 12;
+	for (const auto &item : sMenuItems) {
+		if (item.label.empty()) {
+			totalHeight += 7;  // separator
+		} else {
+			int itemW = static_cast<int>(item.label.length()) * 8 + 16;
+			if (itemW > maxWidth) maxWidth = itemW;
+			totalHeight += sMenuLineHeight;
+		}
+	}
+
+	// Position: editor area in MUI window + window position on screen
+	LONG parentX = 0, parentY = 0;
+	if (sEditorArea) {
+		MUIGet(sEditorArea, MUIA_LeftEdge, &parentX);
+		MUIGet(sEditorArea, MUIA_TopEdge, &parentY);
+	}
+	if (sIntuiWindow) {
+		parentX += sIntuiWindow->LeftEdge;
+		parentY += sIntuiWindow->TopEdge;
+	}
+	LONG x = parentX + static_cast<LONG>(pt.x);
+	LONG y = parentY + static_cast<LONG>(pt.y);
+
+	// Clamp to screen
+	struct Screen *scr = sIntuiWindow->WScreen;
+	if (x + maxWidth > scr->Width) x = scr->Width - maxWidth;
+	if (y + totalHeight > scr->Height) y = scr->Height - totalHeight;
+
+	sMenuWin = CreatePopupWindow(scr, x, y, maxWidth, totalHeight);
+	if (!sMenuWin) return;
+
+	sMenuRctx = ZuneCreateRenderContextForWindow(sMenuWin,
+		scr->ViewPort.ColorMap, BACKEND_CYBERGFX);
+	if (!sMenuRctx) {
+		DestroyPopupWindow(sMenuWin);
+		sMenuWin = nullptr;
+		return;
+	}
+
+	PaintMenuPopup();
 }
 
 //----------------------------------------------------------------------

@@ -1,0 +1,817 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-archive : ports-archive-zunearc
+
+#MM  ports-archive-zunearc : \
+#MM    includes linklibs ports-archive-zunearc-fetch \
+#MM    ports-archive-zunearc-cpy \
+#MM    ports-archive-zunearc-cpyicons
+
+#MM  ports-archive-zunearc-quick : ports-archive-zunearc-fetch
+
+REPOSITORIES := sf://zunetools
+ARCHBASE     := ZuneARC_v1.6
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Archive/ZuneARC
+
+NOWARN_FLAGS := $(NOWARN_PARENTHESES) $(NOWARN_UNUSED_BUT_SET_VARIABLE)\
+ $(NOWARN_UNUSED_VARIABLE) $(NOWARN_FORMAT_ZERO_LENGTH)\
+ $(NOWARN_UNINITIALIZED) $(NOWARN_FORMAT)
+USER_CFLAGS  := $(NOWARN_FLAGS)
+
+FILES := $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/source/ZuneARC
+
+
+.PHONY : ports-archive-zunearc
+
+#MM- ports-archive-zunearc : \
+#MM             ports-archive-zunearc-$(CPU)
+
+#MM- ports-archive-zunearc-$(ARCH)-$(CPU) : \
+#MM             ports-archive-zunearc-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-archive-zunearc-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-archive-zunearc-$(ARCH)-$(CPU)
+
+#MM- ports-archive-zunearc-$(ARCH) : \
+#MM             ports-archive-zunearc-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-archive-zunearc-$(FAMILY) : \
+#MM             ports-archive-zunearc-$(ARCH)
+
+#MM- ports-archive-zunearc-$(CPU) : \
+#MM             ports-archive-zunearc-$(FAMILY)
+#MM- ports-archive-zunearc-quick : \
+#MM             ports-archive-zunearc-$(CPU)-quick
+
+#MM- ports-archive-zunearc-$(ARCH)-$(CPU)-quick : \
+#MM             ports-archive-zunearc-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-archive-zunearc-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-archive-zunearc-$(ARCH)-$(CPU)-quick
+
+#MM- ports-archive-zunearc-$(ARCH)-quick : \
+#MM             ports-archive-zunearc-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-archive-zunearc-$(FAMILY)-quick : \
+#MM             ports-archive-zunearc-$(ARCH)-quick
+
+#MM- ports-archive-zunearc-$(CPU)-quick : \
+#MM             ports-archive-zunearc-$(FAMILY)-quick
+
+ports-archive-zunearc_PROGNAME  := ZuneARC
+ports-archive-zunearc_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-archive-zunearc_TARGETDIR := $(TARGETDIR)
+ports-archive-zunearc_LINKER    := 
+ports-archive-zunearc_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-archive-zunearc_LINKER),)
+    ports-archive-zunearc_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-archive-zunearc_FILES     := $(FILES)
+    ports-archive-zunearc_OBJCFILES := 
+    ports-archive-zunearc_ASMFILES  := 
+    ports-archive-zunearc_CXXFILES := 
+else
+    ports-archive-zunearc_FILES     := $(ports-archive-zunearc_PROGNAME)
+    ports-archive-zunearc_OBJCFILES :=
+    ports-archive-zunearc_ASMFILES  :=
+    ports-archive-zunearc_CXXFILES :=
+endif
+
+ports-archive-zunearc_ARCHOBJS   := $(wildcard $(ports-archive-zunearc_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-archive-zunearc_ARCHFILES     := $(basename $(notdir $(ports-archive-zunearc_ARCHOBJS)))
+else
+    ports-archive-zunearc_ARCHFILES     := $(basename $(patsubst $(ports-archive-zunearc_OBJDIR)/%,%,$(ports-archive-zunearc_ARCHOBJS)))
+endif
+ports-archive-zunearc_C_NARCHFILES := $(filter-out $(ports-archive-zunearc_ARCHFILES),$(ports-archive-zunearc_FILES))
+ports-archive-zunearc_CXX_NARCHFILES := $(filter-out $(ports-archive-zunearc_ARCHFILES),$(ports-archive-zunearc_CXXFILES))
+ports-archive-zunearc_OBJC_NARCHFILES := $(filter-out $(ports-archive-zunearc_ARCHFILES),$(ports-archive-zunearc_OBJCFILES))
+
+TMP_FILES := $(ports-archive-zunearc_C_NARCHFILES) $(ports-archive-zunearc_CXX_NARCHFILES) $(ports-archive-zunearc_ASMFILES) $(ports-archive-zunearc_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-archive-zunearc_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-archive-zunearc_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-archive-zunearc_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(TMP_FILES))) )
+    ports-archive-zunearc_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-archive-zunearc_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-archive-zunearc_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-archive-zunearc_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-archive-zunearc_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-archive-zunearc_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-archive-zunearc_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-archive-zunearc_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-archive-zunearc_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-archive-zunearc_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-archive-zunearc_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-archive-zunearc_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-archive-zunearc_LDFLAGS          := 
+endif
+
+ports-archive-zunearc_CSTATICFLAGS   := `echo "$(ports-archive-zunearc_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-archive-zunearc_CSTDCFLAGS   :=  `echo "$(ports-archive-zunearc_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-archive-zunearc_CPOSIXCFLAGS   :=  `echo "$(ports-archive-zunearc_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-archive-zunearc_LDFLAGS          += $(strip $(ports-archive-zunearc_CSTATICFLAGS) $(ports-archive-zunearc_CSTDCFLAGS) $(ports-archive-zunearc_CPOSIXCFLAGS))
+
+ports-archive-zunearc_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-archive-zunearc_COVERAGE := yes
+ports-archive-zunearc_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-archive-zunearc_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-archive-zunearc_CFLAGS    := $(strip $(ports-archive-zunearc_COVERAGEFLAGS) $(ports-archive-zunearc_CFLAGS))
+ports-archive-zunearc_CXXFLAGS := $(strip $(ports-archive-zunearc_COVERAGEFLAGS) $(ports-archive-zunearc_CXXFLAGS))
+ports-archive-zunearc_LIBS += $(ports-archive-zunearc_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-archive-zunearc_FUNCINSTR := yes
+ports-archive-zunearc_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-archive-zunearc_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-archive-zunearc_CFLAGS    := $(strip $(ports-archive-zunearc_INSTRFUNCFLAGS) $(ports-archive-zunearc_CFLAGS))
+ports-archive-zunearc_CXXFLAGS := $(strip $(ports-archive-zunearc_INSTRFUNCFLAGS) $(ports-archive-zunearc_CXXFLAGS))
+ports-archive-zunearc_LIBS += $(ports-archive-zunearc_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-archive-zunearc_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-archive-zunearc_CFLAGS))
+ports-archive-zunearc_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-archive-zunearc_CXXFLAGS))
+endif
+endif
+ports-archive-zunearc_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-archive-zunearc_DFLAGS     := 
+else
+    ports-archive-zunearc_DFLAGS     := $(ports-archive-zunearc_CFLAGS)
+endif
+ifneq (,)
+    ports-archive-zunearc_DXXFLAGS     := 
+else
+    ports-archive-zunearc_DXXFLAGS     := $(ports-archive-zunearc_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-archive-zunearc_LDFLAGS           := $(ports-archive-zunearc_LDFLAGS)
+ports-archive-zunearc_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-archive-zunearc_LDFLAGS           := $(ports-archive-zunearc_LDFLAGS)
+ports-archive-zunearc_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_LDFLAGS           := $(ports-archive-zunearc_LDFLAGS)
+ports-archive-zunearc_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-archive-zunearc_LDFLAGS   += -L
+endif
+
+#MM
+ports-archive-zunearc-quick : ports-archive-zunearc
+
+#MM ports-archive-zunearc : includes-generate-deps core-linklibs
+ports-archive-zunearc : $(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-archive-zunearc_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-archive-zunearc_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-archive-zunearc_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-archive-zunearc_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-archive-zunearc_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-archive-zunearc ports-archive-zunearc-quick ports-archive-zunearc-compress-quick),)
+
+ports-archive-zunearc_CXXABSBASENAMES := $(foreach ports-archive-zunearc_CXXBASE,$(ports-archive-zunearc_CXX_NARCHFILES),$(if $(filter /%,$(ports-archive-zunearc_CXXBASE)),$(ports-archive-zunearc_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-archive-zunearc_CXXBASE))))
+
+ifneq ($(ports-archive-zunearc_CXXABSBASENAMES),)
+
+ports-archive-zunearc_CXXBASENAMES := $(basename $(ports-archive-zunearc_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-archive-zunearc_MCXX_FILES  := $(strip $(foreach ports-archive-zunearc_CXXBASE,$(ports-archive-zunearc_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-archive-zunearc_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-archive-zunearc_EXT),$(ports-archive-zunearc_CXXBASE)))))))
+
+ifeq (,)
+ports-archive-zunearc_MCXX_SRCWILDCARD := %
+else
+ports-archive-zunearc_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-archive-zunearc_OBJDIR),)
+  ports-archive-zunearc_CXXTARGETS := $(notdir $(ports-archive-zunearc_CXXBASENAMES:=.o))
+  ports-archive-zunearc_CXXDTARGETS := $(notdir $(ports-archive-zunearc_CXXBASENAMES:=.d))
+  ports-archive-zunearc_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-archive-zunearc_CXXTARGETS := $(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(ports-archive-zunearc_CXXBASENAMES:=.o)))
+  ports-archive-zunearc_CXXDTARGETS := $(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(ports-archive-zunearc_CXXBASENAMES:=.d)))
+  ports-archive-zunearc_MCXX_WILDCARD := $(ports-archive-zunearc_OBJDIR)/%
+else
+  ports-archive-zunearc_CXXTARGETS := $(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_CXXBASENAMES:=.o))
+  ports-archive-zunearc_CXXDTARGETS := $(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_CXXBASENAMES:=.d))
+  ports-archive-zunearc_MCXX_WILDCARD := $(ports-archive-zunearc_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-archive-zunearc_CXXTARGETS) $(ports-archive-zunearc_CXXDTARGETS) : | $(ports-archive-zunearc_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-archive-zunearc_MCXX_CPPFLAGS := $(ports-archive-zunearc_CPPFLAGS)
+ports-archive-zunearc_CXXFLAGS := $(ports-archive-zunearc_CXXFLAGS)
+ifeq ($(ports-archive-zunearc_DXXFLAGS),)
+  ports-archive-zunearc_DXXFLAGS := $(ports-archive-zunearc_CXXFLAGS)
+else
+  ports-archive-zunearc_DXXFLAGS := $(ports-archive-zunearc_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-archive-zunearc_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-archive-zunearc_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-archive-zunearc_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-archive-zunearc_STRIP ?= $(HOST_STRIP)
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-archive-zunearc_CXXCMD:=$(HOST_CXX)
+  ports-archive-zunearc_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS) $(ports-archive-zunearc_MCXX_EXTRA_CPPFLAGS))
+  ports-archive-zunearc_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-archive-zunearc_CXXFLAGS))
+  ports-archive-zunearc_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-archive-zunearc_DXXFLAGS))
+  ports-archive-zunearc_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-archive-zunearc_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-archive-zunearc_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-archive-zunearc_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-archive-zunearc_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-archive-zunearc_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-archive-zunearc_LDFLAGS ?= $(ports-archive-zunearc_CXXLDFLAGS)
+  ports-archive-zunearc_STRIP ?= $(TARGET_STRIP)
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-archive-zunearc_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-archive-zunearc_MCXX_CPPFLAGS := $(strip $(ports-archive-zunearc_MCXX_CPPFLAGS) $(ports-archive-zunearc_MCXX_EXTRA_CPPFLAGS))
+  ports-archive-zunearc_CXXFLAGS := $(strip $(ports-archive-zunearc_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-archive-zunearc_DXXFLAGS := $(ports-archive-zunearc_DXXFLAGS)
+  ports-archive-zunearc_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-archive-zunearc_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-archive-zunearc_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-archive-zunearc_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-archive-zunearc_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-archive-zunearc_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-archive-zunearc_LDFLAGS ?= $(ports-archive-zunearc_CXXLDFLAGS)
+  ports-archive-zunearc_STRIP ?= $(ECHO) >/dev/null
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-archive-zunearc_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-archive-zunearc_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS) $(ports-archive-zunearc_MCXX_EXTRA_CPPFLAGS))
+  ports-archive-zunearc_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-archive-zunearc_CXXFLAGS))
+  ports-archive-zunearc_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-archive-zunearc_DXXFLAGS))
+  ports-archive-zunearc_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-archive-zunearc_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-archive-zunearc_CXXCMD) $(ports-archive-zunearc_CXXIQUOTE) $(dir $(2)) $(ports-archive-zunearc_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) . $(ports-archive-zunearc_CXXIQUOTE_END) $(strip $(ports-archive-zunearc_CXXFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-archive-zunearc_CXXCMD) $(ports-archive-zunearc_CXXIQUOTE) $(dir $(2)) $(ports-archive-zunearc_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) . $(ports-archive-zunearc_CXXIQUOTE_END) $(strip $(ports-archive-zunearc_CXXFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-archive-zunearc_CXXCMD) $(ports-archive-zunearc_CXXIQUOTE) $(dir $(2)) $(ports-archive-zunearc_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_CXXIQUOTE) . $(ports-archive-zunearc_CXXIQUOTE_END) $(strip $(ports-archive-zunearc_CXXFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-archive-zunearc_CXXCMD)" $(MKDEPEND) $(strip $(ports-archive-zunearc_DXXFLAGS) $(ports-archive-zunearc_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-archive-zunearc_OBJDIR),)
+  $(foreach ports-archive-zunearc_CXXFILE,$(ports-archive-zunearc_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-archive-zunearc_CXXFILE))),$(ports-archive-zunearc_CXXFILE))))
+else
+  $(foreach ports-archive-zunearc_CXXFILE,$(ports-archive-zunearc_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(basename $(ports-archive-zunearc_CXXFILE)))),$(ports-archive-zunearc_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-archive-zunearc_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-archive-zunearc_MOBJC_SRCWILDCARD := %
+else
+ports-archive-zunearc_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-archive-zunearc_OBJDIR),)
+  ports-archive-zunearc_MOBJC_TARGETS := $(addsuffix .o,$(ports-archive-zunearc_OBJC_NARCHFILES))
+  ports-archive-zunearc_MOBJC_DTARGETS := $(addsuffix .d,$(ports-archive-zunearc_OBJC_NARCHFILES))
+  ports-archive-zunearc_MOBJC_WILDCARD := %
+else
+  ports-archive-zunearc_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_OBJC_NARCHFILES)))
+  ports-archive-zunearc_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_OBJC_NARCHFILES)))
+  ports-archive-zunearc_MOBJC_WILDCARD := $(ports-archive-zunearc_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-archive-zunearc_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-archive-zunearc_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-archive-zunearc_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-archive-zunearc_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-archive-zunearc_MOBJC_DIRS := $(foreach dir, $(ports-archive-zunearc_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-archive-zunearc_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-archive-zunearc_MOBJC_DIRS),)
+    ports-archive-zunearc_MOBJC_DIRS := $(shell $(ECHO) $(ports-archive-zunearc_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-archive-zunearc_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-archive-zunearc_CC := $(TARGET_CC)
+else
+  ports-archive-zunearc_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-archive-zunearc_MOBJC_CPPFLAGS := $(ports-archive-zunearc_CPPFLAGS)
+ports-archive-zunearc_OBJCFLAGS := $(ports-archive-zunearc_CFLAGS)
+ports-archive-zunearc_OBJCFLAGS := $(ports-archive-zunearc_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-archive-zunearc_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-archive-zunearc_OBJCFLAGS)))
+ifeq ($(ports-archive-zunearc_DFLAGS),)
+  ports-archive-zunearc_OBJCDFLAGS := $(ports-archive-zunearc_CFLAGS)
+else
+  ports-archive-zunearc_OBJCDFLAGS := $(ports-archive-zunearc_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-archive-zunearc_LINK ?= $(strip $(ports-archive-zunearc_CC) $(TARGET_SYSROOT))
+  ports-archive-zunearc_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-archive-zunearc_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-archive-zunearc_STRIP ?= $(TARGET_STRIP)
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : CMD:=$(strip $(ports-archive-zunearc_CC) $(TARGET_SYSROOT))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_MOBJC_CPPFLAGS:=$(strip $(ports-archive-zunearc_MOBJC_CPPFLAGS) $(ports-archive-zunearc_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCFLAGS:=$(strip $(ports-archive-zunearc_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCDFLAGS:=$(ports-archive-zunearc_OBJCDFLAGS)
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-archive-zunearc_LINK ?= $(strip $(HOST_OBJC))
+  ports-archive-zunearc_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-archive-zunearc_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-archive-zunearc_STRIP ?= $(HOST_STRIP)
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-archive-zunearc_MOBJC_CPPFLAGS) $(ports-archive-zunearc_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-archive-zunearc_OBJCFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-archive-zunearc_OBJCDFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-archive-zunearc_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-archive-zunearc_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-archive-zunearc_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-archive-zunearc_STRIP ?= $(ECHO) >/dev/null
+  ports-archive-zunearc_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-archive-zunearc_MOBJC_CPPFLAGS) $(ports-archive-zunearc_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-archive-zunearc_OBJCFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-archive-zunearc_OBJCDFLAGS))
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-archive-zunearc_MOBJC_TARGETS) $(ports-archive-zunearc_MOBJC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-archive-zunearc_MOBJC_TARGETS) : CPPFLAGS := $(ports-archive-zunearc_MOBJC_CPPFLAGS)
+$(ports-archive-zunearc_MOBJC_TARGETS) : CFLAGS := $(ports-archive-zunearc_OBJCFLAGS)
+$(ports-archive-zunearc_MOBJC_TARGETS) : $(ports-archive-zunearc_MOBJC_WILDCARD).o : $(ports-archive-zunearc_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-archive-zunearc_MOBJC_DTARGETS) : $(ports-archive-zunearc_MOBJC_WILDCARD).d : $(ports-archive-zunearc_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-archive-zunearc_OBJCDFLAGS) $(ports-archive-zunearc_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-archive-zunearc_MC_SRCWILDCARD := %
+else
+ports-archive-zunearc_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-archive-zunearc_OBJDIR),)
+ports-archive-zunearc_MC_TARGETS := $(addsuffix .o,$(ports-archive-zunearc_C_NARCHFILES))
+ports-archive-zunearc_MC_DTARGETS := $(addsuffix .d,$(ports-archive-zunearc_C_NARCHFILES))
+ports-archive-zunearc_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-archive-zunearc_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(ports-archive-zunearc_C_NARCHFILES))))
+    ports-archive-zunearc_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(ports-archive-zunearc_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-archive-zunearc_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_C_NARCHFILES)))
+    ports-archive-zunearc_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(ports-archive-zunearc_C_NARCHFILES)))
+else
+    ports-archive-zunearc_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(patsubst /%,%,$(ports-archive-zunearc_C_NARCHFILES))))
+    ports-archive-zunearc_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(patsubst /%,%,$(ports-archive-zunearc_C_NARCHFILES))))
+endif
+endif
+ports-archive-zunearc_MC_TGTWILDCARD := $(ports-archive-zunearc_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : | $(addsuffix .c,$(ports-archive-zunearc_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-archive-zunearc_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-archive-zunearc_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-archive-zunearc_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-archive-zunearc_MC_DIRS := $(foreach dir, $(ports-archive-zunearc_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-archive-zunearc_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-archive-zunearc_MC_DIRS),)
+    ports-archive-zunearc_MC_DIRS := $(shell $(ECHO) $(ports-archive-zunearc_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-archive-zunearc_MC_DIRS)
+endif
+
+endif
+
+ports-archive-zunearc_MC_CPPFLAGS := $(ports-archive-zunearc_CPPFLAGS)
+ports-archive-zunearc_CFLAGS := $(ports-archive-zunearc_CFLAGS)
+ifeq ($(ports-archive-zunearc_DFLAGS),)
+  ports-archive-zunearc_DFLAGS := $(ports-archive-zunearc_CFLAGS)
+else
+  ports-archive-zunearc_DFLAGS := $(ports-archive-zunearc_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-archive-zunearc_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-archive-zunearc_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-archive-zunearc_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-archive-zunearc_STRIP ?= $(TARGET_STRIP)
+ports-archive-zunearc_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_MC_CPPFLAGS:=$(strip $(ports-archive-zunearc_MC_CPPFLAGS) $(ports-archive-zunearc_MC_EXTRA_CPPFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_CFLAGS:=$(strip $(ports-archive-zunearc_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_DFLAGS:=$(ports-archive-zunearc_DFLAGS)
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-archive-zunearc_LINK ?= $(strip $(HOST_CC))
+ports-archive-zunearc_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-archive-zunearc_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-archive-zunearc_STRIP ?= $(HOST_STRIP)
+ports-archive-zunearc_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-archive-zunearc_MC_CPPFLAGS) $(ports-archive-zunearc_MC_EXTRA_CPPFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-archive-zunearc_CFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-archive-zunearc_DFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(HOST_IQUOTE)
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-archive-zunearc_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-archive-zunearc_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-archive-zunearc_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-archive-zunearc_STRIP ?= $(ECHO) >/dev/null
+ports-archive-zunearc_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-archive-zunearc_MC_CPPFLAGS) $(ports-archive-zunearc_MC_EXTRA_CPPFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-archive-zunearc_CFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-archive-zunearc_DFLAGS))
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-archive-zunearc_MC_TARGETS) $(ports-archive-zunearc_MC_DTARGETS) : ports-archive-zunearc_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-archive-zunearc_MC_TARGETS) : CPPFLAGS := $(ports-archive-zunearc_MC_CPPFLAGS)
+$(ports-archive-zunearc_MC_TARGETS) : CFLAGS := $(ports-archive-zunearc_CFLAGS)
+$(ports-archive-zunearc_MC_TARGETS) : $(ports-archive-zunearc_MC_TGTWILDCARD).o : $(ports-archive-zunearc_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-archive-zunearc_IQUOTE) $(dir $<) $(ports-archive-zunearc_IQUOTE) $(TOP)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-archive-zunearc_IQUOTE) . $(ports-archive-zunearc_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-archive-zunearc_MC_DTARGETS) : $(ports-archive-zunearc_MC_TGTWILDCARD).d : $(ports-archive-zunearc_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-archive-zunearc_DFLAGS) $(ports-archive-zunearc_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-archive-zunearc_OBJDIR),)
+ports-archive-zunearc-MA_TARGETS := $(addsuffix .o,$(ports-archive-zunearc_ASMFILES))
+ports-archive-zunearc-MA_WILDCARD := %
+else
+ports-archive-zunearc-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-archive-zunearc_OBJDIR)/,$(notdir $(ports-archive-zunearc_ASMFILES))))
+ports-archive-zunearc-MA_WILDCARD := $(ports-archive-zunearc_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-archive-zunearc-MA_TARGETS) : | $(addsuffix .s,$(ports-archive-zunearc_ASMFILES))
+
+# Be sure that all .c files are found
+ports-archive-zunearc-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-archive-zunearc-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-archive-zunearc_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-archive-zunearc-MA_DIRS := $(foreach dir, $(ports-archive-zunearc-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-archive-zunearc-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-archive-zunearc-MA_DIRS),)
+    ports-archive-zunearc-MA_DIRS := $(shell $(ECHO) $(ports-archive-zunearc-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-archive-zunearc-MA_DIRS)
+endif
+
+endif
+
+ports-archive-zunearc-MA_ASSEMBLER ?= $(ports-archive-zunearc_ASSEMBLER)
+
+$(ports-archive-zunearc-MA_TARGETS) : ports-archive-zunearc-MA_CMD:= $(ports-archive-zunearc-MA_ASSEMBLER)
+
+$(ports-archive-zunearc-MA_TARGETS) : CPPFLAGS := $(ports-archive-zunearc_CPPFLAGS)
+$(ports-archive-zunearc-MA_TARGETS) : AFLAGS := $(ports-archive-zunearc_AFLAGS)
+$(ports-archive-zunearc-MA_TARGETS) : $(ports-archive-zunearc-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-archive-zunearc-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-archive-zunearc-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-archive-zunearc-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-archive-zunearc-link_LD_OPTS := 
+ports-archive-zunearc-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-archive-zunearc-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-archive-zunearc-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-archive-zunearc-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-archive-zunearc-link_DIRS := $(subst -L ,-L,$(strip $(ports-archive-zunearc_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-archive-zunearc-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-archive-zunearc-link_DIRS)))
+# Add trailing /
+ports-archive-zunearc-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-archive-zunearc-link_DIRS)))
+# Add normal linklib path
+ports-archive-zunearc-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-archive-zunearc-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-archive-zunearc_LIBS) $(ports-archive-zunearc-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-archive-zunearc-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-archive-zunearc-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-archive-zunearc-link_DEPLIBS := $(foreach lib,$(ports-archive-zunearc-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-archive-zunearc-link_DIRS)))) \
+)
+
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : OBJDIR := $(ports-archive-zunearc_OBJDIR)
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : OBJS := $(strip $(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_ARCHOBJS) $(USER_OBJS))
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : LDFLAGS := $(strip $(ports-archive-zunearc_LDFLAGS))
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-archive-zunearc_LIBS) $(ports-archive-zunearc-link_EXTRA_LIBS)))
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-archive-zunearc_ARCHLIBS))
+$(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : $(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_ARCHOBJS) $(USER_OBJS) $(ports-archive-zunearc-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-archive-zunearc_LINK) $(strip $(ports-archive-zunearc_LD_OPTS) $(ports-archive-zunearc-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-archive-zunearc_LINK) $(strip $(ports-archive-zunearc_LD_OPTS) $(ports-archive-zunearc-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-archive-zunearc_LINK) $(strip $(ports-archive-zunearc_LD_OPTS) $(ports-archive-zunearc-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-archive-zunearc_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-archive-zunearc_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-archive-zunearc_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-archive-zunearc_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-archive-zunearc_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-archive-zunearc_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-archive-zunearc_DEPS),)
+  ifneq (ports-archive-zunearc ports-archive-zunearc-quick,)
+    ifneq ($(findstring $(TARGET),ports-archive-zunearc ports-archive-zunearc-quick),)
+      -include $(ports-archive-zunearc_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-archive-zunearc_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_DEPS) $(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME),)
+$(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_DEPS) $(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) : | $(ports-archive-zunearc_OBJDIR) $(ports-archive-zunearc_TARGETDIR)
+else
+$(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_DEPS) $(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) :: $(ports-archive-zunearc_OBJDIR) $(ports-archive-zunearc_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-archive-zunearc_OBJDIR) $(ports-archive-zunearc_TARGETDIR)
+
+
+ports-archive-zunearc-clean : FILES := $(ports-archive-zunearc_OBJS) $(ports-archive-zunearc_TARGETDIR)/$(ports-archive-zunearc_PROGNAME) $(ports-archive-zunearc_DEPS)
+#MM
+ports-archive-zunearc-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-archive-zunearc"
+	$(Q)$(RM) $(FILES)
+
+
+
+
+.PHONY: ports-archive-zunearc-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-archive-zunearc-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-archive-zunearc-fetch-location := $(PORTSDIR)/zunearc/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-archive-zunearc-fetch-baseflag := -b 
+else
+    ports-archive-zunearc-fetch-baseflag :=
+endif
+
+ports-archive-zunearc-fetch-fetchedflag := $(ports-archive-zunearc-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-archive-zunearc-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "zip" -l $(ports-archive-zunearc-fetch-location) \
+	-d $(PORTSDIR)/zunearc/$(ARCHBASE) $(ports-archive-zunearc-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-archive-zunearc-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-archive-zunearc-fetch-fetchedflag) ; \
+	fi
+
+
+CPFILES := ZuneARC.info ZuneARC.cfg ZuneARC_oldlha.cfg
+
+
+ports-archive-zunearc-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-archive-zunearc-cpy
+
+#MM
+ports-archive-zunearc-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-archive-zunearc-cpy_SRC)),$(ports-archive-zunearc-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-archive-zunearc-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+
+.PHONY : ports-archive-zunearc-cpyicons
+
+#MM
+ports-archive-zunearc-cpyicons :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons)))' to '$(if $(filter /%,$(TARGETDIR)/Icons),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Icons)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Icons)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Icons))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Icons)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/zunearc/$(ARCHBASE)/ZuneARC/Icons -d $(TARGETDIR)/Icons -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

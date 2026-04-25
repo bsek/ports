@@ -1,0 +1,43 @@
+#   $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-audio-freepats : ports-audio-freepats-startup
+
+#MM- ports-audio-freepats-startup : workbench-prefs-envarc \
+#MM      ports-audio-freepats-startupfiles \
+#MM      ports-audio-freepats-envpackage
+
+#MM
+ports-audio-freepats-envpackage :
+	$(ECHO) "Extras:MultiMedia/Audio/Timidity/Freepats" >$(AROS_PACKAGES)/Freepats
+
+FILES := Package-Startup
+
+ports-audio-freepats-startupfiles_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(AROS_CONTRIB)/MultiMedia/Audio/Timidity/Freepats/S
+else
+setup :: $(AROS_CONTRIB)/MultiMedia/Audio/Timidity/Freepats/S
+endif
+
+GLOB_MKDIRS += $(AROS_CONTRIB)/MultiMedia/Audio/Timidity/Freepats/S
+
+
+.PHONY : ports-audio-freepats-startupfiles
+
+#MM
+ports-audio-freepats-startupfiles : | $(AROS_CONTRIB)/MultiMedia/Audio/Timidity/Freepats/S 
+	$(foreach file, $(FILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-audio-freepats-startupfiles_SRC)),$(ports-audio-freepats-startupfiles_SRC),$(SRCDIR)/$(CURDIR)/$(ports-audio-freepats-startupfiles_SRC))/, $(file)) $(addprefix $(AROS_CONTRIB)/MultiMedia/Audio/Timidity/Freepats/S/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

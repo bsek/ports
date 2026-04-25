@@ -1,0 +1,284 @@
+# $Id: mmakefile.src $
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+REPOSITORIES := github://nih-at/libzip/archive
+ARCHBASE := rel-1-5-1
+PATCHSPEC := $(ARCHBASE)-aros.diff:libzip-$(ARCHBASE):-p1
+
+NOWARN_FLAGS := $(NOWARN_FORMAT) $(NOWARN_ERROR)
+
+USER_CFLAGS := $(NOWARN_FLAGS) -DHAVE_FSEEKO -DHAVE_FTELLO
+
+LIBZIP_OPTIONS := \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DZLIB_LIBRARY=$(AROS_LIB)/libz.a \
+    -DZLIB_INCLUDE_DIR=$(AROS_INCLUDES)
+
+#MM- ports-libs : ports-libs-libzip
+
+#MM ports-libs-libzip : includes-copy ports-libs-libzip-fetch contrib-openssl
+
+
+.PHONY: ports-libs-libzip-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-libs-libzip-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-libs-libzip-fetch-location := $(PORTSDIR)/libzip
+endif
+
+ifneq (,)
+    ports-libs-libzip-fetch-baseflag := -b 
+else
+    ports-libs-libzip-fetch-baseflag :=
+endif
+
+ports-libs-libzip-fetch-fetchedflag := $(ports-libs-libzip-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-libs-libzip-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-libs-libzip-fetch-location) \
+	-d $(PORTSDIR)/libzip $(ports-libs-libzip-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(PATCHSPEC)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-libs-libzip-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-libs-libzip-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-libs-libzip-create-patch
+
+ifneq (,)
+    ports-libs-libzip-create-patch-location := 
+else
+    ports-libs-libzip-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-libs-libzip-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (libzip-$(ARCHBASE),)
+    ports-libs-libzip-create-patch-srcdir   := libzip-$(ARCHBASE)
+else
+    ports-libs-libzip-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-libs-libzip-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-libs-libzip-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-libs-libzip-create-patch-baseflag := -b /tmp
+    ports-libs-libzip-create-patch-base := 
+else
+    ports-libs-libzip-create-patch-baseflag :=
+    ports-libs-libzip-create-patch-base := $(PORTSDIR)/libzip
+endif
+
+#MM- ports-libs-libzip-create-patch :  ports-libs-libzip-create-patch-diff 
+#MM- ports-libs-libzip-create-patch-quick :  ports-libs-libzip-create-patch-diff 
+
+#MM
+ports-libs-libzip-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-libs-libzip-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-libs-libzip-create-patch-base)/$(ports-libs-libzip-create-patch-srcdir) $(ports-libs-libzip-create-patch-base)/tmp/$(ports-libs-libzip-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tar.bz2 tar.gz" -f -l $(ports-libs-libzip-create-patch-location) -d $(PORTSDIR)/libzip $(ports-libs-libzip-create-patch-baseflag); \
+	$(MV) $(ports-libs-libzip-create-patch-base)/$(ports-libs-libzip-create-patch-srcdir) $(ports-libs-libzip-create-patch-base)/tmp/$(ports-libs-libzip-create-patch-srcdir) ; \
+	cd $(ports-libs-libzip-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-libs-libzip-create-patch-diffflag) $(ports-libs-libzip-create-patch-exclude) \
+	    $(ports-libs-libzip-create-patch-srcdir) \
+	    $(ports-libs-libzip-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-libs-libzip-create-patch-base)/tmp/$(ports-libs-libzip-create-patch-srcdir).aros $(ports-libs-libzip-create-patch-base)/$(ports-libs-libzip-create-patch-srcdir) ; \
+	$(RM) $(ports-libs-libzip-create-patch-base)/tmp
+
+
+ifneq ($(AROS_DEVELOPER),)
+    ports-libs-libzip-prefix          := $(AROS_DEVELOPER)
+else
+    ports-libs-libzip-prefix          := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-libs-libzip-aros_prefix     := 
+else
+    ports-libs-libzip-aros_prefix     := $(ports-libs-libzip-prefix)
+endif
+    ports-libs-libzip-cmake-env += CMAKE_GENERATOR='Unix Makefiles'
+ifeq (target,host)
+    ports-libs-libzip-cmake-env += LDFLAGS="$(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) "
+    ports-libs-libzip-cmake-env += CFLAGS="$(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-libs-libzip-cmake-env += CXXFLAGS="$(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-libs-libzip-cmake-env += CPPFLAGS="$(HOST_CPPFLAGS) "
+    ports-libs-libzip-cmake_opts      := -DCMAKE_INSTALL_PREFIX=$(ports-libs-libzip-prefix)
+ifeq (,$(findstring CMAKE_BUILD_TYPE,$(LIBZIP_OPTIONS)))
+    ports-libs-libzip-cmake_opts      += -DCMAKE_BUILD_TYPE=Release
+endif
+    ports-libs-libzip-cmake_opts      += -DCMAKE_LINKER="$(strip $(HOST_LD))" \
+                                -DCMAKE_EXE_LINKER_FLAGS="$(strip $(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) )"
+    ifeq (no,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-libs-libzip-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_DEF_CC)))"
+    else
+        ports-libs-libzip-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(HOST_DEF_CC))"
+    endif
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(HOST_CPPFLAGS) )"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-libs-libzip-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_CXX)))"
+    else
+        ports-libs-libzip-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(HOST_CXX))"
+    endif
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_CXX_FLAGS="$(strip $(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (,)
+        ports-libs-libzip-pkgdir      := $(HOSTGENDIR)/$(CURDIR)
+    else
+        ports-libs-libzip-pkgdir      := $(HOSTGENDIR)/$(CURDIR)/
+    endif
+else
+    ports-libs-libzip-cmake-env += PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig"
+    ports-libs-libzip-cmake-env += PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+    ports-libs-libzip-cmake-env += LDFLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ports-libs-libzip-cmake-env += CFLAGS="$(strip $(CFLAGS) )"
+    ports-libs-libzip-cmake-env += CXXFLAGS="$(strip $(CXXFLAGS) )"
+    ports-libs-libzip-cmake-env += CPPFLAGS="$(strip $(CPPFLAGS) )"
+    ports-libs-libzip-cmake_opts      := -DCMAKE_TOOLCHAIN_FILE=$(GENDIR)/config/conf.cmake -DCMAKE_INSTALL_PREFIX=$(ports-libs-libzip-prefix)
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(CFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(CPPFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-libs-libzip-cmake_opts      += -DCMAKE_CXX_FLAGS="$(strip $(CXXFLAGS) )"
+    endif
+    ports-libs-libzip-cmake_opts  += -DCMAKE_EXE_LINKER_FLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ifeq (,)
+        ports-libs-libzip-pkgdir      := $(GENDIR)/$(CURDIR)
+    else
+        ports-libs-libzip-pkgdir      := $(GENDIR)/$(CURDIR)/
+    endif
+endif
+ifneq (,)
+    ifeq (,)
+        ports-libs-libzip-pkgdir      := 
+    else
+        ports-libs-libzip-pkgdir      := /
+    endif
+endif
+
+ports-libs-libzip-cmakeflag           ?= $(ports-libs-libzip-pkgdir)/.cmake
+ports-libs-libzip-installflag         ?= $(ports-libs-libzip-pkgdir)/.installed
+
+.PHONY : ports-libs-libzip ports-libs-libzip-clean ports-libs-libzip-build_and_install-quick
+
+#MM- ports-libs-libzip: setup includes core-linklibs ports-libs-libzip-quick
+
+#MM- ports-libs-libzip-quick : ports-libs-libzip-cmake ports-libs-libzip-build_and_install-quick
+
+#MM
+ports-libs-libzip-build_and_install-quick :  $(ports-libs-libzip-installflag)
+
+ifeq (,)
+ports-libs-libzip-buildargs :=  --build
+else
+ports-libs-libzip-buildargs :=  
+endif
+
+ifeq (,)
+ports-libs-libzip-cmakecmdbuild := $(CMAKE) $(ports-libs-libzip-buildargs) $(ports-libs-libzip-pkgdir)
+else
+ports-libs-libzip-cmakecmdbuild := 
+endif
+
+ifeq (,)
+ports-libs-libzip-installargs :=  --install
+else
+ports-libs-libzip-installargs :=  
+endif
+
+ifeq (,)
+ports-libs-libzip-cmakecmdinstall := $(CMAKE) $(ports-libs-libzip-installargs) $(ports-libs-libzip-pkgdir)
+else
+ports-libs-libzip-cmakecmdinstall := 
+endif
+
+ifeq (,)
+ports-libs-libzip-cmakecleandir := $(ports-libs-libzip-pkgdir)
+else
+ports-libs-libzip-cmakecleandir := 
+endif
+
+$(ports-libs-libzip-installflag) : $(ports-libs-libzip-cmakeflag)
+	$(Q)$(IF) ! $(MAKE) -q -C $(ports-libs-libzip-pkgdir); then \
+	    $(RM) $(ports-libs-libzip-installflag) && \
+	    $(ports-libs-libzip-cmakecmdbuild) && \
+	    cd $(ports-libs-libzip-pkgdir) && \
+	    $(ports-libs-libzip-cmakecmdinstall) && \
+	    $(TOUCH) $@ -r $^; \
+	    $(IF) $(TEST) "no" = "yes"; then \
+	        $(IF) ! $(MAKE) -C $(ports-libs-libzip-pkgdir) clean; then \
+	            $(RM) -r $(ports-libs-libzip-cmakecleandir); \
+	        fi; \
+	    fi; \
+	fi
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-libs-libzip-touchfileflag ?= $(ports-libs-libzip-pkgdir)/.files-touched
+## **********************************************************************
+ifeq (yes,yes)
+$(ports-libs-libzip-touchfileflag):
+	$(Q)$(FOR) dir in $(ports-libs-libzip-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(PORTSDIR)/libzip/libzip-$(ARCHBASE) -exec $(TOUCH) -c -r $(PORTSDIR)/libzip/libzip-$(ARCHBASE)/CMakeLists.txt '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-libs-libzip-cmake :  $(ports-libs-libzip-cmakeflag) 
+
+$(ports-libs-libzip-cmakeflag) : TMP_SRCDIR := $(shell $(ECHO) $(PORTSDIR)/libzip/libzip-$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+$(ports-libs-libzip-cmakeflag) : $(ports-libs-libzip-touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(RM) $@
+	$(Q)$(FOR) dir in $(ports-libs-libzip-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)cd $(ports-libs-libzip-pkgdir) && \
+	$(RM) -Rf CMakeCache.txt CMakeFiles \; && \
+	$(ports-libs-libzip-cmake-env) $(CMAKE) $(ports-libs-libzip-cmake_opts) $(LIBZIP_OPTIONS) $(TMP_SRCDIR) && \
+	$(TOUCH) $@
+
+#MM
+ports-libs-libzip-clean : ports-libs-libzip-uninstall
+	$(Q)$(RM) $(ports-libs-libzip-pkgdir)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

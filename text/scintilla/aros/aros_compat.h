@@ -32,6 +32,7 @@ extern "C" {
 #include <devices/clipboard.h>
 #include <intuition/intuition.h>
 #include <intuition/classes.h>
+#include <intuition/pointerclass.h>
 #include <rexx/storage.h>
 #include <libraries/mui.h>
 

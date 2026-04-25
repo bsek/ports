@@ -1,0 +1,828 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-defendguin
+
+#MM  ports-game-defendguin : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-mixer \
+#MM    ports-game-defendguin-data ports-game-defendguin-docs \
+#MM    ports-game-defendguin-cpy \
+#MM    ports-game-defendguin-fetch
+
+#MM  ports-game-defendguin-data : ports-game-defendguin-fetch
+
+#MM  ports-game-defendguin-docs : ports-game-defendguin-fetch
+
+#MM  ports-game-defendguin-quick : ports-game-defendguin-fetch
+
+REPOSITORIES := ftp://ftp.tuxpaint.org/unix/x/defendguin/src
+ARCHBASE     := defendguin-0.0.12
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/Defendguin
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_MAYBE_UNINITIALIZED) $(NOWARN_UNINITIALIZED)
+USER_CFLAGS  := $(NOWARN_FLAGS)  $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags) \
+                -DDATA_PREFIX=\"PROGDIR:data/\" -DJOY_YES
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := $(PORTSDIR)/defendguin/$(ARCHBASE)/src/defendguin
+
+
+.PHONY : ports-game-defendguin
+
+#MM- ports-game-defendguin : \
+#MM             ports-game-defendguin-$(CPU)
+
+#MM- ports-game-defendguin-$(ARCH)-$(CPU) : \
+#MM             ports-game-defendguin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-defendguin-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-defendguin-$(ARCH)-$(CPU)
+
+#MM- ports-game-defendguin-$(ARCH) : \
+#MM             ports-game-defendguin-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-defendguin-$(FAMILY) : \
+#MM             ports-game-defendguin-$(ARCH)
+
+#MM- ports-game-defendguin-$(CPU) : \
+#MM             ports-game-defendguin-$(FAMILY)
+#MM- ports-game-defendguin-quick : \
+#MM             ports-game-defendguin-$(CPU)-quick
+
+#MM- ports-game-defendguin-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-defendguin-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-defendguin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-defendguin-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-defendguin-$(ARCH)-quick : \
+#MM             ports-game-defendguin-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-defendguin-$(FAMILY)-quick : \
+#MM             ports-game-defendguin-$(ARCH)-quick
+
+#MM- ports-game-defendguin-$(CPU)-quick : \
+#MM             ports-game-defendguin-$(FAMILY)-quick
+
+ports-game-defendguin_PROGNAME  := Defendguin
+ports-game-defendguin_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-defendguin_TARGETDIR := $(TARGETDIR)
+ports-game-defendguin_LINKER    := 
+ports-game-defendguin_LIBS := SDL_mixer mikmod vorbisfile vorbis ogg SDL
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-defendguin_LINKER),)
+    ports-game-defendguin_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-defendguin_FILES     := $(FILES)
+    ports-game-defendguin_OBJCFILES := 
+    ports-game-defendguin_ASMFILES  := 
+    ports-game-defendguin_CXXFILES := 
+else
+    ports-game-defendguin_FILES     := $(ports-game-defendguin_PROGNAME)
+    ports-game-defendguin_OBJCFILES :=
+    ports-game-defendguin_ASMFILES  :=
+    ports-game-defendguin_CXXFILES :=
+endif
+
+ports-game-defendguin_ARCHOBJS   := $(wildcard $(ports-game-defendguin_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-defendguin_ARCHFILES     := $(basename $(notdir $(ports-game-defendguin_ARCHOBJS)))
+else
+    ports-game-defendguin_ARCHFILES     := $(basename $(patsubst $(ports-game-defendguin_OBJDIR)/%,%,$(ports-game-defendguin_ARCHOBJS)))
+endif
+ports-game-defendguin_C_NARCHFILES := $(filter-out $(ports-game-defendguin_ARCHFILES),$(ports-game-defendguin_FILES))
+ports-game-defendguin_CXX_NARCHFILES := $(filter-out $(ports-game-defendguin_ARCHFILES),$(ports-game-defendguin_CXXFILES))
+ports-game-defendguin_OBJC_NARCHFILES := $(filter-out $(ports-game-defendguin_ARCHFILES),$(ports-game-defendguin_OBJCFILES))
+
+TMP_FILES := $(ports-game-defendguin_C_NARCHFILES) $(ports-game-defendguin_CXX_NARCHFILES) $(ports-game-defendguin_ASMFILES) $(ports-game-defendguin_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-defendguin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-defendguin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-defendguin_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-defendguin_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-defendguin_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-defendguin_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-defendguin_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-defendguin_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-defendguin_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-defendguin_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-defendguin_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-defendguin_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-defendguin_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-defendguin_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-defendguin_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-defendguin_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-defendguin_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-defendguin_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-defendguin_LDFLAGS          := 
+endif
+
+ports-game-defendguin_CSTATICFLAGS   := `echo "$(ports-game-defendguin_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-defendguin_CSTDCFLAGS   :=  `echo "$(ports-game-defendguin_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-defendguin_CPOSIXCFLAGS   :=  `echo "$(ports-game-defendguin_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-defendguin_LDFLAGS          += $(strip $(ports-game-defendguin_CSTATICFLAGS) $(ports-game-defendguin_CSTDCFLAGS) $(ports-game-defendguin_CPOSIXCFLAGS))
+
+ports-game-defendguin_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-defendguin_COVERAGE := yes
+ports-game-defendguin_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-defendguin_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-defendguin_CFLAGS    := $(strip $(ports-game-defendguin_COVERAGEFLAGS) $(ports-game-defendguin_CFLAGS))
+ports-game-defendguin_CXXFLAGS := $(strip $(ports-game-defendguin_COVERAGEFLAGS) $(ports-game-defendguin_CXXFLAGS))
+ports-game-defendguin_LIBS += $(ports-game-defendguin_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-defendguin_FUNCINSTR := yes
+ports-game-defendguin_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-defendguin_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-defendguin_CFLAGS    := $(strip $(ports-game-defendguin_INSTRFUNCFLAGS) $(ports-game-defendguin_CFLAGS))
+ports-game-defendguin_CXXFLAGS := $(strip $(ports-game-defendguin_INSTRFUNCFLAGS) $(ports-game-defendguin_CXXFLAGS))
+ports-game-defendguin_LIBS += $(ports-game-defendguin_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-defendguin_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-defendguin_CFLAGS))
+ports-game-defendguin_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-defendguin_CXXFLAGS))
+endif
+endif
+ports-game-defendguin_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-defendguin_DFLAGS     := 
+else
+    ports-game-defendguin_DFLAGS     := $(ports-game-defendguin_CFLAGS)
+endif
+ifneq (,)
+    ports-game-defendguin_DXXFLAGS     := 
+else
+    ports-game-defendguin_DXXFLAGS     := $(ports-game-defendguin_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-defendguin_LDFLAGS           := $(ports-game-defendguin_LDFLAGS)
+ports-game-defendguin_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-defendguin_LDFLAGS           := $(ports-game-defendguin_LDFLAGS)
+ports-game-defendguin_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-defendguin_LDFLAGS           := $(ports-game-defendguin_LDFLAGS)
+ports-game-defendguin_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-defendguin_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-defendguin-quick : ports-game-defendguin
+
+#MM ports-game-defendguin : includes-generate-deps core-linklibs
+ports-game-defendguin : $(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-defendguin_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-defendguin_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-defendguin_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-defendguin_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-defendguin_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-defendguin_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-defendguin ports-game-defendguin-quick ports-game-defendguin-compress-quick),)
+
+ports-game-defendguin_CXXABSBASENAMES := $(foreach ports-game-defendguin_CXXBASE,$(ports-game-defendguin_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-defendguin_CXXBASE)),$(ports-game-defendguin_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-defendguin_CXXBASE))))
+
+ifneq ($(ports-game-defendguin_CXXABSBASENAMES),)
+
+ports-game-defendguin_CXXBASENAMES := $(basename $(ports-game-defendguin_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-defendguin_MCXX_FILES  := $(strip $(foreach ports-game-defendguin_CXXBASE,$(ports-game-defendguin_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-defendguin_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-defendguin_EXT),$(ports-game-defendguin_CXXBASE)))))))
+
+ifeq (,)
+ports-game-defendguin_MCXX_SRCWILDCARD := %
+else
+ports-game-defendguin_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-defendguin_OBJDIR),)
+  ports-game-defendguin_CXXTARGETS := $(notdir $(ports-game-defendguin_CXXBASENAMES:=.o))
+  ports-game-defendguin_CXXDTARGETS := $(notdir $(ports-game-defendguin_CXXBASENAMES:=.d))
+  ports-game-defendguin_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-defendguin_CXXTARGETS := $(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(ports-game-defendguin_CXXBASENAMES:=.o)))
+  ports-game-defendguin_CXXDTARGETS := $(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(ports-game-defendguin_CXXBASENAMES:=.d)))
+  ports-game-defendguin_MCXX_WILDCARD := $(ports-game-defendguin_OBJDIR)/%
+else
+  ports-game-defendguin_CXXTARGETS := $(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_CXXBASENAMES:=.o))
+  ports-game-defendguin_CXXDTARGETS := $(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_CXXBASENAMES:=.d))
+  ports-game-defendguin_MCXX_WILDCARD := $(ports-game-defendguin_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-defendguin_CXXTARGETS) $(ports-game-defendguin_CXXDTARGETS) : | $(ports-game-defendguin_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-defendguin_MCXX_CPPFLAGS := $(ports-game-defendguin_CPPFLAGS)
+ports-game-defendguin_CXXFLAGS := $(ports-game-defendguin_CXXFLAGS)
+ifeq ($(ports-game-defendguin_DXXFLAGS),)
+  ports-game-defendguin_DXXFLAGS := $(ports-game-defendguin_CXXFLAGS)
+else
+  ports-game-defendguin_DXXFLAGS := $(ports-game-defendguin_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-defendguin_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-defendguin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-defendguin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-defendguin_STRIP ?= $(HOST_STRIP)
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-defendguin_CXXCMD:=$(HOST_CXX)
+  ports-game-defendguin_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS) $(ports-game-defendguin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-defendguin_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-defendguin_CXXFLAGS))
+  ports-game-defendguin_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-defendguin_DXXFLAGS))
+  ports-game-defendguin_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-defendguin_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-defendguin_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-defendguin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-defendguin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-defendguin_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-defendguin_LDFLAGS ?= $(ports-game-defendguin_CXXLDFLAGS)
+  ports-game-defendguin_STRIP ?= $(TARGET_STRIP)
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-defendguin_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-defendguin_MCXX_CPPFLAGS := $(strip $(ports-game-defendguin_MCXX_CPPFLAGS) $(ports-game-defendguin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-defendguin_CXXFLAGS := $(strip $(ports-game-defendguin_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-defendguin_DXXFLAGS := $(ports-game-defendguin_DXXFLAGS)
+  ports-game-defendguin_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-defendguin_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-defendguin_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-defendguin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-defendguin_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-defendguin_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-defendguin_LDFLAGS ?= $(ports-game-defendguin_CXXLDFLAGS)
+  ports-game-defendguin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-defendguin_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-defendguin_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS) $(ports-game-defendguin_MCXX_EXTRA_CPPFLAGS))
+  ports-game-defendguin_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-defendguin_CXXFLAGS))
+  ports-game-defendguin_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-defendguin_DXXFLAGS))
+  ports-game-defendguin_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-defendguin_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-defendguin_CXXCMD) $(ports-game-defendguin_CXXIQUOTE) $(dir $(2)) $(ports-game-defendguin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) . $(ports-game-defendguin_CXXIQUOTE_END) $(strip $(ports-game-defendguin_CXXFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-defendguin_CXXCMD) $(ports-game-defendguin_CXXIQUOTE) $(dir $(2)) $(ports-game-defendguin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) . $(ports-game-defendguin_CXXIQUOTE_END) $(strip $(ports-game-defendguin_CXXFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-defendguin_CXXCMD) $(ports-game-defendguin_CXXIQUOTE) $(dir $(2)) $(ports-game-defendguin_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_CXXIQUOTE) . $(ports-game-defendguin_CXXIQUOTE_END) $(strip $(ports-game-defendguin_CXXFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-defendguin_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-defendguin_DXXFLAGS) $(ports-game-defendguin_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-defendguin_OBJDIR),)
+  $(foreach ports-game-defendguin_CXXFILE,$(ports-game-defendguin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-defendguin_CXXFILE))),$(ports-game-defendguin_CXXFILE))))
+else
+  $(foreach ports-game-defendguin_CXXFILE,$(ports-game-defendguin_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(basename $(ports-game-defendguin_CXXFILE)))),$(ports-game-defendguin_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-defendguin_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-defendguin_MOBJC_SRCWILDCARD := %
+else
+ports-game-defendguin_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-defendguin_OBJDIR),)
+  ports-game-defendguin_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-defendguin_OBJC_NARCHFILES))
+  ports-game-defendguin_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-defendguin_OBJC_NARCHFILES))
+  ports-game-defendguin_MOBJC_WILDCARD := %
+else
+  ports-game-defendguin_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_OBJC_NARCHFILES)))
+  ports-game-defendguin_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_OBJC_NARCHFILES)))
+  ports-game-defendguin_MOBJC_WILDCARD := $(ports-game-defendguin_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-defendguin_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-defendguin_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-defendguin_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-defendguin_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-defendguin_MOBJC_DIRS := $(foreach dir, $(ports-game-defendguin_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-defendguin_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-defendguin_MOBJC_DIRS),)
+    ports-game-defendguin_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-defendguin_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-defendguin_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-defendguin_CC := $(TARGET_CC)
+else
+  ports-game-defendguin_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-defendguin_MOBJC_CPPFLAGS := $(ports-game-defendguin_CPPFLAGS)
+ports-game-defendguin_OBJCFLAGS := $(ports-game-defendguin_CFLAGS)
+ports-game-defendguin_OBJCFLAGS := $(ports-game-defendguin_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-defendguin_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-defendguin_OBJCFLAGS)))
+ifeq ($(ports-game-defendguin_DFLAGS),)
+  ports-game-defendguin_OBJCDFLAGS := $(ports-game-defendguin_CFLAGS)
+else
+  ports-game-defendguin_OBJCDFLAGS := $(ports-game-defendguin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-defendguin_LINK ?= $(strip $(ports-game-defendguin_CC) $(TARGET_SYSROOT))
+  ports-game-defendguin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-defendguin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-defendguin_STRIP ?= $(TARGET_STRIP)
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-defendguin_CC) $(TARGET_SYSROOT))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_MOBJC_CPPFLAGS:=$(strip $(ports-game-defendguin_MOBJC_CPPFLAGS) $(ports-game-defendguin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCFLAGS:=$(strip $(ports-game-defendguin_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCDFLAGS:=$(ports-game-defendguin_OBJCDFLAGS)
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-defendguin_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-defendguin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-defendguin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-defendguin_STRIP ?= $(HOST_STRIP)
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-defendguin_MOBJC_CPPFLAGS) $(ports-game-defendguin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-defendguin_OBJCFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-defendguin_OBJCDFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-defendguin_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-defendguin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-defendguin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-defendguin_STRIP ?= $(ECHO) >/dev/null
+  ports-game-defendguin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-defendguin_MOBJC_CPPFLAGS) $(ports-game-defendguin_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-defendguin_OBJCFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-defendguin_OBJCDFLAGS))
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-defendguin_MOBJC_TARGETS) $(ports-game-defendguin_MOBJC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-defendguin_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-defendguin_MOBJC_CPPFLAGS)
+$(ports-game-defendguin_MOBJC_TARGETS) : CFLAGS := $(ports-game-defendguin_OBJCFLAGS)
+$(ports-game-defendguin_MOBJC_TARGETS) : $(ports-game-defendguin_MOBJC_WILDCARD).o : $(ports-game-defendguin_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-defendguin_MOBJC_DTARGETS) : $(ports-game-defendguin_MOBJC_WILDCARD).d : $(ports-game-defendguin_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-defendguin_OBJCDFLAGS) $(ports-game-defendguin_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-defendguin_MC_SRCWILDCARD := %
+else
+ports-game-defendguin_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-defendguin_OBJDIR),)
+ports-game-defendguin_MC_TARGETS := $(addsuffix .o,$(ports-game-defendguin_C_NARCHFILES))
+ports-game-defendguin_MC_DTARGETS := $(addsuffix .d,$(ports-game-defendguin_C_NARCHFILES))
+ports-game-defendguin_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-defendguin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(ports-game-defendguin_C_NARCHFILES))))
+    ports-game-defendguin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(ports-game-defendguin_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-defendguin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_C_NARCHFILES)))
+    ports-game-defendguin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(ports-game-defendguin_C_NARCHFILES)))
+else
+    ports-game-defendguin_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(patsubst /%,%,$(ports-game-defendguin_C_NARCHFILES))))
+    ports-game-defendguin_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(patsubst /%,%,$(ports-game-defendguin_C_NARCHFILES))))
+endif
+endif
+ports-game-defendguin_MC_TGTWILDCARD := $(ports-game-defendguin_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-defendguin_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-defendguin_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-defendguin_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-defendguin_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-defendguin_MC_DIRS := $(foreach dir, $(ports-game-defendguin_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-defendguin_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-defendguin_MC_DIRS),)
+    ports-game-defendguin_MC_DIRS := $(shell $(ECHO) $(ports-game-defendguin_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-defendguin_MC_DIRS)
+endif
+
+endif
+
+ports-game-defendguin_MC_CPPFLAGS := $(ports-game-defendguin_CPPFLAGS)
+ports-game-defendguin_CFLAGS := $(ports-game-defendguin_CFLAGS)
+ifeq ($(ports-game-defendguin_DFLAGS),)
+  ports-game-defendguin_DFLAGS := $(ports-game-defendguin_CFLAGS)
+else
+  ports-game-defendguin_DFLAGS := $(ports-game-defendguin_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-defendguin_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-defendguin_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-defendguin_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-defendguin_STRIP ?= $(TARGET_STRIP)
+ports-game-defendguin_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_MC_CPPFLAGS:=$(strip $(ports-game-defendguin_MC_CPPFLAGS) $(ports-game-defendguin_MC_EXTRA_CPPFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_CFLAGS:=$(strip $(ports-game-defendguin_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_DFLAGS:=$(ports-game-defendguin_DFLAGS)
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-defendguin_LINK ?= $(strip $(HOST_CC))
+ports-game-defendguin_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-defendguin_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-defendguin_STRIP ?= $(HOST_STRIP)
+ports-game-defendguin_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-defendguin_MC_CPPFLAGS) $(ports-game-defendguin_MC_EXTRA_CPPFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-defendguin_CFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-defendguin_DFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-defendguin_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-defendguin_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-defendguin_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-defendguin_STRIP ?= $(ECHO) >/dev/null
+ports-game-defendguin_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-defendguin_MC_CPPFLAGS) $(ports-game-defendguin_MC_EXTRA_CPPFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-defendguin_CFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-defendguin_DFLAGS))
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-defendguin_MC_TARGETS) $(ports-game-defendguin_MC_DTARGETS) : ports-game-defendguin_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-defendguin_MC_TARGETS) : CPPFLAGS := $(ports-game-defendguin_MC_CPPFLAGS)
+$(ports-game-defendguin_MC_TARGETS) : CFLAGS := $(ports-game-defendguin_CFLAGS)
+$(ports-game-defendguin_MC_TARGETS) : $(ports-game-defendguin_MC_TGTWILDCARD).o : $(ports-game-defendguin_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-defendguin_IQUOTE) $(dir $<) $(ports-game-defendguin_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-defendguin_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-defendguin_IQUOTE) . $(ports-game-defendguin_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-defendguin_MC_DTARGETS) : $(ports-game-defendguin_MC_TGTWILDCARD).d : $(ports-game-defendguin_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-defendguin_DFLAGS) $(ports-game-defendguin_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-defendguin_OBJDIR),)
+ports-game-defendguin-MA_TARGETS := $(addsuffix .o,$(ports-game-defendguin_ASMFILES))
+ports-game-defendguin-MA_WILDCARD := %
+else
+ports-game-defendguin-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-defendguin_OBJDIR)/,$(notdir $(ports-game-defendguin_ASMFILES))))
+ports-game-defendguin-MA_WILDCARD := $(ports-game-defendguin_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-defendguin-MA_TARGETS) : | $(addsuffix .s,$(ports-game-defendguin_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-defendguin-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-defendguin-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-defendguin_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-defendguin-MA_DIRS := $(foreach dir, $(ports-game-defendguin-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-defendguin-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-defendguin-MA_DIRS),)
+    ports-game-defendguin-MA_DIRS := $(shell $(ECHO) $(ports-game-defendguin-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-defendguin-MA_DIRS)
+endif
+
+endif
+
+ports-game-defendguin-MA_ASSEMBLER ?= $(ports-game-defendguin_ASSEMBLER)
+
+$(ports-game-defendguin-MA_TARGETS) : ports-game-defendguin-MA_CMD:= $(ports-game-defendguin-MA_ASSEMBLER)
+
+$(ports-game-defendguin-MA_TARGETS) : CPPFLAGS := $(ports-game-defendguin_CPPFLAGS)
+$(ports-game-defendguin-MA_TARGETS) : AFLAGS := $(ports-game-defendguin_AFLAGS)
+$(ports-game-defendguin-MA_TARGETS) : $(ports-game-defendguin-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-defendguin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-defendguin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-defendguin-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-defendguin-link_LD_OPTS := 
+ports-game-defendguin-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-defendguin-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-defendguin-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-defendguin-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-defendguin-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-defendguin_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-defendguin-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-defendguin-link_DIRS)))
+# Add trailing /
+ports-game-defendguin-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-defendguin-link_DIRS)))
+# Add normal linklib path
+ports-game-defendguin-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-defendguin-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-defendguin_LIBS) $(ports-game-defendguin-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-defendguin-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-defendguin-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-defendguin-link_DEPLIBS := $(foreach lib,$(ports-game-defendguin-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-defendguin-link_DIRS)))) \
+)
+
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : OBJDIR := $(ports-game-defendguin_OBJDIR)
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : OBJS := $(strip $(ports-game-defendguin_OBJS) $(ports-game-defendguin_ARCHOBJS) $(USER_OBJS))
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : LDFLAGS := $(strip $(ports-game-defendguin_LDFLAGS))
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-defendguin_LIBS) $(ports-game-defendguin-link_EXTRA_LIBS)))
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-defendguin_ARCHLIBS))
+$(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : $(ports-game-defendguin_OBJS) $(ports-game-defendguin_ARCHOBJS) $(USER_OBJS) $(ports-game-defendguin-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-defendguin_LINK) $(strip $(ports-game-defendguin_LD_OPTS) $(ports-game-defendguin-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-defendguin_LINK) $(strip $(ports-game-defendguin_LD_OPTS) $(ports-game-defendguin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-defendguin_LINK) $(strip $(ports-game-defendguin_LD_OPTS) $(ports-game-defendguin-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-defendguin_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-defendguin_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-defendguin_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-defendguin_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-defendguin_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-defendguin_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-defendguin_DEPS),)
+  ifneq (ports-game-defendguin ports-game-defendguin-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-defendguin ports-game-defendguin-quick),)
+      -include $(ports-game-defendguin_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-defendguin_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-defendguin_OBJS) $(ports-game-defendguin_DEPS) $(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME),)
+$(ports-game-defendguin_OBJS) $(ports-game-defendguin_DEPS) $(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) : | $(ports-game-defendguin_OBJDIR) $(ports-game-defendguin_TARGETDIR)
+else
+$(ports-game-defendguin_OBJS) $(ports-game-defendguin_DEPS) $(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) :: $(ports-game-defendguin_OBJDIR) $(ports-game-defendguin_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-defendguin_OBJDIR) $(ports-game-defendguin_TARGETDIR)
+
+
+ports-game-defendguin-clean : FILES := $(ports-game-defendguin_OBJS) $(ports-game-defendguin_TARGETDIR)/$(ports-game-defendguin_PROGNAME) $(ports-game-defendguin_DEPS)
+#MM
+ports-game-defendguin-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-defendguin"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-defendguin-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-defendguin-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-defendguin-fetch-location := $(PORTSDIR)/defendguin
+endif
+
+ifneq (,)
+    ports-game-defendguin-fetch-baseflag := -b 
+else
+    ports-game-defendguin-fetch-baseflag :=
+endif
+
+ports-game-defendguin-fetch-fetchedflag := $(ports-game-defendguin-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-defendguin-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-game-defendguin-fetch-location) \
+	-d $(PORTSDIR)/defendguin $(ports-game-defendguin-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "defendguin-0.0.12-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-defendguin-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-defendguin-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-game-defendguin-data
+
+#MM
+ports-game-defendguin-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/defendguin/$(ARCHBASE)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/defendguin/$(ARCHBASE)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/defendguin/$(ARCHBASE)/data -d $(TARGETDIR)/data -e 
+
+
+
+.PHONY : ports-game-defendguin-docs
+
+#MM
+ports-game-defendguin-docs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/defendguin/$(ARCHBASE)/docs),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/docs)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/defendguin/$(ARCHBASE)/docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/defendguin/$(ARCHBASE)/docs)))' to '$(if $(filter /%,$(TARGETDIR)/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Docs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/defendguin/$(ARCHBASE)/docs -d $(TARGETDIR)/Docs -e 
+
+
+
+ports-game-defendguin-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/defendguin/$(ARCHBASE)/src | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-defendguin-cpy
+
+#MM
+ports-game-defendguin-cpy : | $(TARGETDIR) 
+	$(foreach file, defendguin.6, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-defendguin-cpy_SRC)),$(ports-game-defendguin-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-defendguin-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,876 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+# antiword is now an github but they didn't make a release
+#MM- ports-text : ports-text-antiword
+
+#MM  ports-text-antiword : includes linklibs ports-text-antiword-fetch \
+#MM  ports-text-antiword-docs ports-text-antiword-data \
+#MM  ports-text-antiword-cpy
+
+#MM  ports-text-antiword-docs : ports-text-antiword-fetch
+
+#MM  ports-text-antiword-data : ports-text-antiword-fetch
+
+#MM  ports-text-antiword-quick : ports-text-antiword-fetch
+
+REPOSITORIES := https://fossies.org/linux/misc/old http://www.winfield.demon.nl/linux
+ARCHBASE     := antiword-0.37
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Text/Antiword
+DB           := NDEBUG
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS) -Wall -pedantic -D$(DB)
+
+FILES := \
+    $(PORTSDIR)/antiword/antiword-0.37/main_u \
+    $(PORTSDIR)/antiword/antiword-0.37/asc85enc \
+    $(PORTSDIR)/antiword/antiword-0.37/blocklist \
+    $(PORTSDIR)/antiword/antiword-0.37/chartrans \
+    $(PORTSDIR)/antiword/antiword-0.37/datalist \
+    $(PORTSDIR)/antiword/antiword-0.37/depot \
+    $(PORTSDIR)/antiword/antiword-0.37/dib2eps \
+    $(PORTSDIR)/antiword/antiword-0.37/doclist \
+    $(PORTSDIR)/antiword/antiword-0.37/fail \
+    $(PORTSDIR)/antiword/antiword-0.37/finddata \
+    $(PORTSDIR)/antiword/antiword-0.37/findtext \
+    $(PORTSDIR)/antiword/antiword-0.37/fmt_text \
+    $(PORTSDIR)/antiword/antiword-0.37/fontlist \
+    $(PORTSDIR)/antiword/antiword-0.37/fonts \
+    $(PORTSDIR)/antiword/antiword-0.37/fonts_u \
+    $(PORTSDIR)/antiword/antiword-0.37/hdrftrlist \
+    $(PORTSDIR)/antiword/antiword-0.37/imgexam \
+    $(PORTSDIR)/antiword/antiword-0.37/imgtrans \
+    $(PORTSDIR)/antiword/antiword-0.37/jpeg2eps \
+    $(PORTSDIR)/antiword/antiword-0.37/listlist \
+    $(PORTSDIR)/antiword/antiword-0.37/misc \
+    $(PORTSDIR)/antiword/antiword-0.37/notes \
+    $(PORTSDIR)/antiword/antiword-0.37/options \
+    $(PORTSDIR)/antiword/antiword-0.37/out2window \
+    $(PORTSDIR)/antiword/antiword-0.37/output \
+    $(PORTSDIR)/antiword/antiword-0.37/pdf \
+    $(PORTSDIR)/antiword/antiword-0.37/pictlist \
+    $(PORTSDIR)/antiword/antiword-0.37/png2eps \
+    $(PORTSDIR)/antiword/antiword-0.37/postscript \
+    $(PORTSDIR)/antiword/antiword-0.37/prop0 \
+    $(PORTSDIR)/antiword/antiword-0.37/prop2 \
+    $(PORTSDIR)/antiword/antiword-0.37/prop6 \
+    $(PORTSDIR)/antiword/antiword-0.37/prop8 \
+    $(PORTSDIR)/antiword/antiword-0.37/properties \
+    $(PORTSDIR)/antiword/antiword-0.37/propmod \
+    $(PORTSDIR)/antiword/antiword-0.37/rowlist \
+    $(PORTSDIR)/antiword/antiword-0.37/sectlist \
+    $(PORTSDIR)/antiword/antiword-0.37/stylelist \
+    $(PORTSDIR)/antiword/antiword-0.37/stylesheet \
+    $(PORTSDIR)/antiword/antiword-0.37/summary \
+    $(PORTSDIR)/antiword/antiword-0.37/tabstop \
+    $(PORTSDIR)/antiword/antiword-0.37/text \
+    $(PORTSDIR)/antiword/antiword-0.37/unix \
+    $(PORTSDIR)/antiword/antiword-0.37/utf8 \
+    $(PORTSDIR)/antiword/antiword-0.37/word2text \
+    $(PORTSDIR)/antiword/antiword-0.37/worddos \
+    $(PORTSDIR)/antiword/antiword-0.37/wordlib \
+    $(PORTSDIR)/antiword/antiword-0.37/wordmac \
+    $(PORTSDIR)/antiword/antiword-0.37/wordole \
+    $(PORTSDIR)/antiword/antiword-0.37/wordwin \
+    $(PORTSDIR)/antiword/antiword-0.37/xmalloc \
+    $(PORTSDIR)/antiword/antiword-0.37/xml
+
+
+.PHONY : ports-text-antiword
+
+#MM- ports-text-antiword : \
+#MM             ports-text-antiword-$(CPU)
+
+#MM- ports-text-antiword-$(ARCH)-$(CPU) : \
+#MM             ports-text-antiword-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-antiword-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-antiword-$(ARCH)-$(CPU)
+
+#MM- ports-text-antiword-$(ARCH) : \
+#MM             ports-text-antiword-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-antiword-$(FAMILY) : \
+#MM             ports-text-antiword-$(ARCH)
+
+#MM- ports-text-antiword-$(CPU) : \
+#MM             ports-text-antiword-$(FAMILY)
+#MM- ports-text-antiword-quick : \
+#MM             ports-text-antiword-$(CPU)-quick
+
+#MM- ports-text-antiword-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-antiword-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-antiword-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-antiword-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-antiword-$(ARCH)-quick : \
+#MM             ports-text-antiword-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-antiword-$(FAMILY)-quick : \
+#MM             ports-text-antiword-$(ARCH)-quick
+
+#MM- ports-text-antiword-$(CPU)-quick : \
+#MM             ports-text-antiword-$(FAMILY)-quick
+
+ports-text-antiword_PROGNAME  := antiword
+ports-text-antiword_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-antiword_TARGETDIR := $(TARGETDIR)
+ports-text-antiword_LINKER    := 
+ports-text-antiword_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-antiword_LINKER),)
+    ports-text-antiword_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-antiword_FILES     := $(FILES)
+    ports-text-antiword_OBJCFILES := 
+    ports-text-antiword_ASMFILES  := 
+    ports-text-antiword_CXXFILES := 
+else
+    ports-text-antiword_FILES     := $(ports-text-antiword_PROGNAME)
+    ports-text-antiword_OBJCFILES :=
+    ports-text-antiword_ASMFILES  :=
+    ports-text-antiword_CXXFILES :=
+endif
+
+ports-text-antiword_ARCHOBJS   := $(wildcard $(ports-text-antiword_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-antiword_ARCHFILES     := $(basename $(notdir $(ports-text-antiword_ARCHOBJS)))
+else
+    ports-text-antiword_ARCHFILES     := $(basename $(patsubst $(ports-text-antiword_OBJDIR)/%,%,$(ports-text-antiword_ARCHOBJS)))
+endif
+ports-text-antiword_C_NARCHFILES := $(filter-out $(ports-text-antiword_ARCHFILES),$(ports-text-antiword_FILES))
+ports-text-antiword_CXX_NARCHFILES := $(filter-out $(ports-text-antiword_ARCHFILES),$(ports-text-antiword_CXXFILES))
+ports-text-antiword_OBJC_NARCHFILES := $(filter-out $(ports-text-antiword_ARCHFILES),$(ports-text-antiword_OBJCFILES))
+
+TMP_FILES := $(ports-text-antiword_C_NARCHFILES) $(ports-text-antiword_CXX_NARCHFILES) $(ports-text-antiword_ASMFILES) $(ports-text-antiword_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-antiword_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-antiword_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-antiword_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-antiword_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-antiword_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-antiword_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-antiword_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-antiword_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-antiword_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-antiword_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-antiword_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-antiword_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-antiword_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-antiword_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-antiword_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-antiword_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-antiword_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-antiword_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-antiword_LDFLAGS          := 
+endif
+
+ports-text-antiword_CSTATICFLAGS   := `echo "$(ports-text-antiword_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-antiword_CSTDCFLAGS   :=  `echo "$(ports-text-antiword_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-antiword_CPOSIXCFLAGS   :=  `echo "$(ports-text-antiword_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-antiword_LDFLAGS          += $(strip $(ports-text-antiword_CSTATICFLAGS) $(ports-text-antiword_CSTDCFLAGS) $(ports-text-antiword_CPOSIXCFLAGS))
+
+ports-text-antiword_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-antiword_COVERAGE := yes
+ports-text-antiword_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-antiword_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-antiword_CFLAGS    := $(strip $(ports-text-antiword_COVERAGEFLAGS) $(ports-text-antiword_CFLAGS))
+ports-text-antiword_CXXFLAGS := $(strip $(ports-text-antiword_COVERAGEFLAGS) $(ports-text-antiword_CXXFLAGS))
+ports-text-antiword_LIBS += $(ports-text-antiword_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-antiword_FUNCINSTR := yes
+ports-text-antiword_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-antiword_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-antiword_CFLAGS    := $(strip $(ports-text-antiword_INSTRFUNCFLAGS) $(ports-text-antiword_CFLAGS))
+ports-text-antiword_CXXFLAGS := $(strip $(ports-text-antiword_INSTRFUNCFLAGS) $(ports-text-antiword_CXXFLAGS))
+ports-text-antiword_LIBS += $(ports-text-antiword_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-antiword_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-antiword_CFLAGS))
+ports-text-antiword_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-antiword_CXXFLAGS))
+endif
+endif
+ports-text-antiword_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-antiword_DFLAGS     := 
+else
+    ports-text-antiword_DFLAGS     := $(ports-text-antiword_CFLAGS)
+endif
+ifneq (,)
+    ports-text-antiword_DXXFLAGS     := 
+else
+    ports-text-antiword_DXXFLAGS     := $(ports-text-antiword_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-antiword_LDFLAGS           := $(ports-text-antiword_LDFLAGS)
+ports-text-antiword_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-antiword_LDFLAGS           := $(ports-text-antiword_LDFLAGS)
+ports-text-antiword_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-antiword_LDFLAGS           := $(ports-text-antiword_LDFLAGS)
+ports-text-antiword_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-antiword_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-antiword-quick : ports-text-antiword
+
+#MM ports-text-antiword : includes-generate-deps core-linklibs
+ports-text-antiword : $(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-antiword_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-antiword_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-antiword_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-antiword_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-antiword_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-antiword_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-antiword ports-text-antiword-quick ports-text-antiword-compress-quick),)
+
+ports-text-antiword_CXXABSBASENAMES := $(foreach ports-text-antiword_CXXBASE,$(ports-text-antiword_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-antiword_CXXBASE)),$(ports-text-antiword_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-antiword_CXXBASE))))
+
+ifneq ($(ports-text-antiword_CXXABSBASENAMES),)
+
+ports-text-antiword_CXXBASENAMES := $(basename $(ports-text-antiword_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-antiword_MCXX_FILES  := $(strip $(foreach ports-text-antiword_CXXBASE,$(ports-text-antiword_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-antiword_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-antiword_EXT),$(ports-text-antiword_CXXBASE)))))))
+
+ifeq (,)
+ports-text-antiword_MCXX_SRCWILDCARD := %
+else
+ports-text-antiword_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-antiword_OBJDIR),)
+  ports-text-antiword_CXXTARGETS := $(notdir $(ports-text-antiword_CXXBASENAMES:=.o))
+  ports-text-antiword_CXXDTARGETS := $(notdir $(ports-text-antiword_CXXBASENAMES:=.d))
+  ports-text-antiword_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-antiword_CXXTARGETS := $(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(ports-text-antiword_CXXBASENAMES:=.o)))
+  ports-text-antiword_CXXDTARGETS := $(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(ports-text-antiword_CXXBASENAMES:=.d)))
+  ports-text-antiword_MCXX_WILDCARD := $(ports-text-antiword_OBJDIR)/%
+else
+  ports-text-antiword_CXXTARGETS := $(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_CXXBASENAMES:=.o))
+  ports-text-antiword_CXXDTARGETS := $(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_CXXBASENAMES:=.d))
+  ports-text-antiword_MCXX_WILDCARD := $(ports-text-antiword_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-antiword_CXXTARGETS) $(ports-text-antiword_CXXDTARGETS) : | $(ports-text-antiword_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-antiword_MCXX_CPPFLAGS := $(ports-text-antiword_CPPFLAGS)
+ports-text-antiword_CXXFLAGS := $(ports-text-antiword_CXXFLAGS)
+ifeq ($(ports-text-antiword_DXXFLAGS),)
+  ports-text-antiword_DXXFLAGS := $(ports-text-antiword_CXXFLAGS)
+else
+  ports-text-antiword_DXXFLAGS := $(ports-text-antiword_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-antiword_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-antiword_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-antiword_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-antiword_STRIP ?= $(HOST_STRIP)
+  ports-text-antiword_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-antiword_CXXCMD:=$(HOST_CXX)
+  ports-text-antiword_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS) $(ports-text-antiword_MCXX_EXTRA_CPPFLAGS))
+  ports-text-antiword_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-antiword_CXXFLAGS))
+  ports-text-antiword_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-antiword_DXXFLAGS))
+  ports-text-antiword_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-antiword_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-antiword_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-antiword_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-antiword_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-antiword_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-antiword_LDFLAGS ?= $(ports-text-antiword_CXXLDFLAGS)
+  ports-text-antiword_STRIP ?= $(TARGET_STRIP)
+  ports-text-antiword_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-antiword_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-antiword_MCXX_CPPFLAGS := $(strip $(ports-text-antiword_MCXX_CPPFLAGS) $(ports-text-antiword_MCXX_EXTRA_CPPFLAGS))
+  ports-text-antiword_CXXFLAGS := $(strip $(ports-text-antiword_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-antiword_DXXFLAGS := $(ports-text-antiword_DXXFLAGS)
+  ports-text-antiword_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-antiword_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-antiword_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-antiword_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-antiword_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-antiword_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-antiword_LDFLAGS ?= $(ports-text-antiword_CXXLDFLAGS)
+  ports-text-antiword_STRIP ?= $(ECHO) >/dev/null
+  ports-text-antiword_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-antiword_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-antiword_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS) $(ports-text-antiword_MCXX_EXTRA_CPPFLAGS))
+  ports-text-antiword_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-antiword_CXXFLAGS))
+  ports-text-antiword_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-antiword_DXXFLAGS))
+  ports-text-antiword_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-antiword_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-antiword_CXXCMD) $(ports-text-antiword_CXXIQUOTE) $(dir $(2)) $(ports-text-antiword_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) . $(ports-text-antiword_CXXIQUOTE_END) $(strip $(ports-text-antiword_CXXFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-antiword_CXXCMD) $(ports-text-antiword_CXXIQUOTE) $(dir $(2)) $(ports-text-antiword_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) . $(ports-text-antiword_CXXIQUOTE_END) $(strip $(ports-text-antiword_CXXFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-antiword_CXXCMD) $(ports-text-antiword_CXXIQUOTE) $(dir $(2)) $(ports-text-antiword_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_CXXIQUOTE) . $(ports-text-antiword_CXXIQUOTE_END) $(strip $(ports-text-antiword_CXXFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-antiword_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-antiword_DXXFLAGS) $(ports-text-antiword_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-antiword_OBJDIR),)
+  $(foreach ports-text-antiword_CXXFILE,$(ports-text-antiword_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-antiword_CXXFILE))),$(ports-text-antiword_CXXFILE))))
+else
+  $(foreach ports-text-antiword_CXXFILE,$(ports-text-antiword_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(basename $(ports-text-antiword_CXXFILE)))),$(ports-text-antiword_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-antiword_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-antiword_MOBJC_SRCWILDCARD := %
+else
+ports-text-antiword_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-antiword_OBJDIR),)
+  ports-text-antiword_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-antiword_OBJC_NARCHFILES))
+  ports-text-antiword_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-antiword_OBJC_NARCHFILES))
+  ports-text-antiword_MOBJC_WILDCARD := %
+else
+  ports-text-antiword_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_OBJC_NARCHFILES)))
+  ports-text-antiword_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_OBJC_NARCHFILES)))
+  ports-text-antiword_MOBJC_WILDCARD := $(ports-text-antiword_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-antiword_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-antiword_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-antiword_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-antiword_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-antiword_MOBJC_DIRS := $(foreach dir, $(ports-text-antiword_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-antiword_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-antiword_MOBJC_DIRS),)
+    ports-text-antiword_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-antiword_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-antiword_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-antiword_CC := $(TARGET_CC)
+else
+  ports-text-antiword_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-antiword_MOBJC_CPPFLAGS := $(ports-text-antiword_CPPFLAGS)
+ports-text-antiword_OBJCFLAGS := $(ports-text-antiword_CFLAGS)
+ports-text-antiword_OBJCFLAGS := $(ports-text-antiword_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-antiword_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-antiword_OBJCFLAGS)))
+ifeq ($(ports-text-antiword_DFLAGS),)
+  ports-text-antiword_OBJCDFLAGS := $(ports-text-antiword_CFLAGS)
+else
+  ports-text-antiword_OBJCDFLAGS := $(ports-text-antiword_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-antiword_LINK ?= $(strip $(ports-text-antiword_CC) $(TARGET_SYSROOT))
+  ports-text-antiword_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-antiword_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-antiword_STRIP ?= $(TARGET_STRIP)
+  ports-text-antiword_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-antiword_CC) $(TARGET_SYSROOT))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_MOBJC_CPPFLAGS:=$(strip $(ports-text-antiword_MOBJC_CPPFLAGS) $(ports-text-antiword_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCFLAGS:=$(strip $(ports-text-antiword_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCDFLAGS:=$(ports-text-antiword_OBJCDFLAGS)
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-antiword_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-antiword_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-antiword_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-antiword_STRIP ?= $(HOST_STRIP)
+  ports-text-antiword_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-antiword_MOBJC_CPPFLAGS) $(ports-text-antiword_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-antiword_OBJCFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-antiword_OBJCDFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-antiword_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-antiword_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-antiword_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-antiword_STRIP ?= $(ECHO) >/dev/null
+  ports-text-antiword_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-antiword_MOBJC_CPPFLAGS) $(ports-text-antiword_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-antiword_OBJCFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-antiword_OBJCDFLAGS))
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-antiword_MOBJC_TARGETS) $(ports-text-antiword_MOBJC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-antiword_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-antiword_MOBJC_CPPFLAGS)
+$(ports-text-antiword_MOBJC_TARGETS) : CFLAGS := $(ports-text-antiword_OBJCFLAGS)
+$(ports-text-antiword_MOBJC_TARGETS) : $(ports-text-antiword_MOBJC_WILDCARD).o : $(ports-text-antiword_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-antiword_MOBJC_DTARGETS) : $(ports-text-antiword_MOBJC_WILDCARD).d : $(ports-text-antiword_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-antiword_OBJCDFLAGS) $(ports-text-antiword_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-antiword_MC_SRCWILDCARD := %
+else
+ports-text-antiword_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-antiword_OBJDIR),)
+ports-text-antiword_MC_TARGETS := $(addsuffix .o,$(ports-text-antiword_C_NARCHFILES))
+ports-text-antiword_MC_DTARGETS := $(addsuffix .d,$(ports-text-antiword_C_NARCHFILES))
+ports-text-antiword_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-antiword_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(ports-text-antiword_C_NARCHFILES))))
+    ports-text-antiword_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(ports-text-antiword_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-antiword_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_C_NARCHFILES)))
+    ports-text-antiword_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(ports-text-antiword_C_NARCHFILES)))
+else
+    ports-text-antiword_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(patsubst /%,%,$(ports-text-antiword_C_NARCHFILES))))
+    ports-text-antiword_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-antiword_OBJDIR)/,$(patsubst /%,%,$(ports-text-antiword_C_NARCHFILES))))
+endif
+endif
+ports-text-antiword_MC_TGTWILDCARD := $(ports-text-antiword_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-antiword_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-antiword_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-antiword_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-antiword_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-antiword_MC_DIRS := $(foreach dir, $(ports-text-antiword_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-antiword_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-antiword_MC_DIRS),)
+    ports-text-antiword_MC_DIRS := $(shell $(ECHO) $(ports-text-antiword_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-antiword_MC_DIRS)
+endif
+
+endif
+
+ports-text-antiword_MC_CPPFLAGS := $(ports-text-antiword_CPPFLAGS)
+ports-text-antiword_CFLAGS := $(ports-text-antiword_CFLAGS)
+ifeq ($(ports-text-antiword_DFLAGS),)
+  ports-text-antiword_DFLAGS := $(ports-text-antiword_CFLAGS)
+else
+  ports-text-antiword_DFLAGS := $(ports-text-antiword_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-antiword_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-antiword_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-antiword_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-antiword_STRIP ?= $(TARGET_STRIP)
+ports-text-antiword_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_MC_CPPFLAGS:=$(strip $(ports-text-antiword_MC_CPPFLAGS) $(ports-text-antiword_MC_EXTRA_CPPFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_CFLAGS:=$(strip $(ports-text-antiword_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_DFLAGS:=$(ports-text-antiword_DFLAGS)
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-antiword_LINK ?= $(strip $(HOST_CC))
+ports-text-antiword_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-antiword_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-antiword_STRIP ?= $(HOST_STRIP)
+ports-text-antiword_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-antiword_MC_CPPFLAGS) $(ports-text-antiword_MC_EXTRA_CPPFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-antiword_CFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-antiword_DFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-antiword_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-antiword_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-antiword_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-antiword_STRIP ?= $(ECHO) >/dev/null
+ports-text-antiword_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-antiword_MC_CPPFLAGS) $(ports-text-antiword_MC_EXTRA_CPPFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-antiword_CFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-antiword_DFLAGS))
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-antiword_MC_TARGETS) $(ports-text-antiword_MC_DTARGETS) : ports-text-antiword_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-antiword_MC_TARGETS) : CPPFLAGS := $(ports-text-antiword_MC_CPPFLAGS)
+$(ports-text-antiword_MC_TARGETS) : CFLAGS := $(ports-text-antiword_CFLAGS)
+$(ports-text-antiword_MC_TARGETS) : $(ports-text-antiword_MC_TGTWILDCARD).o : $(ports-text-antiword_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-antiword_IQUOTE) $(dir $<) $(ports-text-antiword_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-antiword_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-antiword_IQUOTE) . $(ports-text-antiword_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-antiword_MC_DTARGETS) : $(ports-text-antiword_MC_TGTWILDCARD).d : $(ports-text-antiword_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-antiword_DFLAGS) $(ports-text-antiword_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-antiword_OBJDIR),)
+ports-text-antiword-MA_TARGETS := $(addsuffix .o,$(ports-text-antiword_ASMFILES))
+ports-text-antiword-MA_WILDCARD := %
+else
+ports-text-antiword-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-antiword_OBJDIR)/,$(notdir $(ports-text-antiword_ASMFILES))))
+ports-text-antiword-MA_WILDCARD := $(ports-text-antiword_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-antiword-MA_TARGETS) : | $(addsuffix .s,$(ports-text-antiword_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-antiword-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-antiword-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-antiword_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-antiword-MA_DIRS := $(foreach dir, $(ports-text-antiword-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-antiword-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-antiword-MA_DIRS),)
+    ports-text-antiword-MA_DIRS := $(shell $(ECHO) $(ports-text-antiword-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-antiword-MA_DIRS)
+endif
+
+endif
+
+ports-text-antiword-MA_ASSEMBLER ?= $(ports-text-antiword_ASSEMBLER)
+
+$(ports-text-antiword-MA_TARGETS) : ports-text-antiword-MA_CMD:= $(ports-text-antiword-MA_ASSEMBLER)
+
+$(ports-text-antiword-MA_TARGETS) : CPPFLAGS := $(ports-text-antiword_CPPFLAGS)
+$(ports-text-antiword-MA_TARGETS) : AFLAGS := $(ports-text-antiword_AFLAGS)
+$(ports-text-antiword-MA_TARGETS) : $(ports-text-antiword-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-antiword-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-antiword-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-antiword-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-antiword-link_LD_OPTS := 
+ports-text-antiword-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-antiword-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-antiword-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-antiword-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-antiword-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-antiword_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-antiword-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-antiword-link_DIRS)))
+# Add trailing /
+ports-text-antiword-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-antiword-link_DIRS)))
+# Add normal linklib path
+ports-text-antiword-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-antiword-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-antiword_LIBS) $(ports-text-antiword-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-antiword-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-antiword-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-antiword-link_DEPLIBS := $(foreach lib,$(ports-text-antiword-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-antiword-link_DIRS)))) \
+)
+
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : OBJDIR := $(ports-text-antiword_OBJDIR)
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : OBJS := $(strip $(ports-text-antiword_OBJS) $(ports-text-antiword_ARCHOBJS) $(USER_OBJS))
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : LDFLAGS := $(strip $(ports-text-antiword_LDFLAGS))
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-antiword_LIBS) $(ports-text-antiword-link_EXTRA_LIBS)))
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-antiword_ARCHLIBS))
+$(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : $(ports-text-antiword_OBJS) $(ports-text-antiword_ARCHOBJS) $(USER_OBJS) $(ports-text-antiword-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-antiword_LINK) $(strip $(ports-text-antiword_LD_OPTS) $(ports-text-antiword-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-antiword_LINK) $(strip $(ports-text-antiword_LD_OPTS) $(ports-text-antiword-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-antiword_LINK) $(strip $(ports-text-antiword_LD_OPTS) $(ports-text-antiword-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-antiword_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-antiword_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-antiword_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-antiword_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-antiword_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-antiword_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-antiword_DEPS),)
+  ifneq (ports-text-antiword ports-text-antiword-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-antiword ports-text-antiword-quick),)
+      -include $(ports-text-antiword_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-antiword_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-antiword_OBJS) $(ports-text-antiword_DEPS) $(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME),)
+$(ports-text-antiword_OBJS) $(ports-text-antiword_DEPS) $(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) : | $(ports-text-antiword_OBJDIR) $(ports-text-antiword_TARGETDIR)
+else
+$(ports-text-antiword_OBJS) $(ports-text-antiword_DEPS) $(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) :: $(ports-text-antiword_OBJDIR) $(ports-text-antiword_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-antiword_OBJDIR) $(ports-text-antiword_TARGETDIR)
+
+
+ports-text-antiword-clean : FILES := $(ports-text-antiword_OBJS) $(ports-text-antiword_TARGETDIR)/$(ports-text-antiword_PROGNAME) $(ports-text-antiword_DEPS)
+#MM
+ports-text-antiword-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-antiword"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-text-antiword-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-text-antiword-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-text-antiword-fetch-location := $(PORTSDIR)/antiword
+endif
+
+ifneq (,)
+    ports-text-antiword-fetch-baseflag := -b 
+else
+    ports-text-antiword-fetch-baseflag :=
+endif
+
+ports-text-antiword-fetch-fetchedflag := $(ports-text-antiword-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-text-antiword-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-text-antiword-fetch-location) \
+	-d $(PORTSDIR)/antiword $(ports-text-antiword-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "antiword-0.37-aros.diff:antiword-0.37:-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-text-antiword-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-text-antiword-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-text-antiword-docs
+
+#MM
+ports-text-antiword-docs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/antiword/antiword-0.37/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/antiword/antiword-0.37/Docs)))' to '$(if $(filter /%,$(TARGETDIR)/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Docs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/antiword/antiword-0.37/Docs -d $(TARGETDIR)/Docs -e 
+
+
+
+.PHONY : ports-text-antiword-data
+
+#MM
+ports-text-antiword-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/antiword/antiword-0.37/Resources),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Resources)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Resources)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/antiword/antiword-0.37/Resources))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/antiword/antiword-0.37/Resources)))' to '$(if $(filter /%,$(TARGETDIR)/Data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/antiword/antiword-0.37/Resources -d $(TARGETDIR)/Data -e 
+
+
+
+ports-text-antiword-cpy_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-text-antiword-cpy
+
+#MM
+ports-text-antiword-cpy : | $(TARGETDIR) 
+	$(foreach file, AntiwordGUI, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-text-antiword-cpy_SRC)),$(ports-text-antiword-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-text-antiword-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

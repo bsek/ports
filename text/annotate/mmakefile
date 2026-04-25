@@ -1,0 +1,825 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-$(AROS_TARGET_CPU)
+
+#MM- ports-text-i386 : ports-text-annotate
+
+#MM ports-text-annotate : includes linklibs \
+#MM    workbench-libs-expat \
+#MM    ports-text-annotate-fetch \
+#MM    ports-text-annotate-release
+
+#MM  ports-text-annotate-quick : ports-text-annotate-fetch
+
+REPOSITORIES := http://archives.aros-exec.org/share/utility/text/edit/
+ARCHBASE     := annotate-src-3.0.1
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Text/Annotate
+
+NOWARN_FLAGS := $(NOWARN_PARENTHESES) $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_CFLAGS  := -std=gnu89 $(NOWARN_FLAGS) -DANN_MUI
+
+ifneq ("","$(strip $(WARN_ERROR))")
+CONFIG_CFLAGS := $(subst $(WARN_ERROR),,$(CONFIG_CFLAGS))
+endif
+
+GUI          := MUI
+
+FILES := \
+	annMain \
+	annRequesters$(GUI) \
+	annExchangeControl$(GUI) \
+	annBaseFunc \
+	annDraw \
+	annDrawSyntax \
+	annSupportfunc \
+	annDispatch \
+	annCbio \
+	annRexxFuncs \
+	annListRequest \
+	annMacFunc \
+	annUndo \
+	annProject \
+	onyxsoft/EString \
+	onyxsoft/Softtimer \
+	onyxsoft/HttpGet \
+	onyxsoft/muisimplifiers \
+	onyxsoft/LinkedList
+
+FILES := $(addprefix $(PORTSDIR)/annotate/$(ARCHBASE)/src/,$(FILES))
+
+
+.PHONY : ports-text-annotate
+
+#MM- ports-text-annotate : \
+#MM             ports-text-annotate-$(CPU)
+
+#MM- ports-text-annotate-$(ARCH)-$(CPU) : \
+#MM             ports-text-annotate-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-annotate-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-text-annotate-$(ARCH)-$(CPU)
+
+#MM- ports-text-annotate-$(ARCH) : \
+#MM             ports-text-annotate-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-text-annotate-$(FAMILY) : \
+#MM             ports-text-annotate-$(ARCH)
+
+#MM- ports-text-annotate-$(CPU) : \
+#MM             ports-text-annotate-$(FAMILY)
+#MM- ports-text-annotate-quick : \
+#MM             ports-text-annotate-$(CPU)-quick
+
+#MM- ports-text-annotate-$(ARCH)-$(CPU)-quick : \
+#MM             ports-text-annotate-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-annotate-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-text-annotate-$(ARCH)-$(CPU)-quick
+
+#MM- ports-text-annotate-$(ARCH)-quick : \
+#MM             ports-text-annotate-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-text-annotate-$(FAMILY)-quick : \
+#MM             ports-text-annotate-$(ARCH)-quick
+
+#MM- ports-text-annotate-$(CPU)-quick : \
+#MM             ports-text-annotate-$(FAMILY)-quick
+
+ports-text-annotate_PROGNAME  := Ann
+ports-text-annotate_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-text-annotate_TARGETDIR := $(TARGETDIR)
+ports-text-annotate_LINKER    := 
+ports-text-annotate_LIBS := expat
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-text-annotate_LINKER),)
+    ports-text-annotate_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-text-annotate_FILES     := $(FILES)
+    ports-text-annotate_OBJCFILES := 
+    ports-text-annotate_ASMFILES  := 
+    ports-text-annotate_CXXFILES := 
+else
+    ports-text-annotate_FILES     := $(ports-text-annotate_PROGNAME)
+    ports-text-annotate_OBJCFILES :=
+    ports-text-annotate_ASMFILES  :=
+    ports-text-annotate_CXXFILES :=
+endif
+
+ports-text-annotate_ARCHOBJS   := $(wildcard $(ports-text-annotate_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-text-annotate_ARCHFILES     := $(basename $(notdir $(ports-text-annotate_ARCHOBJS)))
+else
+    ports-text-annotate_ARCHFILES     := $(basename $(patsubst $(ports-text-annotate_OBJDIR)/%,%,$(ports-text-annotate_ARCHOBJS)))
+endif
+ports-text-annotate_C_NARCHFILES := $(filter-out $(ports-text-annotate_ARCHFILES),$(ports-text-annotate_FILES))
+ports-text-annotate_CXX_NARCHFILES := $(filter-out $(ports-text-annotate_ARCHFILES),$(ports-text-annotate_CXXFILES))
+ports-text-annotate_OBJC_NARCHFILES := $(filter-out $(ports-text-annotate_ARCHFILES),$(ports-text-annotate_OBJCFILES))
+
+TMP_FILES := $(ports-text-annotate_C_NARCHFILES) $(ports-text-annotate_CXX_NARCHFILES) $(ports-text-annotate_ASMFILES) $(ports-text-annotate_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-text-annotate_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-text-annotate_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-text-annotate_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(TMP_FILES))) )
+    ports-text-annotate_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-text-annotate_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-text-annotate_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-annotate_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-annotate_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-annotate_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-text-annotate_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-annotate_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-text-annotate_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-text-annotate_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-text-annotate_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-text-annotate_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-text-annotate_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-text-annotate_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-annotate_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-text-annotate_LDFLAGS          := 
+endif
+
+ports-text-annotate_CSTATICFLAGS   := `echo "$(ports-text-annotate_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-text-annotate_CSTDCFLAGS   :=  `echo "$(ports-text-annotate_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-text-annotate_CPOSIXCFLAGS   :=  `echo "$(ports-text-annotate_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-text-annotate_LDFLAGS          += $(strip $(ports-text-annotate_CSTATICFLAGS) $(ports-text-annotate_CSTDCFLAGS) $(ports-text-annotate_CPOSIXCFLAGS))
+
+ports-text-annotate_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-text-annotate_COVERAGE := yes
+ports-text-annotate_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-text-annotate_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-text-annotate_CFLAGS    := $(strip $(ports-text-annotate_COVERAGEFLAGS) $(ports-text-annotate_CFLAGS))
+ports-text-annotate_CXXFLAGS := $(strip $(ports-text-annotate_COVERAGEFLAGS) $(ports-text-annotate_CXXFLAGS))
+ports-text-annotate_LIBS += $(ports-text-annotate_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-text-annotate_FUNCINSTR := yes
+ports-text-annotate_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-text-annotate_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-text-annotate_CFLAGS    := $(strip $(ports-text-annotate_INSTRFUNCFLAGS) $(ports-text-annotate_CFLAGS))
+ports-text-annotate_CXXFLAGS := $(strip $(ports-text-annotate_INSTRFUNCFLAGS) $(ports-text-annotate_CXXFLAGS))
+ports-text-annotate_LIBS += $(ports-text-annotate_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-text-annotate_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-annotate_CFLAGS))
+ports-text-annotate_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-text-annotate_CXXFLAGS))
+endif
+endif
+ports-text-annotate_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-text-annotate_DFLAGS     := 
+else
+    ports-text-annotate_DFLAGS     := $(ports-text-annotate_CFLAGS)
+endif
+ifneq (,)
+    ports-text-annotate_DXXFLAGS     := 
+else
+    ports-text-annotate_DXXFLAGS     := $(ports-text-annotate_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-text-annotate_LDFLAGS           := $(ports-text-annotate_LDFLAGS)
+ports-text-annotate_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-text-annotate_LDFLAGS           := $(ports-text-annotate_LDFLAGS)
+ports-text-annotate_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-text-annotate_LDFLAGS           := $(ports-text-annotate_LDFLAGS)
+ports-text-annotate_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-text-annotate_LDFLAGS   += -L
+endif
+
+#MM
+ports-text-annotate-quick : ports-text-annotate
+
+#MM ports-text-annotate : includes-generate-deps core-linklibs
+ports-text-annotate : $(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-text-annotate_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-text-annotate_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-text-annotate_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-text-annotate_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-text-annotate_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-text-annotate_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-text-annotate ports-text-annotate-quick ports-text-annotate-compress-quick),)
+
+ports-text-annotate_CXXABSBASENAMES := $(foreach ports-text-annotate_CXXBASE,$(ports-text-annotate_CXX_NARCHFILES),$(if $(filter /%,$(ports-text-annotate_CXXBASE)),$(ports-text-annotate_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-text-annotate_CXXBASE))))
+
+ifneq ($(ports-text-annotate_CXXABSBASENAMES),)
+
+ports-text-annotate_CXXBASENAMES := $(basename $(ports-text-annotate_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-text-annotate_MCXX_FILES  := $(strip $(foreach ports-text-annotate_CXXBASE,$(ports-text-annotate_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-text-annotate_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-text-annotate_EXT),$(ports-text-annotate_CXXBASE)))))))
+
+ifeq (,)
+ports-text-annotate_MCXX_SRCWILDCARD := %
+else
+ports-text-annotate_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-annotate_OBJDIR),)
+  ports-text-annotate_CXXTARGETS := $(notdir $(ports-text-annotate_CXXBASENAMES:=.o))
+  ports-text-annotate_CXXDTARGETS := $(notdir $(ports-text-annotate_CXXBASENAMES:=.d))
+  ports-text-annotate_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-text-annotate_CXXTARGETS := $(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(ports-text-annotate_CXXBASENAMES:=.o)))
+  ports-text-annotate_CXXDTARGETS := $(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(ports-text-annotate_CXXBASENAMES:=.d)))
+  ports-text-annotate_MCXX_WILDCARD := $(ports-text-annotate_OBJDIR)/%
+else
+  ports-text-annotate_CXXTARGETS := $(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_CXXBASENAMES:=.o))
+  ports-text-annotate_CXXDTARGETS := $(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_CXXBASENAMES:=.d))
+  ports-text-annotate_MCXX_WILDCARD := $(ports-text-annotate_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-text-annotate_CXXTARGETS) $(ports-text-annotate_CXXDTARGETS) : | $(ports-text-annotate_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-text-annotate_MCXX_CPPFLAGS := $(ports-text-annotate_CPPFLAGS)
+ports-text-annotate_CXXFLAGS := $(ports-text-annotate_CXXFLAGS)
+ifeq ($(ports-text-annotate_DXXFLAGS),)
+  ports-text-annotate_DXXFLAGS := $(ports-text-annotate_CXXFLAGS)
+else
+  ports-text-annotate_DXXFLAGS := $(ports-text-annotate_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-text-annotate_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-text-annotate_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-annotate_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-annotate_STRIP ?= $(HOST_STRIP)
+  ports-text-annotate_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-text-annotate_CXXCMD:=$(HOST_CXX)
+  ports-text-annotate_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS) $(ports-text-annotate_MCXX_EXTRA_CPPFLAGS))
+  ports-text-annotate_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-annotate_CXXFLAGS))
+  ports-text-annotate_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-text-annotate_DXXFLAGS))
+  ports-text-annotate_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-text-annotate_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-text-annotate_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-annotate_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-annotate_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-annotate_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-text-annotate_LDFLAGS ?= $(ports-text-annotate_CXXLDFLAGS)
+  ports-text-annotate_STRIP ?= $(TARGET_STRIP)
+  ports-text-annotate_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-text-annotate_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-text-annotate_MCXX_CPPFLAGS := $(strip $(ports-text-annotate_MCXX_CPPFLAGS) $(ports-text-annotate_MCXX_EXTRA_CPPFLAGS))
+  ports-text-annotate_CXXFLAGS := $(strip $(ports-text-annotate_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-text-annotate_DXXFLAGS := $(ports-text-annotate_DXXFLAGS)
+  ports-text-annotate_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-text-annotate_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-text-annotate_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-text-annotate_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-annotate_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-text-annotate_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-text-annotate_LDFLAGS ?= $(ports-text-annotate_CXXLDFLAGS)
+  ports-text-annotate_STRIP ?= $(ECHO) >/dev/null
+  ports-text-annotate_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-text-annotate_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-text-annotate_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS) $(ports-text-annotate_MCXX_EXTRA_CPPFLAGS))
+  ports-text-annotate_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-annotate_CXXFLAGS))
+  ports-text-annotate_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-text-annotate_DXXFLAGS))
+  ports-text-annotate_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-text-annotate_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-text-annotate_CXXCMD) $(ports-text-annotate_CXXIQUOTE) $(dir $(2)) $(ports-text-annotate_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) . $(ports-text-annotate_CXXIQUOTE_END) $(strip $(ports-text-annotate_CXXFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-text-annotate_CXXCMD) $(ports-text-annotate_CXXIQUOTE) $(dir $(2)) $(ports-text-annotate_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) . $(ports-text-annotate_CXXIQUOTE_END) $(strip $(ports-text-annotate_CXXFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-text-annotate_CXXCMD) $(ports-text-annotate_CXXIQUOTE) $(dir $(2)) $(ports-text-annotate_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_CXXIQUOTE) . $(ports-text-annotate_CXXIQUOTE_END) $(strip $(ports-text-annotate_CXXFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-text-annotate_CXXCMD)" $(MKDEPEND) $(strip $(ports-text-annotate_DXXFLAGS) $(ports-text-annotate_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-text-annotate_OBJDIR),)
+  $(foreach ports-text-annotate_CXXFILE,$(ports-text-annotate_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-text-annotate_CXXFILE))),$(ports-text-annotate_CXXFILE))))
+else
+  $(foreach ports-text-annotate_CXXFILE,$(ports-text-annotate_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(basename $(ports-text-annotate_CXXFILE)))),$(ports-text-annotate_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-text-annotate_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-text-annotate_MOBJC_SRCWILDCARD := %
+else
+ports-text-annotate_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-annotate_OBJDIR),)
+  ports-text-annotate_MOBJC_TARGETS := $(addsuffix .o,$(ports-text-annotate_OBJC_NARCHFILES))
+  ports-text-annotate_MOBJC_DTARGETS := $(addsuffix .d,$(ports-text-annotate_OBJC_NARCHFILES))
+  ports-text-annotate_MOBJC_WILDCARD := %
+else
+  ports-text-annotate_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_OBJC_NARCHFILES)))
+  ports-text-annotate_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_OBJC_NARCHFILES)))
+  ports-text-annotate_MOBJC_WILDCARD := $(ports-text-annotate_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-text-annotate_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-text-annotate_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-text-annotate_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-annotate_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-text-annotate_MOBJC_DIRS := $(foreach dir, $(ports-text-annotate_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-annotate_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-text-annotate_MOBJC_DIRS),)
+    ports-text-annotate_MOBJC_DIRS := $(shell $(ECHO) $(ports-text-annotate_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-text-annotate_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-text-annotate_CC := $(TARGET_CC)
+else
+  ports-text-annotate_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-text-annotate_MOBJC_CPPFLAGS := $(ports-text-annotate_CPPFLAGS)
+ports-text-annotate_OBJCFLAGS := $(ports-text-annotate_CFLAGS)
+ports-text-annotate_OBJCFLAGS := $(ports-text-annotate_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-text-annotate_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-text-annotate_OBJCFLAGS)))
+ifeq ($(ports-text-annotate_DFLAGS),)
+  ports-text-annotate_OBJCDFLAGS := $(ports-text-annotate_CFLAGS)
+else
+  ports-text-annotate_OBJCDFLAGS := $(ports-text-annotate_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-text-annotate_LINK ?= $(strip $(ports-text-annotate_CC) $(TARGET_SYSROOT))
+  ports-text-annotate_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-text-annotate_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-text-annotate_STRIP ?= $(TARGET_STRIP)
+  ports-text-annotate_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : CMD:=$(strip $(ports-text-annotate_CC) $(TARGET_SYSROOT))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_MOBJC_CPPFLAGS:=$(strip $(ports-text-annotate_MOBJC_CPPFLAGS) $(ports-text-annotate_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCFLAGS:=$(strip $(ports-text-annotate_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCDFLAGS:=$(ports-text-annotate_OBJCDFLAGS)
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-text-annotate_LINK ?= $(strip $(HOST_OBJC))
+  ports-text-annotate_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-text-annotate_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-text-annotate_STRIP ?= $(HOST_STRIP)
+  ports-text-annotate_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-text-annotate_MOBJC_CPPFLAGS) $(ports-text-annotate_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-annotate_OBJCFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-annotate_OBJCDFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-text-annotate_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-text-annotate_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-text-annotate_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-text-annotate_STRIP ?= $(ECHO) >/dev/null
+  ports-text-annotate_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-text-annotate_MOBJC_CPPFLAGS) $(ports-text-annotate_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-annotate_OBJCFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-annotate_OBJCDFLAGS))
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-text-annotate_MOBJC_TARGETS) $(ports-text-annotate_MOBJC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-annotate_MOBJC_TARGETS) : CPPFLAGS := $(ports-text-annotate_MOBJC_CPPFLAGS)
+$(ports-text-annotate_MOBJC_TARGETS) : CFLAGS := $(ports-text-annotate_OBJCFLAGS)
+$(ports-text-annotate_MOBJC_TARGETS) : $(ports-text-annotate_MOBJC_WILDCARD).o : $(ports-text-annotate_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-annotate_MOBJC_DTARGETS) : $(ports-text-annotate_MOBJC_WILDCARD).d : $(ports-text-annotate_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-annotate_OBJCDFLAGS) $(ports-text-annotate_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-text-annotate_MC_SRCWILDCARD := %
+else
+ports-text-annotate_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-text-annotate_OBJDIR),)
+ports-text-annotate_MC_TARGETS := $(addsuffix .o,$(ports-text-annotate_C_NARCHFILES))
+ports-text-annotate_MC_DTARGETS := $(addsuffix .d,$(ports-text-annotate_C_NARCHFILES))
+ports-text-annotate_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-text-annotate_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(ports-text-annotate_C_NARCHFILES))))
+    ports-text-annotate_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(ports-text-annotate_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-text-annotate_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_C_NARCHFILES)))
+    ports-text-annotate_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(ports-text-annotate_C_NARCHFILES)))
+else
+    ports-text-annotate_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(patsubst /%,%,$(ports-text-annotate_C_NARCHFILES))))
+    ports-text-annotate_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-text-annotate_OBJDIR)/,$(patsubst /%,%,$(ports-text-annotate_C_NARCHFILES))))
+endif
+endif
+ports-text-annotate_MC_TGTWILDCARD := $(ports-text-annotate_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : | $(addsuffix .c,$(ports-text-annotate_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-text-annotate_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-annotate_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-annotate_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-annotate_MC_DIRS := $(foreach dir, $(ports-text-annotate_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-annotate_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-annotate_MC_DIRS),)
+    ports-text-annotate_MC_DIRS := $(shell $(ECHO) $(ports-text-annotate_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-text-annotate_MC_DIRS)
+endif
+
+endif
+
+ports-text-annotate_MC_CPPFLAGS := $(ports-text-annotate_CPPFLAGS)
+ports-text-annotate_CFLAGS := $(ports-text-annotate_CFLAGS)
+ifeq ($(ports-text-annotate_DFLAGS),)
+  ports-text-annotate_DFLAGS := $(ports-text-annotate_CFLAGS)
+else
+  ports-text-annotate_DFLAGS := $(ports-text-annotate_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-text-annotate_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-text-annotate_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-text-annotate_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-text-annotate_STRIP ?= $(TARGET_STRIP)
+ports-text-annotate_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_MC_CPPFLAGS:=$(strip $(ports-text-annotate_MC_CPPFLAGS) $(ports-text-annotate_MC_EXTRA_CPPFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_CFLAGS:=$(strip $(ports-text-annotate_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_DFLAGS:=$(ports-text-annotate_DFLAGS)
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-text-annotate_LINK ?= $(strip $(HOST_CC))
+ports-text-annotate_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-text-annotate_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-text-annotate_STRIP ?= $(HOST_STRIP)
+ports-text-annotate_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-text-annotate_MC_CPPFLAGS) $(ports-text-annotate_MC_EXTRA_CPPFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-annotate_CFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-text-annotate_DFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE:=$(HOST_IQUOTE)
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-text-annotate_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-text-annotate_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-text-annotate_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-text-annotate_STRIP ?= $(ECHO) >/dev/null
+ports-text-annotate_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-text-annotate_MC_CPPFLAGS) $(ports-text-annotate_MC_EXTRA_CPPFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-annotate_CFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-text-annotate_DFLAGS))
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-text-annotate_MC_TARGETS) $(ports-text-annotate_MC_DTARGETS) : ports-text-annotate_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-text-annotate_MC_TARGETS) : CPPFLAGS := $(ports-text-annotate_MC_CPPFLAGS)
+$(ports-text-annotate_MC_TARGETS) : CFLAGS := $(ports-text-annotate_CFLAGS)
+$(ports-text-annotate_MC_TARGETS) : $(ports-text-annotate_MC_TGTWILDCARD).o : $(ports-text-annotate_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-text-annotate_IQUOTE) $(dir $<) $(ports-text-annotate_IQUOTE) $(TOP)/$(CURDIR) $(ports-text-annotate_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-text-annotate_IQUOTE) . $(ports-text-annotate_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-text-annotate_MC_DTARGETS) : $(ports-text-annotate_MC_TGTWILDCARD).d : $(ports-text-annotate_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-text-annotate_DFLAGS) $(ports-text-annotate_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-text-annotate_OBJDIR),)
+ports-text-annotate-MA_TARGETS := $(addsuffix .o,$(ports-text-annotate_ASMFILES))
+ports-text-annotate-MA_WILDCARD := %
+else
+ports-text-annotate-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-text-annotate_OBJDIR)/,$(notdir $(ports-text-annotate_ASMFILES))))
+ports-text-annotate-MA_WILDCARD := $(ports-text-annotate_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-text-annotate-MA_TARGETS) : | $(addsuffix .s,$(ports-text-annotate_ASMFILES))
+
+# Be sure that all .c files are found
+ports-text-annotate-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-text-annotate-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-text-annotate_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-text-annotate-MA_DIRS := $(foreach dir, $(ports-text-annotate-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-text-annotate-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-text-annotate-MA_DIRS),)
+    ports-text-annotate-MA_DIRS := $(shell $(ECHO) $(ports-text-annotate-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-text-annotate-MA_DIRS)
+endif
+
+endif
+
+ports-text-annotate-MA_ASSEMBLER ?= $(ports-text-annotate_ASSEMBLER)
+
+$(ports-text-annotate-MA_TARGETS) : ports-text-annotate-MA_CMD:= $(ports-text-annotate-MA_ASSEMBLER)
+
+$(ports-text-annotate-MA_TARGETS) : CPPFLAGS := $(ports-text-annotate_CPPFLAGS)
+$(ports-text-annotate-MA_TARGETS) : AFLAGS := $(ports-text-annotate_AFLAGS)
+$(ports-text-annotate-MA_TARGETS) : $(ports-text-annotate-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-text-annotate-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-text-annotate-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-text-annotate-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-text-annotate-link_LD_OPTS := 
+ports-text-annotate-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-text-annotate-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-text-annotate-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-text-annotate-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-text-annotate-link_DIRS := $(subst -L ,-L,$(strip $(ports-text-annotate_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-text-annotate-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-text-annotate-link_DIRS)))
+# Add trailing /
+ports-text-annotate-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-text-annotate-link_DIRS)))
+# Add normal linklib path
+ports-text-annotate-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-text-annotate-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-text-annotate_LIBS) $(ports-text-annotate-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-text-annotate-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-text-annotate-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-text-annotate-link_DEPLIBS := $(foreach lib,$(ports-text-annotate-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-text-annotate-link_DIRS)))) \
+)
+
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : OBJDIR := $(ports-text-annotate_OBJDIR)
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : OBJS := $(strip $(ports-text-annotate_OBJS) $(ports-text-annotate_ARCHOBJS) $(USER_OBJS))
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : LDFLAGS := $(strip $(ports-text-annotate_LDFLAGS))
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-text-annotate_LIBS) $(ports-text-annotate-link_EXTRA_LIBS)))
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-text-annotate_ARCHLIBS))
+$(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : $(ports-text-annotate_OBJS) $(ports-text-annotate_ARCHOBJS) $(USER_OBJS) $(ports-text-annotate-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-text-annotate_LINK) $(strip $(ports-text-annotate_LD_OPTS) $(ports-text-annotate-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-text-annotate_LINK) $(strip $(ports-text-annotate_LD_OPTS) $(ports-text-annotate-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-text-annotate_LINK) $(strip $(ports-text-annotate_LD_OPTS) $(ports-text-annotate-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-annotate_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-text-annotate_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-text-annotate_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-text-annotate_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-text-annotate_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-text-annotate_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-text-annotate_DEPS),)
+  ifneq (ports-text-annotate ports-text-annotate-quick,)
+    ifneq ($(findstring $(TARGET),ports-text-annotate ports-text-annotate-quick),)
+      -include $(ports-text-annotate_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-text-annotate_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-text-annotate_OBJS) $(ports-text-annotate_DEPS) $(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME),)
+$(ports-text-annotate_OBJS) $(ports-text-annotate_DEPS) $(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) : | $(ports-text-annotate_OBJDIR) $(ports-text-annotate_TARGETDIR)
+else
+$(ports-text-annotate_OBJS) $(ports-text-annotate_DEPS) $(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) :: $(ports-text-annotate_OBJDIR) $(ports-text-annotate_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-text-annotate_OBJDIR) $(ports-text-annotate_TARGETDIR)
+
+
+ports-text-annotate-clean : FILES := $(ports-text-annotate_OBJS) $(ports-text-annotate_TARGETDIR)/$(ports-text-annotate_PROGNAME) $(ports-text-annotate_DEPS)
+#MM
+ports-text-annotate-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-text-annotate"
+	$(Q)$(RM) $(FILES)
+
+
+############################################################################################
+
+
+
+.PHONY: ports-text-annotate-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-text-annotate-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-text-annotate-fetch-location := $(PORTSDIR)/annotate
+endif
+
+ifneq (,)
+    ports-text-annotate-fetch-baseflag := -b 
+else
+    ports-text-annotate-fetch-baseflag :=
+endif
+
+ports-text-annotate-fetch-fetchedflag := $(ports-text-annotate-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-text-annotate-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-text-annotate-fetch-location) \
+	-d $(PORTSDIR)/annotate $(ports-text-annotate-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-text-annotate-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-text-annotate-fetch-fetchedflag) ; \
+	fi
+
+
+############################################################################################
+
+
+.PHONY : ports-text-annotate-release
+
+#MM
+ports-text-annotate-release :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/annotate/$(ARCHBASE)/release),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/annotate/$(ARCHBASE)/release)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/annotate/$(ARCHBASE)/release)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/annotate/$(ARCHBASE)/release))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/annotate/$(ARCHBASE)/release)))' to '$(if $(filter /%,$(TARGETDIR)),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR))),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR))),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR))))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/annotate/$(ARCHBASE)/release -d $(TARGETDIR) -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

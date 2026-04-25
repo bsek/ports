@@ -1,0 +1,301 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-vbam
+
+#MM  ports-emulation-vbam : \
+#MM  includes \
+#MM  linklibs \
+#MM  workbench-libs-z \
+#MM  workbench-libs-png \
+#MM  workbench-libs-gl \
+#MM  contrib-sdl \
+#MM  ports-emulation-vbam-fetch
+
+REPOSITORIES := sf://vbam
+ARCHBASE     := vba-m-SVN1292-sources
+TARGETDIR    := $(AROS_CONTRIB)/Emu/Vbam
+NOWARN_FLAGS := $(NOWARN_IMPLICIT_INT) $(NOWARN_UNUSED_VARIABLE)
+NOWARN_CXXFLAGS := $(NOWARN_UNUSED_VARIABLE)
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_CFLAGS  := $(NOWARN_FLAGS)
+USER_CXXFLAGS:= -fpermissive $(NOWARN_CXXFLAGS) -static-libstdc++ $(USER_INCLUDES)
+
+CONFIG_CXXFLAGS := $(subst -Werror ,,$(CONFIG_CXXFLAGS))
+
+VBA_OPTIONS := \
+    -DZLIB_LIBRARY=$(AROS_DEVELOPER)/lib/libz.a \
+    -DZLIB_INCLUDE_DIR=$(AROS_DEVELOPER)/include \
+    -DPNG_LIBRARY=$(AROS_DEVELOPER)/lib/libpng.a \
+    -DPNG_PNG_INCLUDE_DIR=$(AROS_DEVELOPER)/include \
+    -DOPENGL_gl_LIBRARY=$(AROS_DEVELOPER)/lib/libGL.a \
+    -DOPENGL_INCLUDE_DIR=$(AROS_DEVELOPER)/include/GL \
+    -DSDL_LIBRARY=$(AROS_DEVELOPER)/lib/libSDL.a \
+    -DSDL_INCLUDE_DIR=$(AROS_DEVELOPER)/include/SDL \
+    -DENABLE_GTK:BOOL=OFF \
+    -DDATA_INSTALL_DIR=$(TARGETDIR)/etc \
+    -DSYSCONFDIR=$(TARGETDIR)/etc
+
+
+ifneq ($(TARGETDIR),)
+    ports-emulation-vbam-prefix          := $(TARGETDIR)
+else
+    ports-emulation-vbam-prefix          := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-emulation-vbam-aros_prefix     := 
+else
+    ports-emulation-vbam-aros_prefix     := $(ports-emulation-vbam-prefix)
+endif
+    ports-emulation-vbam-cmake-env += CMAKE_GENERATOR='Unix Makefiles'
+ifeq (target,host)
+    ports-emulation-vbam-cmake-env += LDFLAGS="$(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) "
+    ports-emulation-vbam-cmake-env += CFLAGS="$(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-emulation-vbam-cmake-env += CXXFLAGS="$(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include "
+    ports-emulation-vbam-cmake-env += CPPFLAGS="$(HOST_CPPFLAGS) "
+    ports-emulation-vbam-cmake_opts      := -DCMAKE_INSTALL_PREFIX=$(ports-emulation-vbam-prefix)
+ifeq (,$(findstring CMAKE_BUILD_TYPE,$(VBA_OPTIONS)))
+    ports-emulation-vbam-cmake_opts      += -DCMAKE_BUILD_TYPE=Release
+endif
+    ports-emulation-vbam-cmake_opts      += -DCMAKE_LINKER="$(strip $(HOST_LD))" \
+                                -DCMAKE_EXE_LINKER_FLAGS="$(strip $(HOST_LDFLAGS) -L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS) )"
+    ifeq (no,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-emulation-vbam-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_DEF_CC)))"
+    else
+        ports-emulation-vbam-cmake_opts      += -DCMAKE_C_COMPILER="$(strip $(HOST_DEF_CC))"
+    endif
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(HOST_CPPFLAGS) )"
+    endif
+    ifneq ($(CC_PREFIX),)
+        ports-emulation-vbam-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(subst $(CC_PREFIX),,$(HOST_CXX)))"
+    else
+        ports-emulation-vbam-cmake_opts      += -DCMAKE_CXX_COMPILER="$(strip $(HOST_CXX))"
+    endif
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_CXX_FLAGS="$(strip $(HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include )"
+    endif
+    ifeq (,)
+        ports-emulation-vbam-pkgdir      := $(HOSTGENDIR)/$(CURDIR)
+    else
+        ports-emulation-vbam-pkgdir      := $(HOSTGENDIR)/$(CURDIR)/
+    endif
+else
+    ports-emulation-vbam-cmake-env += PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig"
+    ports-emulation-vbam-cmake-env += PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+    ports-emulation-vbam-cmake-env += LDFLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ports-emulation-vbam-cmake-env += CFLAGS="$(strip $(CFLAGS) )"
+    ports-emulation-vbam-cmake-env += CXXFLAGS="$(strip $(CXXFLAGS) )"
+    ports-emulation-vbam-cmake-env += CPPFLAGS="$(strip $(CPPFLAGS) )"
+    ports-emulation-vbam-cmake_opts      := -DCMAKE_TOOLCHAIN_FILE=$(GENDIR)/config/conf.cmake -DCMAKE_INSTALL_PREFIX=$(ports-emulation-vbam-prefix)
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_C_FLAGS="$(strip $(CFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts  += -DCMAKE_CPP_FLAGS="$(strip $(CPPFLAGS) )"
+    endif
+    ifeq (yes,yes)
+        ports-emulation-vbam-cmake_opts      += -DCMAKE_CXX_FLAGS="$(strip $(CXXFLAGS) )"
+    endif
+    ports-emulation-vbam-cmake_opts  += -DCMAKE_EXE_LINKER_FLAGS="$(strip $(TARGET_ISA_LDFLAGS) $(LDFLAGS) )"
+    ifeq (,)
+        ports-emulation-vbam-pkgdir      := $(GENDIR)/$(CURDIR)
+    else
+        ports-emulation-vbam-pkgdir      := $(GENDIR)/$(CURDIR)/
+    endif
+endif
+ifneq (,)
+    ifeq (,)
+        ports-emulation-vbam-pkgdir      := 
+    else
+        ports-emulation-vbam-pkgdir      := /
+    endif
+endif
+
+ports-emulation-vbam-cmakeflag           ?= $(ports-emulation-vbam-pkgdir)/.cmake
+ports-emulation-vbam-installflag         ?= $(ports-emulation-vbam-pkgdir)/.installed
+
+.PHONY : ports-emulation-vbam ports-emulation-vbam-clean ports-emulation-vbam-build_and_install-quick
+
+#MM- ports-emulation-vbam: setup includes core-linklibs ports-emulation-vbam-quick
+
+#MM- ports-emulation-vbam-quick : ports-emulation-vbam-cmake ports-emulation-vbam-build_and_install-quick
+
+#MM
+ports-emulation-vbam-build_and_install-quick :  $(ports-emulation-vbam-installflag)
+
+ifeq (,)
+ports-emulation-vbam-buildargs :=  --build
+else
+ports-emulation-vbam-buildargs :=  
+endif
+
+ifeq (,)
+ports-emulation-vbam-cmakecmdbuild := $(CMAKE) $(ports-emulation-vbam-buildargs) $(ports-emulation-vbam-pkgdir)
+else
+ports-emulation-vbam-cmakecmdbuild := 
+endif
+
+ifeq (,)
+ports-emulation-vbam-installargs :=  --install
+else
+ports-emulation-vbam-installargs :=  
+endif
+
+ifeq (,)
+ports-emulation-vbam-cmakecmdinstall := $(CMAKE) $(ports-emulation-vbam-installargs) $(ports-emulation-vbam-pkgdir)
+else
+ports-emulation-vbam-cmakecmdinstall := 
+endif
+
+ifeq (,)
+ports-emulation-vbam-cmakecleandir := $(ports-emulation-vbam-pkgdir)
+else
+ports-emulation-vbam-cmakecleandir := 
+endif
+
+$(ports-emulation-vbam-installflag) : $(ports-emulation-vbam-cmakeflag)
+	$(Q)$(IF) ! $(MAKE) -q -C $(ports-emulation-vbam-pkgdir); then \
+	    $(RM) $(ports-emulation-vbam-installflag) && \
+	    $(ports-emulation-vbam-cmakecmdbuild) && \
+	    cd $(ports-emulation-vbam-pkgdir) && \
+	    $(ports-emulation-vbam-cmakecmdinstall) && \
+	    $(TOUCH) $@ -r $^; \
+	    $(IF) $(TEST) "no" = "yes"; then \
+	        $(IF) ! $(MAKE) -C $(ports-emulation-vbam-pkgdir) clean; then \
+	            $(RM) -r $(ports-emulation-vbam-cmakecleandir); \
+	        fi; \
+	    fi; \
+	fi
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-emulation-vbam-touchfileflag ?= $(ports-emulation-vbam-pkgdir)/.files-touched
+## **********************************************************************
+ifeq (yes,yes)
+$(ports-emulation-vbam-touchfileflag):
+	$(Q)$(FOR) dir in $(ports-emulation-vbam-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(PORTSDIR)/vbam/$(ARCHBASE)/sources -exec $(TOUCH) -c -r $(PORTSDIR)/vbam/$(ARCHBASE)/sources/CMakeLists.txt '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-emulation-vbam-cmake :  $(ports-emulation-vbam-cmakeflag) 
+
+$(ports-emulation-vbam-cmakeflag) : TMP_SRCDIR := $(shell $(ECHO) $(PORTSDIR)/vbam/$(ARCHBASE)/sources | sed 's/^\(.\):\//\/\1\//')
+$(ports-emulation-vbam-cmakeflag) : $(ports-emulation-vbam-touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(RM) $@
+	$(Q)$(FOR) dir in $(ports-emulation-vbam-pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)cd $(ports-emulation-vbam-pkgdir) && \
+	$(RM) -Rf CMakeCache.txt CMakeFiles \; && \
+	$(ports-emulation-vbam-cmake-env) $(CMAKE) $(ports-emulation-vbam-cmake_opts) $(VBA_OPTIONS) $(TMP_SRCDIR) && \
+	$(TOUCH) $@
+
+#MM
+ports-emulation-vbam-clean : ports-emulation-vbam-uninstall
+	$(Q)$(RM) $(ports-emulation-vbam-pkgdir)
+
+
+.PHONY: ports-emulation-vbam-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-emulation-vbam-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-emulation-vbam-fetch-location := $(PORTSDIR)/vbam/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-emulation-vbam-fetch-baseflag := -b 
+else
+    ports-emulation-vbam-fetch-baseflag :=
+endif
+
+ports-emulation-vbam-fetch-fetchedflag := $(ports-emulation-vbam-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-emulation-vbam-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "zip" -l $(ports-emulation-vbam-fetch-location) \
+	-d $(PORTSDIR)/vbam/$(ARCHBASE) $(ports-emulation-vbam-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "vba-m-SVN1292-sources-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-emulation-vbam-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-emulation-vbam-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-emulation-vbam-create-patch
+
+ifneq (,)
+    ports-emulation-vbam-create-patch-location := 
+else
+    ports-emulation-vbam-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-emulation-vbam-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (sources,)
+    ports-emulation-vbam-create-patch-srcdir   := sources
+else
+    ports-emulation-vbam-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-emulation-vbam-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-emulation-vbam-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-emulation-vbam-create-patch-baseflag := -b /tmp
+    ports-emulation-vbam-create-patch-base := 
+else
+    ports-emulation-vbam-create-patch-baseflag :=
+    ports-emulation-vbam-create-patch-base := $(PORTSDIR)/vbam/$(ARCHBASE)
+endif
+
+#MM- ports-emulation-vbam-create-patch :  ports-emulation-vbam-create-patch-diff 
+#MM- ports-emulation-vbam-create-patch-quick :  ports-emulation-vbam-create-patch-diff 
+
+#MM
+ports-emulation-vbam-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-emulation-vbam-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-emulation-vbam-create-patch-base)/$(ports-emulation-vbam-create-patch-srcdir) $(ports-emulation-vbam-create-patch-base)/tmp/$(ports-emulation-vbam-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "zip" -f -l $(ports-emulation-vbam-create-patch-location) -d $(PORTSDIR)/vbam/$(ARCHBASE) $(ports-emulation-vbam-create-patch-baseflag); \
+	$(MV) $(ports-emulation-vbam-create-patch-base)/$(ports-emulation-vbam-create-patch-srcdir) $(ports-emulation-vbam-create-patch-base)/tmp/$(ports-emulation-vbam-create-patch-srcdir) ; \
+	cd $(ports-emulation-vbam-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-emulation-vbam-create-patch-diffflag) $(ports-emulation-vbam-create-patch-exclude) \
+	    $(ports-emulation-vbam-create-patch-srcdir) \
+	    $(ports-emulation-vbam-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-emulation-vbam-create-patch-base)/tmp/$(ports-emulation-vbam-create-patch-srcdir).aros $(ports-emulation-vbam-create-patch-base)/$(ports-emulation-vbam-create-patch-srcdir) ; \
+	$(RM) $(ports-emulation-vbam-create-patch-base)/tmp
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

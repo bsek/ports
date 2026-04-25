@@ -1,0 +1,1072 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-hurrican
+
+#MM  ports-game-hurrican : \
+#MM  includes \
+#MM  linklibs \
+#MM  contrib-sdl \
+#MM  contrib-sdl-sdl-image \
+#MM  contrib-sdl-sdl-mixer \
+#MM  development-libmodplug \
+#MM  ports-game-hurrican-data \
+#MM  ports-game-hurrican-lang \
+#MM  ports-game-hurrican-fetch
+
+#MM  ports-game-hurrican-lang : ports-game-hurrican-fetch
+#MM  ports-game-hurrican-data : ports-game-hurrican-fetch
+
+TARGETDIR    := $(AROS_CONTRIB)/Games/Platform/Hurrican
+
+####################################################################################################
+# fetch source
+
+REPOSITORIES := archives://share/game/action
+ARCHBASE     := hurrican-src-svn281
+
+
+.PHONY: ports-game-hurrican-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-hurrican-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-hurrican-fetch-location := $(PORTSDIR)/hurrican
+endif
+
+ifneq (,)
+    ports-game-hurrican-fetch-baseflag := -b 
+else
+    ports-game-hurrican-fetch-baseflag :=
+endif
+
+ports-game-hurrican-fetch-fetchedflag := $(ports-game-hurrican-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-hurrican-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-game-hurrican-fetch-location) \
+	-d $(PORTSDIR)/hurrican $(ports-game-hurrican-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-hurrican-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-hurrican-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-hurrican-create-patch
+
+ifneq (,)
+    ports-game-hurrican-create-patch-location := 
+else
+    ports-game-hurrican-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-hurrican-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (,)
+    ports-game-hurrican-create-patch-srcdir   := 
+else
+    ports-game-hurrican-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-game-hurrican-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-hurrican-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-hurrican-create-patch-baseflag := -b /tmp
+    ports-game-hurrican-create-patch-base := 
+else
+    ports-game-hurrican-create-patch-baseflag :=
+    ports-game-hurrican-create-patch-base := $(PORTSDIR)/hurrican
+endif
+
+#MM- ports-game-hurrican-create-patch :  ports-game-hurrican-create-patch-diff 
+#MM- ports-game-hurrican-create-patch-quick :  ports-game-hurrican-create-patch-diff 
+
+#MM
+ports-game-hurrican-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-hurrican-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-hurrican-create-patch-base)/$(ports-game-hurrican-create-patch-srcdir) $(ports-game-hurrican-create-patch-base)/tmp/$(ports-game-hurrican-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tar.bz2" -f -l $(ports-game-hurrican-create-patch-location) -d $(PORTSDIR)/hurrican $(ports-game-hurrican-create-patch-baseflag); \
+	$(MV) $(ports-game-hurrican-create-patch-base)/$(ports-game-hurrican-create-patch-srcdir) $(ports-game-hurrican-create-patch-base)/tmp/$(ports-game-hurrican-create-patch-srcdir) ; \
+	cd $(ports-game-hurrican-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-hurrican-create-patch-diffflag) $(ports-game-hurrican-create-patch-exclude) \
+	    $(ports-game-hurrican-create-patch-srcdir) \
+	    $(ports-game-hurrican-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-game-hurrican-create-patch-base)/tmp/$(ports-game-hurrican-create-patch-srcdir).aros $(ports-game-hurrican-create-patch-base)/$(ports-game-hurrican-create-patch-srcdir) ; \
+	$(RM) $(ports-game-hurrican-create-patch-base)/tmp
+
+####################################################################################################
+# build program
+
+NOWARN_CXXFLAGS := $(NOWARN_UNUSED_LOCAL_TYPEDEFS) $(NOWARN_WRITE_STRINGS)
+NOWARN_CFLAGS := $(NOWARN_DISCARDED_QUALIFIERS) $(NOWARN_UNUSED_LOCAL_TYPEDEFS)
+HURRICAN_FLAGS := $(CFLAGS_EXCEPTIONS) -DPLATFORM_SDL \
+                        -DENABLE_CONSOLE_COMMANDS -DUSE_MODPLUG -DUSE_INDEXED_BATCH \
+                        -DDEBUG -DUSE_GL1 -DUSE_STORAGE_PATH="\"/PROGDIR\"" -DUSE_HOME_DIR
+
+USER_CFLAGS := $(HURRICAN_FLAGS)
+USER_CXXFLAGS := $(CFLAGS_PERMISSIVE) $(NOWARN_CXXFLAGS) $(HURRICAN_FLAGS)
+USER_INCLUDES:= -I$(PORTSDIR)/hurrican/$(ARCHBASE)/src/SDLPort -I$(PORTSDIR)/hurrican/$(ARCHBASE)/src/cml \
+    -I$(PORTSDIR)/hurrican/$(ARCHBASE)/src -I$(AROS_INCLUDES)/SDL -I$(AROS_INCLUDES)/libmodplug -I$(AROS_CONTRIB_INCLUDES) \
+    -I$(PORTSDIR)/hurrican/$(ARCHBASE)/src/unrarlib040/unrarlib
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB) -static-libstdc++
+
+SDL_CXXFILES := SDLPort/SDL_fmod SDLPort/SDL_port SDLPort/texture
+
+# EGL_FILES := SDLPort/eglport
+# GL2_FILES := SDLPort/cshader
+
+UNRAR_CXXFILES := unrarlib040/unrarlib/unrarlib
+
+CXXFILES := \
+        Boss_BigFish \
+        Boss_Bratklops \
+        Boss_Drache \
+        Boss_EisFaust \
+        Boss_EvilHurri \
+        Boss_FahrstuhlBoss \
+        Boss_FlugBoss \
+        Boss_Golem \
+        Boss_MetalHead \
+        Boss_PharaoKopf \
+        Boss_RiesenPiranha \
+        Boss_RiesenQualle \
+        Boss_RiesenRaupe \
+        Boss_RiesenSpinne \
+        Boss_RiesenWespe \
+        Boss_Rollmops \
+        Boss_SchmidtOrgie \
+        Boss_Schneekoenig \
+        Boss_Skeletor \
+        Boss_Skull \
+        Boss_Spinnenmaschine \
+        Boss_Stahlfaust \
+        Boss_TheWall \
+        Boss_Ufo \
+        Boss_WuxeSpinnen \
+        CCracktro \
+        CDragonHack \
+        Console \
+        DX8Enum \
+        DX8Font \
+        DX8Graphics \
+        DX8Input \
+        DX8Joystick \
+        DX8Sound \
+        DX8Sprite \
+        DX8Texture \
+        GUISystem \
+        Gameplay \
+        GegnerClass \
+        Gegner_Auge \
+        Gegner_BallerDrone \
+        Gegner_BigRocket \
+        Gegner_BlueBoulder \
+        Gegner_BrockelRock \
+        Gegner_Climber \
+        Gegner_DeckenKrabbe \
+        Gegner_Deckenturm \
+        Gegner_Diamant \
+        Gegner_Drone \
+        Gegner_EierMann \
+        Gegner_EisStachel \
+        Gegner_Eiszapfen \
+        Gegner_Extras \
+        Gegner_FallBombe \
+        Gegner_FallingRock \
+        Gegner_FetteRakete \
+        Gegner_FetteSpinne \
+        Gegner_FieseDrone \
+        Gegner_FieserFireWalker \
+        Gegner_FieserWalker \
+        Gegner_FireSpider \
+        Gegner_Fledermaus \
+        Gegner_FlugKanone \
+        Gegner_Flugsack \
+        Gegner_Geschuetz \
+        Gegner_GunTower \
+        Gegner_Helper \
+        Gegner_Jaeger \
+        Gegner_Kettenglied \
+        Gegner_KrabblerLinks \
+        Gegner_KrabblerOben \
+        Gegner_KrabblerRechts \
+        Gegner_KugelGross \
+        Gegner_KugelKlein \
+        Gegner_KugelMedium \
+        Gegner_KugelRiesig \
+        Gegner_LaFass \
+        Gegner_LavaBall \
+        Gegner_LavaBallSpawner \
+        Gegner_LavaKrabbe \
+        Gegner_Lavamann \
+        Gegner_Made \
+        Gegner_MiniRocket \
+        Gegner_Minidragon \
+        Gegner_MittelSpinne \
+        Gegner_Mutant \
+        Gegner_Nest \
+        Gegner_NeuFisch \
+        Gegner_OneUp \
+        Gegner_PFlanze \
+        Gegner_Piranha \
+        Gegner_PokeNuke \
+        Gegner_PowerBlock \
+        Gegner_Punisher \
+        Gegner_Qualle \
+        Gegner_Raketenwerfer \
+        Gegner_ReitFlugsack \
+        Gegner_RoboMan1 \
+        Gegner_RoboRaupe \
+        Gegner_Rotzpott \
+        Gegner_Schabe \
+        Gegner_SchienenViech \
+        Gegner_SchleimAlien \
+        Gegner_SchleimBoller \
+        Gegner_SchleimMaul \
+        Gegner_Schneekoppe \
+        Gegner_Schwabbel \
+        Gegner_SideRocket \
+        Gegner_SkiWalker \
+        Gegner_SmallWespe \
+        Gegner_SnowBomb \
+        Gegner_SpiderBomb \
+        Gegner_Spitter \
+        Gegner_Spitterbombe \
+        Gegner_Stachelbeere \
+        Gegner_Stahlmuecke \
+        Gegner_Stalagtit \
+        Gegner_StarBig \
+        Gegner_StarSmall \
+        Gegner_StelzSack \
+        Gegner_SwimWalker \
+        Gegner_Walker \
+        Gegner_WandKannone \
+        Gegner_WandKrabbe \
+        Gegner_WasserMine \
+        Gegner_Zitrone \
+        GetKeyName \
+        HUD \
+        Intro \
+        Logdatei \
+        Main \
+        Mathematics \
+        Menu \
+        Outtro \
+        Partikelsystem \
+        Player \
+        Projectiles \
+        Texts \
+        Tileengine \
+        Timer \
+        Trigger_Bruecke \
+        Trigger_Column \
+        Trigger_Column2 \
+        Trigger_EndLevel \
+        Trigger_FadeMusic \
+        Trigger_FahrStuhl \
+        Trigger_Fass \
+        Trigger_Feuerspucker \
+        Trigger_Floating \
+        Trigger_Floating2 \
+        Trigger_Floating3 \
+        Trigger_Glubschi \
+        Trigger_Glubschi2 \
+        Trigger_LaFassSpawner \
+        Trigger_Lift \
+        Trigger_LightFlare \
+        Trigger_LuefterGross \
+        Trigger_LuefterKlein \
+        Trigger_LuefterKlein2 \
+        Trigger_Mushroom \
+        Trigger_PartikelSpawner \
+        Trigger_Plattform \
+        Trigger_Presse \
+        Trigger_Presswurst \
+        Trigger_SchleuseH \
+        Trigger_SchleuseV \
+        Trigger_Secret \
+        Trigger_ShootButton \
+        Trigger_ShootPlattform \
+        Trigger_Shrine \
+        Trigger_SoundTrigger \
+        Trigger_Spikelift \
+        Trigger_Stampfstein \
+        Trigger_SurfBrett \
+        Trigger_Switch \
+        Trigger_Tube \
+        Trigger_TutorialText \
+        Trigger_Warning \
+        stdafx \
+        tracealloc
+
+CXXFILES := $(addprefix $(PORTSDIR)/hurrican/$(ARCHBASE)/src/,$(CXXFILES) $(SDL_CXXFILES) $(UNRAR_CFILES))
+
+
+.PHONY : ports-game-hurrican
+
+#MM- ports-game-hurrican : \
+#MM             ports-game-hurrican-$(CPU)
+
+#MM- ports-game-hurrican-$(ARCH)-$(CPU) : \
+#MM             ports-game-hurrican-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-hurrican-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-hurrican-$(ARCH)-$(CPU)
+
+#MM- ports-game-hurrican-$(ARCH) : \
+#MM             ports-game-hurrican-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-hurrican-$(FAMILY) : \
+#MM             ports-game-hurrican-$(ARCH)
+
+#MM- ports-game-hurrican-$(CPU) : \
+#MM             ports-game-hurrican-$(FAMILY)
+#MM- ports-game-hurrican-quick : \
+#MM             ports-game-hurrican-$(CPU)-quick
+
+#MM- ports-game-hurrican-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-hurrican-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-hurrican-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-hurrican-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-hurrican-$(ARCH)-quick : \
+#MM             ports-game-hurrican-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-hurrican-$(FAMILY)-quick : \
+#MM             ports-game-hurrican-$(ARCH)-quick
+
+#MM- ports-game-hurrican-$(CPU)-quick : \
+#MM             ports-game-hurrican-$(FAMILY)-quick
+
+ports-game-hurrican_PROGNAME  := Hurrican
+ports-game-hurrican_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-hurrican_TARGETDIR := $(TARGETDIR)
+ports-game-hurrican_LINKER    := 
+ports-game-hurrican_LIBS := SDL_mixer mikmod modplug vorbisfile vorbis ogg SDL_image png z jpeg SDL GL
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-hurrican_LINKER),)
+    ports-game-hurrican_LINKER := target
+endif
+
+ifneq ("$(strip  $(CXXFILES)  )","")
+    ports-game-hurrican_FILES     := 
+    ports-game-hurrican_OBJCFILES := 
+    ports-game-hurrican_ASMFILES  := 
+    ports-game-hurrican_CXXFILES := $(CXXFILES)
+else
+    ports-game-hurrican_FILES     := $(ports-game-hurrican_PROGNAME)
+    ports-game-hurrican_OBJCFILES :=
+    ports-game-hurrican_ASMFILES  :=
+    ports-game-hurrican_CXXFILES :=
+endif
+
+ports-game-hurrican_ARCHOBJS   := $(wildcard $(ports-game-hurrican_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-hurrican_ARCHFILES     := $(basename $(notdir $(ports-game-hurrican_ARCHOBJS)))
+else
+    ports-game-hurrican_ARCHFILES     := $(basename $(patsubst $(ports-game-hurrican_OBJDIR)/%,%,$(ports-game-hurrican_ARCHOBJS)))
+endif
+ports-game-hurrican_C_NARCHFILES := $(filter-out $(ports-game-hurrican_ARCHFILES),$(ports-game-hurrican_FILES))
+ports-game-hurrican_CXX_NARCHFILES := $(filter-out $(ports-game-hurrican_ARCHFILES),$(ports-game-hurrican_CXXFILES))
+ports-game-hurrican_OBJC_NARCHFILES := $(filter-out $(ports-game-hurrican_ARCHFILES),$(ports-game-hurrican_OBJCFILES))
+
+TMP_FILES := $(ports-game-hurrican_C_NARCHFILES) $(ports-game-hurrican_CXX_NARCHFILES) $(ports-game-hurrican_ASMFILES) $(ports-game-hurrican_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-hurrican_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-hurrican_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-hurrican_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-hurrican_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-hurrican_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-hurrican_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-hurrican_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-hurrican_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-hurrican_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-hurrican_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-hurrican_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-hurrican_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-hurrican_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-hurrican_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-hurrican_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-hurrican_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-hurrican_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-hurrican_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-hurrican_LDFLAGS          := 
+endif
+
+ports-game-hurrican_CSTATICFLAGS   := `echo "$(ports-game-hurrican_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-hurrican_CSTDCFLAGS   :=  `echo "$(ports-game-hurrican_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-hurrican_CPOSIXCFLAGS   :=  `echo "$(ports-game-hurrican_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-hurrican_LDFLAGS          += $(strip $(ports-game-hurrican_CSTATICFLAGS) $(ports-game-hurrican_CSTDCFLAGS) $(ports-game-hurrican_CPOSIXCFLAGS))
+
+ports-game-hurrican_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-hurrican_COVERAGE := yes
+ports-game-hurrican_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-hurrican_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-hurrican_CFLAGS    := $(strip $(ports-game-hurrican_COVERAGEFLAGS) $(ports-game-hurrican_CFLAGS))
+ports-game-hurrican_CXXFLAGS := $(strip $(ports-game-hurrican_COVERAGEFLAGS) $(ports-game-hurrican_CXXFLAGS))
+ports-game-hurrican_LIBS += $(ports-game-hurrican_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-hurrican_FUNCINSTR := yes
+ports-game-hurrican_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-hurrican_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-hurrican_CFLAGS    := $(strip $(ports-game-hurrican_INSTRFUNCFLAGS) $(ports-game-hurrican_CFLAGS))
+ports-game-hurrican_CXXFLAGS := $(strip $(ports-game-hurrican_INSTRFUNCFLAGS) $(ports-game-hurrican_CXXFLAGS))
+ports-game-hurrican_LIBS += $(ports-game-hurrican_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-hurrican_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-hurrican_CFLAGS))
+ports-game-hurrican_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-hurrican_CXXFLAGS))
+endif
+endif
+ports-game-hurrican_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-hurrican_DFLAGS     := 
+else
+    ports-game-hurrican_DFLAGS     := $(ports-game-hurrican_CFLAGS)
+endif
+ifneq (,)
+    ports-game-hurrican_DXXFLAGS     := 
+else
+    ports-game-hurrican_DXXFLAGS     := $(ports-game-hurrican_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-hurrican_LDFLAGS           := $(ports-game-hurrican_LDFLAGS)
+ports-game-hurrican_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-hurrican_LDFLAGS           := $(ports-game-hurrican_LDFLAGS)
+ports-game-hurrican_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-hurrican_LDFLAGS           := $(ports-game-hurrican_LDFLAGS)
+ports-game-hurrican_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-hurrican_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-hurrican-quick : ports-game-hurrican
+
+#MM ports-game-hurrican : includes-generate-deps core-linklibs
+ports-game-hurrican : $(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-hurrican_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-hurrican_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-hurrican_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-hurrican_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-hurrican_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-hurrican_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-hurrican ports-game-hurrican-quick ports-game-hurrican-compress-quick),)
+
+ports-game-hurrican_CXXABSBASENAMES := $(foreach ports-game-hurrican_CXXBASE,$(ports-game-hurrican_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-hurrican_CXXBASE)),$(ports-game-hurrican_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-hurrican_CXXBASE))))
+
+ifneq ($(ports-game-hurrican_CXXABSBASENAMES),)
+
+ports-game-hurrican_CXXBASENAMES := $(basename $(ports-game-hurrican_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-hurrican_MCXX_FILES  := $(strip $(foreach ports-game-hurrican_CXXBASE,$(ports-game-hurrican_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-hurrican_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-hurrican_EXT),$(ports-game-hurrican_CXXBASE)))))))
+
+ifeq (,)
+ports-game-hurrican_MCXX_SRCWILDCARD := %
+else
+ports-game-hurrican_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-hurrican_OBJDIR),)
+  ports-game-hurrican_CXXTARGETS := $(notdir $(ports-game-hurrican_CXXBASENAMES:=.o))
+  ports-game-hurrican_CXXDTARGETS := $(notdir $(ports-game-hurrican_CXXBASENAMES:=.d))
+  ports-game-hurrican_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-hurrican_CXXTARGETS := $(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(ports-game-hurrican_CXXBASENAMES:=.o)))
+  ports-game-hurrican_CXXDTARGETS := $(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(ports-game-hurrican_CXXBASENAMES:=.d)))
+  ports-game-hurrican_MCXX_WILDCARD := $(ports-game-hurrican_OBJDIR)/%
+else
+  ports-game-hurrican_CXXTARGETS := $(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_CXXBASENAMES:=.o))
+  ports-game-hurrican_CXXDTARGETS := $(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_CXXBASENAMES:=.d))
+  ports-game-hurrican_MCXX_WILDCARD := $(ports-game-hurrican_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-hurrican_CXXTARGETS) $(ports-game-hurrican_CXXDTARGETS) : | $(ports-game-hurrican_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-hurrican_MCXX_CPPFLAGS := $(ports-game-hurrican_CPPFLAGS)
+ports-game-hurrican_CXXFLAGS := $(ports-game-hurrican_CXXFLAGS)
+ifeq ($(ports-game-hurrican_DXXFLAGS),)
+  ports-game-hurrican_DXXFLAGS := $(ports-game-hurrican_CXXFLAGS)
+else
+  ports-game-hurrican_DXXFLAGS := $(ports-game-hurrican_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-hurrican_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-hurrican_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-hurrican_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-hurrican_STRIP ?= $(HOST_STRIP)
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-hurrican_CXXCMD:=$(HOST_CXX)
+  ports-game-hurrican_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS) $(ports-game-hurrican_MCXX_EXTRA_CPPFLAGS))
+  ports-game-hurrican_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-hurrican_CXXFLAGS))
+  ports-game-hurrican_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-hurrican_DXXFLAGS))
+  ports-game-hurrican_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-hurrican_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-hurrican_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-hurrican_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-hurrican_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-hurrican_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-hurrican_LDFLAGS ?= $(ports-game-hurrican_CXXLDFLAGS)
+  ports-game-hurrican_STRIP ?= $(TARGET_STRIP)
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-hurrican_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-hurrican_MCXX_CPPFLAGS := $(strip $(ports-game-hurrican_MCXX_CPPFLAGS) $(ports-game-hurrican_MCXX_EXTRA_CPPFLAGS))
+  ports-game-hurrican_CXXFLAGS := $(strip $(ports-game-hurrican_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-hurrican_DXXFLAGS := $(ports-game-hurrican_DXXFLAGS)
+  ports-game-hurrican_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-hurrican_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-hurrican_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-hurrican_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-hurrican_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-hurrican_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-hurrican_LDFLAGS ?= $(ports-game-hurrican_CXXLDFLAGS)
+  ports-game-hurrican_STRIP ?= $(ECHO) >/dev/null
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-hurrican_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-hurrican_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS) $(ports-game-hurrican_MCXX_EXTRA_CPPFLAGS))
+  ports-game-hurrican_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-hurrican_CXXFLAGS))
+  ports-game-hurrican_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-hurrican_DXXFLAGS))
+  ports-game-hurrican_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-hurrican_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-hurrican_CXXCMD) $(ports-game-hurrican_CXXIQUOTE) $(dir $(2)) $(ports-game-hurrican_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) . $(ports-game-hurrican_CXXIQUOTE_END) $(strip $(ports-game-hurrican_CXXFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-hurrican_CXXCMD) $(ports-game-hurrican_CXXIQUOTE) $(dir $(2)) $(ports-game-hurrican_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) . $(ports-game-hurrican_CXXIQUOTE_END) $(strip $(ports-game-hurrican_CXXFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-hurrican_CXXCMD) $(ports-game-hurrican_CXXIQUOTE) $(dir $(2)) $(ports-game-hurrican_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_CXXIQUOTE) . $(ports-game-hurrican_CXXIQUOTE_END) $(strip $(ports-game-hurrican_CXXFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-hurrican_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-hurrican_DXXFLAGS) $(ports-game-hurrican_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-hurrican_OBJDIR),)
+  $(foreach ports-game-hurrican_CXXFILE,$(ports-game-hurrican_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-hurrican_CXXFILE))),$(ports-game-hurrican_CXXFILE))))
+else
+  $(foreach ports-game-hurrican_CXXFILE,$(ports-game-hurrican_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(basename $(ports-game-hurrican_CXXFILE)))),$(ports-game-hurrican_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-hurrican_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-hurrican_MOBJC_SRCWILDCARD := %
+else
+ports-game-hurrican_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-hurrican_OBJDIR),)
+  ports-game-hurrican_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-hurrican_OBJC_NARCHFILES))
+  ports-game-hurrican_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-hurrican_OBJC_NARCHFILES))
+  ports-game-hurrican_MOBJC_WILDCARD := %
+else
+  ports-game-hurrican_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_OBJC_NARCHFILES)))
+  ports-game-hurrican_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_OBJC_NARCHFILES)))
+  ports-game-hurrican_MOBJC_WILDCARD := $(ports-game-hurrican_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-hurrican_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-hurrican_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-hurrican_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-hurrican_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-hurrican_MOBJC_DIRS := $(foreach dir, $(ports-game-hurrican_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-hurrican_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-hurrican_MOBJC_DIRS),)
+    ports-game-hurrican_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-hurrican_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-hurrican_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-hurrican_CC := $(TARGET_CC)
+else
+  ports-game-hurrican_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-hurrican_MOBJC_CPPFLAGS := $(ports-game-hurrican_CPPFLAGS)
+ports-game-hurrican_OBJCFLAGS := $(ports-game-hurrican_CFLAGS)
+ports-game-hurrican_OBJCFLAGS := $(ports-game-hurrican_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-hurrican_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-hurrican_OBJCFLAGS)))
+ifeq ($(ports-game-hurrican_DFLAGS),)
+  ports-game-hurrican_OBJCDFLAGS := $(ports-game-hurrican_CFLAGS)
+else
+  ports-game-hurrican_OBJCDFLAGS := $(ports-game-hurrican_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-hurrican_LINK ?= $(strip $(ports-game-hurrican_CC) $(TARGET_SYSROOT))
+  ports-game-hurrican_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-hurrican_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-hurrican_STRIP ?= $(TARGET_STRIP)
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-hurrican_CC) $(TARGET_SYSROOT))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_MOBJC_CPPFLAGS:=$(strip $(ports-game-hurrican_MOBJC_CPPFLAGS) $(ports-game-hurrican_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCFLAGS:=$(strip $(ports-game-hurrican_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCDFLAGS:=$(ports-game-hurrican_OBJCDFLAGS)
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-hurrican_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-hurrican_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-hurrican_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-hurrican_STRIP ?= $(HOST_STRIP)
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-hurrican_MOBJC_CPPFLAGS) $(ports-game-hurrican_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-hurrican_OBJCFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-hurrican_OBJCDFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-hurrican_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-hurrican_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-hurrican_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-hurrican_STRIP ?= $(ECHO) >/dev/null
+  ports-game-hurrican_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-hurrican_MOBJC_CPPFLAGS) $(ports-game-hurrican_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-hurrican_OBJCFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-hurrican_OBJCDFLAGS))
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-hurrican_MOBJC_TARGETS) $(ports-game-hurrican_MOBJC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-hurrican_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-hurrican_MOBJC_CPPFLAGS)
+$(ports-game-hurrican_MOBJC_TARGETS) : CFLAGS := $(ports-game-hurrican_OBJCFLAGS)
+$(ports-game-hurrican_MOBJC_TARGETS) : $(ports-game-hurrican_MOBJC_WILDCARD).o : $(ports-game-hurrican_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-hurrican_MOBJC_DTARGETS) : $(ports-game-hurrican_MOBJC_WILDCARD).d : $(ports-game-hurrican_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-hurrican_OBJCDFLAGS) $(ports-game-hurrican_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-hurrican_MC_SRCWILDCARD := %
+else
+ports-game-hurrican_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-hurrican_OBJDIR),)
+ports-game-hurrican_MC_TARGETS := $(addsuffix .o,$(ports-game-hurrican_C_NARCHFILES))
+ports-game-hurrican_MC_DTARGETS := $(addsuffix .d,$(ports-game-hurrican_C_NARCHFILES))
+ports-game-hurrican_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-hurrican_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(ports-game-hurrican_C_NARCHFILES))))
+    ports-game-hurrican_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(ports-game-hurrican_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-hurrican_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_C_NARCHFILES)))
+    ports-game-hurrican_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(ports-game-hurrican_C_NARCHFILES)))
+else
+    ports-game-hurrican_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(patsubst /%,%,$(ports-game-hurrican_C_NARCHFILES))))
+    ports-game-hurrican_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(patsubst /%,%,$(ports-game-hurrican_C_NARCHFILES))))
+endif
+endif
+ports-game-hurrican_MC_TGTWILDCARD := $(ports-game-hurrican_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-hurrican_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-hurrican_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-hurrican_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-hurrican_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-hurrican_MC_DIRS := $(foreach dir, $(ports-game-hurrican_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-hurrican_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-hurrican_MC_DIRS),)
+    ports-game-hurrican_MC_DIRS := $(shell $(ECHO) $(ports-game-hurrican_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-hurrican_MC_DIRS)
+endif
+
+endif
+
+ports-game-hurrican_MC_CPPFLAGS := $(ports-game-hurrican_CPPFLAGS)
+ports-game-hurrican_CFLAGS := $(ports-game-hurrican_CFLAGS)
+ifeq ($(ports-game-hurrican_DFLAGS),)
+  ports-game-hurrican_DFLAGS := $(ports-game-hurrican_CFLAGS)
+else
+  ports-game-hurrican_DFLAGS := $(ports-game-hurrican_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-hurrican_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-hurrican_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-hurrican_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-hurrican_STRIP ?= $(TARGET_STRIP)
+ports-game-hurrican_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_MC_CPPFLAGS:=$(strip $(ports-game-hurrican_MC_CPPFLAGS) $(ports-game-hurrican_MC_EXTRA_CPPFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_CFLAGS:=$(strip $(ports-game-hurrican_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_DFLAGS:=$(ports-game-hurrican_DFLAGS)
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-hurrican_LINK ?= $(strip $(HOST_CC))
+ports-game-hurrican_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-hurrican_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-hurrican_STRIP ?= $(HOST_STRIP)
+ports-game-hurrican_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-hurrican_MC_CPPFLAGS) $(ports-game-hurrican_MC_EXTRA_CPPFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-hurrican_CFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-hurrican_DFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-hurrican_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-hurrican_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-hurrican_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-hurrican_STRIP ?= $(ECHO) >/dev/null
+ports-game-hurrican_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-hurrican_MC_CPPFLAGS) $(ports-game-hurrican_MC_EXTRA_CPPFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-hurrican_CFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-hurrican_DFLAGS))
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-hurrican_MC_TARGETS) $(ports-game-hurrican_MC_DTARGETS) : ports-game-hurrican_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-hurrican_MC_TARGETS) : CPPFLAGS := $(ports-game-hurrican_MC_CPPFLAGS)
+$(ports-game-hurrican_MC_TARGETS) : CFLAGS := $(ports-game-hurrican_CFLAGS)
+$(ports-game-hurrican_MC_TARGETS) : $(ports-game-hurrican_MC_TGTWILDCARD).o : $(ports-game-hurrican_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-hurrican_IQUOTE) $(dir $<) $(ports-game-hurrican_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-hurrican_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-hurrican_IQUOTE) . $(ports-game-hurrican_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-hurrican_MC_DTARGETS) : $(ports-game-hurrican_MC_TGTWILDCARD).d : $(ports-game-hurrican_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-hurrican_DFLAGS) $(ports-game-hurrican_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-hurrican_OBJDIR),)
+ports-game-hurrican-MA_TARGETS := $(addsuffix .o,$(ports-game-hurrican_ASMFILES))
+ports-game-hurrican-MA_WILDCARD := %
+else
+ports-game-hurrican-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-hurrican_OBJDIR)/,$(notdir $(ports-game-hurrican_ASMFILES))))
+ports-game-hurrican-MA_WILDCARD := $(ports-game-hurrican_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-hurrican-MA_TARGETS) : | $(addsuffix .s,$(ports-game-hurrican_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-hurrican-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-hurrican-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-hurrican_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-hurrican-MA_DIRS := $(foreach dir, $(ports-game-hurrican-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-hurrican-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-hurrican-MA_DIRS),)
+    ports-game-hurrican-MA_DIRS := $(shell $(ECHO) $(ports-game-hurrican-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-hurrican-MA_DIRS)
+endif
+
+endif
+
+ports-game-hurrican-MA_ASSEMBLER ?= $(ports-game-hurrican_ASSEMBLER)
+
+$(ports-game-hurrican-MA_TARGETS) : ports-game-hurrican-MA_CMD:= $(ports-game-hurrican-MA_ASSEMBLER)
+
+$(ports-game-hurrican-MA_TARGETS) : CPPFLAGS := $(ports-game-hurrican_CPPFLAGS)
+$(ports-game-hurrican-MA_TARGETS) : AFLAGS := $(ports-game-hurrican_AFLAGS)
+$(ports-game-hurrican-MA_TARGETS) : $(ports-game-hurrican-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-hurrican-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-hurrican-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-hurrican-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-hurrican-link_LD_OPTS := 
+ports-game-hurrican-link_EXTRA_LIBS :=
+ifeq (yes,yes)
+    ports-game-hurrican-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-hurrican-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-hurrican-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-hurrican-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-hurrican_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-hurrican-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-hurrican-link_DIRS)))
+# Add trailing /
+ports-game-hurrican-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-hurrican-link_DIRS)))
+# Add normal linklib path
+ports-game-hurrican-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-hurrican-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-hurrican_LIBS) $(ports-game-hurrican-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-hurrican-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-hurrican-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-hurrican-link_DEPLIBS := $(foreach lib,$(ports-game-hurrican-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-hurrican-link_DIRS)))) \
+)
+
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : OBJDIR := $(ports-game-hurrican_OBJDIR)
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : OBJS := $(strip $(ports-game-hurrican_OBJS) $(ports-game-hurrican_ARCHOBJS) $(USER_OBJS))
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : LDFLAGS := $(strip $(ports-game-hurrican_LDFLAGS))
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-hurrican_LIBS) $(ports-game-hurrican-link_EXTRA_LIBS)))
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-hurrican_ARCHLIBS))
+$(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : $(ports-game-hurrican_OBJS) $(ports-game-hurrican_ARCHOBJS) $(USER_OBJS) $(ports-game-hurrican-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-hurrican_LINK) $(strip $(ports-game-hurrican_LD_OPTS) $(ports-game-hurrican-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-hurrican_LINK) $(strip $(ports-game-hurrican_LD_OPTS) $(ports-game-hurrican-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-hurrican_LINK) $(strip $(ports-game-hurrican_LD_OPTS) $(ports-game-hurrican-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-hurrican_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-hurrican_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-hurrican_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-hurrican_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-hurrican_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-hurrican_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-hurrican_DEPS),)
+  ifneq (ports-game-hurrican ports-game-hurrican-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-hurrican ports-game-hurrican-quick),)
+      -include $(ports-game-hurrican_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-hurrican_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-hurrican_OBJS) $(ports-game-hurrican_DEPS) $(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME),)
+$(ports-game-hurrican_OBJS) $(ports-game-hurrican_DEPS) $(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) : | $(ports-game-hurrican_OBJDIR) $(ports-game-hurrican_TARGETDIR)
+else
+$(ports-game-hurrican_OBJS) $(ports-game-hurrican_DEPS) $(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) :: $(ports-game-hurrican_OBJDIR) $(ports-game-hurrican_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-hurrican_OBJDIR) $(ports-game-hurrican_TARGETDIR)
+
+
+ports-game-hurrican-clean : FILES := $(ports-game-hurrican_OBJS) $(ports-game-hurrican_TARGETDIR)/$(ports-game-hurrican_PROGNAME) $(ports-game-hurrican_DEPS)
+#MM
+ports-game-hurrican-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-hurrican"
+	$(Q)$(RM) $(FILES)
+
+
+
+####################################################################################################
+# copy directories
+
+
+.PHONY : ports-game-hurrican-data
+
+#MM
+ports-game-hurrican-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/hurrican/$(ARCHBASE)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/hurrican/$(ARCHBASE)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/hurrican/$(ARCHBASE)/data -d $(TARGETDIR)/data -e 
+
+
+
+.PHONY : ports-game-hurrican-lang
+
+#MM
+ports-game-hurrican-lang :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/hurrican/$(ARCHBASE)/lang),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/lang)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/lang)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/hurrican/$(ARCHBASE)/lang))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/hurrican/$(ARCHBASE)/lang)))' to '$(if $(filter /%,$(TARGETDIR)/lang),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/lang)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/lang)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/lang))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/lang)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/hurrican/$(ARCHBASE)/lang -d $(TARGETDIR)/lang -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,49 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-emulation : ports-emulation-scummvm-new
+
+#MM- ports-emulation-scummvm-new : \
+#MM     aros-scummvm-new \
+#MM     aros-scummvm-new-themes-fetch \
+#MM     aros-scummvm-new-themes-copy
+
+#MM- aros-scummvm-new : \
+#MM     contrib-sdl2 \
+#MM     ports-libs-libmpeg
+
+PACKAGE      := scummvm
+VERSION      := 2026.2.0
+TARGETDIR    := $(AROS_CONTRIB)/Emu/Scummvm
+REPOSITORIES := https://downloads.scummvm.org/frs/scummvm/$(VERSION)
+
+SCUMMVM_OPTS=--host=$(AROS_TARGET_CPU)-aros --enable-verbose-build --enable-release --enable-freetype2 --datarootdir=$(TARGETDIR) --disable-sdlnet --disable-all-engines --enable-engine=scumm,sci,sky,queen,saga,sword1,sword2,kyra,lure,agi,touche,gob,groovie,drascula,tucker,cruise,cine,made,hugo,teenagent,toon,tony,tinsel,hopkins,neverhood,director,bladerunner,mortevielle,dreamweb,griffon,access,adl,cge,cge2,composer,draci,dragons,efh,gnap,got,hdb,hypno,illusions,kingdom,lab,lastexpress,pink,plumbers,prince,private,sludge,supernova,toltecs,tsage,voyeur,wage,zvision
+NOWARN_FLAGS := -Wno-expansion-to-defined -Wno-variadic-macros \
+                $(NOWARN_CLASS_MEMACCESS) $(NOWARN_IMPLICIT_FALLTHROUGH) \
+                $(NOWARN_FORMAT_OVERFLOW)
+USER_CXXFLAGS := -fvisibility=hidden  -fvisibility-inlines-hidden -mlong-calls
+USER_CPPFLAGS := -D__BSDSOCKET_NOLIBBASE__
+USER_INCLUDES := -I$(AROS_INCLUDES)/SDL2 -I$(AROS_CONTRIB_INCLUDES) $(NOWARN_FLAGS)
+USER_LDFLAGS := -static-libstdc++
+OPTIMIZATION_CFLAGS:=
+
+%fetch_and_build mmake=aros-scummvm-new prefix="$(TARGETDIR)" \
+    package="$(PACKAGE)" version="$(VERSION)" suffixes="tar.xz tar.bz2 tar.gz" \
+    package_repo="$(REPOSITORIES)" patch=yes extraoptions="$(SCUMMVM_OPTS)" \
+    crossbuild=no use_build_env=yes buildflags=no nix=no nix_dir_layout=no gnuflags=no
+
+SCUMMVM_THEME="Modern_ice.zip"
+
+%fetch mmake=aros-scummvm-new-themes-fetch \
+    archive_origins="http://wiki.scummvm.org/images/c/c7" \
+    archive="$(SCUMMVM_THEME)" suffixes="" location="$(PORTSDIR)/$(PACKAGE)"
+
+%copy_files_q mmake=aros-scummvm-new-themes-copy files="$(SCUMMVM_THEME)" src="$(PORTSDIR)/$(PACKAGE)" dst="$(TARGETDIR)/data"
+
+#MM
+ports-emulation-scummvm-new-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+%common

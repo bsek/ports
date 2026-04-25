@@ -1,0 +1,631 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-graphics : ports-graphics-potrace
+
+#MM- ports-graphics-potrace : ports-graphics-potrace-cpy
+
+PACKAGE      := potrace
+VERSION      := 1.16
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Gfx/Potrace
+REPOSITORIES := sf://potrace
+
+USER_CFLAGS := $(CFLAGS_GNU11)
+
+
+#MM- ports-graphics-potrace-quick : ports-graphics-potrace--quick
+#MM- ports-graphics-potrace--quick : ports-graphics-potrace--fetch
+#MM- ports-graphics-potrace-fetch : ports-graphics-potrace--fetch
+#MM- ports-graphics-potrace-create-patch : ports-graphics-potrace--create-patch
+#MM- ports-graphics-potrace-create-patch-quick : ports-graphics-potrace--create-patch
+ 
+ports-graphics-potrace-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-graphics-potrace-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-graphics-potrace-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-graphics-potrace-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-graphics-potrace-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-graphics-potrace--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--srcdir        ?= 
+else
+    ports-graphics-potrace--srcdir        ?= $(ports-graphics-potrace-archbase)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--builddir      ?= $(ports-graphics-potrace--srcdir)/
+else
+    ports-graphics-potrace--builddir      ?= $(ports-graphics-potrace--srcdir)
+endif
+
+ifeq (,)
+ifeq (no,yes)
+    ports-graphics-potrace--patches_specs ?= $(ports-graphics-potrace--archbase)-aros.diff:$(ports-graphics-potrace--srcdir):-f,-p1
+else
+    ports-graphics-potrace--patches_specs ?= ::
+endif
+else
+    ports-graphics-potrace--patches_specs ?= 
+endif
+
+
+.PHONY: ports-graphics-potrace--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-graphics-potrace--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-graphics-potrace--fetch-location := $(ports-graphics-potrace-portdir)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--fetch-baseflag := -b 
+else
+    ports-graphics-potrace--fetch-baseflag :=
+endif
+
+ports-graphics-potrace--fetch-fetchedflag := $(ports-graphics-potrace--fetch-location)/.$(ports-graphics-potrace--archbase)-fetched
+
+#MM
+ports-graphics-potrace--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-graphics-potrace--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-graphics-potrace--archbase) -s "tar.gz" -l $(ports-graphics-potrace--fetch-location) \
+	-d $(ports-graphics-potrace-portdir) $(ports-graphics-potrace--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-graphics-potrace--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-graphics-potrace--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-graphics-potrace--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-graphics-potrace--create-patch
+
+ifneq (,)
+    ports-graphics-potrace--create-patch-location := 
+else
+    ports-graphics-potrace--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-graphics-potrace--srcdir),)
+    ports-graphics-potrace--create-patch-srcdir   := $(ports-graphics-potrace--srcdir)
+else
+    ports-graphics-potrace--create-patch-srcdir   := $(ports-graphics-potrace--archbase)
+endif
+
+ifeq (no,yes)
+    ports-graphics-potrace--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-graphics-potrace--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-graphics-potrace--create-patch-baseflag := -b /tmp
+    ports-graphics-potrace--create-patch-base := 
+else
+    ports-graphics-potrace--create-patch-baseflag :=
+    ports-graphics-potrace--create-patch-base := $(ports-graphics-potrace-portdir)
+endif
+
+#MM- ports-graphics-potrace--create-patch :  ports-graphics-potrace--create-patch-diff 
+#MM- ports-graphics-potrace--create-patch-quick :  ports-graphics-potrace--create-patch-diff 
+
+#MM
+ports-graphics-potrace--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-graphics-potrace--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-graphics-potrace--create-patch-base)/$(ports-graphics-potrace--create-patch-srcdir) $(ports-graphics-potrace--create-patch-base)/tmp/$(ports-graphics-potrace--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-graphics-potrace--archbase) -s "tar.gz" -f -l $(ports-graphics-potrace--create-patch-location) -d $(ports-graphics-potrace-portdir) $(ports-graphics-potrace--create-patch-baseflag); \
+	$(MV) $(ports-graphics-potrace--create-patch-base)/$(ports-graphics-potrace--create-patch-srcdir) $(ports-graphics-potrace--create-patch-base)/tmp/$(ports-graphics-potrace--create-patch-srcdir) ; \
+	cd $(ports-graphics-potrace--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-graphics-potrace--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-graphics-potrace--create-patch-diffflag) $(ports-graphics-potrace--create-patch-exclude) \
+	    $(ports-graphics-potrace--create-patch-srcdir) \
+	    $(ports-graphics-potrace--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-graphics-potrace--archbase)-aros-new.diff ; \
+	$(MV) $(ports-graphics-potrace--create-patch-base)/tmp/$(ports-graphics-potrace--create-patch-srcdir).aros $(ports-graphics-potrace--create-patch-base)/$(ports-graphics-potrace--create-patch-srcdir) ; \
+	$(RM) $(ports-graphics-potrace--create-patch-base)/tmp
+
+#MM ports-graphics-potrace : ports-graphics-potrace-
+#MM
+ports-graphics-potrace:
+	$(Q)$(NOP)
+
+ports-graphics-potrace--package-dir := $(ports-graphics-potrace-portdir)/$(ports-graphics-potrace--archbase)
+
+ports-graphics-potrace--package-basename := \
+    $(DISTDIR)/Packages/$(ports-graphics-potrace--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-graphics-potrace--package := $(ports-graphics-potrace--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-graphics-potrace-prefix),)
+    ports-graphics-potrace--prefix := $(ports-graphics-potrace-prefix)
+else
+    ports-graphics-potrace--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-graphics-potrace--aros_prefix := 
+else
+    ports-graphics-potrace--aros_prefix := $(ports-graphics-potrace--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (no,yes)
+    ports-graphics-potrace--nix    := $(BD_NIXFLAG)
+    ports-graphics-potrace--volpfx := /
+    ports-graphics-potrace--volsfx := /
+    
+    ifeq (,)
+        ports-graphics-potrace--nix_dir_layout := yes
+    endif
+else
+    ports-graphics-potrace--volsfx := :
+    
+    ifeq (,)
+        ports-graphics-potrace--nix_dir_layout := no
+    endif
+endif
+
+ports-graphics-potrace--volfunc = $(ports-graphics-potrace--volpfx)$(notdir $1)$(ports-graphics-potrace--volsfx)
+
+ports-graphics-potrace--install_opts += prefix=$(ports-graphics-potrace--prefix) \
+        exec_prefix=$(ports-graphics-potrace--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-graphics-potrace--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-graphics-potrace--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-graphics-potrace--pkgbasedir := $(GENDIR)
+    else
+        ports-graphics-potrace--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-graphics-potrace--pkgbasedir := 
+    else
+        ports-graphics-potrace--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-graphics-potrace--pkgdir := $(ports-graphics-potrace--pkgbasedir)
+else
+    ports-graphics-potrace--pkgdir := $(ports-graphics-potrace--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-graphics-potrace--configflag ?= $(ports-graphics-potrace--pkgdir)/.configured
+ports-graphics-potrace--installflag ?= $(ports-graphics-potrace--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-graphics-potrace--nix_dir_layout) $(host)),yes)
+    ports-graphics-potrace--PROGDIR      := $(ports-graphics-potrace--aros_prefix)/bin
+    ports-graphics-potrace--config_opts  := --prefix=$(ports-graphics-potrace--aros_prefix)
+else
+    ifeq (no,yes)
+        ports-graphics-potrace--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-graphics-potrace--config_opts  := --prefix=$(ports-graphics-potrace--aros_prefix)
+    endif
+
+    ports-graphics-potrace--PROGDIR := $(ports-graphics-potrace--aros_prefix)
+    
+    ports-graphics-potrace--install_opts := bindir=$(ports-graphics-potrace--prefix) \
+        sbindir=$(ports-graphics-potrace--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-graphics-potrace--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-graphics-potrace--TARGET_LDFLAGS :=
+else
+ports-graphics-potrace--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-graphics-potrace--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-graphics-potrace--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-graphics-potrace--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-graphics-potrace--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-graphics-potrace--nix)
+endif
+endif
+ports-graphics-potrace--TARGET_CC?=$(TARGET_CC)
+ports-graphics-potrace--KERNEL_CC?=$(KERNEL_CC)
+ports-graphics-potrace--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-graphics-potrace--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-graphics-potrace--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-graphics-potrace--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-graphics-potrace--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-graphics-potrace--nix)
+endif
+endif
+ports-graphics-potrace--TARGET_CXX?=$(TARGET_CXX)
+ports-graphics-potrace--KERNEL_CXX?=$(KERNEL_CXX)
+ports-graphics-potrace--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-graphics-potrace--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-graphics-potrace--HOST_CC) $(ports-graphics-potrace--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-graphics-potrace--HOST_CXX) $(ports-graphics-potrace--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-graphics-potrace--cfg-env += TARGET_CC="$(strip $(ports-graphics-potrace--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-graphics-potrace--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-graphics-potrace--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-graphics-potrace--cfg-env += \
+        CPP="$(strip $(ports-graphics-potrace--CROSS_CPP) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-graphics-potrace--CROSS_CPP) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-graphics-potrace--CROSS_CC) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-graphics-potrace--CROSS_CXX) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-graphics-potrace--CROSS_LD))" \
+        AS="$(strip $(ports-graphics-potrace--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-graphics-potrace--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-graphics-potrace--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-graphics-potrace--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-graphics-potrace--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-graphics-potrace--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-graphics-potrace--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-graphics-potrace--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-graphics-potrace--CROSS_LDFLAGS))"
+    ports-graphics-potrace--cfg-env += CC_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_CC) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_CXX) $(ports-graphics-potrace--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-graphics-potrace--CROSS_LDFLAGS))"
+else
+    ports-graphics-potrace--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-graphics-potrace--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-graphics-potrace--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-graphics-potrace--cfg-env += CFLAGS="$(strip $(ports-graphics-potrace--TARGET_CFLAGS) $(ports-graphics-potrace--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-graphics-potrace--TARGET_CXXFLAGS) $(ports-graphics-potrace--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-graphics-potrace--cfg-env += LDFLAGS="$(strip $(ports-graphics-potrace--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-graphics-potrace--nix) $(ports-graphics-potrace--s_flag))"
+    ports-graphics-potrace--cfg-env += LT_LDFLAGS="$(strip $(ports-graphics-potrace--TARGET_LDFLAGS))"
+    ports-graphics-potrace--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-graphics-potrace--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-graphics-potrace--ACBUILD_CPPFLAGS))"
+endif
+    ports-graphics-potrace--cfg-env += CC_FOR_BUILD="$(strip $(ports-graphics-potrace--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-graphics-potrace--HOST_CFLAGS) $(ports-graphics-potrace--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-graphics-potrace--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-graphics-potrace--HOST_CXXFLAGS) $(ports-graphics-potrace--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-graphics-potrace--ACBUILD_LDFLAGS) $(ports-graphics-potrace--s_flag))"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-graphics-potrace--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-graphics-potrace--cfg-env += CC_FOR_HOST="$(strip $(ports-graphics-potrace--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-graphics-potrace--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-graphics-potrace--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-graphics-potrace--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-graphics-potrace--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-graphics-potrace--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-graphics-potrace--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-graphics-potrace--nix) $(ports-graphics-potrace--s_flag))"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-graphics-potrace--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-graphics-potrace--cfg-env += CC_FOR_TARGET="$(strip $(ports-graphics-potrace--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-graphics-potrace--TARGET_CFLAGS) $(ports-graphics-potrace--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-graphics-potrace--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-graphics-potrace--TARGET_CXXFLAGS) $(ports-graphics-potrace--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-graphics-potrace--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-graphics-potrace--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-graphics-potrace--nix) $(ports-graphics-potrace--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-graphics-potrace--cfg-env += TARGET_CC="$(strip $(ports-graphics-potrace--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CFLAGS) $(ports-graphics-potrace--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-graphics-potrace--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CXXFLAGS) $(ports-graphics-potrace--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-graphics-potrace--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-graphics-potrace--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-graphics-potrace--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-graphics-potrace--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-graphics-potrace--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-graphics-potrace--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-graphics-potrace--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-graphics-potrace--cfg-env += CC="$(strip $(ports-graphics-potrace--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-graphics-potrace--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-graphics-potrace--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-graphics-potrace--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-graphics-potrace--cfg-env += CC_FOR_BUILD="$(ports-graphics-potrace--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-graphics-potrace--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-graphics-potrace--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-graphics-potrace--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-graphics-potrace--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-graphics-potrace--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-graphics-potrace--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-graphics-potrace--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-graphics-potrace--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-graphics-potrace--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-graphics-potrace--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-graphics-potrace--touchfileflag ?= $(ports-graphics-potrace--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-graphics-potrace-portdir)/$(ports-graphics-potrace--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-graphics-potrace--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-graphics-potrace--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-graphics-potrace--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-graphics-potrace-portdir)/$(ports-graphics-potrace--builddir)/." $(ports-graphics-potrace--pkgdir)/ && $(TOUCH) $@
+
+$(ports-graphics-potrace--touchfileflag) : $(ports-graphics-potrace--pkgdir)/.local-copy
+
+    ports-graphics-potrace--cfg-srcdir=$(ports-graphics-potrace--pkgdir)
+else
+    ports-graphics-potrace--cfg-srcdir=$(ports-graphics-potrace-portdir)/$(ports-graphics-potrace--builddir)
+endif
+ports-graphics-potrace--make-env += -C $(ports-graphics-potrace--pkgdir)
+
+.PHONY : ports-graphics-potrace- ports-graphics-potrace--clean ports-graphics-potrace--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-graphics-potrace--host : setup includes ports-graphics-potrace--quick
+#MM- ports-graphics-potrace--target : setup includes core-linklibs ports-graphics-potrace--quick
+#MM- ports-graphics-potrace-: ports-graphics-potrace--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (install,)
+    ports-graphics-potrace--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-graphics-potrace--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-graphics-potrace--PROGDIR)/" $(ports-graphics-potrace--install_opts) \
+        $(ports-graphics-potrace--make-env) install -j1
+
+    ports-graphics-potrace--uninstall_command = \
+    $(RM) $(ports-graphics-potrace--installflag) && \
+    $(MAKE) PROGDIR="$(ports-graphics-potrace--PROGDIR)/" \
+    $(ports-graphics-potrace--install_opts) $(ports-graphics-potrace--make-env) uninstall
+else
+    ports-graphics-potrace--install_command   := true
+    ports-graphics-potrace--uninstall_command := true
+endif
+
+#MM- ports-graphics-potrace--quick :  ports-graphics-potrace--configure  ports-graphics-potrace--build_and_install-quick ports-graphics-potrace--make-package
+
+#MM
+ports-graphics-potrace--build_and_install-quick :  $(ports-graphics-potrace--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-graphics-potrace--installflag) : $(ports-graphics-potrace--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-graphics-potrace--volfunc, PROGDIR)" -q $(ports-graphics-potrace--make-env); then \
+	    $(RM) $(ports-graphics-potrace--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-graphics-potrace--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-graphics-potrace--volfunc, PROGDIR)" $(ports-graphics-potrace--make-env) && \
+	    $(ports-graphics-potrace--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-graphics-potrace--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-graphics-potrace--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-graphics-potrace-portdir)/$(ports-graphics-potrace--builddir) -exec $(TOUCH) -c -r $(ports-graphics-potrace--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-graphics-potrace--uninstall :
+	$(ports-graphics-potrace--uninstall_command)
+
+#MM
+ports-graphics-potrace--configure : $(ports-graphics-potrace--configflag)
+
+$(ports-graphics-potrace--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-graphics-potrace--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-graphics-potrace--configflag) : $(ports-graphics-potrace--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-graphics-potrace--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-graphics-potrace--pkgdir))"
+	$(ports-graphics-potrace--init-env)
+	$(Q)cd $(ports-graphics-potrace--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-graphics-potrace--cfg-env) $(TMP_SRCDIR)/configure $(ports-graphics-potrace--config_opts) --enable-metric --enable-a4 && \
+	$(TOUCH) $@
+
+#MM
+ports-graphics-potrace--clean : ports-graphics-potrace--uninstall
+	$(Q)$(RM) $(ports-graphics-potrace--pkgdir)
+
+.PHONY : ports-graphics-potrace--make-package ports-graphics-potrace--create-patch
+#MM ports-graphics-potrace--make-package : ports-graphics-potrace--quick
+
+#MM
+ports-graphics-potrace--make-package : $(ports-graphics-potrace--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-graphics-potrace--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-graphics-potrace-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-graphics-potrace--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-graphics-potrace-prefix)" ; \
+	    cd $(ports-graphics-potrace--package-dir) ; \
+	    tar -cvf $(ports-graphics-potrace--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-graphics-potrace--package-basename).tar ; \
+	fi
+
+
+
+ports-graphics-potrace-cpy_SRC := $(shell $(ECHO) . | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-graphics-potrace-cpy
+
+#MM
+ports-graphics-potrace-cpy : | $(TARGETDIR) 
+	$(foreach file, PotraceGUI, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-graphics-potrace-cpy_SRC)),$(ports-graphics-potrace-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-graphics-potrace-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+#MM
+ports-graphics-potrace-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

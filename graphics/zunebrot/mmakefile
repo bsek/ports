@@ -1,0 +1,886 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-graphics : ports-graphics-$(AROS_TARGET_CPU)
+
+#MM- ports-graphics-i386 : ports-graphics-zunebrot
+#MM- ports-graphics-m68k : ports-graphics-zunebrot
+#MM- ports-graphics-ppc : ports-graphics-zunebrot
+#MM- ports-graphics-arm : ports-graphics-zunebrot
+#MM- ports-graphics-x86_64 : ports-graphics-zunebrot
+
+#MM  ports-graphics-zunebrot : \
+#MM    includes linklibs ports-graphics-zunebrot-fetch \
+#MM    ports-graphics-zunebrot-cpy ports-graphics-zunebrot-catalogs
+
+#MM  ports-graphics-zunebrot-quick : ports-graphics-zunebrot-fetch
+
+REPOSITORIES := sf://zunetools
+ARCHBASE     := ZuneBrot_v0.2
+TARGETDIR    := $(AROS_CONTRIB)/MultiMedia/Gfx/ZuneBrot
+
+NOWARN_FLAGS :=
+USER_CFLAGS  := $(NOWARN_FLAGS) -DZUNEBROT
+USER_INCLUDES:= -I$(PORTSDIR)/zunebrot/$(ARCHBASE)/zunebrot/src
+
+FILES := \
+    SupportFunctions \
+    Picture_IO \
+    mcc_Mandel \
+    locale \
+    WriteILBM \
+    ZuneBrot \
+    Win_Save \
+    mcc_GradEdit \
+    Win_GradDef
+
+
+FILES := $(addprefix $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/src/,$(FILES))
+
+
+.PHONY : ports-graphics-zunebrot
+
+#MM- ports-graphics-zunebrot : \
+#MM             ports-graphics-zunebrot-$(CPU)
+
+#MM- ports-graphics-zunebrot-$(ARCH)-$(CPU) : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-graphics-zunebrot-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(CPU)
+
+#MM- ports-graphics-zunebrot-$(ARCH) : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-graphics-zunebrot-$(FAMILY) : \
+#MM             ports-graphics-zunebrot-$(ARCH)
+
+#MM- ports-graphics-zunebrot-$(CPU) : \
+#MM             ports-graphics-zunebrot-$(FAMILY)
+#MM- ports-graphics-zunebrot-quick : \
+#MM             ports-graphics-zunebrot-$(CPU)-quick
+
+#MM- ports-graphics-zunebrot-$(ARCH)-$(CPU)-quick : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-graphics-zunebrot-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(CPU)-quick
+
+#MM- ports-graphics-zunebrot-$(ARCH)-quick : \
+#MM             ports-graphics-zunebrot-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-graphics-zunebrot-$(FAMILY)-quick : \
+#MM             ports-graphics-zunebrot-$(ARCH)-quick
+
+#MM- ports-graphics-zunebrot-$(CPU)-quick : \
+#MM             ports-graphics-zunebrot-$(FAMILY)-quick
+
+ports-graphics-zunebrot_PROGNAME  := ZuneBrot
+ports-graphics-zunebrot_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-graphics-zunebrot_TARGETDIR := $(TARGETDIR)
+ports-graphics-zunebrot_LINKER    := 
+ports-graphics-zunebrot_LIBS := jpeg png z mui
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-graphics-zunebrot_LINKER),)
+    ports-graphics-zunebrot_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-graphics-zunebrot_FILES     := $(FILES)
+    ports-graphics-zunebrot_OBJCFILES := 
+    ports-graphics-zunebrot_ASMFILES  := 
+    ports-graphics-zunebrot_CXXFILES := 
+else
+    ports-graphics-zunebrot_FILES     := $(ports-graphics-zunebrot_PROGNAME)
+    ports-graphics-zunebrot_OBJCFILES :=
+    ports-graphics-zunebrot_ASMFILES  :=
+    ports-graphics-zunebrot_CXXFILES :=
+endif
+
+ports-graphics-zunebrot_ARCHOBJS   := $(wildcard $(ports-graphics-zunebrot_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-graphics-zunebrot_ARCHFILES     := $(basename $(notdir $(ports-graphics-zunebrot_ARCHOBJS)))
+else
+    ports-graphics-zunebrot_ARCHFILES     := $(basename $(patsubst $(ports-graphics-zunebrot_OBJDIR)/%,%,$(ports-graphics-zunebrot_ARCHOBJS)))
+endif
+ports-graphics-zunebrot_C_NARCHFILES := $(filter-out $(ports-graphics-zunebrot_ARCHFILES),$(ports-graphics-zunebrot_FILES))
+ports-graphics-zunebrot_CXX_NARCHFILES := $(filter-out $(ports-graphics-zunebrot_ARCHFILES),$(ports-graphics-zunebrot_CXXFILES))
+ports-graphics-zunebrot_OBJC_NARCHFILES := $(filter-out $(ports-graphics-zunebrot_ARCHFILES),$(ports-graphics-zunebrot_OBJCFILES))
+
+TMP_FILES := $(ports-graphics-zunebrot_C_NARCHFILES) $(ports-graphics-zunebrot_CXX_NARCHFILES) $(ports-graphics-zunebrot_ASMFILES) $(ports-graphics-zunebrot_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-graphics-zunebrot_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-graphics-zunebrot_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-graphics-zunebrot_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(TMP_FILES))) )
+    ports-graphics-zunebrot_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-graphics-zunebrot_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-graphics-zunebrot_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zunebrot_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-graphics-zunebrot_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-graphics-zunebrot_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zunebrot_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-graphics-zunebrot_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-graphics-zunebrot_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-graphics-zunebrot_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-graphics-zunebrot_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-graphics-zunebrot_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-graphics-zunebrot_LDFLAGS          := 
+endif
+
+ports-graphics-zunebrot_CSTATICFLAGS   := `echo "$(ports-graphics-zunebrot_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-graphics-zunebrot_CSTDCFLAGS   :=  `echo "$(ports-graphics-zunebrot_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-graphics-zunebrot_CPOSIXCFLAGS   :=  `echo "$(ports-graphics-zunebrot_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-graphics-zunebrot_LDFLAGS          += $(strip $(ports-graphics-zunebrot_CSTATICFLAGS) $(ports-graphics-zunebrot_CSTDCFLAGS) $(ports-graphics-zunebrot_CPOSIXCFLAGS))
+
+ports-graphics-zunebrot_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-graphics-zunebrot_COVERAGE := yes
+ports-graphics-zunebrot_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-graphics-zunebrot_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-graphics-zunebrot_CFLAGS    := $(strip $(ports-graphics-zunebrot_COVERAGEFLAGS) $(ports-graphics-zunebrot_CFLAGS))
+ports-graphics-zunebrot_CXXFLAGS := $(strip $(ports-graphics-zunebrot_COVERAGEFLAGS) $(ports-graphics-zunebrot_CXXFLAGS))
+ports-graphics-zunebrot_LIBS += $(ports-graphics-zunebrot_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-graphics-zunebrot_FUNCINSTR := yes
+ports-graphics-zunebrot_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-graphics-zunebrot_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-graphics-zunebrot_CFLAGS    := $(strip $(ports-graphics-zunebrot_INSTRFUNCFLAGS) $(ports-graphics-zunebrot_CFLAGS))
+ports-graphics-zunebrot_CXXFLAGS := $(strip $(ports-graphics-zunebrot_INSTRFUNCFLAGS) $(ports-graphics-zunebrot_CXXFLAGS))
+ports-graphics-zunebrot_LIBS += $(ports-graphics-zunebrot_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-graphics-zunebrot_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-graphics-zunebrot_CFLAGS))
+ports-graphics-zunebrot_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-graphics-zunebrot_CXXFLAGS))
+endif
+endif
+ports-graphics-zunebrot_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-graphics-zunebrot_DFLAGS     := 
+else
+    ports-graphics-zunebrot_DFLAGS     := $(ports-graphics-zunebrot_CFLAGS)
+endif
+ifneq (,)
+    ports-graphics-zunebrot_DXXFLAGS     := 
+else
+    ports-graphics-zunebrot_DXXFLAGS     := $(ports-graphics-zunebrot_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-graphics-zunebrot_LDFLAGS           := $(ports-graphics-zunebrot_LDFLAGS)
+ports-graphics-zunebrot_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-graphics-zunebrot_LDFLAGS           := $(ports-graphics-zunebrot_LDFLAGS)
+ports-graphics-zunebrot_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_LDFLAGS           := $(ports-graphics-zunebrot_LDFLAGS)
+ports-graphics-zunebrot_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-graphics-zunebrot_LDFLAGS   += -L
+endif
+
+#MM
+ports-graphics-zunebrot-quick : ports-graphics-zunebrot
+
+#MM ports-graphics-zunebrot : includes-generate-deps core-linklibs
+ports-graphics-zunebrot : $(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-graphics-zunebrot_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-graphics-zunebrot_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-graphics-zunebrot_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-graphics-zunebrot_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-graphics-zunebrot_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-graphics-zunebrot ports-graphics-zunebrot-quick ports-graphics-zunebrot-compress-quick),)
+
+ports-graphics-zunebrot_CXXABSBASENAMES := $(foreach ports-graphics-zunebrot_CXXBASE,$(ports-graphics-zunebrot_CXX_NARCHFILES),$(if $(filter /%,$(ports-graphics-zunebrot_CXXBASE)),$(ports-graphics-zunebrot_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-graphics-zunebrot_CXXBASE))))
+
+ifneq ($(ports-graphics-zunebrot_CXXABSBASENAMES),)
+
+ports-graphics-zunebrot_CXXBASENAMES := $(basename $(ports-graphics-zunebrot_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-graphics-zunebrot_MCXX_FILES  := $(strip $(foreach ports-graphics-zunebrot_CXXBASE,$(ports-graphics-zunebrot_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-graphics-zunebrot_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-graphics-zunebrot_EXT),$(ports-graphics-zunebrot_CXXBASE)))))))
+
+ifeq (,)
+ports-graphics-zunebrot_MCXX_SRCWILDCARD := %
+else
+ports-graphics-zunebrot_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zunebrot_OBJDIR),)
+  ports-graphics-zunebrot_CXXTARGETS := $(notdir $(ports-graphics-zunebrot_CXXBASENAMES:=.o))
+  ports-graphics-zunebrot_CXXDTARGETS := $(notdir $(ports-graphics-zunebrot_CXXBASENAMES:=.d))
+  ports-graphics-zunebrot_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-graphics-zunebrot_CXXTARGETS := $(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(ports-graphics-zunebrot_CXXBASENAMES:=.o)))
+  ports-graphics-zunebrot_CXXDTARGETS := $(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(ports-graphics-zunebrot_CXXBASENAMES:=.d)))
+  ports-graphics-zunebrot_MCXX_WILDCARD := $(ports-graphics-zunebrot_OBJDIR)/%
+else
+  ports-graphics-zunebrot_CXXTARGETS := $(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_CXXBASENAMES:=.o))
+  ports-graphics-zunebrot_CXXDTARGETS := $(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_CXXBASENAMES:=.d))
+  ports-graphics-zunebrot_MCXX_WILDCARD := $(ports-graphics-zunebrot_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-graphics-zunebrot_CXXTARGETS) $(ports-graphics-zunebrot_CXXDTARGETS) : | $(ports-graphics-zunebrot_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-graphics-zunebrot_MCXX_CPPFLAGS := $(ports-graphics-zunebrot_CPPFLAGS)
+ports-graphics-zunebrot_CXXFLAGS := $(ports-graphics-zunebrot_CXXFLAGS)
+ifeq ($(ports-graphics-zunebrot_DXXFLAGS),)
+  ports-graphics-zunebrot_DXXFLAGS := $(ports-graphics-zunebrot_CXXFLAGS)
+else
+  ports-graphics-zunebrot_DXXFLAGS := $(ports-graphics-zunebrot_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-graphics-zunebrot_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-graphics-zunebrot_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-graphics-zunebrot_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-graphics-zunebrot_STRIP ?= $(HOST_STRIP)
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-graphics-zunebrot_CXXCMD:=$(HOST_CXX)
+  ports-graphics-zunebrot_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS) $(ports-graphics-zunebrot_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zunebrot_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-graphics-zunebrot_CXXFLAGS))
+  ports-graphics-zunebrot_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-graphics-zunebrot_DXXFLAGS))
+  ports-graphics-zunebrot_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-graphics-zunebrot_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-graphics-zunebrot_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-graphics-zunebrot_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-graphics-zunebrot_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-graphics-zunebrot_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-graphics-zunebrot_LDFLAGS ?= $(ports-graphics-zunebrot_CXXLDFLAGS)
+  ports-graphics-zunebrot_STRIP ?= $(TARGET_STRIP)
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-graphics-zunebrot_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-graphics-zunebrot_MCXX_CPPFLAGS := $(strip $(ports-graphics-zunebrot_MCXX_CPPFLAGS) $(ports-graphics-zunebrot_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zunebrot_CXXFLAGS := $(strip $(ports-graphics-zunebrot_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-graphics-zunebrot_DXXFLAGS := $(ports-graphics-zunebrot_DXXFLAGS)
+  ports-graphics-zunebrot_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-graphics-zunebrot_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-graphics-zunebrot_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-graphics-zunebrot_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-graphics-zunebrot_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-graphics-zunebrot_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-graphics-zunebrot_LDFLAGS ?= $(ports-graphics-zunebrot_CXXLDFLAGS)
+  ports-graphics-zunebrot_STRIP ?= $(ECHO) >/dev/null
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-graphics-zunebrot_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-graphics-zunebrot_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS) $(ports-graphics-zunebrot_MCXX_EXTRA_CPPFLAGS))
+  ports-graphics-zunebrot_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-graphics-zunebrot_CXXFLAGS))
+  ports-graphics-zunebrot_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-graphics-zunebrot_DXXFLAGS))
+  ports-graphics-zunebrot_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-graphics-zunebrot_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-graphics-zunebrot_CXXCMD) $(ports-graphics-zunebrot_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zunebrot_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) . $(ports-graphics-zunebrot_CXXIQUOTE_END) $(strip $(ports-graphics-zunebrot_CXXFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-graphics-zunebrot_CXXCMD) $(ports-graphics-zunebrot_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zunebrot_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) . $(ports-graphics-zunebrot_CXXIQUOTE_END) $(strip $(ports-graphics-zunebrot_CXXFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-graphics-zunebrot_CXXCMD) $(ports-graphics-zunebrot_CXXIQUOTE) $(dir $(2)) $(ports-graphics-zunebrot_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_CXXIQUOTE) . $(ports-graphics-zunebrot_CXXIQUOTE_END) $(strip $(ports-graphics-zunebrot_CXXFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-graphics-zunebrot_CXXCMD)" $(MKDEPEND) $(strip $(ports-graphics-zunebrot_DXXFLAGS) $(ports-graphics-zunebrot_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-graphics-zunebrot_OBJDIR),)
+  $(foreach ports-graphics-zunebrot_CXXFILE,$(ports-graphics-zunebrot_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-graphics-zunebrot_CXXFILE))),$(ports-graphics-zunebrot_CXXFILE))))
+else
+  $(foreach ports-graphics-zunebrot_CXXFILE,$(ports-graphics-zunebrot_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(basename $(ports-graphics-zunebrot_CXXFILE)))),$(ports-graphics-zunebrot_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-graphics-zunebrot_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-graphics-zunebrot_MOBJC_SRCWILDCARD := %
+else
+ports-graphics-zunebrot_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zunebrot_OBJDIR),)
+  ports-graphics-zunebrot_MOBJC_TARGETS := $(addsuffix .o,$(ports-graphics-zunebrot_OBJC_NARCHFILES))
+  ports-graphics-zunebrot_MOBJC_DTARGETS := $(addsuffix .d,$(ports-graphics-zunebrot_OBJC_NARCHFILES))
+  ports-graphics-zunebrot_MOBJC_WILDCARD := %
+else
+  ports-graphics-zunebrot_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_OBJC_NARCHFILES)))
+  ports-graphics-zunebrot_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_OBJC_NARCHFILES)))
+  ports-graphics-zunebrot_MOBJC_WILDCARD := $(ports-graphics-zunebrot_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-graphics-zunebrot_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-graphics-zunebrot_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-graphics-zunebrot_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zunebrot_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-graphics-zunebrot_MOBJC_DIRS := $(foreach dir, $(ports-graphics-zunebrot_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zunebrot_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-graphics-zunebrot_MOBJC_DIRS),)
+    ports-graphics-zunebrot_MOBJC_DIRS := $(shell $(ECHO) $(ports-graphics-zunebrot_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-graphics-zunebrot_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-graphics-zunebrot_CC := $(TARGET_CC)
+else
+  ports-graphics-zunebrot_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-graphics-zunebrot_MOBJC_CPPFLAGS := $(ports-graphics-zunebrot_CPPFLAGS)
+ports-graphics-zunebrot_OBJCFLAGS := $(ports-graphics-zunebrot_CFLAGS)
+ports-graphics-zunebrot_OBJCFLAGS := $(ports-graphics-zunebrot_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-graphics-zunebrot_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-graphics-zunebrot_OBJCFLAGS)))
+ifeq ($(ports-graphics-zunebrot_DFLAGS),)
+  ports-graphics-zunebrot_OBJCDFLAGS := $(ports-graphics-zunebrot_CFLAGS)
+else
+  ports-graphics-zunebrot_OBJCDFLAGS := $(ports-graphics-zunebrot_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-graphics-zunebrot_LINK ?= $(strip $(ports-graphics-zunebrot_CC) $(TARGET_SYSROOT))
+  ports-graphics-zunebrot_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-graphics-zunebrot_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-graphics-zunebrot_STRIP ?= $(TARGET_STRIP)
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : CMD:=$(strip $(ports-graphics-zunebrot_CC) $(TARGET_SYSROOT))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_MOBJC_CPPFLAGS:=$(strip $(ports-graphics-zunebrot_MOBJC_CPPFLAGS) $(ports-graphics-zunebrot_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCFLAGS:=$(strip $(ports-graphics-zunebrot_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCDFLAGS:=$(ports-graphics-zunebrot_OBJCDFLAGS)
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-graphics-zunebrot_LINK ?= $(strip $(HOST_OBJC))
+  ports-graphics-zunebrot_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-graphics-zunebrot_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-graphics-zunebrot_STRIP ?= $(HOST_STRIP)
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-graphics-zunebrot_MOBJC_CPPFLAGS) $(ports-graphics-zunebrot_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zunebrot_OBJCFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zunebrot_OBJCDFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-graphics-zunebrot_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-graphics-zunebrot_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-graphics-zunebrot_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-graphics-zunebrot_STRIP ?= $(ECHO) >/dev/null
+  ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-graphics-zunebrot_MOBJC_CPPFLAGS) $(ports-graphics-zunebrot_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zunebrot_OBJCFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zunebrot_OBJCDFLAGS))
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-graphics-zunebrot_MOBJC_TARGETS) $(ports-graphics-zunebrot_MOBJC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-graphics-zunebrot_MOBJC_TARGETS) : CPPFLAGS := $(ports-graphics-zunebrot_MOBJC_CPPFLAGS)
+$(ports-graphics-zunebrot_MOBJC_TARGETS) : CFLAGS := $(ports-graphics-zunebrot_OBJCFLAGS)
+$(ports-graphics-zunebrot_MOBJC_TARGETS) : $(ports-graphics-zunebrot_MOBJC_WILDCARD).o : $(ports-graphics-zunebrot_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-graphics-zunebrot_MOBJC_DTARGETS) : $(ports-graphics-zunebrot_MOBJC_WILDCARD).d : $(ports-graphics-zunebrot_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-graphics-zunebrot_OBJCDFLAGS) $(ports-graphics-zunebrot_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-graphics-zunebrot_MC_SRCWILDCARD := %
+else
+ports-graphics-zunebrot_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-graphics-zunebrot_OBJDIR),)
+ports-graphics-zunebrot_MC_TARGETS := $(addsuffix .o,$(ports-graphics-zunebrot_C_NARCHFILES))
+ports-graphics-zunebrot_MC_DTARGETS := $(addsuffix .d,$(ports-graphics-zunebrot_C_NARCHFILES))
+ports-graphics-zunebrot_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-graphics-zunebrot_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(ports-graphics-zunebrot_C_NARCHFILES))))
+    ports-graphics-zunebrot_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(ports-graphics-zunebrot_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-graphics-zunebrot_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_C_NARCHFILES)))
+    ports-graphics-zunebrot_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(ports-graphics-zunebrot_C_NARCHFILES)))
+else
+    ports-graphics-zunebrot_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(patsubst /%,%,$(ports-graphics-zunebrot_C_NARCHFILES))))
+    ports-graphics-zunebrot_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(patsubst /%,%,$(ports-graphics-zunebrot_C_NARCHFILES))))
+endif
+endif
+ports-graphics-zunebrot_MC_TGTWILDCARD := $(ports-graphics-zunebrot_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : | $(addsuffix .c,$(ports-graphics-zunebrot_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-graphics-zunebrot_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-graphics-zunebrot_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zunebrot_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-graphics-zunebrot_MC_DIRS := $(foreach dir, $(ports-graphics-zunebrot_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zunebrot_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-graphics-zunebrot_MC_DIRS),)
+    ports-graphics-zunebrot_MC_DIRS := $(shell $(ECHO) $(ports-graphics-zunebrot_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-graphics-zunebrot_MC_DIRS)
+endif
+
+endif
+
+ports-graphics-zunebrot_MC_CPPFLAGS := $(ports-graphics-zunebrot_CPPFLAGS)
+ports-graphics-zunebrot_CFLAGS := $(ports-graphics-zunebrot_CFLAGS)
+ifeq ($(ports-graphics-zunebrot_DFLAGS),)
+  ports-graphics-zunebrot_DFLAGS := $(ports-graphics-zunebrot_CFLAGS)
+else
+  ports-graphics-zunebrot_DFLAGS := $(ports-graphics-zunebrot_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-graphics-zunebrot_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-graphics-zunebrot_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-graphics-zunebrot_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-graphics-zunebrot_STRIP ?= $(TARGET_STRIP)
+ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_MC_CPPFLAGS:=$(strip $(ports-graphics-zunebrot_MC_CPPFLAGS) $(ports-graphics-zunebrot_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_CFLAGS:=$(strip $(ports-graphics-zunebrot_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_DFLAGS:=$(ports-graphics-zunebrot_DFLAGS)
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-graphics-zunebrot_LINK ?= $(strip $(HOST_CC))
+ports-graphics-zunebrot_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-graphics-zunebrot_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-graphics-zunebrot_STRIP ?= $(HOST_STRIP)
+ports-graphics-zunebrot_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-graphics-zunebrot_MC_CPPFLAGS) $(ports-graphics-zunebrot_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zunebrot_CFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-graphics-zunebrot_DFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(HOST_IQUOTE)
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-graphics-zunebrot_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-graphics-zunebrot_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-graphics-zunebrot_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-graphics-zunebrot_STRIP ?= $(ECHO) >/dev/null
+ports-graphics-zunebrot_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-graphics-zunebrot_MC_CPPFLAGS) $(ports-graphics-zunebrot_MC_EXTRA_CPPFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zunebrot_CFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-graphics-zunebrot_DFLAGS))
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-graphics-zunebrot_MC_TARGETS) $(ports-graphics-zunebrot_MC_DTARGETS) : ports-graphics-zunebrot_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-graphics-zunebrot_MC_TARGETS) : CPPFLAGS := $(ports-graphics-zunebrot_MC_CPPFLAGS)
+$(ports-graphics-zunebrot_MC_TARGETS) : CFLAGS := $(ports-graphics-zunebrot_CFLAGS)
+$(ports-graphics-zunebrot_MC_TARGETS) : $(ports-graphics-zunebrot_MC_TGTWILDCARD).o : $(ports-graphics-zunebrot_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-graphics-zunebrot_IQUOTE) $(dir $<) $(ports-graphics-zunebrot_IQUOTE) $(TOP)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-graphics-zunebrot_IQUOTE) . $(ports-graphics-zunebrot_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-graphics-zunebrot_MC_DTARGETS) : $(ports-graphics-zunebrot_MC_TGTWILDCARD).d : $(ports-graphics-zunebrot_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-graphics-zunebrot_DFLAGS) $(ports-graphics-zunebrot_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-graphics-zunebrot_OBJDIR),)
+ports-graphics-zunebrot-MA_TARGETS := $(addsuffix .o,$(ports-graphics-zunebrot_ASMFILES))
+ports-graphics-zunebrot-MA_WILDCARD := %
+else
+ports-graphics-zunebrot-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-graphics-zunebrot_OBJDIR)/,$(notdir $(ports-graphics-zunebrot_ASMFILES))))
+ports-graphics-zunebrot-MA_WILDCARD := $(ports-graphics-zunebrot_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-graphics-zunebrot-MA_TARGETS) : | $(addsuffix .s,$(ports-graphics-zunebrot_ASMFILES))
+
+# Be sure that all .c files are found
+ports-graphics-zunebrot-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-graphics-zunebrot-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-graphics-zunebrot_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-graphics-zunebrot-MA_DIRS := $(foreach dir, $(ports-graphics-zunebrot-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-graphics-zunebrot-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-graphics-zunebrot-MA_DIRS),)
+    ports-graphics-zunebrot-MA_DIRS := $(shell $(ECHO) $(ports-graphics-zunebrot-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-graphics-zunebrot-MA_DIRS)
+endif
+
+endif
+
+ports-graphics-zunebrot-MA_ASSEMBLER ?= $(ports-graphics-zunebrot_ASSEMBLER)
+
+$(ports-graphics-zunebrot-MA_TARGETS) : ports-graphics-zunebrot-MA_CMD:= $(ports-graphics-zunebrot-MA_ASSEMBLER)
+
+$(ports-graphics-zunebrot-MA_TARGETS) : CPPFLAGS := $(ports-graphics-zunebrot_CPPFLAGS)
+$(ports-graphics-zunebrot-MA_TARGETS) : AFLAGS := $(ports-graphics-zunebrot_AFLAGS)
+$(ports-graphics-zunebrot-MA_TARGETS) : $(ports-graphics-zunebrot-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-graphics-zunebrot-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-graphics-zunebrot-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-graphics-zunebrot-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-graphics-zunebrot-link_LD_OPTS := 
+ports-graphics-zunebrot-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-graphics-zunebrot-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-graphics-zunebrot-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-graphics-zunebrot-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-graphics-zunebrot-link_DIRS := $(subst -L ,-L,$(strip $(ports-graphics-zunebrot_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-graphics-zunebrot-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-graphics-zunebrot-link_DIRS)))
+# Add trailing /
+ports-graphics-zunebrot-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-graphics-zunebrot-link_DIRS)))
+# Add normal linklib path
+ports-graphics-zunebrot-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-graphics-zunebrot-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-graphics-zunebrot_LIBS) $(ports-graphics-zunebrot-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-graphics-zunebrot-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-graphics-zunebrot-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-graphics-zunebrot-link_DEPLIBS := $(foreach lib,$(ports-graphics-zunebrot-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-graphics-zunebrot-link_DIRS)))) \
+)
+
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : OBJDIR := $(ports-graphics-zunebrot_OBJDIR)
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : OBJS := $(strip $(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_ARCHOBJS) $(USER_OBJS))
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : LDFLAGS := $(strip $(ports-graphics-zunebrot_LDFLAGS))
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-graphics-zunebrot_LIBS) $(ports-graphics-zunebrot-link_EXTRA_LIBS)))
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-graphics-zunebrot_ARCHLIBS))
+$(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : $(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_ARCHOBJS) $(USER_OBJS) $(ports-graphics-zunebrot-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-graphics-zunebrot_LINK) $(strip $(ports-graphics-zunebrot_LD_OPTS) $(ports-graphics-zunebrot-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-graphics-zunebrot_LINK) $(strip $(ports-graphics-zunebrot_LD_OPTS) $(ports-graphics-zunebrot-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-graphics-zunebrot_LINK) $(strip $(ports-graphics-zunebrot_LD_OPTS) $(ports-graphics-zunebrot-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-graphics-zunebrot_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-graphics-zunebrot_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-graphics-zunebrot_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-graphics-zunebrot_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-graphics-zunebrot_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-graphics-zunebrot_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-graphics-zunebrot_DEPS),)
+  ifneq (ports-graphics-zunebrot ports-graphics-zunebrot-quick,)
+    ifneq ($(findstring $(TARGET),ports-graphics-zunebrot ports-graphics-zunebrot-quick),)
+      -include $(ports-graphics-zunebrot_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-graphics-zunebrot_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_DEPS) $(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME),)
+$(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_DEPS) $(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) : | $(ports-graphics-zunebrot_OBJDIR) $(ports-graphics-zunebrot_TARGETDIR)
+else
+$(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_DEPS) $(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) :: $(ports-graphics-zunebrot_OBJDIR) $(ports-graphics-zunebrot_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-graphics-zunebrot_OBJDIR) $(ports-graphics-zunebrot_TARGETDIR)
+
+
+ports-graphics-zunebrot-clean : FILES := $(ports-graphics-zunebrot_OBJS) $(ports-graphics-zunebrot_TARGETDIR)/$(ports-graphics-zunebrot_PROGNAME) $(ports-graphics-zunebrot_DEPS)
+#MM
+ports-graphics-zunebrot-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-graphics-zunebrot"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-graphics-zunebrot-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-graphics-zunebrot-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-graphics-zunebrot-fetch-location := $(PORTSDIR)/zunebrot/$(ARCHBASE)
+endif
+
+ifneq (,)
+    ports-graphics-zunebrot-fetch-baseflag := -b 
+else
+    ports-graphics-zunebrot-fetch-baseflag :=
+endif
+
+ports-graphics-zunebrot-fetch-fetchedflag := $(ports-graphics-zunebrot-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-graphics-zunebrot-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "zip" -l $(ports-graphics-zunebrot-fetch-location) \
+	-d $(PORTSDIR)/zunebrot/$(ARCHBASE) $(ports-graphics-zunebrot-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff::-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-graphics-zunebrot-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-graphics-zunebrot-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-graphics-zunebrot-create-patch
+
+ifneq (,)
+    ports-graphics-zunebrot-create-patch-location := 
+else
+    ports-graphics-zunebrot-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-graphics-zunebrot-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq (Zunebrot,)
+    ports-graphics-zunebrot-create-patch-srcdir   := Zunebrot
+else
+    ports-graphics-zunebrot-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-graphics-zunebrot-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-graphics-zunebrot-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-graphics-zunebrot-create-patch-baseflag := -b /tmp
+    ports-graphics-zunebrot-create-patch-base := 
+else
+    ports-graphics-zunebrot-create-patch-baseflag :=
+    ports-graphics-zunebrot-create-patch-base := $(PORTSDIR)/zunebrot/$(ARCHBASE)
+endif
+
+#MM- ports-graphics-zunebrot-create-patch :  ports-graphics-zunebrot-create-patch-diff 
+#MM- ports-graphics-zunebrot-create-patch-quick :  ports-graphics-zunebrot-create-patch-diff 
+
+#MM
+ports-graphics-zunebrot-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-graphics-zunebrot-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-graphics-zunebrot-create-patch-base)/$(ports-graphics-zunebrot-create-patch-srcdir) $(ports-graphics-zunebrot-create-patch-base)/tmp/$(ports-graphics-zunebrot-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "zip" -f -l $(ports-graphics-zunebrot-create-patch-location) -d $(PORTSDIR)/zunebrot/$(ARCHBASE) $(ports-graphics-zunebrot-create-patch-baseflag); \
+	$(MV) $(ports-graphics-zunebrot-create-patch-base)/$(ports-graphics-zunebrot-create-patch-srcdir) $(ports-graphics-zunebrot-create-patch-base)/tmp/$(ports-graphics-zunebrot-create-patch-srcdir) ; \
+	cd $(ports-graphics-zunebrot-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-graphics-zunebrot-create-patch-diffflag) $(ports-graphics-zunebrot-create-patch-exclude) \
+	    $(ports-graphics-zunebrot-create-patch-srcdir) \
+	    $(ports-graphics-zunebrot-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-graphics-zunebrot-create-patch-base)/tmp/$(ports-graphics-zunebrot-create-patch-srcdir).aros $(ports-graphics-zunebrot-create-patch-base)/$(ports-graphics-zunebrot-create-patch-srcdir) ; \
+	$(RM) $(ports-graphics-zunebrot-create-patch-base)/tmp
+
+CPFILES := ZuneBrot.info
+
+
+ports-graphics-zunebrot-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-graphics-zunebrot-cpy
+
+#MM
+ports-graphics-zunebrot-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-graphics-zunebrot-cpy_SRC)),$(ports-graphics-zunebrot-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-graphics-zunebrot-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+.PHONY : ports-graphics-zunebrot-catalogs
+
+#MM
+ports-graphics-zunebrot-catalogs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french)))' to '$(if $(filter /%,$(TARGETDIR)/Catalogs/french),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Catalogs/french)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Catalogs/french)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Catalogs/french))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Catalogs/french)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/zunebrot/$(ARCHBASE)/ZuneBrot/catalogs/french -d $(TARGETDIR)/Catalogs/french -e 
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

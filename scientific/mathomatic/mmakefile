@@ -1,0 +1,836 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-scientific : ports-scientific-mathomatic
+
+#MM  ports-scientific-mathomatic : includes linklibs \
+#MM     ports-scientific-mathomatic-fetch \
+#MM     ports-scientific-mathomatic-docs \
+#MM     ports-scientific-mathomatic-cpy
+
+#MM  ports-scientific-mathomatic-docs : ports-scientific-mathomatic-fetch
+
+#MM  ports-scientific-mathomatic-quick : ports-scientific-mathomatic-fetch
+
+REPOSITORIES := https://github.com/mfillpot/mathomatic/archive
+ARCHBASE     := mathomatic-16.0.5
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Scientific/Mathomatic
+
+NOWARN_FLAGS := $(NOWARN_CPP)
+USER_CFLAGS := $(CFLAGS_GNU11) $(NOWARN_FLAGS)
+USER_CPPFLAGS := -D_GNU_SOURCE -DVERSION=\"16.0.5\"
+
+FILES := \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/main \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/globals \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/am \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/solve \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/help \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/parse \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/cmds \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/simplify \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/factor \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/super \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/unfactor \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/poly \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/diff \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/integrate \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/complex \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/complex_lib \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/list \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/gcd \
+    $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/factor_int
+
+
+.PHONY : ports-scientific-mathomatic
+
+#MM- ports-scientific-mathomatic : \
+#MM             ports-scientific-mathomatic-$(CPU)
+
+#MM- ports-scientific-mathomatic-$(ARCH)-$(CPU) : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-scientific-mathomatic-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(CPU)
+
+#MM- ports-scientific-mathomatic-$(ARCH) : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-scientific-mathomatic-$(FAMILY) : \
+#MM             ports-scientific-mathomatic-$(ARCH)
+
+#MM- ports-scientific-mathomatic-$(CPU) : \
+#MM             ports-scientific-mathomatic-$(FAMILY)
+#MM- ports-scientific-mathomatic-quick : \
+#MM             ports-scientific-mathomatic-$(CPU)-quick
+
+#MM- ports-scientific-mathomatic-$(ARCH)-$(CPU)-quick : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-scientific-mathomatic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(CPU)-quick
+
+#MM- ports-scientific-mathomatic-$(ARCH)-quick : \
+#MM             ports-scientific-mathomatic-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-scientific-mathomatic-$(FAMILY)-quick : \
+#MM             ports-scientific-mathomatic-$(ARCH)-quick
+
+#MM- ports-scientific-mathomatic-$(CPU)-quick : \
+#MM             ports-scientific-mathomatic-$(FAMILY)-quick
+
+ports-scientific-mathomatic_PROGNAME  := Mathomatic
+ports-scientific-mathomatic_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-scientific-mathomatic_TARGETDIR := $(TARGETDIR)
+ports-scientific-mathomatic_LINKER    := 
+ports-scientific-mathomatic_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-scientific-mathomatic_LINKER),)
+    ports-scientific-mathomatic_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-scientific-mathomatic_FILES     := $(FILES)
+    ports-scientific-mathomatic_OBJCFILES := 
+    ports-scientific-mathomatic_ASMFILES  := 
+    ports-scientific-mathomatic_CXXFILES := 
+else
+    ports-scientific-mathomatic_FILES     := $(ports-scientific-mathomatic_PROGNAME)
+    ports-scientific-mathomatic_OBJCFILES :=
+    ports-scientific-mathomatic_ASMFILES  :=
+    ports-scientific-mathomatic_CXXFILES :=
+endif
+
+ports-scientific-mathomatic_ARCHOBJS   := $(wildcard $(ports-scientific-mathomatic_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-scientific-mathomatic_ARCHFILES     := $(basename $(notdir $(ports-scientific-mathomatic_ARCHOBJS)))
+else
+    ports-scientific-mathomatic_ARCHFILES     := $(basename $(patsubst $(ports-scientific-mathomatic_OBJDIR)/%,%,$(ports-scientific-mathomatic_ARCHOBJS)))
+endif
+ports-scientific-mathomatic_C_NARCHFILES := $(filter-out $(ports-scientific-mathomatic_ARCHFILES),$(ports-scientific-mathomatic_FILES))
+ports-scientific-mathomatic_CXX_NARCHFILES := $(filter-out $(ports-scientific-mathomatic_ARCHFILES),$(ports-scientific-mathomatic_CXXFILES))
+ports-scientific-mathomatic_OBJC_NARCHFILES := $(filter-out $(ports-scientific-mathomatic_ARCHFILES),$(ports-scientific-mathomatic_OBJCFILES))
+
+TMP_FILES := $(ports-scientific-mathomatic_C_NARCHFILES) $(ports-scientific-mathomatic_CXX_NARCHFILES) $(ports-scientific-mathomatic_ASMFILES) $(ports-scientific-mathomatic_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-scientific-mathomatic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-scientific-mathomatic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-scientific-mathomatic_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(TMP_FILES))) )
+    ports-scientific-mathomatic_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-scientific-mathomatic_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-scientific-mathomatic_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-scientific-mathomatic_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-scientific-mathomatic_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-scientific-mathomatic_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-scientific-mathomatic_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-scientific-mathomatic_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-scientific-mathomatic_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-scientific-mathomatic_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-scientific-mathomatic_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-scientific-mathomatic_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-scientific-mathomatic_LDFLAGS          := 
+endif
+
+ports-scientific-mathomatic_CSTATICFLAGS   := `echo "$(ports-scientific-mathomatic_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-scientific-mathomatic_CSTDCFLAGS   :=  `echo "$(ports-scientific-mathomatic_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-scientific-mathomatic_CPOSIXCFLAGS   :=  `echo "$(ports-scientific-mathomatic_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-scientific-mathomatic_LDFLAGS          += $(strip $(ports-scientific-mathomatic_CSTATICFLAGS) $(ports-scientific-mathomatic_CSTDCFLAGS) $(ports-scientific-mathomatic_CPOSIXCFLAGS))
+
+ports-scientific-mathomatic_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-scientific-mathomatic_COVERAGE := yes
+ports-scientific-mathomatic_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-scientific-mathomatic_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-scientific-mathomatic_CFLAGS    := $(strip $(ports-scientific-mathomatic_COVERAGEFLAGS) $(ports-scientific-mathomatic_CFLAGS))
+ports-scientific-mathomatic_CXXFLAGS := $(strip $(ports-scientific-mathomatic_COVERAGEFLAGS) $(ports-scientific-mathomatic_CXXFLAGS))
+ports-scientific-mathomatic_LIBS += $(ports-scientific-mathomatic_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-scientific-mathomatic_FUNCINSTR := yes
+ports-scientific-mathomatic_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-scientific-mathomatic_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-scientific-mathomatic_CFLAGS    := $(strip $(ports-scientific-mathomatic_INSTRFUNCFLAGS) $(ports-scientific-mathomatic_CFLAGS))
+ports-scientific-mathomatic_CXXFLAGS := $(strip $(ports-scientific-mathomatic_INSTRFUNCFLAGS) $(ports-scientific-mathomatic_CXXFLAGS))
+ports-scientific-mathomatic_LIBS += $(ports-scientific-mathomatic_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-scientific-mathomatic_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-scientific-mathomatic_CFLAGS))
+ports-scientific-mathomatic_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-scientific-mathomatic_CXXFLAGS))
+endif
+endif
+ports-scientific-mathomatic_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-scientific-mathomatic_DFLAGS     := 
+else
+    ports-scientific-mathomatic_DFLAGS     := $(ports-scientific-mathomatic_CFLAGS)
+endif
+ifneq (,)
+    ports-scientific-mathomatic_DXXFLAGS     := 
+else
+    ports-scientific-mathomatic_DXXFLAGS     := $(ports-scientific-mathomatic_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-scientific-mathomatic_LDFLAGS           := $(ports-scientific-mathomatic_LDFLAGS)
+ports-scientific-mathomatic_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-scientific-mathomatic_LDFLAGS           := $(ports-scientific-mathomatic_LDFLAGS)
+ports-scientific-mathomatic_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_LDFLAGS           := $(ports-scientific-mathomatic_LDFLAGS)
+ports-scientific-mathomatic_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-scientific-mathomatic_LDFLAGS   += -L
+endif
+
+#MM
+ports-scientific-mathomatic-quick : ports-scientific-mathomatic
+
+#MM ports-scientific-mathomatic : includes-generate-deps core-linklibs
+ports-scientific-mathomatic : $(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-scientific-mathomatic_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-scientific-mathomatic_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-scientific-mathomatic_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-scientific-mathomatic_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-scientific-mathomatic_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-scientific-mathomatic ports-scientific-mathomatic-quick ports-scientific-mathomatic-compress-quick),)
+
+ports-scientific-mathomatic_CXXABSBASENAMES := $(foreach ports-scientific-mathomatic_CXXBASE,$(ports-scientific-mathomatic_CXX_NARCHFILES),$(if $(filter /%,$(ports-scientific-mathomatic_CXXBASE)),$(ports-scientific-mathomatic_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-scientific-mathomatic_CXXBASE))))
+
+ifneq ($(ports-scientific-mathomatic_CXXABSBASENAMES),)
+
+ports-scientific-mathomatic_CXXBASENAMES := $(basename $(ports-scientific-mathomatic_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-scientific-mathomatic_MCXX_FILES  := $(strip $(foreach ports-scientific-mathomatic_CXXBASE,$(ports-scientific-mathomatic_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-scientific-mathomatic_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-scientific-mathomatic_EXT),$(ports-scientific-mathomatic_CXXBASE)))))))
+
+ifeq (,)
+ports-scientific-mathomatic_MCXX_SRCWILDCARD := %
+else
+ports-scientific-mathomatic_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-scientific-mathomatic_OBJDIR),)
+  ports-scientific-mathomatic_CXXTARGETS := $(notdir $(ports-scientific-mathomatic_CXXBASENAMES:=.o))
+  ports-scientific-mathomatic_CXXDTARGETS := $(notdir $(ports-scientific-mathomatic_CXXBASENAMES:=.d))
+  ports-scientific-mathomatic_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-scientific-mathomatic_CXXTARGETS := $(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(ports-scientific-mathomatic_CXXBASENAMES:=.o)))
+  ports-scientific-mathomatic_CXXDTARGETS := $(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(ports-scientific-mathomatic_CXXBASENAMES:=.d)))
+  ports-scientific-mathomatic_MCXX_WILDCARD := $(ports-scientific-mathomatic_OBJDIR)/%
+else
+  ports-scientific-mathomatic_CXXTARGETS := $(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_CXXBASENAMES:=.o))
+  ports-scientific-mathomatic_CXXDTARGETS := $(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_CXXBASENAMES:=.d))
+  ports-scientific-mathomatic_MCXX_WILDCARD := $(ports-scientific-mathomatic_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-scientific-mathomatic_CXXTARGETS) $(ports-scientific-mathomatic_CXXDTARGETS) : | $(ports-scientific-mathomatic_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-scientific-mathomatic_MCXX_CPPFLAGS := $(ports-scientific-mathomatic_CPPFLAGS)
+ports-scientific-mathomatic_CXXFLAGS := $(ports-scientific-mathomatic_CXXFLAGS)
+ifeq ($(ports-scientific-mathomatic_DXXFLAGS),)
+  ports-scientific-mathomatic_DXXFLAGS := $(ports-scientific-mathomatic_CXXFLAGS)
+else
+  ports-scientific-mathomatic_DXXFLAGS := $(ports-scientific-mathomatic_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-scientific-mathomatic_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-scientific-mathomatic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-scientific-mathomatic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-scientific-mathomatic_STRIP ?= $(HOST_STRIP)
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-scientific-mathomatic_CXXCMD:=$(HOST_CXX)
+  ports-scientific-mathomatic_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS) $(ports-scientific-mathomatic_MCXX_EXTRA_CPPFLAGS))
+  ports-scientific-mathomatic_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-scientific-mathomatic_CXXFLAGS))
+  ports-scientific-mathomatic_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-scientific-mathomatic_DXXFLAGS))
+  ports-scientific-mathomatic_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-scientific-mathomatic_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-scientific-mathomatic_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-scientific-mathomatic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-scientific-mathomatic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-scientific-mathomatic_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-scientific-mathomatic_LDFLAGS ?= $(ports-scientific-mathomatic_CXXLDFLAGS)
+  ports-scientific-mathomatic_STRIP ?= $(TARGET_STRIP)
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-scientific-mathomatic_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-scientific-mathomatic_MCXX_CPPFLAGS := $(strip $(ports-scientific-mathomatic_MCXX_CPPFLAGS) $(ports-scientific-mathomatic_MCXX_EXTRA_CPPFLAGS))
+  ports-scientific-mathomatic_CXXFLAGS := $(strip $(ports-scientific-mathomatic_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-scientific-mathomatic_DXXFLAGS := $(ports-scientific-mathomatic_DXXFLAGS)
+  ports-scientific-mathomatic_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-scientific-mathomatic_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-scientific-mathomatic_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-scientific-mathomatic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-scientific-mathomatic_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-scientific-mathomatic_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-scientific-mathomatic_LDFLAGS ?= $(ports-scientific-mathomatic_CXXLDFLAGS)
+  ports-scientific-mathomatic_STRIP ?= $(ECHO) >/dev/null
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-scientific-mathomatic_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-scientific-mathomatic_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS) $(ports-scientific-mathomatic_MCXX_EXTRA_CPPFLAGS))
+  ports-scientific-mathomatic_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-scientific-mathomatic_CXXFLAGS))
+  ports-scientific-mathomatic_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-scientific-mathomatic_DXXFLAGS))
+  ports-scientific-mathomatic_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-scientific-mathomatic_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-scientific-mathomatic_CXXCMD) $(ports-scientific-mathomatic_CXXIQUOTE) $(dir $(2)) $(ports-scientific-mathomatic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) . $(ports-scientific-mathomatic_CXXIQUOTE_END) $(strip $(ports-scientific-mathomatic_CXXFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-scientific-mathomatic_CXXCMD) $(ports-scientific-mathomatic_CXXIQUOTE) $(dir $(2)) $(ports-scientific-mathomatic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) . $(ports-scientific-mathomatic_CXXIQUOTE_END) $(strip $(ports-scientific-mathomatic_CXXFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-scientific-mathomatic_CXXCMD) $(ports-scientific-mathomatic_CXXIQUOTE) $(dir $(2)) $(ports-scientific-mathomatic_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_CXXIQUOTE) . $(ports-scientific-mathomatic_CXXIQUOTE_END) $(strip $(ports-scientific-mathomatic_CXXFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-scientific-mathomatic_CXXCMD)" $(MKDEPEND) $(strip $(ports-scientific-mathomatic_DXXFLAGS) $(ports-scientific-mathomatic_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-scientific-mathomatic_OBJDIR),)
+  $(foreach ports-scientific-mathomatic_CXXFILE,$(ports-scientific-mathomatic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-scientific-mathomatic_CXXFILE))),$(ports-scientific-mathomatic_CXXFILE))))
+else
+  $(foreach ports-scientific-mathomatic_CXXFILE,$(ports-scientific-mathomatic_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(basename $(ports-scientific-mathomatic_CXXFILE)))),$(ports-scientific-mathomatic_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-scientific-mathomatic_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-scientific-mathomatic_MOBJC_SRCWILDCARD := %
+else
+ports-scientific-mathomatic_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-scientific-mathomatic_OBJDIR),)
+  ports-scientific-mathomatic_MOBJC_TARGETS := $(addsuffix .o,$(ports-scientific-mathomatic_OBJC_NARCHFILES))
+  ports-scientific-mathomatic_MOBJC_DTARGETS := $(addsuffix .d,$(ports-scientific-mathomatic_OBJC_NARCHFILES))
+  ports-scientific-mathomatic_MOBJC_WILDCARD := %
+else
+  ports-scientific-mathomatic_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_OBJC_NARCHFILES)))
+  ports-scientific-mathomatic_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_OBJC_NARCHFILES)))
+  ports-scientific-mathomatic_MOBJC_WILDCARD := $(ports-scientific-mathomatic_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-scientific-mathomatic_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-scientific-mathomatic_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-scientific-mathomatic_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-scientific-mathomatic_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-scientific-mathomatic_MOBJC_DIRS := $(foreach dir, $(ports-scientific-mathomatic_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-scientific-mathomatic_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-scientific-mathomatic_MOBJC_DIRS),)
+    ports-scientific-mathomatic_MOBJC_DIRS := $(shell $(ECHO) $(ports-scientific-mathomatic_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-scientific-mathomatic_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-scientific-mathomatic_CC := $(TARGET_CC)
+else
+  ports-scientific-mathomatic_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-scientific-mathomatic_MOBJC_CPPFLAGS := $(ports-scientific-mathomatic_CPPFLAGS)
+ports-scientific-mathomatic_OBJCFLAGS := $(ports-scientific-mathomatic_CFLAGS)
+ports-scientific-mathomatic_OBJCFLAGS := $(ports-scientific-mathomatic_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-scientific-mathomatic_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-scientific-mathomatic_OBJCFLAGS)))
+ifeq ($(ports-scientific-mathomatic_DFLAGS),)
+  ports-scientific-mathomatic_OBJCDFLAGS := $(ports-scientific-mathomatic_CFLAGS)
+else
+  ports-scientific-mathomatic_OBJCDFLAGS := $(ports-scientific-mathomatic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-scientific-mathomatic_LINK ?= $(strip $(ports-scientific-mathomatic_CC) $(TARGET_SYSROOT))
+  ports-scientific-mathomatic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-scientific-mathomatic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-scientific-mathomatic_STRIP ?= $(TARGET_STRIP)
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : CMD:=$(strip $(ports-scientific-mathomatic_CC) $(TARGET_SYSROOT))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_MOBJC_CPPFLAGS:=$(strip $(ports-scientific-mathomatic_MOBJC_CPPFLAGS) $(ports-scientific-mathomatic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCFLAGS:=$(strip $(ports-scientific-mathomatic_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCDFLAGS:=$(ports-scientific-mathomatic_OBJCDFLAGS)
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-scientific-mathomatic_LINK ?= $(strip $(HOST_OBJC))
+  ports-scientific-mathomatic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-scientific-mathomatic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-scientific-mathomatic_STRIP ?= $(HOST_STRIP)
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-scientific-mathomatic_MOBJC_CPPFLAGS) $(ports-scientific-mathomatic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-scientific-mathomatic_OBJCFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-scientific-mathomatic_OBJCDFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-scientific-mathomatic_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-scientific-mathomatic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-scientific-mathomatic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-scientific-mathomatic_STRIP ?= $(ECHO) >/dev/null
+  ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-scientific-mathomatic_MOBJC_CPPFLAGS) $(ports-scientific-mathomatic_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-scientific-mathomatic_OBJCFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-scientific-mathomatic_OBJCDFLAGS))
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-scientific-mathomatic_MOBJC_TARGETS) $(ports-scientific-mathomatic_MOBJC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-scientific-mathomatic_MOBJC_TARGETS) : CPPFLAGS := $(ports-scientific-mathomatic_MOBJC_CPPFLAGS)
+$(ports-scientific-mathomatic_MOBJC_TARGETS) : CFLAGS := $(ports-scientific-mathomatic_OBJCFLAGS)
+$(ports-scientific-mathomatic_MOBJC_TARGETS) : $(ports-scientific-mathomatic_MOBJC_WILDCARD).o : $(ports-scientific-mathomatic_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-scientific-mathomatic_MOBJC_DTARGETS) : $(ports-scientific-mathomatic_MOBJC_WILDCARD).d : $(ports-scientific-mathomatic_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-scientific-mathomatic_OBJCDFLAGS) $(ports-scientific-mathomatic_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-scientific-mathomatic_MC_SRCWILDCARD := %
+else
+ports-scientific-mathomatic_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-scientific-mathomatic_OBJDIR),)
+ports-scientific-mathomatic_MC_TARGETS := $(addsuffix .o,$(ports-scientific-mathomatic_C_NARCHFILES))
+ports-scientific-mathomatic_MC_DTARGETS := $(addsuffix .d,$(ports-scientific-mathomatic_C_NARCHFILES))
+ports-scientific-mathomatic_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-scientific-mathomatic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(ports-scientific-mathomatic_C_NARCHFILES))))
+    ports-scientific-mathomatic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(ports-scientific-mathomatic_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-scientific-mathomatic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_C_NARCHFILES)))
+    ports-scientific-mathomatic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(ports-scientific-mathomatic_C_NARCHFILES)))
+else
+    ports-scientific-mathomatic_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(patsubst /%,%,$(ports-scientific-mathomatic_C_NARCHFILES))))
+    ports-scientific-mathomatic_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(patsubst /%,%,$(ports-scientific-mathomatic_C_NARCHFILES))))
+endif
+endif
+ports-scientific-mathomatic_MC_TGTWILDCARD := $(ports-scientific-mathomatic_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : | $(addsuffix .c,$(ports-scientific-mathomatic_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-scientific-mathomatic_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-scientific-mathomatic_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-scientific-mathomatic_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-scientific-mathomatic_MC_DIRS := $(foreach dir, $(ports-scientific-mathomatic_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-scientific-mathomatic_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-scientific-mathomatic_MC_DIRS),)
+    ports-scientific-mathomatic_MC_DIRS := $(shell $(ECHO) $(ports-scientific-mathomatic_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-scientific-mathomatic_MC_DIRS)
+endif
+
+endif
+
+ports-scientific-mathomatic_MC_CPPFLAGS := $(ports-scientific-mathomatic_CPPFLAGS)
+ports-scientific-mathomatic_CFLAGS := $(ports-scientific-mathomatic_CFLAGS)
+ifeq ($(ports-scientific-mathomatic_DFLAGS),)
+  ports-scientific-mathomatic_DFLAGS := $(ports-scientific-mathomatic_CFLAGS)
+else
+  ports-scientific-mathomatic_DFLAGS := $(ports-scientific-mathomatic_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-scientific-mathomatic_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-scientific-mathomatic_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-scientific-mathomatic_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-scientific-mathomatic_STRIP ?= $(TARGET_STRIP)
+ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_MC_CPPFLAGS:=$(strip $(ports-scientific-mathomatic_MC_CPPFLAGS) $(ports-scientific-mathomatic_MC_EXTRA_CPPFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_CFLAGS:=$(strip $(ports-scientific-mathomatic_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_DFLAGS:=$(ports-scientific-mathomatic_DFLAGS)
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-scientific-mathomatic_LINK ?= $(strip $(HOST_CC))
+ports-scientific-mathomatic_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-scientific-mathomatic_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-scientific-mathomatic_STRIP ?= $(HOST_STRIP)
+ports-scientific-mathomatic_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-scientific-mathomatic_MC_CPPFLAGS) $(ports-scientific-mathomatic_MC_EXTRA_CPPFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-scientific-mathomatic_CFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-scientific-mathomatic_DFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(HOST_IQUOTE)
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-scientific-mathomatic_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-scientific-mathomatic_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-scientific-mathomatic_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-scientific-mathomatic_STRIP ?= $(ECHO) >/dev/null
+ports-scientific-mathomatic_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-scientific-mathomatic_MC_CPPFLAGS) $(ports-scientific-mathomatic_MC_EXTRA_CPPFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-scientific-mathomatic_CFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-scientific-mathomatic_DFLAGS))
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-scientific-mathomatic_MC_TARGETS) $(ports-scientific-mathomatic_MC_DTARGETS) : ports-scientific-mathomatic_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-scientific-mathomatic_MC_TARGETS) : CPPFLAGS := $(ports-scientific-mathomatic_MC_CPPFLAGS)
+$(ports-scientific-mathomatic_MC_TARGETS) : CFLAGS := $(ports-scientific-mathomatic_CFLAGS)
+$(ports-scientific-mathomatic_MC_TARGETS) : $(ports-scientific-mathomatic_MC_TGTWILDCARD).o : $(ports-scientific-mathomatic_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-scientific-mathomatic_IQUOTE) $(dir $<) $(ports-scientific-mathomatic_IQUOTE) $(TOP)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-scientific-mathomatic_IQUOTE) . $(ports-scientific-mathomatic_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-scientific-mathomatic_MC_DTARGETS) : $(ports-scientific-mathomatic_MC_TGTWILDCARD).d : $(ports-scientific-mathomatic_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-scientific-mathomatic_DFLAGS) $(ports-scientific-mathomatic_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-scientific-mathomatic_OBJDIR),)
+ports-scientific-mathomatic-MA_TARGETS := $(addsuffix .o,$(ports-scientific-mathomatic_ASMFILES))
+ports-scientific-mathomatic-MA_WILDCARD := %
+else
+ports-scientific-mathomatic-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-scientific-mathomatic_OBJDIR)/,$(notdir $(ports-scientific-mathomatic_ASMFILES))))
+ports-scientific-mathomatic-MA_WILDCARD := $(ports-scientific-mathomatic_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-scientific-mathomatic-MA_TARGETS) : | $(addsuffix .s,$(ports-scientific-mathomatic_ASMFILES))
+
+# Be sure that all .c files are found
+ports-scientific-mathomatic-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-scientific-mathomatic-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-scientific-mathomatic_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-scientific-mathomatic-MA_DIRS := $(foreach dir, $(ports-scientific-mathomatic-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-scientific-mathomatic-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-scientific-mathomatic-MA_DIRS),)
+    ports-scientific-mathomatic-MA_DIRS := $(shell $(ECHO) $(ports-scientific-mathomatic-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-scientific-mathomatic-MA_DIRS)
+endif
+
+endif
+
+ports-scientific-mathomatic-MA_ASSEMBLER ?= $(ports-scientific-mathomatic_ASSEMBLER)
+
+$(ports-scientific-mathomatic-MA_TARGETS) : ports-scientific-mathomatic-MA_CMD:= $(ports-scientific-mathomatic-MA_ASSEMBLER)
+
+$(ports-scientific-mathomatic-MA_TARGETS) : CPPFLAGS := $(ports-scientific-mathomatic_CPPFLAGS)
+$(ports-scientific-mathomatic-MA_TARGETS) : AFLAGS := $(ports-scientific-mathomatic_AFLAGS)
+$(ports-scientific-mathomatic-MA_TARGETS) : $(ports-scientific-mathomatic-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-scientific-mathomatic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-scientific-mathomatic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-scientific-mathomatic-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-scientific-mathomatic-link_LD_OPTS := 
+ports-scientific-mathomatic-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-scientific-mathomatic-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-scientific-mathomatic-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-scientific-mathomatic-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-scientific-mathomatic-link_DIRS := $(subst -L ,-L,$(strip $(ports-scientific-mathomatic_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-scientific-mathomatic-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-scientific-mathomatic-link_DIRS)))
+# Add trailing /
+ports-scientific-mathomatic-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-scientific-mathomatic-link_DIRS)))
+# Add normal linklib path
+ports-scientific-mathomatic-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-scientific-mathomatic-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-scientific-mathomatic_LIBS) $(ports-scientific-mathomatic-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-scientific-mathomatic-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-scientific-mathomatic-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-scientific-mathomatic-link_DEPLIBS := $(foreach lib,$(ports-scientific-mathomatic-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-scientific-mathomatic-link_DIRS)))) \
+)
+
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : OBJDIR := $(ports-scientific-mathomatic_OBJDIR)
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : OBJS := $(strip $(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_ARCHOBJS) $(USER_OBJS))
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : LDFLAGS := $(strip $(ports-scientific-mathomatic_LDFLAGS))
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-scientific-mathomatic_LIBS) $(ports-scientific-mathomatic-link_EXTRA_LIBS)))
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-scientific-mathomatic_ARCHLIBS))
+$(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : $(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_ARCHOBJS) $(USER_OBJS) $(ports-scientific-mathomatic-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-scientific-mathomatic_LINK) $(strip $(ports-scientific-mathomatic_LD_OPTS) $(ports-scientific-mathomatic-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-scientific-mathomatic_LINK) $(strip $(ports-scientific-mathomatic_LD_OPTS) $(ports-scientific-mathomatic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-scientific-mathomatic_LINK) $(strip $(ports-scientific-mathomatic_LD_OPTS) $(ports-scientific-mathomatic-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-scientific-mathomatic_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-scientific-mathomatic_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-scientific-mathomatic_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-scientific-mathomatic_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-scientific-mathomatic_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-scientific-mathomatic_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-scientific-mathomatic_DEPS),)
+  ifneq (ports-scientific-mathomatic ports-scientific-mathomatic-quick,)
+    ifneq ($(findstring $(TARGET),ports-scientific-mathomatic ports-scientific-mathomatic-quick),)
+      -include $(ports-scientific-mathomatic_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-scientific-mathomatic_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_DEPS) $(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME),)
+$(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_DEPS) $(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) : | $(ports-scientific-mathomatic_OBJDIR) $(ports-scientific-mathomatic_TARGETDIR)
+else
+$(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_DEPS) $(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) :: $(ports-scientific-mathomatic_OBJDIR) $(ports-scientific-mathomatic_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-scientific-mathomatic_OBJDIR) $(ports-scientific-mathomatic_TARGETDIR)
+
+
+ports-scientific-mathomatic-clean : FILES := $(ports-scientific-mathomatic_OBJS) $(ports-scientific-mathomatic_TARGETDIR)/$(ports-scientific-mathomatic_PROGNAME) $(ports-scientific-mathomatic_DEPS)
+#MM
+ports-scientific-mathomatic-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-scientific-mathomatic"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-scientific-mathomatic-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-scientific-mathomatic-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-scientific-mathomatic-fetch-location := $(PORTSDIR)/mathomatic
+endif
+
+ifneq (,)
+    ports-scientific-mathomatic-fetch-baseflag := -b 
+else
+    ports-scientific-mathomatic-fetch-baseflag :=
+endif
+
+ports-scientific-mathomatic-fetch-fetchedflag := $(ports-scientific-mathomatic-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-scientific-mathomatic-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-scientific-mathomatic-fetch-location) \
+	-d $(PORTSDIR)/mathomatic $(ports-scientific-mathomatic-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ARCHBASE)-aros.diff:mathomatic-$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-scientific-mathomatic-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-scientific-mathomatic-fetch-fetchedflag) ; \
+	fi
+
+
+
+.PHONY : ports-scientific-mathomatic-docs
+
+#MM
+ports-scientific-mathomatic-docs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc)))' to '$(if $(filter /%,$(TARGETDIR)/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Docs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE)/doc -d $(TARGETDIR)/Docs -e 
+
+
+
+CPYFILES := changes.txt COPYING mathomatic.1 README.txt
+
+
+ports-scientific-mathomatic-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/mathomatic/mathomatic-$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-scientific-mathomatic-cpy
+
+#MM
+ports-scientific-mathomatic-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-scientific-mathomatic-cpy_SRC)),$(ports-scientific-mathomatic-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-scientific-mathomatic-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,818 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-bugsquish
+
+#MM  ports-game-bugsquish : includes linklibs contrib-sdl \
+#MM    contrib-sdl-sdl-image contrib-sdl-sdl-mixer \
+#MM    ports-game-bugsquish-data ports-game-bugsquish-cpy \
+#MM    ports-game-bugsquish-fetch
+
+#MM  ports-game-bugsquish-data : ports-game-bugsquish-fetch
+
+#MM  ports-game-bugsquish-quick : ports-game-bugsquish-fetch
+
+REPOSITORIES := ftp://ftp.tuxpaint.org/unix/x/bugsquish/src
+ARCHBASE     := bugsquish-0.0.6
+TARGETDIR    := $(AROS_CONTRIB)/Games/Action/Bugsquish
+SDL_PREFIX   := $(AROS_DEVELOPER)
+
+NOWARN_FLAGS := $(NOWARN_UNUSED_VARIABLE) $(NOWARN_UNUSED_BUT_SET_VARIABLE)
+USER_CFLAGS  := $(NOWARN_FLAGS) $(shell $(SDL_PREFIX)/bin/sdl-config --prefix=$(SDL_PREFIX) --cflags) \
+                -DDATA_PREFIX=\"PROGDIR:data/\"
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+FILES := $(PORTSDIR)/bugsquish/$(ARCHBASE)/bugsquish
+
+
+.PHONY : ports-game-bugsquish
+
+#MM- ports-game-bugsquish : \
+#MM             ports-game-bugsquish-$(CPU)
+
+#MM- ports-game-bugsquish-$(ARCH)-$(CPU) : \
+#MM             ports-game-bugsquish-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-bugsquish-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-game-bugsquish-$(ARCH)-$(CPU)
+
+#MM- ports-game-bugsquish-$(ARCH) : \
+#MM             ports-game-bugsquish-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-game-bugsquish-$(FAMILY) : \
+#MM             ports-game-bugsquish-$(ARCH)
+
+#MM- ports-game-bugsquish-$(CPU) : \
+#MM             ports-game-bugsquish-$(FAMILY)
+#MM- ports-game-bugsquish-quick : \
+#MM             ports-game-bugsquish-$(CPU)-quick
+
+#MM- ports-game-bugsquish-$(ARCH)-$(CPU)-quick : \
+#MM             ports-game-bugsquish-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-bugsquish-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-game-bugsquish-$(ARCH)-$(CPU)-quick
+
+#MM- ports-game-bugsquish-$(ARCH)-quick : \
+#MM             ports-game-bugsquish-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-game-bugsquish-$(FAMILY)-quick : \
+#MM             ports-game-bugsquish-$(ARCH)-quick
+
+#MM- ports-game-bugsquish-$(CPU)-quick : \
+#MM             ports-game-bugsquish-$(FAMILY)-quick
+
+ports-game-bugsquish_PROGNAME  := Bugsquish
+ports-game-bugsquish_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-game-bugsquish_TARGETDIR := $(TARGETDIR)
+ports-game-bugsquish_LINKER    := 
+ports-game-bugsquish_LIBS := SDL_image png jpeg SDL_mixer mikmod vorbisfile vorbis ogg SDL z
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-game-bugsquish_LINKER),)
+    ports-game-bugsquish_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-game-bugsquish_FILES     := $(FILES)
+    ports-game-bugsquish_OBJCFILES := 
+    ports-game-bugsquish_ASMFILES  := 
+    ports-game-bugsquish_CXXFILES := 
+else
+    ports-game-bugsquish_FILES     := $(ports-game-bugsquish_PROGNAME)
+    ports-game-bugsquish_OBJCFILES :=
+    ports-game-bugsquish_ASMFILES  :=
+    ports-game-bugsquish_CXXFILES :=
+endif
+
+ports-game-bugsquish_ARCHOBJS   := $(wildcard $(ports-game-bugsquish_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-game-bugsquish_ARCHFILES     := $(basename $(notdir $(ports-game-bugsquish_ARCHOBJS)))
+else
+    ports-game-bugsquish_ARCHFILES     := $(basename $(patsubst $(ports-game-bugsquish_OBJDIR)/%,%,$(ports-game-bugsquish_ARCHOBJS)))
+endif
+ports-game-bugsquish_C_NARCHFILES := $(filter-out $(ports-game-bugsquish_ARCHFILES),$(ports-game-bugsquish_FILES))
+ports-game-bugsquish_CXX_NARCHFILES := $(filter-out $(ports-game-bugsquish_ARCHFILES),$(ports-game-bugsquish_CXXFILES))
+ports-game-bugsquish_OBJC_NARCHFILES := $(filter-out $(ports-game-bugsquish_ARCHFILES),$(ports-game-bugsquish_OBJCFILES))
+
+TMP_FILES := $(ports-game-bugsquish_C_NARCHFILES) $(ports-game-bugsquish_CXX_NARCHFILES) $(ports-game-bugsquish_ASMFILES) $(ports-game-bugsquish_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-game-bugsquish_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-game-bugsquish_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-game-bugsquish_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(TMP_FILES))) )
+    ports-game-bugsquish_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-game-bugsquish_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-game-bugsquish_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-bugsquish_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-bugsquish_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-game-bugsquish_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-bugsquish_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-game-bugsquish_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-game-bugsquish_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-game-bugsquish_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-game-bugsquish_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-game-bugsquish_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-game-bugsquish_LDFLAGS          := 
+endif
+
+ports-game-bugsquish_CSTATICFLAGS   := `echo "$(ports-game-bugsquish_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-game-bugsquish_CSTDCFLAGS   :=  `echo "$(ports-game-bugsquish_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-game-bugsquish_CPOSIXCFLAGS   :=  `echo "$(ports-game-bugsquish_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-game-bugsquish_LDFLAGS          += $(strip $(ports-game-bugsquish_CSTATICFLAGS) $(ports-game-bugsquish_CSTDCFLAGS) $(ports-game-bugsquish_CPOSIXCFLAGS))
+
+ports-game-bugsquish_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-game-bugsquish_COVERAGE := yes
+ports-game-bugsquish_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-game-bugsquish_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-game-bugsquish_CFLAGS    := $(strip $(ports-game-bugsquish_COVERAGEFLAGS) $(ports-game-bugsquish_CFLAGS))
+ports-game-bugsquish_CXXFLAGS := $(strip $(ports-game-bugsquish_COVERAGEFLAGS) $(ports-game-bugsquish_CXXFLAGS))
+ports-game-bugsquish_LIBS += $(ports-game-bugsquish_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-game-bugsquish_FUNCINSTR := yes
+ports-game-bugsquish_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-game-bugsquish_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-game-bugsquish_CFLAGS    := $(strip $(ports-game-bugsquish_INSTRFUNCFLAGS) $(ports-game-bugsquish_CFLAGS))
+ports-game-bugsquish_CXXFLAGS := $(strip $(ports-game-bugsquish_INSTRFUNCFLAGS) $(ports-game-bugsquish_CXXFLAGS))
+ports-game-bugsquish_LIBS += $(ports-game-bugsquish_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-game-bugsquish_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-bugsquish_CFLAGS))
+ports-game-bugsquish_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-game-bugsquish_CXXFLAGS))
+endif
+endif
+ports-game-bugsquish_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-game-bugsquish_DFLAGS     := 
+else
+    ports-game-bugsquish_DFLAGS     := $(ports-game-bugsquish_CFLAGS)
+endif
+ifneq (,)
+    ports-game-bugsquish_DXXFLAGS     := 
+else
+    ports-game-bugsquish_DXXFLAGS     := $(ports-game-bugsquish_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-game-bugsquish_LDFLAGS           := $(ports-game-bugsquish_LDFLAGS)
+ports-game-bugsquish_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-game-bugsquish_LDFLAGS           := $(ports-game-bugsquish_LDFLAGS)
+ports-game-bugsquish_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_LDFLAGS           := $(ports-game-bugsquish_LDFLAGS)
+ports-game-bugsquish_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-game-bugsquish_LDFLAGS   += -L
+endif
+
+#MM
+ports-game-bugsquish-quick : ports-game-bugsquish
+
+#MM ports-game-bugsquish : includes-generate-deps core-linklibs
+ports-game-bugsquish : $(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-game-bugsquish_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-game-bugsquish_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-game-bugsquish_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-game-bugsquish_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-game-bugsquish_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-game-bugsquish ports-game-bugsquish-quick ports-game-bugsquish-compress-quick),)
+
+ports-game-bugsquish_CXXABSBASENAMES := $(foreach ports-game-bugsquish_CXXBASE,$(ports-game-bugsquish_CXX_NARCHFILES),$(if $(filter /%,$(ports-game-bugsquish_CXXBASE)),$(ports-game-bugsquish_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-game-bugsquish_CXXBASE))))
+
+ifneq ($(ports-game-bugsquish_CXXABSBASENAMES),)
+
+ports-game-bugsquish_CXXBASENAMES := $(basename $(ports-game-bugsquish_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-game-bugsquish_MCXX_FILES  := $(strip $(foreach ports-game-bugsquish_CXXBASE,$(ports-game-bugsquish_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-game-bugsquish_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-game-bugsquish_EXT),$(ports-game-bugsquish_CXXBASE)))))))
+
+ifeq (,)
+ports-game-bugsquish_MCXX_SRCWILDCARD := %
+else
+ports-game-bugsquish_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-bugsquish_OBJDIR),)
+  ports-game-bugsquish_CXXTARGETS := $(notdir $(ports-game-bugsquish_CXXBASENAMES:=.o))
+  ports-game-bugsquish_CXXDTARGETS := $(notdir $(ports-game-bugsquish_CXXBASENAMES:=.d))
+  ports-game-bugsquish_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-game-bugsquish_CXXTARGETS := $(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(ports-game-bugsquish_CXXBASENAMES:=.o)))
+  ports-game-bugsquish_CXXDTARGETS := $(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(ports-game-bugsquish_CXXBASENAMES:=.d)))
+  ports-game-bugsquish_MCXX_WILDCARD := $(ports-game-bugsquish_OBJDIR)/%
+else
+  ports-game-bugsquish_CXXTARGETS := $(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_CXXBASENAMES:=.o))
+  ports-game-bugsquish_CXXDTARGETS := $(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_CXXBASENAMES:=.d))
+  ports-game-bugsquish_MCXX_WILDCARD := $(ports-game-bugsquish_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-game-bugsquish_CXXTARGETS) $(ports-game-bugsquish_CXXDTARGETS) : | $(ports-game-bugsquish_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-game-bugsquish_MCXX_CPPFLAGS := $(ports-game-bugsquish_CPPFLAGS)
+ports-game-bugsquish_CXXFLAGS := $(ports-game-bugsquish_CXXFLAGS)
+ifeq ($(ports-game-bugsquish_DXXFLAGS),)
+  ports-game-bugsquish_DXXFLAGS := $(ports-game-bugsquish_CXXFLAGS)
+else
+  ports-game-bugsquish_DXXFLAGS := $(ports-game-bugsquish_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-game-bugsquish_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-game-bugsquish_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-bugsquish_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-bugsquish_STRIP ?= $(HOST_STRIP)
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-game-bugsquish_CXXCMD:=$(HOST_CXX)
+  ports-game-bugsquish_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS) $(ports-game-bugsquish_MCXX_EXTRA_CPPFLAGS))
+  ports-game-bugsquish_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-bugsquish_CXXFLAGS))
+  ports-game-bugsquish_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-game-bugsquish_DXXFLAGS))
+  ports-game-bugsquish_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-game-bugsquish_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-game-bugsquish_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-bugsquish_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-bugsquish_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-bugsquish_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-game-bugsquish_LDFLAGS ?= $(ports-game-bugsquish_CXXLDFLAGS)
+  ports-game-bugsquish_STRIP ?= $(TARGET_STRIP)
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-game-bugsquish_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-game-bugsquish_MCXX_CPPFLAGS := $(strip $(ports-game-bugsquish_MCXX_CPPFLAGS) $(ports-game-bugsquish_MCXX_EXTRA_CPPFLAGS))
+  ports-game-bugsquish_CXXFLAGS := $(strip $(ports-game-bugsquish_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-game-bugsquish_DXXFLAGS := $(ports-game-bugsquish_DXXFLAGS)
+  ports-game-bugsquish_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-game-bugsquish_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-game-bugsquish_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-game-bugsquish_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-bugsquish_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-game-bugsquish_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-game-bugsquish_LDFLAGS ?= $(ports-game-bugsquish_CXXLDFLAGS)
+  ports-game-bugsquish_STRIP ?= $(ECHO) >/dev/null
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-game-bugsquish_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-game-bugsquish_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS) $(ports-game-bugsquish_MCXX_EXTRA_CPPFLAGS))
+  ports-game-bugsquish_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-bugsquish_CXXFLAGS))
+  ports-game-bugsquish_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-game-bugsquish_DXXFLAGS))
+  ports-game-bugsquish_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-game-bugsquish_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-game-bugsquish_CXXCMD) $(ports-game-bugsquish_CXXIQUOTE) $(dir $(2)) $(ports-game-bugsquish_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) . $(ports-game-bugsquish_CXXIQUOTE_END) $(strip $(ports-game-bugsquish_CXXFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-game-bugsquish_CXXCMD) $(ports-game-bugsquish_CXXIQUOTE) $(dir $(2)) $(ports-game-bugsquish_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) . $(ports-game-bugsquish_CXXIQUOTE_END) $(strip $(ports-game-bugsquish_CXXFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-game-bugsquish_CXXCMD) $(ports-game-bugsquish_CXXIQUOTE) $(dir $(2)) $(ports-game-bugsquish_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_CXXIQUOTE) . $(ports-game-bugsquish_CXXIQUOTE_END) $(strip $(ports-game-bugsquish_CXXFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-game-bugsquish_CXXCMD)" $(MKDEPEND) $(strip $(ports-game-bugsquish_DXXFLAGS) $(ports-game-bugsquish_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-game-bugsquish_OBJDIR),)
+  $(foreach ports-game-bugsquish_CXXFILE,$(ports-game-bugsquish_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-game-bugsquish_CXXFILE))),$(ports-game-bugsquish_CXXFILE))))
+else
+  $(foreach ports-game-bugsquish_CXXFILE,$(ports-game-bugsquish_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(basename $(ports-game-bugsquish_CXXFILE)))),$(ports-game-bugsquish_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-game-bugsquish_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-game-bugsquish_MOBJC_SRCWILDCARD := %
+else
+ports-game-bugsquish_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-bugsquish_OBJDIR),)
+  ports-game-bugsquish_MOBJC_TARGETS := $(addsuffix .o,$(ports-game-bugsquish_OBJC_NARCHFILES))
+  ports-game-bugsquish_MOBJC_DTARGETS := $(addsuffix .d,$(ports-game-bugsquish_OBJC_NARCHFILES))
+  ports-game-bugsquish_MOBJC_WILDCARD := %
+else
+  ports-game-bugsquish_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_OBJC_NARCHFILES)))
+  ports-game-bugsquish_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_OBJC_NARCHFILES)))
+  ports-game-bugsquish_MOBJC_WILDCARD := $(ports-game-bugsquish_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-game-bugsquish_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-game-bugsquish_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-game-bugsquish_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-bugsquish_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-game-bugsquish_MOBJC_DIRS := $(foreach dir, $(ports-game-bugsquish_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-bugsquish_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-game-bugsquish_MOBJC_DIRS),)
+    ports-game-bugsquish_MOBJC_DIRS := $(shell $(ECHO) $(ports-game-bugsquish_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-game-bugsquish_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-game-bugsquish_CC := $(TARGET_CC)
+else
+  ports-game-bugsquish_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-game-bugsquish_MOBJC_CPPFLAGS := $(ports-game-bugsquish_CPPFLAGS)
+ports-game-bugsquish_OBJCFLAGS := $(ports-game-bugsquish_CFLAGS)
+ports-game-bugsquish_OBJCFLAGS := $(ports-game-bugsquish_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-game-bugsquish_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-game-bugsquish_OBJCFLAGS)))
+ifeq ($(ports-game-bugsquish_DFLAGS),)
+  ports-game-bugsquish_OBJCDFLAGS := $(ports-game-bugsquish_CFLAGS)
+else
+  ports-game-bugsquish_OBJCDFLAGS := $(ports-game-bugsquish_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-game-bugsquish_LINK ?= $(strip $(ports-game-bugsquish_CC) $(TARGET_SYSROOT))
+  ports-game-bugsquish_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-game-bugsquish_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-game-bugsquish_STRIP ?= $(TARGET_STRIP)
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : CMD:=$(strip $(ports-game-bugsquish_CC) $(TARGET_SYSROOT))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_MOBJC_CPPFLAGS:=$(strip $(ports-game-bugsquish_MOBJC_CPPFLAGS) $(ports-game-bugsquish_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCFLAGS:=$(strip $(ports-game-bugsquish_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCDFLAGS:=$(ports-game-bugsquish_OBJCDFLAGS)
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-game-bugsquish_LINK ?= $(strip $(HOST_OBJC))
+  ports-game-bugsquish_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-game-bugsquish_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-game-bugsquish_STRIP ?= $(HOST_STRIP)
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-game-bugsquish_MOBJC_CPPFLAGS) $(ports-game-bugsquish_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-bugsquish_OBJCFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-bugsquish_OBJCDFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-game-bugsquish_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-game-bugsquish_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-game-bugsquish_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-game-bugsquish_STRIP ?= $(ECHO) >/dev/null
+  ports-game-bugsquish_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-game-bugsquish_MOBJC_CPPFLAGS) $(ports-game-bugsquish_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-bugsquish_OBJCFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-bugsquish_OBJCDFLAGS))
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-game-bugsquish_MOBJC_TARGETS) $(ports-game-bugsquish_MOBJC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-bugsquish_MOBJC_TARGETS) : CPPFLAGS := $(ports-game-bugsquish_MOBJC_CPPFLAGS)
+$(ports-game-bugsquish_MOBJC_TARGETS) : CFLAGS := $(ports-game-bugsquish_OBJCFLAGS)
+$(ports-game-bugsquish_MOBJC_TARGETS) : $(ports-game-bugsquish_MOBJC_WILDCARD).o : $(ports-game-bugsquish_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-bugsquish_MOBJC_DTARGETS) : $(ports-game-bugsquish_MOBJC_WILDCARD).d : $(ports-game-bugsquish_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-bugsquish_OBJCDFLAGS) $(ports-game-bugsquish_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-game-bugsquish_MC_SRCWILDCARD := %
+else
+ports-game-bugsquish_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-game-bugsquish_OBJDIR),)
+ports-game-bugsquish_MC_TARGETS := $(addsuffix .o,$(ports-game-bugsquish_C_NARCHFILES))
+ports-game-bugsquish_MC_DTARGETS := $(addsuffix .d,$(ports-game-bugsquish_C_NARCHFILES))
+ports-game-bugsquish_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-game-bugsquish_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(ports-game-bugsquish_C_NARCHFILES))))
+    ports-game-bugsquish_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(ports-game-bugsquish_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-game-bugsquish_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_C_NARCHFILES)))
+    ports-game-bugsquish_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(ports-game-bugsquish_C_NARCHFILES)))
+else
+    ports-game-bugsquish_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(patsubst /%,%,$(ports-game-bugsquish_C_NARCHFILES))))
+    ports-game-bugsquish_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(patsubst /%,%,$(ports-game-bugsquish_C_NARCHFILES))))
+endif
+endif
+ports-game-bugsquish_MC_TGTWILDCARD := $(ports-game-bugsquish_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : | $(addsuffix .c,$(ports-game-bugsquish_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-game-bugsquish_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-bugsquish_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-bugsquish_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-bugsquish_MC_DIRS := $(foreach dir, $(ports-game-bugsquish_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-bugsquish_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-bugsquish_MC_DIRS),)
+    ports-game-bugsquish_MC_DIRS := $(shell $(ECHO) $(ports-game-bugsquish_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-game-bugsquish_MC_DIRS)
+endif
+
+endif
+
+ports-game-bugsquish_MC_CPPFLAGS := $(ports-game-bugsquish_CPPFLAGS)
+ports-game-bugsquish_CFLAGS := $(ports-game-bugsquish_CFLAGS)
+ifeq ($(ports-game-bugsquish_DFLAGS),)
+  ports-game-bugsquish_DFLAGS := $(ports-game-bugsquish_CFLAGS)
+else
+  ports-game-bugsquish_DFLAGS := $(ports-game-bugsquish_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-game-bugsquish_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-game-bugsquish_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-game-bugsquish_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-game-bugsquish_STRIP ?= $(TARGET_STRIP)
+ports-game-bugsquish_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_MC_CPPFLAGS:=$(strip $(ports-game-bugsquish_MC_CPPFLAGS) $(ports-game-bugsquish_MC_EXTRA_CPPFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_CFLAGS:=$(strip $(ports-game-bugsquish_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_DFLAGS:=$(ports-game-bugsquish_DFLAGS)
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-game-bugsquish_LINK ?= $(strip $(HOST_CC))
+ports-game-bugsquish_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-game-bugsquish_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-game-bugsquish_STRIP ?= $(HOST_STRIP)
+ports-game-bugsquish_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-game-bugsquish_MC_CPPFLAGS) $(ports-game-bugsquish_MC_EXTRA_CPPFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-bugsquish_CFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-game-bugsquish_DFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(HOST_IQUOTE)
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-game-bugsquish_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-game-bugsquish_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-game-bugsquish_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-game-bugsquish_STRIP ?= $(ECHO) >/dev/null
+ports-game-bugsquish_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-game-bugsquish_MC_CPPFLAGS) $(ports-game-bugsquish_MC_EXTRA_CPPFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-bugsquish_CFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-game-bugsquish_DFLAGS))
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-game-bugsquish_MC_TARGETS) $(ports-game-bugsquish_MC_DTARGETS) : ports-game-bugsquish_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-game-bugsquish_MC_TARGETS) : CPPFLAGS := $(ports-game-bugsquish_MC_CPPFLAGS)
+$(ports-game-bugsquish_MC_TARGETS) : CFLAGS := $(ports-game-bugsquish_CFLAGS)
+$(ports-game-bugsquish_MC_TARGETS) : $(ports-game-bugsquish_MC_TGTWILDCARD).o : $(ports-game-bugsquish_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-game-bugsquish_IQUOTE) $(dir $<) $(ports-game-bugsquish_IQUOTE) $(TOP)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-game-bugsquish_IQUOTE) . $(ports-game-bugsquish_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-game-bugsquish_MC_DTARGETS) : $(ports-game-bugsquish_MC_TGTWILDCARD).d : $(ports-game-bugsquish_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-game-bugsquish_DFLAGS) $(ports-game-bugsquish_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-game-bugsquish_OBJDIR),)
+ports-game-bugsquish-MA_TARGETS := $(addsuffix .o,$(ports-game-bugsquish_ASMFILES))
+ports-game-bugsquish-MA_WILDCARD := %
+else
+ports-game-bugsquish-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-game-bugsquish_OBJDIR)/,$(notdir $(ports-game-bugsquish_ASMFILES))))
+ports-game-bugsquish-MA_WILDCARD := $(ports-game-bugsquish_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-game-bugsquish-MA_TARGETS) : | $(addsuffix .s,$(ports-game-bugsquish_ASMFILES))
+
+# Be sure that all .c files are found
+ports-game-bugsquish-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-game-bugsquish-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-game-bugsquish_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-game-bugsquish-MA_DIRS := $(foreach dir, $(ports-game-bugsquish-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-game-bugsquish-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-game-bugsquish-MA_DIRS),)
+    ports-game-bugsquish-MA_DIRS := $(shell $(ECHO) $(ports-game-bugsquish-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-game-bugsquish-MA_DIRS)
+endif
+
+endif
+
+ports-game-bugsquish-MA_ASSEMBLER ?= $(ports-game-bugsquish_ASSEMBLER)
+
+$(ports-game-bugsquish-MA_TARGETS) : ports-game-bugsquish-MA_CMD:= $(ports-game-bugsquish-MA_ASSEMBLER)
+
+$(ports-game-bugsquish-MA_TARGETS) : CPPFLAGS := $(ports-game-bugsquish_CPPFLAGS)
+$(ports-game-bugsquish-MA_TARGETS) : AFLAGS := $(ports-game-bugsquish_AFLAGS)
+$(ports-game-bugsquish-MA_TARGETS) : $(ports-game-bugsquish-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-game-bugsquish-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-game-bugsquish-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-game-bugsquish-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-game-bugsquish-link_LD_OPTS := 
+ports-game-bugsquish-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-game-bugsquish-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-game-bugsquish-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-game-bugsquish-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-game-bugsquish-link_DIRS := $(subst -L ,-L,$(strip $(ports-game-bugsquish_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-game-bugsquish-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-game-bugsquish-link_DIRS)))
+# Add trailing /
+ports-game-bugsquish-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-game-bugsquish-link_DIRS)))
+# Add normal linklib path
+ports-game-bugsquish-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-game-bugsquish-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-game-bugsquish_LIBS) $(ports-game-bugsquish-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-game-bugsquish-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-game-bugsquish-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-game-bugsquish-link_DEPLIBS := $(foreach lib,$(ports-game-bugsquish-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-game-bugsquish-link_DIRS)))) \
+)
+
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : OBJDIR := $(ports-game-bugsquish_OBJDIR)
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : OBJS := $(strip $(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_ARCHOBJS) $(USER_OBJS))
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : LDFLAGS := $(strip $(ports-game-bugsquish_LDFLAGS))
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-game-bugsquish_LIBS) $(ports-game-bugsquish-link_EXTRA_LIBS)))
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-game-bugsquish_ARCHLIBS))
+$(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : $(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_ARCHOBJS) $(USER_OBJS) $(ports-game-bugsquish-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-game-bugsquish_LINK) $(strip $(ports-game-bugsquish_LD_OPTS) $(ports-game-bugsquish-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-game-bugsquish_LINK) $(strip $(ports-game-bugsquish_LD_OPTS) $(ports-game-bugsquish-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-game-bugsquish_LINK) $(strip $(ports-game-bugsquish_LD_OPTS) $(ports-game-bugsquish-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-bugsquish_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-game-bugsquish_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-game-bugsquish_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-game-bugsquish_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-game-bugsquish_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-game-bugsquish_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-game-bugsquish_DEPS),)
+  ifneq (ports-game-bugsquish ports-game-bugsquish-quick,)
+    ifneq ($(findstring $(TARGET),ports-game-bugsquish ports-game-bugsquish-quick),)
+      -include $(ports-game-bugsquish_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-game-bugsquish_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_DEPS) $(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME),)
+$(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_DEPS) $(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) : | $(ports-game-bugsquish_OBJDIR) $(ports-game-bugsquish_TARGETDIR)
+else
+$(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_DEPS) $(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) :: $(ports-game-bugsquish_OBJDIR) $(ports-game-bugsquish_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-game-bugsquish_OBJDIR) $(ports-game-bugsquish_TARGETDIR)
+
+
+ports-game-bugsquish-clean : FILES := $(ports-game-bugsquish_OBJS) $(ports-game-bugsquish_TARGETDIR)/$(ports-game-bugsquish_PROGNAME) $(ports-game-bugsquish_DEPS)
+#MM
+ports-game-bugsquish-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-game-bugsquish"
+	$(Q)$(RM) $(FILES)
+
+
+
+.PHONY: ports-game-bugsquish-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-bugsquish-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-bugsquish-fetch-location := $(PORTSDIR)/bugsquish
+endif
+
+ifneq (,)
+    ports-game-bugsquish-fetch-baseflag := -b 
+else
+    ports-game-bugsquish-fetch-baseflag :=
+endif
+
+ports-game-bugsquish-fetch-fetchedflag := $(ports-game-bugsquish-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-game-bugsquish-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.gz" -l $(ports-game-bugsquish-fetch-location) \
+	-d $(PORTSDIR)/bugsquish $(ports-game-bugsquish-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "bugsquish-0.0.6-aros.diff:$(ARCHBASE):-p1"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-bugsquish-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-bugsquish-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY : ports-game-bugsquish-data
+
+#MM
+ports-game-bugsquish-data :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/bugsquish/$(ARCHBASE)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/bugsquish/$(ARCHBASE)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/bugsquish/$(ARCHBASE)/data)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/bugsquish/$(ARCHBASE)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/bugsquish/$(ARCHBASE)/data)))' to '$(if $(filter /%,$(TARGETDIR)/data),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/data)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/data)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/data))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/data)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/bugsquish/$(ARCHBASE)/data -d $(TARGETDIR)/data -e 
+
+
+CPYFILES := CHANGES.txt COPYING.txt README.txt
+
+
+ports-game-bugsquish-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/bugsquish/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-bugsquish-cpy
+
+#MM
+ports-game-bugsquish-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPYFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-bugsquish-cpy_SRC)),$(ports-game-bugsquish-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-bugsquish-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

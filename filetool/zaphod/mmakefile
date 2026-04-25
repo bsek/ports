@@ -1,0 +1,924 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-filetool : ports-filetool-$(AROS_TARGET_CPU)
+
+#MM- ports-filetool-i386 : ports-filetool-zaphod
+#MM- ports-filetool-arm : ports-filetool-zaphod
+#MM- ports-filetool-m68k : ports-filetool-zaphod
+
+#MM  ports-filetool-zaphod : includes linklibs ports-filetool-zaphod-catalogs \
+#MM  ports-filetool-fetch ports-filetool-zaphod-docs ports-filetool-zaphod-fonts \
+#MM  ports-filetool-zaphod-icons ports-filetool-zaphod-cpy
+
+#MM  ports-filetool-zaphod-catalogs : ports-filetool-zaphod-fetch
+
+#MM  ports-filetool-zaphod-docs : ports-filetool-zaphod-fetch
+
+#MM  ports-filetool-zaphod-fonts : ports-filetool-zaphod-fetch
+
+#MM  ports-filetool-zaphod-quick : ports-filetool-zaphod-fetch
+
+REPOSITORIES := https://sourceforge.net/projects/zaphodeditor/files/1.3/
+ARCHBASE     := zaphod-src-1.3
+TARGETDIR    := $(AROS_CONTRIB)/Utilities/Filetool/Zaphod
+
+USER_CFLAGS  := -D__LOCALE_STDLIBBASE__ -D__GRAPHICS_STDLIBBASE__ -D__INTUITION_STDLIBBASE__
+USER_INCLUDES:= -I$(PORTSDIR)/zaphod/$(ARCHBASE)/src
+
+CONFIG_CFLAGS := $(subst -Werror ,,$(CONFIG_CFLAGS))
+
+FILES := \
+	src/locale \
+	src/events \
+	src/config \
+	src/misc \
+	src/display \
+	src/clipboard \
+	src/zaphod
+FILES := $(addprefix $(PORTSDIR)/zaphod/$(ARCHBASE)/,$(FILES))
+
+
+.PHONY : ports-filetool-zaphod
+
+#MM- ports-filetool-zaphod : \
+#MM             ports-filetool-zaphod-$(CPU)
+
+#MM- ports-filetool-zaphod-$(ARCH)-$(CPU) : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-filetool-zaphod-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(CPU)
+
+#MM- ports-filetool-zaphod-$(ARCH) : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-filetool-zaphod-$(FAMILY) : \
+#MM             ports-filetool-zaphod-$(ARCH)
+
+#MM- ports-filetool-zaphod-$(CPU) : \
+#MM             ports-filetool-zaphod-$(FAMILY)
+#MM- ports-filetool-zaphod-quick : \
+#MM             ports-filetool-zaphod-$(CPU)-quick
+
+#MM- ports-filetool-zaphod-$(ARCH)-$(CPU)-quick : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-filetool-zaphod-$(ARCH)-$(AROS_TARGET_VARIANT)-quick : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(CPU)-quick
+
+#MM- ports-filetool-zaphod-$(ARCH)-quick : \
+#MM             ports-filetool-zaphod-$(ARCH)-$(AROS_TARGET_VARIANT)-quick
+
+#MM- ports-filetool-zaphod-$(FAMILY)-quick : \
+#MM             ports-filetool-zaphod-$(ARCH)-quick
+
+#MM- ports-filetool-zaphod-$(CPU)-quick : \
+#MM             ports-filetool-zaphod-$(FAMILY)-quick
+
+ports-filetool-zaphod_PROGNAME  := Zaphod
+ports-filetool-zaphod_OBJDIR    := $(GENDIR)/$(CURDIR)
+ports-filetool-zaphod_TARGETDIR := $(TARGETDIR)
+ports-filetool-zaphod_LINKER    := 
+ports-filetool-zaphod_LIBS := 
+# If not supplied, linker is equal to compiler
+ifeq ($(ports-filetool-zaphod_LINKER),)
+    ports-filetool-zaphod_LINKER := target
+endif
+
+ifneq ("$(strip $(FILES)   )","")
+    ports-filetool-zaphod_FILES     := $(FILES)
+    ports-filetool-zaphod_OBJCFILES := 
+    ports-filetool-zaphod_ASMFILES  := 
+    ports-filetool-zaphod_CXXFILES := 
+else
+    ports-filetool-zaphod_FILES     := $(ports-filetool-zaphod_PROGNAME)
+    ports-filetool-zaphod_OBJCFILES :=
+    ports-filetool-zaphod_ASMFILES  :=
+    ports-filetool-zaphod_CXXFILES :=
+endif
+
+ports-filetool-zaphod_ARCHOBJS   := $(wildcard $(ports-filetool-zaphod_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-filetool-zaphod_ARCHFILES     := $(basename $(notdir $(ports-filetool-zaphod_ARCHOBJS)))
+else
+    ports-filetool-zaphod_ARCHFILES     := $(basename $(patsubst $(ports-filetool-zaphod_OBJDIR)/%,%,$(ports-filetool-zaphod_ARCHOBJS)))
+endif
+ports-filetool-zaphod_C_NARCHFILES := $(filter-out $(ports-filetool-zaphod_ARCHFILES),$(ports-filetool-zaphod_FILES))
+ports-filetool-zaphod_CXX_NARCHFILES := $(filter-out $(ports-filetool-zaphod_ARCHFILES),$(ports-filetool-zaphod_CXXFILES))
+ports-filetool-zaphod_OBJC_NARCHFILES := $(filter-out $(ports-filetool-zaphod_ARCHFILES),$(ports-filetool-zaphod_OBJCFILES))
+
+TMP_FILES := $(ports-filetool-zaphod_C_NARCHFILES) $(ports-filetool-zaphod_CXX_NARCHFILES) $(ports-filetool-zaphod_ASMFILES) $(ports-filetool-zaphod_OBJC_NARCHFILES)
+ifeq (no,no)
+    ports-filetool-zaphod_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(TMP_FILES)))) )
+    ports-filetool-zaphod_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(TMP_FILES)))))
+else
+    ports-filetool-zaphod_OBJS     ?= $(strip $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(TMP_FILES))) )
+    ports-filetool-zaphod_DEPS := $(strip $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(TMP_FILES))))
+endif
+
+ports-filetool-zaphod_CPPFLAGS :=  $(CPPFLAGS)
+ifneq (,)
+ports-filetool-zaphod_CPPFLAGS    += -I
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-filetool-zaphod_CFLAGS            := $(strip $(CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-filetool-zaphod_CFLAGS            := $(strip $(HOST_CFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(USER_INCLUDES))
+endif
+else
+ports-filetool-zaphod_CFLAGS            := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-filetool-zaphod_CXXFLAGS            := $(strip $(CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,host)
+ports-filetool-zaphod_CXXFLAGS            := $(strip $(HOST_CXXFLAGS) $(USER_INCLUDES))
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-filetool-zaphod_CXXFLAGS          := $(strip  $(USER_INCLUDES))
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-filetool-zaphod_LDFLAGS            := $(LDFLAGS)
+ifeq (yes,no)
+ports-filetool-zaphod_LDFLAGS            += $(NOSTARTUP_OBJECTS)
+endif
+endif
+ifeq (target,host)
+ports-filetool-zaphod_LDFLAGS            := $(HOST_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_LDFLAGS            := $(strip $(KERNEL_LDFLAGS) $(USER_LDFLAGS))
+endif
+else
+ports-filetool-zaphod_LDFLAGS          := 
+endif
+
+ports-filetool-zaphod_CSTATICFLAGS   := `echo "$(ports-filetool-zaphod_CFLAGS)" | grep -o '\-static[^[:blank:]]*'`
+ports-filetool-zaphod_CSTDCFLAGS   :=  `echo "$(ports-filetool-zaphod_CFLAGS)" | grep -o '\-nostdc[^[:blank:]]*'`
+ports-filetool-zaphod_CPOSIXCFLAGS   :=  `echo "$(ports-filetool-zaphod_CFLAGS)" | grep -o '\-noposixc[^[:blank:]]*'`
+ports-filetool-zaphod_LDFLAGS          += $(strip $(ports-filetool-zaphod_CSTATICFLAGS) $(ports-filetool-zaphod_CSTDCFLAGS) $(ports-filetool-zaphod_CPOSIXCFLAGS))
+
+ports-filetool-zaphod_COVERAGE := no
+ifeq (target,target)
+ifeq (yes,yes)
+ifeq ($(TARGET_COVERAGEINSTR),yes)
+ports-filetool-zaphod_COVERAGE := yes
+ports-filetool-zaphod_COVERAGEFLAGS   ?= $(COVERAGEINSTR_FLAGS)
+ports-filetool-zaphod_COVERAGELIBS    ?= $(COVERAGEINSTR_LIBS)
+ports-filetool-zaphod_CFLAGS    := $(strip $(ports-filetool-zaphod_COVERAGEFLAGS) $(ports-filetool-zaphod_CFLAGS))
+ports-filetool-zaphod_CXXFLAGS := $(strip $(ports-filetool-zaphod_COVERAGEFLAGS) $(ports-filetool-zaphod_CXXFLAGS))
+ports-filetool-zaphod_LIBS += $(ports-filetool-zaphod_COVERAGELIBS)
+endif
+ifeq ($(TARGET_FUNCINSTR),yes)
+ports-filetool-zaphod_FUNCINSTR := yes
+ports-filetool-zaphod_INSTRFUNCFLAGS   ?= $(FUNCINSTR_FLAGS)
+ports-filetool-zaphod_INSTRFUNCLIBS    ?= $(FUNCINSTR_LIBS)
+ports-filetool-zaphod_CFLAGS    := $(strip $(ports-filetool-zaphod_INSTRFUNCFLAGS) $(ports-filetool-zaphod_CFLAGS))
+ports-filetool-zaphod_CXXFLAGS := $(strip $(ports-filetool-zaphod_INSTRFUNCFLAGS) $(ports-filetool-zaphod_CXXFLAGS))
+ports-filetool-zaphod_LIBS += $(ports-filetool-zaphod_INSTRFUNCLIBS)
+endif
+endif
+ifeq ($(TARGET_LTO),yes)
+ports-filetool-zaphod_CFLAGS    := $(strip $(LTO_BINARY_CFLAGS) $(ports-filetool-zaphod_CFLAGS))
+ports-filetool-zaphod_CXXFLAGS := $(strip $(LTO_BINARY_CFLAGS) $(ports-filetool-zaphod_CXXFLAGS))
+endif
+endif
+ports-filetool-zaphod_AFLAGS    := $(AFLAGS)
+ifneq (,)
+    ports-filetool-zaphod_DFLAGS     := 
+else
+    ports-filetool-zaphod_DFLAGS     := $(ports-filetool-zaphod_CFLAGS)
+endif
+ifneq (,)
+    ports-filetool-zaphod_DXXFLAGS     := 
+else
+    ports-filetool-zaphod_DXXFLAGS     := $(ports-filetool-zaphod_CXXFLAGS)
+endif
+ifeq (target,target)
+ports-filetool-zaphod_LDFLAGS           := $(ports-filetool-zaphod_LDFLAGS)
+ports-filetool-zaphod_LD_OPTS           := $(TARGET_ISA_LDFLAGS)
+endif
+ifeq (target,host)
+ports-filetool-zaphod_LDFLAGS           := $(ports-filetool-zaphod_LDFLAGS)
+ports-filetool-zaphod_LD_OPTS           := $(HOST_ISA_LDFLAGS)
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_LDFLAGS           := $(ports-filetool-zaphod_LDFLAGS)
+ports-filetool-zaphod_LD_OPTS           := $(KERNEL_ISA_LDFLAGS)
+endif
+ifneq (,)
+ports-filetool-zaphod_LDFLAGS   += -L
+endif
+
+#MM
+ports-filetool-zaphod-quick : ports-filetool-zaphod
+
+#MM ports-filetool-zaphod : includes-generate-deps core-linklibs
+ports-filetool-zaphod : $(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME)
+
+ifeq (no,yes)
+ifeq (target,host)
+ports-filetool-zaphod_LINK= $(strip $(HOST_CXX) $(HOST_LDFLAGS))
+endif
+ifeq (target,target)
+ports-filetool-zaphod_LINK= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+endif
+ifeq (target,kernel)
+KERNEL_CXX ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+ports-filetool-zaphod_LINK= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+endif
+endif
+
+ifeq (target,target)
+ports-filetool-zaphod_ARCHLIBS += $(TARGET_C_LIBS)
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_ARCHLIBS += $(KERNEL_C_LIBS)
+endif
+
+ports-filetool-zaphod_STRIPDEBUG ?= $(DEBUG)
+
+ifneq ($(filter $(TARGET),ports-filetool-zaphod ports-filetool-zaphod-quick ports-filetool-zaphod-compress-quick),)
+
+ports-filetool-zaphod_CXXABSBASENAMES := $(foreach ports-filetool-zaphod_CXXBASE,$(ports-filetool-zaphod_CXX_NARCHFILES),$(if $(filter /%,$(ports-filetool-zaphod_CXXBASE)),$(ports-filetool-zaphod_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-filetool-zaphod_CXXBASE))))
+
+ifneq ($(ports-filetool-zaphod_CXXABSBASENAMES),)
+
+ports-filetool-zaphod_CXXBASENAMES := $(basename $(ports-filetool-zaphod_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-filetool-zaphod_MCXX_FILES  := $(strip $(foreach ports-filetool-zaphod_CXXBASE,$(ports-filetool-zaphod_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-filetool-zaphod_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-filetool-zaphod_EXT),$(ports-filetool-zaphod_CXXBASE)))))))
+
+ifeq (,)
+ports-filetool-zaphod_MCXX_SRCWILDCARD := %
+else
+ports-filetool-zaphod_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-filetool-zaphod_OBJDIR),)
+  ports-filetool-zaphod_CXXTARGETS := $(notdir $(ports-filetool-zaphod_CXXBASENAMES:=.o))
+  ports-filetool-zaphod_CXXDTARGETS := $(notdir $(ports-filetool-zaphod_CXXBASENAMES:=.d))
+  ports-filetool-zaphod_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-filetool-zaphod_CXXTARGETS := $(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(ports-filetool-zaphod_CXXBASENAMES:=.o)))
+  ports-filetool-zaphod_CXXDTARGETS := $(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(ports-filetool-zaphod_CXXBASENAMES:=.d)))
+  ports-filetool-zaphod_MCXX_WILDCARD := $(ports-filetool-zaphod_OBJDIR)/%
+else
+  ports-filetool-zaphod_CXXTARGETS := $(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_CXXBASENAMES:=.o))
+  ports-filetool-zaphod_CXXDTARGETS := $(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_CXXBASENAMES:=.d))
+  ports-filetool-zaphod_MCXX_WILDCARD := $(ports-filetool-zaphod_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-filetool-zaphod_CXXTARGETS) $(ports-filetool-zaphod_CXXDTARGETS) : | $(ports-filetool-zaphod_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-filetool-zaphod_MCXX_CPPFLAGS := $(ports-filetool-zaphod_CPPFLAGS)
+ports-filetool-zaphod_CXXFLAGS := $(ports-filetool-zaphod_CXXFLAGS)
+ifeq ($(ports-filetool-zaphod_DXXFLAGS),)
+  ports-filetool-zaphod_DXXFLAGS := $(ports-filetool-zaphod_CXXFLAGS)
+else
+  ports-filetool-zaphod_DXXFLAGS := $(ports-filetool-zaphod_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-filetool-zaphod_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-filetool-zaphod_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-filetool-zaphod_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-filetool-zaphod_STRIP ?= $(HOST_STRIP)
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-filetool-zaphod_CXXCMD:=$(HOST_CXX)
+  ports-filetool-zaphod_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS) $(ports-filetool-zaphod_MCXX_EXTRA_CPPFLAGS))
+  ports-filetool-zaphod_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-filetool-zaphod_CXXFLAGS))
+  ports-filetool-zaphod_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-filetool-zaphod_DXXFLAGS))
+  ports-filetool-zaphod_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-filetool-zaphod_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-filetool-zaphod_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-filetool-zaphod_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-filetool-zaphod_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-filetool-zaphod_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-filetool-zaphod_LDFLAGS ?= $(ports-filetool-zaphod_CXXLDFLAGS)
+  ports-filetool-zaphod_STRIP ?= $(TARGET_STRIP)
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-filetool-zaphod_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-filetool-zaphod_MCXX_CPPFLAGS := $(strip $(ports-filetool-zaphod_MCXX_CPPFLAGS) $(ports-filetool-zaphod_MCXX_EXTRA_CPPFLAGS))
+  ports-filetool-zaphod_CXXFLAGS := $(strip $(ports-filetool-zaphod_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-filetool-zaphod_DXXFLAGS := $(ports-filetool-zaphod_DXXFLAGS)
+  ports-filetool-zaphod_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-filetool-zaphod_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-filetool-zaphod_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-filetool-zaphod_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-filetool-zaphod_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-filetool-zaphod_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-filetool-zaphod_LDFLAGS ?= $(ports-filetool-zaphod_CXXLDFLAGS)
+  ports-filetool-zaphod_STRIP ?= $(ECHO) >/dev/null
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-filetool-zaphod_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-filetool-zaphod_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS) $(ports-filetool-zaphod_MCXX_EXTRA_CPPFLAGS))
+  ports-filetool-zaphod_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-filetool-zaphod_CXXFLAGS))
+  ports-filetool-zaphod_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-filetool-zaphod_DXXFLAGS))
+  ports-filetool-zaphod_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-filetool-zaphod_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-filetool-zaphod_CXXCMD) $(ports-filetool-zaphod_CXXIQUOTE) $(dir $(2)) $(ports-filetool-zaphod_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) . $(ports-filetool-zaphod_CXXIQUOTE_END) $(strip $(ports-filetool-zaphod_CXXFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-filetool-zaphod_CXXCMD) $(ports-filetool-zaphod_CXXIQUOTE) $(dir $(2)) $(ports-filetool-zaphod_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) . $(ports-filetool-zaphod_CXXIQUOTE_END) $(strip $(ports-filetool-zaphod_CXXFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-filetool-zaphod_CXXCMD) $(ports-filetool-zaphod_CXXIQUOTE) $(dir $(2)) $(ports-filetool-zaphod_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_CXXIQUOTE) . $(ports-filetool-zaphod_CXXIQUOTE_END) $(strip $(ports-filetool-zaphod_CXXFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-filetool-zaphod_CXXCMD)" $(MKDEPEND) $(strip $(ports-filetool-zaphod_DXXFLAGS) $(ports-filetool-zaphod_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-filetool-zaphod_OBJDIR),)
+  $(foreach ports-filetool-zaphod_CXXFILE,$(ports-filetool-zaphod_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-filetool-zaphod_CXXFILE))),$(ports-filetool-zaphod_CXXFILE))))
+else
+  $(foreach ports-filetool-zaphod_CXXFILE,$(ports-filetool-zaphod_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(basename $(ports-filetool-zaphod_CXXFILE)))),$(ports-filetool-zaphod_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-filetool-zaphod_OBJC_NARCHFILES),)
+
+ifeq (,)
+ports-filetool-zaphod_MOBJC_SRCWILDCARD := %
+else
+ports-filetool-zaphod_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-filetool-zaphod_OBJDIR),)
+  ports-filetool-zaphod_MOBJC_TARGETS := $(addsuffix .o,$(ports-filetool-zaphod_OBJC_NARCHFILES))
+  ports-filetool-zaphod_MOBJC_DTARGETS := $(addsuffix .d,$(ports-filetool-zaphod_OBJC_NARCHFILES))
+  ports-filetool-zaphod_MOBJC_WILDCARD := %
+else
+  ports-filetool-zaphod_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_OBJC_NARCHFILES)))
+  ports-filetool-zaphod_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_OBJC_NARCHFILES)))
+  ports-filetool-zaphod_MOBJC_WILDCARD := $(ports-filetool-zaphod_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-filetool-zaphod_OBJC_NARCHFILES))
+
+  # Be sure that all .m files are found
+  ports-filetool-zaphod_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-filetool-zaphod_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-filetool-zaphod_OBJC_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-filetool-zaphod_MOBJC_DIRS := $(foreach dir, $(ports-filetool-zaphod_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-filetool-zaphod_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-filetool-zaphod_MOBJC_DIRS),)
+    ports-filetool-zaphod_MOBJC_DIRS := $(shell $(ECHO) $(ports-filetool-zaphod_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-filetool-zaphod_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-filetool-zaphod_CC := $(TARGET_CC)
+else
+  ports-filetool-zaphod_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-filetool-zaphod_MOBJC_CPPFLAGS := $(ports-filetool-zaphod_CPPFLAGS)
+ports-filetool-zaphod_OBJCFLAGS := $(ports-filetool-zaphod_CFLAGS)
+ports-filetool-zaphod_OBJCFLAGS := $(ports-filetool-zaphod_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-filetool-zaphod_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-filetool-zaphod_OBJCFLAGS)))
+ifeq ($(ports-filetool-zaphod_DFLAGS),)
+  ports-filetool-zaphod_OBJCDFLAGS := $(ports-filetool-zaphod_CFLAGS)
+else
+  ports-filetool-zaphod_OBJCDFLAGS := $(ports-filetool-zaphod_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-filetool-zaphod_LINK ?= $(strip $(ports-filetool-zaphod_CC) $(TARGET_SYSROOT))
+  ports-filetool-zaphod_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-filetool-zaphod_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-filetool-zaphod_STRIP ?= $(TARGET_STRIP)
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : CMD:=$(strip $(ports-filetool-zaphod_CC) $(TARGET_SYSROOT))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_MOBJC_CPPFLAGS:=$(strip $(ports-filetool-zaphod_MOBJC_CPPFLAGS) $(ports-filetool-zaphod_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCFLAGS:=$(strip $(ports-filetool-zaphod_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCDFLAGS:=$(ports-filetool-zaphod_OBJCDFLAGS)
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-filetool-zaphod_LINK ?= $(strip $(HOST_OBJC))
+  ports-filetool-zaphod_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-filetool-zaphod_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-filetool-zaphod_STRIP ?= $(HOST_STRIP)
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-filetool-zaphod_MOBJC_CPPFLAGS) $(ports-filetool-zaphod_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-filetool-zaphod_OBJCFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-filetool-zaphod_OBJCDFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-filetool-zaphod_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-filetool-zaphod_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-filetool-zaphod_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-filetool-zaphod_STRIP ?= $(ECHO) >/dev/null
+  ports-filetool-zaphod_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-filetool-zaphod_MOBJC_CPPFLAGS) $(ports-filetool-zaphod_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-filetool-zaphod_OBJCFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-filetool-zaphod_OBJCDFLAGS))
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-filetool-zaphod_MOBJC_TARGETS) $(ports-filetool-zaphod_MOBJC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-filetool-zaphod_MOBJC_TARGETS) : CPPFLAGS := $(ports-filetool-zaphod_MOBJC_CPPFLAGS)
+$(ports-filetool-zaphod_MOBJC_TARGETS) : CFLAGS := $(ports-filetool-zaphod_OBJCFLAGS)
+$(ports-filetool-zaphod_MOBJC_TARGETS) : $(ports-filetool-zaphod_MOBJC_WILDCARD).o : $(ports-filetool-zaphod_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-filetool-zaphod_MOBJC_DTARGETS) : $(ports-filetool-zaphod_MOBJC_WILDCARD).d : $(ports-filetool-zaphod_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-filetool-zaphod_OBJCDFLAGS) $(ports-filetool-zaphod_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-filetool-zaphod_MC_SRCWILDCARD := %
+else
+ports-filetool-zaphod_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-filetool-zaphod_OBJDIR),)
+ports-filetool-zaphod_MC_TARGETS := $(addsuffix .o,$(ports-filetool-zaphod_C_NARCHFILES))
+ports-filetool-zaphod_MC_DTARGETS := $(addsuffix .d,$(ports-filetool-zaphod_C_NARCHFILES))
+ports-filetool-zaphod_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-filetool-zaphod_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(ports-filetool-zaphod_C_NARCHFILES))))
+    ports-filetool-zaphod_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(ports-filetool-zaphod_C_NARCHFILES))))
+else
+ifeq (,)
+    ports-filetool-zaphod_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_C_NARCHFILES)))
+    ports-filetool-zaphod_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(ports-filetool-zaphod_C_NARCHFILES)))
+else
+    ports-filetool-zaphod_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(patsubst /%,%,$(ports-filetool-zaphod_C_NARCHFILES))))
+    ports-filetool-zaphod_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(patsubst /%,%,$(ports-filetool-zaphod_C_NARCHFILES))))
+endif
+endif
+ports-filetool-zaphod_MC_TGTWILDCARD := $(ports-filetool-zaphod_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : | $(addsuffix .c,$(ports-filetool-zaphod_C_NARCHFILES))
+
+# Be sure that all .c files are found
+ports-filetool-zaphod_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-filetool-zaphod_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-filetool-zaphod_C_NARCHFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-filetool-zaphod_MC_DIRS := $(foreach dir, $(ports-filetool-zaphod_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-filetool-zaphod_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-filetool-zaphod_MC_DIRS),)
+    ports-filetool-zaphod_MC_DIRS := $(shell $(ECHO) $(ports-filetool-zaphod_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-filetool-zaphod_MC_DIRS)
+endif
+
+endif
+
+ports-filetool-zaphod_MC_CPPFLAGS := $(ports-filetool-zaphod_CPPFLAGS)
+ports-filetool-zaphod_CFLAGS := $(ports-filetool-zaphod_CFLAGS)
+ifeq ($(ports-filetool-zaphod_DFLAGS),)
+  ports-filetool-zaphod_DFLAGS := $(ports-filetool-zaphod_CFLAGS)
+else
+  ports-filetool-zaphod_DFLAGS := $(ports-filetool-zaphod_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-filetool-zaphod_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-filetool-zaphod_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-filetool-zaphod_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-filetool-zaphod_STRIP ?= $(TARGET_STRIP)
+ports-filetool-zaphod_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_MC_CPPFLAGS:=$(strip $(ports-filetool-zaphod_MC_CPPFLAGS) $(ports-filetool-zaphod_MC_EXTRA_CPPFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_CFLAGS:=$(strip $(ports-filetool-zaphod_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_DFLAGS:=$(ports-filetool-zaphod_DFLAGS)
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-filetool-zaphod_LINK ?= $(strip $(HOST_CC))
+ports-filetool-zaphod_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-filetool-zaphod_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-filetool-zaphod_STRIP ?= $(HOST_STRIP)
+ports-filetool-zaphod_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-filetool-zaphod_MC_CPPFLAGS) $(ports-filetool-zaphod_MC_EXTRA_CPPFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-filetool-zaphod_CFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-filetool-zaphod_DFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(HOST_IQUOTE)
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-filetool-zaphod_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-filetool-zaphod_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-filetool-zaphod_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-filetool-zaphod_STRIP ?= $(ECHO) >/dev/null
+ports-filetool-zaphod_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-filetool-zaphod_MC_CPPFLAGS) $(ports-filetool-zaphod_MC_EXTRA_CPPFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-filetool-zaphod_CFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-filetool-zaphod_DFLAGS))
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-filetool-zaphod_MC_TARGETS) $(ports-filetool-zaphod_MC_DTARGETS) : ports-filetool-zaphod_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-filetool-zaphod_MC_TARGETS) : CPPFLAGS := $(ports-filetool-zaphod_MC_CPPFLAGS)
+$(ports-filetool-zaphod_MC_TARGETS) : CFLAGS := $(ports-filetool-zaphod_CFLAGS)
+$(ports-filetool-zaphod_MC_TARGETS) : $(ports-filetool-zaphod_MC_TGTWILDCARD).o : $(ports-filetool-zaphod_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-filetool-zaphod_IQUOTE) $(dir $<) $(ports-filetool-zaphod_IQUOTE) $(TOP)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-filetool-zaphod_IQUOTE) . $(ports-filetool-zaphod_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-filetool-zaphod_MC_DTARGETS) : $(ports-filetool-zaphod_MC_TGTWILDCARD).d : $(ports-filetool-zaphod_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-filetool-zaphod_DFLAGS) $(ports-filetool-zaphod_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-filetool-zaphod_OBJDIR),)
+ports-filetool-zaphod-MA_TARGETS := $(addsuffix .o,$(ports-filetool-zaphod_ASMFILES))
+ports-filetool-zaphod-MA_WILDCARD := %
+else
+ports-filetool-zaphod-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-filetool-zaphod_OBJDIR)/,$(notdir $(ports-filetool-zaphod_ASMFILES))))
+ports-filetool-zaphod-MA_WILDCARD := $(ports-filetool-zaphod_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-filetool-zaphod-MA_TARGETS) : | $(addsuffix .s,$(ports-filetool-zaphod_ASMFILES))
+
+# Be sure that all .c files are found
+ports-filetool-zaphod-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-filetool-zaphod-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-filetool-zaphod_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-filetool-zaphod-MA_DIRS := $(foreach dir, $(ports-filetool-zaphod-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-filetool-zaphod-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-filetool-zaphod-MA_DIRS),)
+    ports-filetool-zaphod-MA_DIRS := $(shell $(ECHO) $(ports-filetool-zaphod-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-filetool-zaphod-MA_DIRS)
+endif
+
+endif
+
+ports-filetool-zaphod-MA_ASSEMBLER ?= $(ports-filetool-zaphod_ASSEMBLER)
+
+$(ports-filetool-zaphod-MA_TARGETS) : ports-filetool-zaphod-MA_CMD:= $(ports-filetool-zaphod-MA_ASSEMBLER)
+
+$(ports-filetool-zaphod-MA_TARGETS) : CPPFLAGS := $(ports-filetool-zaphod_CPPFLAGS)
+$(ports-filetool-zaphod-MA_TARGETS) : AFLAGS := $(ports-filetool-zaphod_AFLAGS)
+$(ports-filetool-zaphod-MA_TARGETS) : $(ports-filetool-zaphod-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-filetool-zaphod-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-filetool-zaphod-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-filetool-zaphod-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ports-filetool-zaphod-link_LD_OPTS := 
+ports-filetool-zaphod-link_EXTRA_LIBS :=
+ifeq (no,yes)
+    ports-filetool-zaphod-link_LD_OPTS += $(NIX_LDFLAGS)
+endif
+ifeq (yes,no)
+    ports-filetool-zaphod-link_LD_OPTS += $(NOSTARTUP_LDFLAGS)
+endif
+ifeq (no,yes)
+    ports-filetool-zaphod-link_LD_OPTS += $(DETACH_LDFLAGS)
+endif
+
+# Make a list of the lib files this program depends on.
+# In LDFLAGS remove white space between -L and directory
+ports-filetool-zaphod-link_DIRS := $(subst -L ,-L,$(strip $(ports-filetool-zaphod_LDFLAGS)))
+# Filter out only the libdirs and remove -L
+ports-filetool-zaphod-link_DIRS := $(patsubst -L%,%,$(filter -L%,$(ports-filetool-zaphod-link_DIRS)))
+# Add trailing /
+ports-filetool-zaphod-link_DIRS := $(subst //,/,$(addsuffix /,$(ports-filetool-zaphod-link_DIRS)))
+# Add normal linklib path
+ports-filetool-zaphod-link_DIRS += $(AROS_LIB)/
+# add lib and .a to static linklib names
+ports-filetool-zaphod-link_LIBS := $(addprefix lib,$(addsuffix .a,$(ports-filetool-zaphod_LIBS) $(ports-filetool-zaphod-link_EXTRA_LIBS)))
+ifeq (yes,yes)
+    ports-filetool-zaphod-link_LIBS += startup.o
+endif
+ifeq (no,yes)
+    ports-filetool-zaphod-link_LIBS += detach.o
+endif
+# search for the linklibs in the given path, ignore ones not found
+ports-filetool-zaphod-link_DEPLIBS := $(foreach lib,$(ports-filetool-zaphod-link_LIBS), \
+    $(firstword $(wildcard $(addsuffix $(lib),$(ports-filetool-zaphod-link_DIRS)))) \
+)
+
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : OBJDIR := $(ports-filetool-zaphod_OBJDIR)
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : OBJS := $(strip $(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_ARCHOBJS) $(USER_OBJS))
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : LDFLAGS := $(strip $(ports-filetool-zaphod_LDFLAGS))
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : LIBS := $(strip $(addprefix -l,$(ports-filetool-zaphod_LIBS) $(ports-filetool-zaphod-link_EXTRA_LIBS)))
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : ARCHLIBS := $(strip $(addprefix -l,) $(ports-filetool-zaphod_ARCHLIBS))
+$(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : $(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_ARCHOBJS) $(USER_OBJS) $(ports-filetool-zaphod-link_DEPLIBS)
+	$(Q)$(eval LINKTARGET=$@)
+	$(Q)$(ECHO) "Linking    $(subst $(TARGETDIR)/,,$(LINKTARGET))..."
+	$(Q)$(eval LINKTMPFILE=$(OBJDIR)/$(notdir $(LINKTARGET)))
+	$(Q)$(IF) $(ports-filetool-zaphod_LINK) $(strip $(ports-filetool-zaphod_LD_OPTS) $(ports-filetool-zaphod-link_LD_OPTS)) $(OBJS) -o $(LINKTMPFILE) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS)) 2>&1 > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+				$(ECHO) "$(LINKTARGET): $(ports-filetool-zaphod_LINK) $(strip $(ports-filetool-zaphod_LD_OPTS) $(ports-filetool-zaphod-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" >> $(GENDIR)/errors ; \
+				$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+		$(CP) $(LINKTMPFILE) $(LINKTARGET) ; \
+	else \
+		$(ECHO) "Link failed: $(ports-filetool-zaphod_LINK) $(strip $(ports-filetool-zaphod_LD_OPTS) $(ports-filetool-zaphod-link_LD_OPTS)) $(OBJS) -o $(LINKTARGET) $(LDFLAGS) $(strip $(LIBS) $(ARCHLIBS))" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-filetool-zaphod_STRIP)" != ""; then \
+		$(eval DBGTARGET=$(subst $(AROSDIR),$(DBGDIR),$(LINKTARGET))) \
+		$(IF) $(TEST) "$(ports-filetool-zaphod_STRIPDEBUG)" = "yes"; then \
+			$(MKDIR) "$(dir $(DBGTARGET))" && \
+			$(ports-filetool-zaphod_STRIP) $(LINKTARGET) --only-keep-debug -o $(DBGTARGET).dbg ; \
+		fi ; \
+		$(ports-filetool-zaphod_STRIP) $(LINKTARGET) ; \
+		$(IF) $(TEST) "$(ports-filetool-zaphod_STRIPDEBUG)" = "yes"; then \
+			$(IF) $(TEST) -s $(DBGTARGET).dbg ; then \
+				$(OBJCOPY) --add-gnu-debuglink=$(DBGTARGET).dbg $(LINKTARGET) ; \
+			fi ; \
+		fi ; \
+	fi
+	$(Q)$(IF) $(TEST) "$(ports-filetool-zaphod_COVERAGE)" = "yes"; then \
+		LINKBASEFILES="$(strip $(notdir $(basename $(OBJS))))" ; \
+		$(FOR) covext in $(TARGET_COVERAGEINSTR_EXTS) ; do \
+			$(FOR) file in $$LINKBASEFILES ; do \
+				COVERAGEFILE=`$(ECHO) $$file$$covext` ; \
+				$(IF) $(TEST) -s $(OBJDIR)/$$COVERAGEFILE ; then \
+					$(CP) $(OBJDIR)/$$COVERAGEFILE $(dir $(LINKTARGET))$$COVERAGEFILE ; \
+				fi ; \
+			done ; \
+		done ; \
+	fi
+
+endif
+
+ifneq ($(ports-filetool-zaphod_DEPS),)
+  ifneq (ports-filetool-zaphod ports-filetool-zaphod-quick,)
+    ifneq ($(findstring $(TARGET),ports-filetool-zaphod ports-filetool-zaphod-quick),)
+      -include $(ports-filetool-zaphod_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-filetool-zaphod_DEPS)
+    endif
+  endif
+endif
+
+
+ifneq ($(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_DEPS) $(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME),)
+$(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_DEPS) $(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) : | $(ports-filetool-zaphod_OBJDIR) $(ports-filetool-zaphod_TARGETDIR)
+else
+$(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_DEPS) $(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) :: $(ports-filetool-zaphod_OBJDIR) $(ports-filetool-zaphod_TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(ports-filetool-zaphod_OBJDIR) $(ports-filetool-zaphod_TARGETDIR)
+
+
+ports-filetool-zaphod-clean : FILES := $(ports-filetool-zaphod_OBJS) $(ports-filetool-zaphod_TARGETDIR)/$(ports-filetool-zaphod_PROGNAME) $(ports-filetool-zaphod_DEPS)
+#MM
+ports-filetool-zaphod-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-filetool-zaphod"
+	$(Q)$(RM) $(FILES)
+
+
+
+
+.PHONY: ports-filetool-zaphod-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-filetool-zaphod-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-filetool-zaphod-fetch-location := $(PORTSDIR)/zaphod
+endif
+
+ifneq (,)
+    ports-filetool-zaphod-fetch-baseflag := -b 
+else
+    ports-filetool-zaphod-fetch-baseflag :=
+endif
+
+ports-filetool-zaphod-fetch-fetchedflag := $(ports-filetool-zaphod-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-filetool-zaphod-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tar.bz2" -l $(ports-filetool-zaphod-fetch-location) \
+	-d $(PORTSDIR)/zaphod $(ports-filetool-zaphod-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "::"
+	$(Q)$(IF) ! $(TEST) -f $(ports-filetool-zaphod-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-filetool-zaphod-fetch-fetchedflag) ; \
+	fi
+
+
+#MM
+ports-filetool-zaphod-icons : $(TARGETDIR)/Zaphod.info $(TARGETDIR)/Docs.info $(TARGETDIR)/Docs/deutsch.info $(TARGETDIR)/Docs/english.info
+
+$(TARGETDIR)/Zaphod.info : $(PORTSDIR)/zaphod/$(ARCHBASE)/icons/mason/aros/Zaphod.info
+	$(CP) $^ $@
+
+$(TARGETDIR)/Docs.info : $(PORTSDIR)/zaphod/$(ARCHBASE)/icons/mason/aros/Drawer.info
+	$(CP) $^ $@
+
+$(TARGETDIR)/Docs/deutsch.info : $(PORTSDIR)/zaphod/$(ARCHBASE)/icons/mason/aros/Drawer.info
+	$(CP) $^ $@
+
+$(TARGETDIR)/Docs/english.info : $(PORTSDIR)/zaphod/$(ARCHBASE)/icons/mason/aros/Drawer.info
+	$(CP) $^ $@
+
+
+
+ifeq (,)
+ports-filetool-zaphod-catalogs_DESC := $(basename $(wildcard $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/*.cd))
+else
+ports-filetool-zaphod-catalogs_DESC := 
+endif
+
+ports-filetool-zaphod-catalogs_SRC := $(shell $(ECHO) $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/C_h | sed 's/^\(.\):\//\/\1\//')
+
+ifeq (,)
+ports-filetool-zaphod-catalogs_LNGS := $(basename $(notdir $(call WILDCARD, $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/*.ct)))
+else
+ports-filetool-zaphod-catalogs_LNGS := 
+endif
+
+ports-filetool-zaphod-catalogs_OBJS := $(addsuffix //Zaphod.catalog, $(addprefix $(TARGETDIR)/Catalogs/, $(ports-filetool-zaphod-catalogs_LNGS)))
+ports-filetool-zaphod-catalogs_DIRS := $(addsuffix /, $(addprefix $(TARGETDIR)/Catalogs/, $(ports-filetool-zaphod-catalogs_LNGS))) $(dir locale.h)
+
+#MM- ports-filetool-zaphod-catalogs-quick : ports-filetool-zaphod-catalogs
+
+#MM
+ports-filetool-zaphod-catalogs : $(ports-filetool-zaphod-catalogs_OBJS) locale.h
+
+
+ifneq ($(ports-filetool-zaphod-catalogs_OBJS),)
+$(ports-filetool-zaphod-catalogs_OBJS) : | $(ports-filetool-zaphod-catalogs_DIRS)
+else
+$(ports-filetool-zaphod-catalogs_OBJS) :: $(ports-filetool-zaphod-catalogs_DIRS)
+endif
+
+GLOB_MKDIRS += $(ports-filetool-zaphod-catalogs_DIRS)
+
+
+$(TARGETDIR)/Catalogs/%//Zaphod.catalog : $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/%.ct $(ports-filetool-zaphod-catalogs_DESC).cd
+	$(Q)$(ECHO) "Creating   Zaphod catalog for language $*."
+	$(Q)$(IF) $(TEST) "$*" = "polish"; then \
+	    $(FLEXCAT) iso88592toamigapl $(ports-filetool-zaphod-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//Zaphod.catalog" || [ $$? -lt 10 ] ; \
+	elif $(TEST) "$*" = "russian"; then \
+	    $(FLEXCAT) win1251toamiga1251 $(ports-filetool-zaphod-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//Zaphod.catalog" || [ $$? -lt 10 ] ; \
+	else \
+	    $(FLEXCAT) $(ports-filetool-zaphod-catalogs_DESC).cd $< CATALOG="$(TARGETDIR)/Catalogs/$*//Zaphod.catalog" || [ $$? -lt 10 ] ; \
+	fi
+
+ifneq (locale.h,)
+locale.h : ports-filetool-zaphod-catalogs_DESC := $(ports-filetool-zaphod-catalogs_DESC)
+locale.h : ports-filetool-zaphod-catalogs_SRC := $(ports-filetool-zaphod-catalogs_SRC)
+locale.h : $(ports-filetool-zaphod-catalogs_DESC).cd $(ports-filetool-zaphod-catalogs_SRC).sd | $(dir locale.h)
+	$(Q)$(ECHO) "Creating   Zaphod catalog source file $@"
+	$(Q)$(FLEXCAT) $(ports-filetool-zaphod-catalogs_DESC).cd "$@"="$(ports-filetool-zaphod-catalogs_SRC).sd"
+endif
+
+ports-filetool-zaphod-catalogs-clean : FILES := $(ports-filetool-zaphod-catalogs_OBJS) locale.h
+#MM
+ports-filetool-zaphod-catalogs-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-filetool-zaphod-catalogs"
+	$(Q)$(RM) $(FILES)
+
+.PHONY: ports-filetool-zaphod-catalogs ports-filetool-zaphod-catalogs-clean
+
+
+$(PORTSDIR)/zaphod/$(ARCHBASE)/src/locale.c : $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/Zaphod.cd $(PORTSDIR)/zaphod/$(ARCHBASE)/locale/C_c.sd
+	$(FLEXCAT) $< $@=$(PORTSDIR)/zaphod/$(ARCHBASE)/locale/C_c.sd
+
+
+
+.PHONY : ports-filetool-zaphod-docs
+
+#MM
+ports-filetool-zaphod-docs :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/zaphod/$(ARCHBASE)/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/zaphod/$(ARCHBASE)/Docs)))' to '$(if $(filter /%,$(TARGETDIR)/Docs),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/Docs)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/Docs))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/Docs)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/zaphod/$(ARCHBASE)/Docs -d $(TARGETDIR)/Docs -e 
+
+
+
+.PHONY : ports-filetool-zaphod-fonts
+
+#MM
+ports-filetool-zaphod-fonts :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/zaphod/$(ARCHBASE)/fonts),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/fonts)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/fonts)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/zaphod/$(ARCHBASE)/fonts))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/zaphod/$(ARCHBASE)/fonts)))' to '$(if $(filter /%,$(TARGETDIR)/fonts),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/fonts)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/fonts)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/fonts))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/fonts)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/zaphod/$(ARCHBASE)/fonts -d $(TARGETDIR)/fonts -e 
+
+
+
+CPFILES := COPYING README ChangeLog
+
+
+ports-filetool-zaphod-cpy_SRC := $(shell $(ECHO) $(PORTSDIR)/zaphod/$(ARCHBASE) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-filetool-zaphod-cpy
+
+#MM
+ports-filetool-zaphod-cpy : | $(TARGETDIR) 
+	$(foreach file, $(CPFILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-filetool-zaphod-cpy_SRC)),$(ports-filetool-zaphod-cpy_SRC),$(SRCDIR)/$(CURDIR)/$(ports-filetool-zaphod-cpy_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

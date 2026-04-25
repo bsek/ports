@@ -1,0 +1,721 @@
+# Copyright 2018-2021, The AROS Development Team. All rights reserved.
+# $Id: mmakefile.src 54166 2017-03-18 00:44:34Z NicJA $
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+REPOSITORIES := https://sourceforge.net/projects/glew/files/glew/1.5.5
+ARCHBASE := glew-1.5.5
+PATCHSPEC := $(ARCHBASE)-aros.diff:$(ARCHBASE):-p1
+
+USER_CFLAGS := -DGLEW_STATIC
+
+#MM- ports-libs : ports-libs-glew
+
+#MM ports-libs-glew : ports-libs-glew-fetch libglew-includes-copy
+
+
+.PHONY: ports-libs-glew-fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-libs-glew-fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-libs-glew-fetch-location := $(PORTSDIR)/glew
+endif
+
+ifneq (,)
+    ports-libs-glew-fetch-baseflag := -b 
+else
+    ports-libs-glew-fetch-baseflag :=
+endif
+
+ports-libs-glew-fetch-fetchedflag := $(ports-libs-glew-fetch-location)/.$(ARCHBASE)-fetched
+
+#MM
+ports-libs-glew-fetch :
+	$(Q)$(ECHO) "Fetching   $(ARCHBASE) ..."
+	$(Q)$(FETCH) -ao "$(REPOSITORIES)" -a $(ARCHBASE) -s "tgz" -l $(ports-libs-glew-fetch-location) \
+	-d $(PORTSDIR)/glew $(ports-libs-glew-fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(PATCHSPEC)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-libs-glew-fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-libs-glew-fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-libs-glew-create-patch
+
+ifneq (,)
+    ports-libs-glew-create-patch-location := 
+else
+    ports-libs-glew-create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-libs-glew-create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ARCHBASE),)
+    ports-libs-glew-create-patch-srcdir   := $(ARCHBASE)
+else
+    ports-libs-glew-create-patch-srcdir   := $(ARCHBASE)
+endif
+
+ifeq (no,yes)
+    ports-libs-glew-create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-libs-glew-create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-libs-glew-create-patch-baseflag := -b /tmp
+    ports-libs-glew-create-patch-base := 
+else
+    ports-libs-glew-create-patch-baseflag :=
+    ports-libs-glew-create-patch-base := $(PORTSDIR)/glew
+endif
+
+#MM- ports-libs-glew-create-patch :  ports-libs-glew-create-patch-diff 
+#MM- ports-libs-glew-create-patch-quick :  ports-libs-glew-create-patch-diff 
+
+#MM
+ports-libs-glew-create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-libs-glew-create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-libs-glew-create-patch-base)/$(ports-libs-glew-create-patch-srcdir) $(ports-libs-glew-create-patch-base)/tmp/$(ports-libs-glew-create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ARCHBASE) -s "tgz" -f -l $(ports-libs-glew-create-patch-location) -d $(PORTSDIR)/glew $(ports-libs-glew-create-patch-baseflag); \
+	$(MV) $(ports-libs-glew-create-patch-base)/$(ports-libs-glew-create-patch-srcdir) $(ports-libs-glew-create-patch-base)/tmp/$(ports-libs-glew-create-patch-srcdir) ; \
+	cd $(ports-libs-glew-create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ARCHBASE)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-libs-glew-create-patch-diffflag) $(ports-libs-glew-create-patch-exclude) \
+	    $(ports-libs-glew-create-patch-srcdir) \
+	    $(ports-libs-glew-create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ARCHBASE)-aros-new.diff ; \
+	$(MV) $(ports-libs-glew-create-patch-base)/tmp/$(ports-libs-glew-create-patch-srcdir).aros $(ports-libs-glew-create-patch-base)/$(ports-libs-glew-create-patch-srcdir) ; \
+	$(RM) $(ports-libs-glew-create-patch-base)/tmp
+
+
+#MM- ports-libs-glew : \
+#MM             ports-libs-glew-$(CPU)
+
+#MM- ports-libs-glew-$(ARCH)-$(CPU) : \
+#MM             ports-libs-glew-$(ARCH)-$(CPU)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-libs-glew-$(ARCH)-$(AROS_TARGET_VARIANT) : \
+#MM             ports-libs-glew-$(ARCH)-$(CPU)
+
+#MM- ports-libs-glew-$(ARCH) : \
+#MM             ports-libs-glew-$(ARCH)-$(AROS_TARGET_VARIANT)
+
+#MM- ports-libs-glew-$(FAMILY) : \
+#MM             ports-libs-glew-$(ARCH)
+
+#MM- ports-libs-glew-$(CPU) : \
+#MM             ports-libs-glew-$(FAMILY)
+
+# assign and generate the local variables used in this macro
+ports-libs-glew_LIBNAME           := glew
+ports-libs-glew_LINKLIB           := $(AROS_LIB)/libglew.a
+
+ports-libs-glew_FILES             ?= $(PORTSDIR)/glew/$(ARCHBASE)/src/glew
+ports-libs-glew_ASMFILES          := 
+ports-libs-glew_OBJCFILES         := 
+ports-libs-glew_CXXFILES          := 
+
+ports-libs-glew_OBJDIR            ?= $(GENDIR)/$(CURDIR)
+ports-libs-glew_ARCHOBJS          := $(wildcard $(ports-libs-glew_OBJDIR)/arch/*.o)
+ifeq (no,no)
+    ports-libs-glew_ARCHFILES     := $(basename $(notdir $(ports-libs-glew_ARCHOBJS)))
+else
+    ports-libs-glew_ARCHFILES     := $(basename $(patsubst $(ports-libs-glew_OBJDIR)/%,%,$(ports-libs-glew_ARCHOBJS)))
+endif
+ports-libs-glew_C_NARCHFILES      := $(filter-out $(ports-libs-glew_ARCHFILES),$(ports-libs-glew_FILES))
+ports-libs-glew_C_FILES           ?= $(ports-libs-glew_C_NARCHFILES)
+ports-libs-glew_CXX_NARCHFILES    := $(filter-out $(ports-libs-glew_ARCHFILES),$(ports-libs-glew_CXXFILES))
+ports-libs-glew_CXX_FILES         ?= $(ports-libs-glew_CXX_NARCHFILES)
+ports-libs-glew_OBJC_NARCHFILES   := $(filter-out $(ports-libs-glew_ARCHFILES),$(ports-libs-glew_OBJCFILES))
+ports-libs-glew_OBJC_FILES        ?= $(ports-libs-glew_OBJC_NARCHFILES)
+
+ifeq (no,no)
+    ports-libs-glew_OBJ_FILES     ?= $(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_C_NARCHFILES:=.o) $(ports-libs-glew_CXX_NARCHFILES:=.o) $(ports-libs-glew_ASMFILES:=.o) $(ports-libs-glew_OBJC_NARCHFILES:=.o)))
+else
+    ports-libs-glew_OBJ_FILES     ?= $(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_C_NARCHFILES:=.o) $(ports-libs-glew_CXX_NARCHFILES:=.o) $(ports-libs-glew_ASMFILES:=.o) $(ports-libs-glew_OBJC_NARCHFILES:=.o))
+endif
+ports-libs-glew_OBJS              ?= $(ports-libs-glew_ARCHOBJS) $(ports-libs-glew_OBJ_FILES) 
+ports-libs-glew_DEPS              := $(patsubst %.o,%.d,$(ports-libs-glew_OBJS))
+
+ports-libs-glew_CPPFLAGS          := $(CPPFLAGS)
+ifneq ($(PORTSDIR)/glew/$(ARCHBASE)/include,)
+    ports-libs-glew_CPPFLAGS      += -I$(PORTSDIR)/glew/$(ARCHBASE)/include
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-libs-glew_CFLAGS            := $(CFLAGS)
+endif
+ifeq (target,host)
+ports-libs-glew_CFLAGS            := $(HOST_CFLAGS)
+endif
+ifeq (target,kernel)
+ports-libs-glew_CFLAGS            := $(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS))
+endif
+else
+ports-libs-glew_CFLAGS            := 
+endif
+
+ifeq ("","")
+ifeq (target,target)
+ports-libs-glew_CXXFLAGS            := $(CXXFLAGS)
+endif
+ifeq (target,host)
+ports-libs-glew_CXXFLAGS            := $(HOST_CXXFLAGS)
+endif
+ifeq (target,kernel)
+ports-libs-glew_CXXFLAGS            := $(strip $(KERNEL_ISA_CXXFLAGS) $(KERNEL_CXXFLAGS))
+endif
+else
+ports-libs-glew_CXXFLAGS          := 
+endif
+
+ifeq ($(TARGET_LTO),yes)
+ifeq (target,target)
+        ports-libs-glew_CFLAGS    := $(strip $(LTO_CFLAGS) $(ports-libs-glew_CFLAGS))
+        ports-libs-glew_CXXFLAGS  := $(strip $(LTO_CFLAGS) $(ports-libs-glew_CXXFLAGS))
+endif
+endif
+ports-libs-glew_AFLAGS            := $(AFLAGS)
+ports-libs-glew_DFLAGS            := 
+ifneq (,)
+    ports-libs-glew_DFLAGS        := 
+else
+    ports-libs-glew_DFLAGS        := $(ports-libs-glew_CFLAGS)
+endif
+ports-libs-glew_DXXFLAGS          := 
+ifneq (,)
+    ports-libs-glew_DXXFLAGS      := 
+else
+    ports-libs-glew_DXXFLAGS      := $(ports-libs-glew_CXXFLAGS)
+endif
+
+.PHONY : ports-libs-glew ports-libs-glew-clean ports-libs-glew-quick
+
+#MM
+ports-libs-glew-quick : ports-libs-glew
+
+#MM ports-libs-glew : includes-generate-deps
+ports-libs-glew : $(ports-libs-glew_LINKLIB)
+
+ifneq ($(filter $(TARGET),ports-libs-glew ports-libs-glew-quick),)
+
+
+ports-libs-glew_CXXABSBASENAMES := $(foreach ports-libs-glew_CXXBASE,$(ports-libs-glew_CXX_FILES),$(if $(filter /%,$(ports-libs-glew_CXXBASE)),$(ports-libs-glew_CXXBASE),$(abspath $(SRCDIR)/$(CURDIR)/$(ports-libs-glew_CXXBASE))))
+
+ifneq ($(ports-libs-glew_CXXABSBASENAMES),)
+
+ports-libs-glew_CXXBASENAMES := $(basename $(ports-libs-glew_CXXABSBASENAMES))
+
+# Identify the "real" c++ files from the passed in basenames
+ports-libs-glew_MCXX_FILES  := $(strip $(foreach ports-libs-glew_CXXBASE,$(ports-libs-glew_CXXABSBASENAMES), $(firstword $(wildcard $(foreach ports-libs-glew_EXT, $(AROS_CXXEXTS),$(addsuffix .$(ports-libs-glew_EXT),$(ports-libs-glew_CXXBASE)))))))
+
+ifeq (,)
+ports-libs-glew_MCXX_SRCWILDCARD := %
+else
+ports-libs-glew_MCXX_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-libs-glew_OBJDIR),)
+  ports-libs-glew_CXXTARGETS := $(notdir $(ports-libs-glew_CXXBASENAMES:=.o))
+  ports-libs-glew_CXXDTARGETS := $(notdir $(ports-libs-glew_CXXBASENAMES:=.d))
+  ports-libs-glew_MCXX_WILDCARD := %
+else
+ifeq (no,no)
+  ports-libs-glew_CXXTARGETS := $(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_CXXBASENAMES:=.o)))
+  ports-libs-glew_CXXDTARGETS := $(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_CXXBASENAMES:=.d)))
+  ports-libs-glew_MCXX_WILDCARD := $(ports-libs-glew_OBJDIR)/%
+else
+  ports-libs-glew_CXXTARGETS := $(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_CXXBASENAMES:=.o))
+  ports-libs-glew_CXXDTARGETS := $(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_CXXBASENAMES:=.d))
+  ports-libs-glew_MCXX_WILDCARD := $(ports-libs-glew_OBJDIR)/%
+endif
+
+  # Be sure that all source files are generated
+  $(ports-libs-glew_CXXTARGETS) $(ports-libs-glew_CXXDTARGETS) : | $(ports-libs-glew_MCXX_FILES)
+endif
+
+# Adjust compiler flags to suit C++
+ports-libs-glew_MCXX_CPPFLAGS := $(ports-libs-glew_CPPFLAGS)
+ports-libs-glew_CXXFLAGS := $(ports-libs-glew_CXXFLAGS)
+ifeq ($(ports-libs-glew_DXXFLAGS),)
+  ports-libs-glew_DXXFLAGS := $(ports-libs-glew_CXXFLAGS)
+else
+  ports-libs-glew_DXXFLAGS := $(ports-libs-glew_DXXFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,host)
+  ports-libs-glew_LINK ?= $(strip $(HOST_CXX) $(HOST_ISA_LDFLAGS))
+  ports-libs-glew_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-libs-glew_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-libs-glew_STRIP ?= $(HOST_STRIP)
+  ports-libs-glew_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  ports-libs-glew_CXXCMD:=$(HOST_CXX)
+  ports-libs-glew_MCXX_CPPFLAGS := $(strip $(HOST_MCXX_CPPFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS) $(ports-libs-glew_MCXX_EXTRA_CPPFLAGS))
+  ports-libs-glew_CXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-libs-glew_CXXFLAGS))
+  ports-libs-glew_DXXFLAGS := $(strip $(HOST_CXXFLAGS) $(ports-libs-glew_DXXFLAGS))
+  ports-libs-glew_CXXIQUOTE:=$(HOST_IQUOTE)
+  ports-libs-glew_CXXIQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,target)
+  ports-libs-glew_LINK ?= $(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-libs-glew_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-libs-glew_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-libs-glew_ARCHLIBS += $(TARGET_CXX_LIBS)
+endif
+  ports-libs-glew_LDFLAGS ?= $(ports-libs-glew_CXXLDFLAGS)
+  ports-libs-glew_STRIP ?= $(TARGET_STRIP)
+  ports-libs-glew_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  ports-libs-glew_CXXCMD:=$(strip $(AROS_CXX) $(TARGET_SYSROOT))
+  ports-libs-glew_MCXX_CPPFLAGS := $(strip $(ports-libs-glew_MCXX_CPPFLAGS) $(ports-libs-glew_MCXX_EXTRA_CPPFLAGS))
+  ports-libs-glew_CXXFLAGS := $(strip $(ports-libs-glew_CXXFLAGS) $(SAFETY_CFLAGS))
+  ports-libs-glew_DXXFLAGS := $(ports-libs-glew_DXXFLAGS)
+  ports-libs-glew_CXXIQUOTE:=$(CFLAGS_IQUOTE)
+  ports-libs-glew_CXXIQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_CXX ?= $(KERNEL_CC)
+  ports-libs-glew_LINK ?= $(strip $(KERNEL_CXX) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+  ports-libs-glew_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-libs-glew_CXXLDFLAGS = $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ifneq ($(TARGET_CXX_LIBS),)
+  ports-libs-glew_ARCHLIBS += $(KERNEL_CXX_LIBS)
+endif
+  ports-libs-glew_LDFLAGS ?= $(ports-libs-glew_CXXLDFLAGS)
+  ports-libs-glew_STRIP ?= $(ECHO) >/dev/null
+  ports-libs-glew_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  ports-libs-glew_CXXCMD:=$(strip $(KERNEL_CXX) $(KERNEL_SYSROOT))
+  ports-libs-glew_CXXFLAGS := $(strip $(KERNEL_MCXX_CPPFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS) $(ports-libs-glew_MCXX_EXTRA_CPPFLAGS))
+  ports-libs-glew_CXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-libs-glew_CXXFLAGS))
+  ports-libs-glew_DXXFLAGS := $(strip $(KERNEL_CXXFLAGS) $(ports-libs-glew_DXXFLAGS))
+  ports-libs-glew_CXXIQUOTE:=$(KERNEL_IQUOTE)
+  ports-libs-glew_CXXIQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+define cxx_multi_recipe_template
+ $(1).o : $(2)
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) "
+	$(Q)$(IF) $(ports-libs-glew_CXXCMD) $(ports-libs-glew_CXXIQUOTE) $(dir $(2)) $(ports-libs-glew_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) . $(ports-libs-glew_CXXIQUOTE_END) $(strip $(ports-libs-glew_CXXFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))"\" -c $(2) -o $(1).o > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(2): $(ports-libs-glew_CXXCMD) $(ports-libs-glew_CXXIQUOTE) $(dir $(2)) $(ports-libs-glew_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) . $(ports-libs-glew_CXXIQUOTE_END) $(strip $(ports-libs-glew_CXXFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(ports-libs-glew_CXXCMD) $(ports-libs-glew_CXXIQUOTE) $(dir $(2)) $(ports-libs-glew_CXXIQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_CXXIQUOTE) . $(ports-libs-glew_CXXIQUOTE_END) $(strip $(ports-libs-glew_CXXFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $(2))))\" -c $(2) -o $(1).o" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+ $(1).d : $(2)
+	$(Q)$(IF) $(TEST) ! -d $(dir $(1).d) ; then $(MKDIR) $(dir $(1).d) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$(2)),$(if $(filter $(SRCDIR)/%,$(abspath $(2))),$(patsubst $(SRCDIR)/%,%,$(abspath $(2))),$(patsubst $(TOP)/%,%,$(abspath $(2)))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(2)))) ..."
+	$(Q)AROS_CC="$(ports-libs-glew_CXXCMD)" $(MKDEPEND) $(strip $(ports-libs-glew_DXXFLAGS) $(ports-libs-glew_MCXX_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $(2) -o $(1).d
+endef
+ifeq ($(ports-libs-glew_OBJDIR),)
+  $(foreach ports-libs-glew_CXXFILE,$(ports-libs-glew_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(notdir $(basename $(ports-libs-glew_CXXFILE))),$(ports-libs-glew_CXXFILE))))
+else
+  $(foreach ports-libs-glew_CXXFILE,$(ports-libs-glew_MCXX_FILES),$(eval $(call cxx_multi_recipe_template,$(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(basename $(ports-libs-glew_CXXFILE)))),$(ports-libs-glew_CXXFILE))))
+endif
+
+endif
+
+
+ifneq ($(ports-libs-glew_OBJC_FILES),)
+
+ifeq (,)
+ports-libs-glew_MOBJC_SRCWILDCARD := %
+else
+ports-libs-glew_MOBJC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-libs-glew_OBJDIR),)
+  ports-libs-glew_MOBJC_TARGETS := $(addsuffix .o,$(ports-libs-glew_OBJC_FILES))
+  ports-libs-glew_MOBJC_DTARGETS := $(addsuffix .d,$(ports-libs-glew_OBJC_FILES))
+  ports-libs-glew_MOBJC_WILDCARD := %
+else
+  ports-libs-glew_MOBJC_TARGETS := $(addsuffix .o,$(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_OBJC_FILES)))
+  ports-libs-glew_MOBJC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_OBJC_FILES)))
+  ports-libs-glew_MOBJC_WILDCARD := $(ports-libs-glew_OBJDIR)/%
+
+  # Be sure that all .m files are generated
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : | $(addsuffix .m,$(ports-libs-glew_OBJC_FILES))
+
+  # Be sure that all .m files are found
+  ports-libs-glew_MOBJC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+  ports-libs-glew_MOBJC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-libs-glew_OBJC_FILES))) | sed 's/\(.\):\//\/\1\//g')
+  ports-libs-glew_MOBJC_DIRS := $(foreach dir, $(ports-libs-glew_MOBJC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-libs-glew_MOBJC_SRCDIR)/$(CURDIR)/$(dir)))
+  ifneq ($(ports-libs-glew_MOBJC_DIRS),)
+    ports-libs-glew_MOBJC_DIRS := $(shell $(ECHO) $(ports-libs-glew_MOBJC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.m $(ports-libs-glew_MOBJC_DIRS)
+  endif
+endif
+
+# Define the use of cross compiler
+ifeq ($(TARGET_OBJC),)
+  ports-libs-glew_CC := $(TARGET_CC)
+else
+  ports-libs-glew_CC := $(TARGET_OBJC)
+endif
+
+# Adjust compiler flags to suit ObjC
+ports-libs-glew_MOBJC_CPPFLAGS := $(ports-libs-glew_CPPFLAGS)
+ports-libs-glew_OBJCFLAGS := $(ports-libs-glew_CFLAGS)
+ports-libs-glew_OBJCFLAGS := $(ports-libs-glew_OBJCFLAGS) -isystem $(AROS_DEVELOPER)/include
+ports-libs-glew_OBJCFLAGS := $(subst -Wno-pointer-sign,, $(subst -Werror-implicit-function-declaration,, $(ports-libs-glew_OBJCFLAGS)))
+ifeq ($(ports-libs-glew_DFLAGS),)
+  ports-libs-glew_OBJCDFLAGS := $(ports-libs-glew_CFLAGS)
+else
+  ports-libs-glew_OBJCDFLAGS := $(ports-libs-glew_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+  ports-libs-glew_LINK ?= $(strip $(ports-libs-glew_CC) $(TARGET_SYSROOT))
+  ports-libs-glew_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+  ports-libs-glew_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+  ports-libs-glew_STRIP ?= $(TARGET_STRIP)
+  ports-libs-glew_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : CMD:=$(strip $(ports-libs-glew_CC) $(TARGET_SYSROOT))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_MOBJC_CPPFLAGS:=$(strip $(ports-libs-glew_MOBJC_CPPFLAGS) $(ports-libs-glew_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCFLAGS:=$(strip $(ports-libs-glew_OBJCFLAGS) $(SAFETY_CFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCDFLAGS:=$(ports-libs-glew_OBJCDFLAGS)
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE:=$(CFLAGS_IQUOTE)
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+  ports-libs-glew_LINK ?= $(strip $(HOST_OBJC))
+  ports-libs-glew_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+  ports-libs-glew_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+  ports-libs-glew_STRIP ?= $(HOST_STRIP)
+  ports-libs-glew_ASSEMBLER ?= $(strip $(HOST_CC) $(HOST_SYSROOT))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : CMD:=$(HOST_OBJC)
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_MOBJC_CPPFLAGS:=$(strip $(HOST_MOBJC_CPPFLAGS) $(ports-libs-glew_MOBJC_CPPFLAGS) $(ports-libs-glew_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCFLAGS:=$(strip $(HOST_CFLAGS) $(ports-libs-glew_OBJCFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCDFLAGS:=$(strip $(HOST_CFLAGS) $(ports-libs-glew_OBJCDFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE:=$(HOST_IQUOTE)
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+  KERNEL_OBJC ?= $(KERNEL_CC)
+  ports-libs-glew_LINK ?= $(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  ports-libs-glew_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+  ports-libs-glew_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+  ports-libs-glew_STRIP ?= $(ECHO) >/dev/null
+  ports-libs-glew_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : CMD:=$(strip $(KERNEL_OBJC) $(KERNEL_SYSROOT))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_MOBJC_CPPFLAGS:=$(strip $(KERNEL_MOBJC_CPPFLAGS) $(ports-libs-glew_MOBJC_CPPFLAGS) $(ports-libs-glew_MOBJC_EXTRA_CPPFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-libs-glew_OBJCFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_OBJCDFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-libs-glew_OBJCDFLAGS))
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE:=$(KERNEL_IQUOTE)
+  $(ports-libs-glew_MOBJC_TARGETS) $(ports-libs-glew_MOBJC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-libs-glew_MOBJC_TARGETS) : CPPFLAGS := $(ports-libs-glew_MOBJC_CPPFLAGS)
+$(ports-libs-glew_MOBJC_TARGETS) : CFLAGS := $(ports-libs-glew_OBJCFLAGS)
+$(ports-libs-glew_MOBJC_TARGETS) : $(ports-libs-glew_MOBJC_WILDCARD).o : $(ports-libs-glew_MOBJC_SRCWILDCARD).m
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-libs-glew_MOBJC_DTARGETS) : $(ports-libs-glew_MOBJC_WILDCARD).d : $(ports-libs-glew_MOBJC_SRCWILDCARD).m
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-libs-glew_OBJCDFLAGS) $(ports-libs-glew_MOBJC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+endif
+
+
+ifeq (,)
+ports-libs-glew_MC_SRCWILDCARD := %
+else
+ports-libs-glew_MC_SRCWILDCARD := /%
+endif
+
+ifeq ($(ports-libs-glew_OBJDIR),)
+ports-libs-glew_MC_TARGETS := $(addsuffix .o,$(ports-libs-glew_C_FILES))
+ports-libs-glew_MC_DTARGETS := $(addsuffix .d,$(ports-libs-glew_C_FILES))
+ports-libs-glew_MC_TGTWILDCARD := %
+else
+ifeq (no,no)
+    ports-libs-glew_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_C_FILES))))
+    ports-libs-glew_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_C_FILES))))
+else
+ifeq (,)
+    ports-libs-glew_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_C_FILES)))
+    ports-libs-glew_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-libs-glew_OBJDIR)/,$(ports-libs-glew_C_FILES)))
+else
+    ports-libs-glew_MC_TARGETS := $(addsuffix .o,$(addprefix $(ports-libs-glew_OBJDIR)/,$(patsubst /%,%,$(ports-libs-glew_C_FILES))))
+    ports-libs-glew_MC_DTARGETS := $(addsuffix .d,$(addprefix $(ports-libs-glew_OBJDIR)/,$(patsubst /%,%,$(ports-libs-glew_C_FILES))))
+endif
+endif
+ports-libs-glew_MC_TGTWILDCARD := $(ports-libs-glew_OBJDIR)/%
+
+# Be sure that all .c files are generated
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : | $(addsuffix .c,$(ports-libs-glew_C_FILES))
+
+# Be sure that all .c files are found
+ports-libs-glew_MC_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-libs-glew_MC_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-libs-glew_C_FILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-libs-glew_MC_DIRS := $(foreach dir, $(ports-libs-glew_MC_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-libs-glew_MC_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-libs-glew_MC_DIRS),)
+    ports-libs-glew_MC_DIRS := $(shell $(ECHO) $(ports-libs-glew_MC_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.c $(ports-libs-glew_MC_DIRS)
+endif
+
+endif
+
+ports-libs-glew_MC_CPPFLAGS := $(ports-libs-glew_CPPFLAGS)
+ports-libs-glew_CFLAGS := $(ports-libs-glew_CFLAGS)
+ifeq ($(ports-libs-glew_DFLAGS),)
+  ports-libs-glew_DFLAGS := $(ports-libs-glew_CFLAGS)
+else
+  ports-libs-glew_DFLAGS := $(ports-libs-glew_DFLAGS)
+endif
+
+ifeq ($(findstring target,host kernel target),)
+  $(error unknown compiler target)
+endif
+ifeq (target,target)
+ports-libs-glew_LINK ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+ports-libs-glew_LD_OPTS ?= $(TARGET_ISA_LDFLAGS)
+ports-libs-glew_LDFLAGS ?= $(strip $(TARGET_LDFLAGS))
+ports-libs-glew_STRIP ?= $(TARGET_STRIP)
+ports-libs-glew_ASSEMBLER ?= $(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : CMD:=$(strip $(TARGET_CC) $(TARGET_SYSROOT))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_MC_CPPFLAGS:=$(strip $(ports-libs-glew_MC_CPPFLAGS) $(ports-libs-glew_MC_EXTRA_CPPFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_CFLAGS:=$(strip $(ports-libs-glew_CFLAGS) $(SAFETY_CFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_DFLAGS:=$(ports-libs-glew_DFLAGS)
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE:=$(CFLAGS_IQUOTE)
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(CFLAGS_IQUOTE_END)
+endif
+ifeq (target,host)
+ports-libs-glew_LINK ?= $(strip $(HOST_CC))
+ports-libs-glew_LD_OPTS ?= $(HOST_ISA_LDFLAGS)
+ports-libs-glew_LDFLAGS ?= $(strip $(HOST_LDFLAGS))
+ports-libs-glew_STRIP ?= $(HOST_STRIP)
+ports-libs-glew_ASSEMBLER ?= $(strip $HOST_CC) $(HOST_SYSROOT))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : CMD:=$(HOST_CC)
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_MC_CPPFLAGS:=$(strip $(HOST_MC_CPPFLAGS) $(ports-libs-glew_MC_CPPFLAGS) $(ports-libs-glew_MC_EXTRA_CPPFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_CFLAGS:=$(strip $(HOST_CFLAGS) $(ports-libs-glew_CFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_DFLAGS:=$(strip $(HOST_CFLAGS) $(ports-libs-glew_DFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE:=$(HOST_IQUOTE)
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(HOST_IQUOTE_END)
+endif
+ifeq (target,kernel)
+ports-libs-glew_LINK ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT) $(KERNEL_ISA_LDFLAGS))
+ports-libs-glew_LD_OPTS ?= $(KERNEL_ISA_LDFLAGS)
+ports-libs-glew_LDFLAGS ?= $(strip $(USER_LDFLAGS) $(KERNEL_LDFLAGS))
+ports-libs-glew_STRIP ?= $(ECHO) >/dev/null
+ports-libs-glew_ASSEMBLER ?= $(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : CMD:=$(strip $(KERNEL_CC) $(KERNEL_SYSROOT))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_MC_CPPFLAGS:=$(strip $(KERNEL_MC_CPPFLAGS) $(ports-libs-glew_MC_CPPFLAGS) $(ports-libs-glew_MC_EXTRA_CPPFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_CFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-libs-glew_CFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_DFLAGS:=$(strip $(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS) $(ports-libs-glew_DFLAGS))
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE:=$(KERNEL_IQUOTE)
+$(ports-libs-glew_MC_TARGETS) $(ports-libs-glew_MC_DTARGETS) : ports-libs-glew_IQUOTE_END:=$(KERNEL_IQUOTE_END)
+endif
+
+$(ports-libs-glew_MC_TARGETS) : CPPFLAGS := $(ports-libs-glew_MC_CPPFLAGS)
+$(ports-libs-glew_MC_TARGETS) : CFLAGS := $(ports-libs-glew_CFLAGS)
+$(ports-libs-glew_MC_TARGETS) : $(ports-libs-glew_MC_TGTWILDCARD).o : $(ports-libs-glew_MC_SRCWILDCARD).c
+	$(Q)$(ECHO) "Compiling  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) "
+	$(Q)$(IF) $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__="\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))"\" -c $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$<: $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" >> $(GENDIR)/errors ; \
+			tee < $(GENDIR)/cerrors -a $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Compile failed: $(CMD) $(ports-libs-glew_IQUOTE) $(dir $<) $(ports-libs-glew_IQUOTE) $(TOP)/$(CURDIR) $(ports-libs-glew_IQUOTE) $(SRCDIR)/$(CURDIR) $(ports-libs-glew_IQUOTE) . $(ports-libs-glew_IQUOTE_END) $(strip $(CFLAGS) $(CPPFLAGS)) -D__SRCFILENAME__=\"$(subst $(TOP)/,,$(subst $(SRCDIR)/,,$(abspath $<)))\" -c $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+$(ports-libs-glew_MC_DTARGETS) : $(ports-libs-glew_MC_TGTWILDCARD).d : $(ports-libs-glew_MC_SRCWILDCARD).c
+	$(Q)$(IF) $(TEST) ! -d $(dir $@) ; then $(MKDIR) $(dir $@) ; else $(NOP) ; fi
+	$(Q)$(ECHO) "Makedepend  $(if $(filter /%,$<),$(if $(filter $(SRCDIR)/%,$(abspath $<)),$(patsubst $(SRCDIR)/%,%,$(abspath $<)),$(patsubst $(TOP)/%,%,$(abspath $<))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$<))) ..."
+	$(Q)AROS_CC="$(CMD)" $(MKDEPEND) $(strip $(ports-libs-glew_DFLAGS) $(ports-libs-glew_MC_CPPFLAGS)) -I$(TOP)/$(CURDIR) -I$(SRCDIR)/$(CURDIR) $< -o $@
+
+ifeq ($(ports-libs-glew_OBJDIR),)
+ports-libs-glew-MA_TARGETS := $(addsuffix .o,$(ports-libs-glew_ASMFILES))
+ports-libs-glew-MA_WILDCARD := %
+else
+ports-libs-glew-MA_TARGETS := $(addsuffix .o,$(addprefix $(ports-libs-glew_OBJDIR)/,$(notdir $(ports-libs-glew_ASMFILES))))
+ports-libs-glew-MA_WILDCARD := $(ports-libs-glew_OBJDIR)/%
+
+# Be sure that all .s files are generated
+$(ports-libs-glew-MA_TARGETS) : | $(addsuffix .s,$(ports-libs-glew_ASMFILES))
+
+# Be sure that all .c files are found
+ports-libs-glew-MA_SRCDIR := $(shell $(ECHO) $(SRCDIR) | sed 's/^\(.\):\//\/\1\//')
+ports-libs-glew-MA_BASEDIRS := $(shell $(ECHO) $(sort $(dir $(ports-libs-glew_ASMFILES))) | sed 's/\(.\):\//\/\1\//g')
+ports-libs-glew-MA_DIRS := $(foreach dir, $(ports-libs-glew-MA_BASEDIRS), $(if $(filter /%,$(dir)),$(dir),$(ports-libs-glew-MA_SRCDIR)/$(CURDIR)/$(dir)))
+ifneq ($(ports-libs-glew-MA_DIRS),)
+    ports-libs-glew-MA_DIRS := $(shell $(ECHO) $(ports-libs-glew-MA_DIRS) | sed 's/\(.\):\//\/\1\//g')
+    vpath %.s $(ports-libs-glew-MA_DIRS)
+endif
+
+endif
+
+ports-libs-glew-MA_ASSEMBLER ?= $(ports-libs-glew_ASSEMBLER)
+
+$(ports-libs-glew-MA_TARGETS) : ports-libs-glew-MA_CMD:= $(ports-libs-glew-MA_ASSEMBLER)
+
+$(ports-libs-glew-MA_TARGETS) : CPPFLAGS := $(ports-libs-glew_CPPFLAGS)
+$(ports-libs-glew-MA_TARGETS) : AFLAGS := $(ports-libs-glew_AFLAGS)
+$(ports-libs-glew-MA_TARGETS) : $(ports-libs-glew-MA_WILDCARD).o : %.s
+	$(Q)$(ECHO) "Assembling $(notdir $<)..."
+	$(Q)$(IF) $(ports-libs-glew-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@ > $(GENDIR)/cerrors 2>&1 ; then \
+		$(IF) $(TEST) -s $(GENDIR)/cerrors ; then \
+			$(ECHO) "$(notdir $<): $(ports-libs-glew-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" >> $(GENDIR)/errors ; \
+			$(CAT) $(GENDIR)/cerrors >> $(GENDIR)/errors ; \
+		else \
+			$(NOP) ; \
+		fi ; \
+	else \
+		$(ECHO) "Assemble failed: $(ports-libs-glew-MA_CMD) $(strip $(AFLAGS) $(CPPFLAGS)) $< -o $@" 1>&2 ; \
+		tee < $(GENDIR)/cerrors -a $(GENDIR)/errors 1>&2 ; \
+		exit 1 ; \
+	fi
+
+
+ifeq (target,target)
+$(AROS_LIB)/libglew.a : ports-libs-glew_AR:=$(AR)
+$(AROS_LIB)/libglew.a : ports-libs-glew_RANLIB:=$(RANLIB)
+endif
+ifeq (target,host)
+$(AROS_LIB)/libglew.a : ports-libs-glew_AR:=$(HOST_AR)
+$(AROS_LIB)/libglew.a : ports-libs-glew_RANLIB:=$(HOST_RANLIB)
+endif
+ifeq (target,kernel)
+$(AROS_LIB)/libglew.a : ports-libs-glew_AR:=$(KERNEL_AR)
+$(AROS_LIB)/libglew.a : ports-libs-glew_RANLIB:=$(KERNEL_RANLIB)
+endif
+
+$(AROS_LIB)/libglew.a : $(ports-libs-glew_OBJS)
+	$(Q)$(ECHO) "Creating   $(subst $(TARGETDIR)/,,$@)..."
+	$(Q)$(ports-libs-glew_AR) $@ $^
+	$(Q)$(ports-libs-glew_RANLIB) $@
+endif
+
+ifneq ($(ports-libs-glew_DEPS),)
+  ifneq (ports-libs-glew ports-libs-glew-quick,)
+    ifneq ($(findstring $(TARGET),ports-libs-glew ports-libs-glew-quick),)
+      -include $(ports-libs-glew_DEPS)
+    endif
+  else
+    ifeq (,$(filter clean% %clean %clean% setup% includes% %setup,$(TARGET)))
+      -include $(ports-libs-glew_DEPS)
+    endif
+  endif
+endif
+
+
+
+ifneq ($(ports-libs-glew_OBJS) $(ports-libs-glew_DEPS) $(ports-libs-glew_LINKLIB),)
+$(ports-libs-glew_OBJS) $(ports-libs-glew_DEPS) $(ports-libs-glew_LINKLIB) : | $(ports-libs-glew_OBJDIR) $(AROS_LIB)
+else
+$(ports-libs-glew_OBJS) $(ports-libs-glew_DEPS) $(ports-libs-glew_LINKLIB) :: $(ports-libs-glew_OBJDIR) $(AROS_LIB)
+endif
+
+GLOB_MKDIRS += $(ports-libs-glew_OBJDIR) $(AROS_LIB)
+
+
+ports-libs-glew-clean : FILES := $(ports-libs-glew_OBJS) $(ports-libs-glew_LINKLIB) $(ports-libs-glew_DEPS)
+#MM
+ports-libs-glew-clean ::
+	$(Q)$(ECHO) "Cleaning up for metatarget ports-libs-glew"
+	$(Q)$(RM) $(FILES)
+
+
+#MM libglew-includes-copy
+INCLUDE_FILES := glew.h
+
+ifeq ($(findstring target,host kernel target),)
+$(error %copy_includes: compiler argument (target) has to be host, kernel or target)
+endif
+
+ifneq ($(PORTSDIR)/glew/$(ARCHBASE)/include/GL,)
+TMP_DIR                := $(PORTSDIR)/glew/$(ARCHBASE)/include/GL
+$(eval TMP_DIRREMAIN   := $$$(TMP_DIR))
+TMP_DIRFIRST           := $(subst $(TMP_DIRREMAIN),,$(TMP_DIR))
+BD_INCL_FILES          := $(subst $(PORTSDIR)/glew/$(ARCHBASE)/include/GL,$(GENINCDIR)/.,$(dir $(INCLUDE_FILES)))
+BD_INCL_FILES          := $(addprefix $(GENINCDIR)/./,$(notdir $(INCLUDE_FILES)))
+ifeq ($(TMP_DIRFIRST),/)
+BD_INC_PATH            := $(PORTSDIR)/glew/$(ARCHBASE)/include/GL/
+else
+BD_INC_PATH            := $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/glew/$(ARCHBASE)/include/GL/
+endif
+else
+BD_INCL_FILES          := $(addprefix $(GENINCDIR)/./,$(INCLUDE_FILES))
+BD_INC_PATH            := $(SRCDIR)/$(CURDIR)/
+endif
+
+$(BD_INCL_FILES) : $(GENINCDIR)/./% : $(BD_INC_PATH)%
+	$(Q)$(CP) $< $@
+
+ifeq (target,target)
+
+ifneq ($(PORTSDIR)/glew/$(ARCHBASE)/include/GL,)
+BD_INCL_FILES2         := $(subst $(PORTSDIR)/glew/$(ARCHBASE)/include/GL,$(AROS_INCLUDES)/GL/.,$(dir $(INCLUDE_FILES)))
+BD_INCL_FILES2         := $(addprefix $(AROS_INCLUDES)/GL/./,$(notdir $(INCLUDE_FILES)))
+else
+BD_INCL_FILES2         := $(addprefix $(AROS_INCLUDES)/GL/./,$(INCLUDE_FILES))
+endif
+
+BD_INCL_FILES          += $(BD_INCL_FILES2)
+
+$(BD_INCL_FILES2) : $(AROS_INCLUDES)/GL/./% : $(BD_INC_PATH)%
+	$(Q)$(CP) $< $@
+endif
+
+#MM
+libglew-includes-copy : $(BD_INCL_FILES)
+
+.PHONY: libglew-includes-copy
+
+
+ifneq ($(BD_INCL_FILES),)
+$(BD_INCL_FILES) : | $(dir $(BD_INCL_FILES))
+else
+$(BD_INCL_FILES) :: $(dir $(BD_INCL_FILES))
+endif
+
+GLOB_MKDIRS += $(dir $(BD_INCL_FILES))
+
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

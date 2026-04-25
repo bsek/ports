@@ -1,0 +1,709 @@
+# $Id$
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-game : ports-game-lmarbles
+
+#MM- ports-game-lmarbles : contrib-sdl
+
+PACKAGE      := lmarbles
+VERSION      := 1.0.8
+TARGETDIR    := $(AROS_CONTRIB)/Games/Puzzle/LMarbles
+REPOSITORIES := sf://lgames
+
+USER_INCLUDES:= -I$(AROS_CONTRIB_INCLUDES)
+USER_LDFLAGS := -L$(AROS_CONTRIB_LIB)
+
+LMARBLES_EXTRAOPTS= -datarootdir='$$(PROGDIR)share' LIBS='-lmikmod -lvorbisfile -lvorbis -logg'
+
+
+#MM- ports-game-lmarbles-quick : ports-game-lmarbles--quick
+#MM- ports-game-lmarbles--quick : ports-game-lmarbles--fetch
+#MM- ports-game-lmarbles-fetch : ports-game-lmarbles--fetch
+#MM- ports-game-lmarbles-create-patch : ports-game-lmarbles--create-patch
+#MM- ports-game-lmarbles-create-patch-quick : ports-game-lmarbles--create-patch
+ 
+ports-game-lmarbles-archbase                        ?= $(PACKAGE)-$(VERSION)
+
+ifeq (target,host)
+    ports-game-lmarbles-portdir                     ?= $(HOSTDIR)/Ports/host/$(PACKAGE)
+else
+    ports-game-lmarbles-portdir                     ?= $(PORTSDIR)/$(PACKAGE)
+endif
+
+ifeq ($(TARGETDIR),)
+    ports-game-lmarbles-prefix                      ?= $(CONTRIB_DIR)/$(PACKAGE)
+else
+    ports-game-lmarbles-prefix                      ?= $(TARGETDIR)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--archbase      ?= $(PACKAGE)--$(VERSION)
+else
+    ports-game-lmarbles--archbase      ?= $(PACKAGE)-$(VERSION)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--srcdir        ?= 
+else
+    ports-game-lmarbles--srcdir        ?= $(ports-game-lmarbles-archbase)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--builddir      ?= $(ports-game-lmarbles--srcdir)/
+else
+    ports-game-lmarbles--builddir      ?= $(ports-game-lmarbles--srcdir)
+endif
+
+ifeq (,)
+ifeq (yes,yes)
+    ports-game-lmarbles--patches_specs ?= $(ports-game-lmarbles--archbase)-aros.diff:$(ports-game-lmarbles--srcdir):-f,-p1
+else
+    ports-game-lmarbles--patches_specs ?= ::
+endif
+else
+    ports-game-lmarbles--patches_specs ?= 
+endif
+
+
+.PHONY: ports-game-lmarbles--fetch
+
+ifneq ($(PORTSSOURCEDIR),)
+    ports-game-lmarbles--fetch-location := $(PORTSSOURCEDIR)
+else
+    ports-game-lmarbles--fetch-location := $(ports-game-lmarbles-portdir)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--fetch-baseflag := -b 
+else
+    ports-game-lmarbles--fetch-baseflag :=
+endif
+
+ports-game-lmarbles--fetch-fetchedflag := $(ports-game-lmarbles--fetch-location)/.$(ports-game-lmarbles--archbase)-fetched
+
+#MM
+ports-game-lmarbles--fetch :
+	$(Q)$(ECHO) "Fetching   $(ports-game-lmarbles--archbase) ..."
+	$(Q)$(FETCH) -ao ". $(REPOSITORIES)" -a $(ports-game-lmarbles--archbase) -s "tar.gz" -l $(ports-game-lmarbles--fetch-location) \
+	-d $(ports-game-lmarbles-portdir) $(ports-game-lmarbles--fetch-baseflag) -po "$(SRCDIR)/$(CURDIR)" -p "$(ports-game-lmarbles--patches_specs)"
+	$(Q)$(IF) ! $(TEST) -f $(ports-game-lmarbles--fetch-fetchedflag) ; then \
+		 $(TOUCH) $(ports-game-lmarbles--fetch-fetchedflag) ; \
+	fi
+
+
+.PHONY: ports-game-lmarbles--create-patch
+
+ifneq (,)
+    ports-game-lmarbles--create-patch-location := 
+else
+    ports-game-lmarbles--create-patch-location := $(PORTSSOURCEDIR)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--create-patch-exclude := -X ./exclude.patterns
+endif
+
+ifneq ($(ports-game-lmarbles--srcdir),)
+    ports-game-lmarbles--create-patch-srcdir   := $(ports-game-lmarbles--srcdir)
+else
+    ports-game-lmarbles--create-patch-srcdir   := $(ports-game-lmarbles--archbase)
+endif
+
+ifeq (no,yes)
+    ports-game-lmarbles--create-patch-diffflag   := --strip-trailing-cr
+else
+    ports-game-lmarbles--create-patch-diffflag   :=
+endif
+
+ifneq (,)
+    ports-game-lmarbles--create-patch-baseflag := -b /tmp
+    ports-game-lmarbles--create-patch-base := 
+else
+    ports-game-lmarbles--create-patch-baseflag :=
+    ports-game-lmarbles--create-patch-base := $(ports-game-lmarbles-portdir)
+endif
+
+#MM- ports-game-lmarbles--create-patch :  ports-game-lmarbles--create-patch-diff 
+#MM- ports-game-lmarbles--create-patch-quick :  ports-game-lmarbles--create-patch-diff 
+
+#MM
+ports-game-lmarbles--create-patch-diff:
+	$(Q)$(FOR) dir in $(ports-game-lmarbles--create-patch-base)/tmp ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(MV) $(ports-game-lmarbles--create-patch-base)/$(ports-game-lmarbles--create-patch-srcdir) $(ports-game-lmarbles--create-patch-base)/tmp/$(ports-game-lmarbles--create-patch-srcdir).aros ; \
+	$(FETCH) -a $(ports-game-lmarbles--archbase) -s "tar.gz" -f -l $(ports-game-lmarbles--create-patch-location) -d $(ports-game-lmarbles-portdir) $(ports-game-lmarbles--create-patch-baseflag); \
+	$(MV) $(ports-game-lmarbles--create-patch-base)/$(ports-game-lmarbles--create-patch-srcdir) $(ports-game-lmarbles--create-patch-base)/tmp/$(ports-game-lmarbles--create-patch-srcdir) ; \
+	cd $(ports-game-lmarbles--create-patch-base)/tmp ; \
+	$(FOR) f in  ; do \
+	    $(ECHO) $$f >> ./exclude.patterns ; \
+	done ; \
+	$(ECHO) "Creating   \`$(ports-game-lmarbles--archbase)-aros-new.diff'" ; \
+	TZ="UTC" diff -ruN $(ports-game-lmarbles--create-patch-diffflag) $(ports-game-lmarbles--create-patch-exclude) \
+	    $(ports-game-lmarbles--create-patch-srcdir) \
+	    $(ports-game-lmarbles--create-patch-srcdir).aros \
+	    >$(SRCDIR)/$(CURDIR)/$(ports-game-lmarbles--archbase)-aros-new.diff ; \
+	$(MV) $(ports-game-lmarbles--create-patch-base)/tmp/$(ports-game-lmarbles--create-patch-srcdir).aros $(ports-game-lmarbles--create-patch-base)/$(ports-game-lmarbles--create-patch-srcdir) ; \
+	$(RM) $(ports-game-lmarbles--create-patch-base)/tmp
+
+#MM ports-game-lmarbles : ports-game-lmarbles-
+#MM
+ports-game-lmarbles:
+	$(Q)$(NOP)
+
+ports-game-lmarbles--package-dir := $(ports-game-lmarbles-portdir)/$(ports-game-lmarbles--archbase)
+
+ports-game-lmarbles--package-basename := \
+    $(DISTDIR)/Packages/$(ports-game-lmarbles--archbase)-aros.$(AROS_TARGET_CPU)
+
+ifneq (no,no)
+    ports-game-lmarbles--package := $(ports-game-lmarbles--package-basename).tar.bz2
+endif
+
+
+ifneq ($(ports-game-lmarbles-prefix),)
+    ports-game-lmarbles--prefix := $(ports-game-lmarbles-prefix)
+else
+    ports-game-lmarbles--prefix := $(AROS_CONTRIB)
+endif
+
+ifneq (,)
+    ports-game-lmarbles--aros_prefix := 
+else
+    ports-game-lmarbles--aros_prefix := $(ports-game-lmarbles--prefix)
+endif
+
+BD_NIXFLAG ?= -nix
+
+ifeq (yes,yes)
+    ports-game-lmarbles--nix    := $(BD_NIXFLAG)
+    ports-game-lmarbles--volpfx := /
+    ports-game-lmarbles--volsfx := /
+    
+    ifeq (no,)
+        ports-game-lmarbles--nix_dir_layout := yes
+    endif
+else
+    ports-game-lmarbles--volsfx := :
+    
+    ifeq (no,)
+        ports-game-lmarbles--nix_dir_layout := no
+    endif
+endif
+
+ports-game-lmarbles--volfunc = $(ports-game-lmarbles--volpfx)$(notdir $1)$(ports-game-lmarbles--volsfx)
+
+ports-game-lmarbles--install_opts += prefix=$(ports-game-lmarbles--prefix) \
+        exec_prefix=$(ports-game-lmarbles--prefix) 
+
+# Check if chosen compiler is valid
+ifeq ($(findstring target,host target kernel),)
+  $(error unknown compiler target)
+endif
+
+# Set legacy 'host' variable based on chosen compiler
+ifeq (target,host)
+    host := yes
+    ifeq ($(CURDIR),)
+        ports-game-lmarbles--pkgbasedir := $(HOSTGENDIR)
+    else
+        ports-game-lmarbles--pkgbasedir := $(HOSTGENDIR)/$(CURDIR)
+    endif
+else
+    host := no
+    ifeq ($(CURDIR),)
+        ports-game-lmarbles--pkgbasedir := $(GENDIR)
+    else
+        ports-game-lmarbles--pkgbasedir := $(GENDIR)/$(CURDIR)
+    endif
+endif
+ifneq (,)
+    ifeq ($(CURDIR),)
+        ports-game-lmarbles--pkgbasedir := 
+    else
+        ports-game-lmarbles--pkgbasedir := /$(CURDIR)
+    endif
+endif
+
+ifeq ($(PACKAGE),)
+    ports-game-lmarbles--pkgdir := $(ports-game-lmarbles--pkgbasedir)
+else
+    ports-game-lmarbles--pkgdir := $(ports-game-lmarbles--pkgbasedir)/$(PACKAGE)
+endif
+
+ports-game-lmarbles--configflag ?= $(ports-game-lmarbles--pkgdir)/.configured
+ports-game-lmarbles--installflag ?= $(ports-game-lmarbles--pkgdir)/.installed
+
+ifeq ($(filter yes, $(ports-game-lmarbles--nix_dir_layout) $(host)),yes)
+    ports-game-lmarbles--PROGDIR      := $(ports-game-lmarbles--aros_prefix)/bin
+    ports-game-lmarbles--config_opts  := --prefix=$(ports-game-lmarbles--aros_prefix)
+else
+    ifeq (yes,yes)
+        ports-game-lmarbles--config_opts := --prefix=/PROGDIR  --bindir=/PROGDIR --sbindir=/PROGDIR \
+        --libdir=/LIB --includedir=/INCLUDE --oldincludedir=/INCLUDE   
+    else
+        ports-game-lmarbles--config_opts  := --prefix=$(ports-game-lmarbles--aros_prefix)
+    endif
+
+    ports-game-lmarbles--PROGDIR := $(ports-game-lmarbles--aros_prefix)
+    
+    ports-game-lmarbles--install_opts := bindir=$(ports-game-lmarbles--prefix) \
+        sbindir=$(ports-game-lmarbles--prefix) \
+        libdir=$(AROS_LIB) includedir=$(AROS_INCLUDES) \
+        oldincludedir=$(AROS_INCLUDES) 
+endif
+
+ifneq ($(DEBUG),yes)
+    ports-game-lmarbles--s_flag = -s
+endif
+
+ifeq ($(TARGET_ISA_CFLAGS),)
+ports-game-lmarbles--TARGET_LDFLAGS :=
+else
+ports-game-lmarbles--TARGET_LDFLAGS := $(TARGET_ISA_LDFLAGS) $(TARGET_LDFLAGS)
+endif
+
+ifeq (yes,yes)
+    ports-game-lmarbles--HOST_CFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CFLAGS)
+    ports-game-lmarbles--KERNEL_CFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CFLAGS)
+ifeq (no,yes)
+    ports-game-lmarbles--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS)
+else
+    ports-game-lmarbles--TARGET_CFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(USER_CFLAGS) $(ports-game-lmarbles--nix)
+endif
+endif
+ports-game-lmarbles--TARGET_CC?=$(TARGET_CC)
+ports-game-lmarbles--KERNEL_CC?=$(KERNEL_CC)
+ports-game-lmarbles--HOST_CC?=$(HOST_DEF_CC)
+ifeq (yes,yes)
+    ports-game-lmarbles--HOST_CXXFLAGS=$(HOST_ISA_CFLAGS) $(HOST_CXXFLAGS)
+    ports-game-lmarbles--KERNEL_CXXFLAGS=$(KERNEL_ISA_CFLAGS) $(KERNEL_CXXFLAGS)
+ifeq (no,yes)
+    ports-game-lmarbles--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS)
+else
+    ports-game-lmarbles--TARGET_CXXFLAGS=$(TARGET_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(USER_CXXFLAGS) $(ports-game-lmarbles--nix)
+endif
+endif
+ports-game-lmarbles--TARGET_CXX?=$(TARGET_CXX)
+ports-game-lmarbles--KERNEL_CXX?=$(KERNEL_CXX)
+ports-game-lmarbles--HOST_CXX?=$(HOST_CXX)
+
+# Set up build environment, and options for configure script
+ifeq (target,host)
+    # NB: We need to pass in our crosstoolsdir, but cannot set CFLAGS since it
+    # confused configure scripts. We also cannot pass it via _FOR_BUILD
+    # since that won't get picked up during configure.
+    # We also cannot pass in the compiler including std flags so we need to use
+    # the "plain" host compiler.
+    ports-game-lmarbles--cfg-env :=  \
+        CPP="$(HOST_CPP)" \
+        CXXCPP="$(HOST_CPP)" \
+        CC="$(strip $(ports-game-lmarbles--HOST_CC) $(ports-game-lmarbles--HOST_CFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        CXX="$(strip $(ports-game-lmarbles--HOST_CXX) $(ports-game-lmarbles--HOST_CXXFLAGS) -I$(CROSSTOOLSDIR)/include)" \
+        LDFLAGS="-L$(CROSSTOOLSDIR)/lib $(USER_LDFLAGS)"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-lmarbles--cfg-env += TARGET_CC="$(strip $(ports-game-lmarbles--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-lmarbles--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CXXFLAGS))" \
+        TARGET_AS="$(TARGET_AS)" \
+        OBJCOPY="$(OBJCOPY)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)" \
+        TARGET_OBJCOPY="$(TARGET_OBJCOPY)"
+endif
+
+ifeq (target,target)
+    ports-game-lmarbles--cfg-env :=  \
+        PKG_CONFIG_LIBDIR="$(AROS_DEVELOPER)/lib/pkgconfig" \
+        PKG_CONFIG_SYSROOT_DIR="$(AROSDIR)"
+ifeq (no,yes)
+    ports-game-lmarbles--cfg-env += \
+        CPP="$(strip $(ports-game-lmarbles--CROSS_CPP) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        CXXCPP="$(strip $(ports-game-lmarbles--CROSS_CPP) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        CC="$(strip $(ports-game-lmarbles--CROSS_CC) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        CXX="$(strip $(ports-game-lmarbles--CROSS_CXX) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        LD="$(strip $(ports-game-lmarbles--CROSS_LD))" \
+        AS="$(strip $(ports-game-lmarbles--CROSS_AS))" \
+        AFLAGS="$(strip $(ports-game-lmarbles--CROSS_AFLAGS))" \
+        OBJCOPY="$(strip $(ports-game-lmarbles--CROSS_OBJCOPY))" \
+        RANLIB="$(strip $(ports-game-lmarbles--CROSS_RANLIB))" \
+        STRIP="$(strip $(ports-game-lmarbles--CROSS_STRIP))" \
+        CFLAGS="$(strip $(ports-game-lmarbles--CROSS_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-lmarbles--CROSS_CXXFLAGS))" \
+        LDFLAGS="$(strip $(ports-game-lmarbles--CROSS_LDFLAGS))" \
+        LT_LDFLAGS="$(strip $(ports-game-lmarbles--CROSS_LDFLAGS))"
+    ports-game-lmarbles--cfg-env += CC_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_CC) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_CFLAGS))" \
+        CXX_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_CXX) $(ports-game-lmarbles--CROSS_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_CXXFLAGS))" \
+        LD_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(ports-game-lmarbles--CROSS_LDFLAGS))"
+else
+    ports-game-lmarbles--cfg-env += CPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CXXCPP="$(strip $(TARGET_CPP) $(TARGET_SYSROOT))" \
+        CC="$(strip $(ports-game-lmarbles--TARGET_CC) $(TARGET_SYSROOT))" \
+        CXX="$(strip $(ports-game-lmarbles--TARGET_CXX) $(TARGET_SYSROOT))" \
+        LD="$(strip $(TARGET_LD))"
+    ports-game-lmarbles--cfg-env += CFLAGS="$(strip $(ports-game-lmarbles--TARGET_CFLAGS) $(ports-game-lmarbles--AC_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXXFLAGS="$(strip $(ports-game-lmarbles--TARGET_CXXFLAGS) $(ports-game-lmarbles--AC_CXXFLAGS) $(OPTIMIZATION_CFLAGS))"
+    ports-game-lmarbles--cfg-env += LDFLAGS="$(strip $(ports-game-lmarbles--TARGET_LDFLAGS)) -L$(AROS_DEVELOPER)/lib $(strip $(USER_LDFLAGS) $(TARGET_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-lmarbles--nix) $(ports-game-lmarbles--s_flag))"
+    ports-game-lmarbles--cfg-env += LT_LDFLAGS="$(strip $(ports-game-lmarbles--TARGET_LDFLAGS))"
+    ports-game-lmarbles--cfg-env += AR="$(strip $(AR_PLAIN))" \
+        AS="$(strip $(TARGET_AS))" \
+        AFLAGS="$(strip $(AFLAGS))" \
+        OBJCOPY="$(strip $(OBJCOPY))" \
+        RANLIB="$(strip $(RANLIB))" \
+        STRIP="$(strip $(STRIP_PLAIN))"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += CPPFLAGS="$(strip $(BASE_CPPFLAGS) $(USER_CPPFLAGS) )"
+    ports-game-lmarbles--cfg-env += CPPFLAGS_FOR_BUILD="$(strip $(HOST_CPPFLAGS) $(ports-game-lmarbles--ACBUILD_CPPFLAGS))"
+endif
+    ports-game-lmarbles--cfg-env += CC_FOR_BUILD="$(strip $(ports-game-lmarbles--HOST_CC))" \
+        CFLAGS_FOR_BUILD="$(strip $(ports-game-lmarbles--HOST_CFLAGS) $(ports-game-lmarbles--ACBUILD_CFLAGS))" \
+        CXX_FOR_BUILD="$(strip $(ports-game-lmarbles--HOST_CXX))" \
+        CXXFLAGS_FOR_BUILD="$(strip $(ports-game-lmarbles--HOST_CXXFLAGS) $(ports-game-lmarbles--ACBUILD_CXXFLAGS))" \
+        LD_FOR_BUILD="$(strip $(HOST_LD))" \
+        LDFLAGS_FOR_BUILD="$(strip $(HOST_LDFLAGS) $(ports-game-lmarbles--ACBUILD_LDFLAGS) $(ports-game-lmarbles--s_flag))"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += CPPFLAGS_FOR_HOST="$(strip $(BASE_CPPFLAGS)  $(ports-game-lmarbles--ACHOST_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-lmarbles--cfg-env += CC_FOR_HOST="$(strip $(ports-game-lmarbles--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CFLAGS) $(ports-game-lmarbles--ACHOST_CFLAGS) $(USER_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-lmarbles--nix))" \
+        CXX_FOR_HOST="$(strip $(ports-game-lmarbles--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_HOST="$(strip $(KERNEL_ISA_CFLAGS) $(USER_INCLUDES) $(BASE_CXXFLAGS) $(ports-game-lmarbles--ACHOST_CXXFLAGS)  $(USER_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS) $(ports-game-lmarbles--nix))" \
+        LD_FOR_HOST="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_HOST="$(strip $(TARGET_ISA_LDFLAGS) -L$(AROS_DEVELOPER)/lib  $(ports-game-lmarbles--ACHOST_LDFLAGS) $(USER_LDFLAGS) $(ports-game-lmarbles--nix) $(ports-game-lmarbles--s_flag))"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += CPPFLAGS_FOR_TARGET="$(strip $(BASE_CPPFLAGS) $(ports-game-lmarbles--ACTARGET_CPPFLAGS) $(USER_CPPFLAGS) )"
+endif
+    ports-game-lmarbles--cfg-env += CC_FOR_TARGET="$(strip $(ports-game-lmarbles--TARGET_CC) $(TARGET_SYSROOT))" \
+        CFLAGS_FOR_TARGET="$(strip $(ports-game-lmarbles--TARGET_CFLAGS) $(ports-game-lmarbles--ACTARGET_CFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        CXX_FOR_TARGET="$(strip $(ports-game-lmarbles--TARGET_CXX) $(TARGET_SYSROOT))" \
+        CXXFLAGS_FOR_TARGET="$(strip $(ports-game-lmarbles--TARGET_CXXFLAGS) $(ports-game-lmarbles--ACTARGET_CXXFLAGS) -L$(AROS_DEVELOPER)/lib $(OPTIMIZATION_CFLAGS))" \
+        LD_FOR_TARGET="$(strip $(TARGET_LD))" \
+        LDFLAGS_FOR_TARGET="$(strip $(ports-game-lmarbles--TARGET_LDFLAGS) -L$(AROS_DEVELOPER)/lib $(ports-game-lmarbles--ACTARGET_LDFLAGS) $(USER_LDFLAGS) $(TARGET_C_LIBS) $(ports-game-lmarbles--nix) $(ports-game-lmarbles--s_flag))" \
+        AS_FOR_TARGET="$(strip $(TARGET_AS))" \
+        OBJCOPY_FOR_TARGET="$(strip $(TARGET_OBJCOPY))" \
+        RANLIB_FOR_TARGET="$(strip $(TARGET_RANLIB))" \
+        STRIP_FOR_TARGET="$(strip $(TARGET_STRIP))" \
+        NM_FOR_TARGET="$(strip $(TARGET_NM))"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += TARGET_CPPFLAGS="$(KERNEL_CPPFLAGS)"
+endif
+    ports-game-lmarbles--cfg-env += TARGET_CC="$(strip $(ports-game-lmarbles--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        TARGET_CFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CFLAGS) $(ports-game-lmarbles--ACTARGET_CFLAGS))" \
+        TARGET_CXX="$(strip $(ports-game-lmarbles--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        TARGET_CXXFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CXXFLAGS) $(ports-game-lmarbles--ACTARGET_CXXFLAGS))" \
+        TARGET_AS="$(strip $(TARGET_AS))" \
+        TARGET_OBJCOPY="$(strip $(OBJCOPY))" \
+        TARGET_RANLIB="$(strip $(RANLIB))" \
+        TARGET_STRIP="$(strip $(STRIP_PLAIN))" \
+        TARGET_NM="$(strip $(NM_PLAIN))"
+endif
+
+ifeq (yes,yes)
+    ports-game-lmarbles--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-lmarbles--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-lmarbles--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-lmarbles--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-lmarbles--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-lmarbles--config_opts += --without-x
+endif
+endif
+endif
+
+ifeq (target,kernel)
+    ports-game-lmarbles--cfg-env :=  \
+        CPP="$(KERNEL_CPP)" \
+        CXXCPP="$(KERNEL_CPP)"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += CPPFLAGS="$(strip $(KERNEL_CPPFLAGS) )"
+endif
+    ports-game-lmarbles--cfg-env += CC="$(strip $(ports-game-lmarbles--KERNEL_CC) $(KERNEL_SYSROOT))" \
+        CFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        CXX="$(strip $(ports-game-lmarbles--KERNEL_CXX) $(KERNEL_SYSROOT))" \
+        CXXFLAGS="$(strip $(ports-game-lmarbles--KERNEL_CXXFLAGS) $(OPTIMIZATION_CFLAGS))" \
+        AS="$(KERNEL_AS)"
+ifeq (yes,yes)
+    ports-game-lmarbles--cfg-env += CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
+endif
+    ports-game-lmarbles--cfg-env += CC_FOR_BUILD="$(ports-game-lmarbles--HOST_CC)" \
+        CFLAGS_FOR_BUILD="$(ports-game-lmarbles--HOST_CFLAGS)" \
+        CXX_FOR_BUILD="$(ports-game-lmarbles--HOST_CXX)" \
+        CXXFLAGS_FOR_BUILD="$(ports-game-lmarbles--HOST_CXXFLAGS)" \
+        RANLIB="$(RANLIB)" \
+        TARGET_RANLIB="$(RANLIB)" \
+        TARGET_STRIP="$(STRIP_PLAIN)" \
+        TARGET_NM="$(NM_PLAIN)"
+ifeq (yes,yes)
+    ports-game-lmarbles--config_opts += --target=$(AROS_TARGET_CPU)-aros
+    ports-game-lmarbles--config_opts += --build=$(AROS_HOST_CPU)-$(AROS_HOST_ARCH)
+    ports-game-lmarbles--config_opts += --host=$(AROS_TARGET_CPU)-aros
+endif
+ifeq (yes,yes)
+    ports-game-lmarbles--config_opts += --without-pic --disable-shared
+ifeq (yes,yes)
+# disable native language support
+    ports-game-lmarbles--config_opts += --disable-nls
+endif
+ifeq (yes,yes)
+# disable X window system
+    ports-game-lmarbles--config_opts += --without-x
+endif
+
+endif
+endif
+
+ifeq (no,yes)
+    BUILD_ENV := $(ports-game-lmarbles--cfg-env)
+endif
+
+## **********************************************************************
+## Review the following lines once breakage in contrib has been resolved.
+# Files are not touched anymore by default, add this to your mmakefile if that is necessry
+#<target>-touchfileflag := $(GENDIR)/$(CURDIR)/.files-touched
+ports-game-lmarbles--touchfileflag ?= $(ports-game-lmarbles--pkgdir)/.files-touched
+## **********************************************************************
+
+ifneq ("$(wildcard $(ports-game-lmarbles-portdir)/$(ports-game-lmarbles--builddir)/Makefile)","")
+# in an ideal world, we would depend on the files in the source directory,
+# so we could copy them when they change. unfortunately filenames with
+# spaces cause problems with this
+$(ports-game-lmarbles--pkgdir)/.local-copy:
+	$(Q)$(FOR) dir in $(ports-game-lmarbles--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Copying Local-Build Sources to  \`$(patsubst $(TOP)/%,%,$(abspath $(ports-game-lmarbles--pkgdir)))'"
+	$(Q)$(CP) -Rf "$(ports-game-lmarbles-portdir)/$(ports-game-lmarbles--builddir)/." $(ports-game-lmarbles--pkgdir)/ && $(TOUCH) $@
+
+$(ports-game-lmarbles--touchfileflag) : $(ports-game-lmarbles--pkgdir)/.local-copy
+
+    ports-game-lmarbles--cfg-srcdir=$(ports-game-lmarbles--pkgdir)
+else
+    ports-game-lmarbles--cfg-srcdir=$(ports-game-lmarbles-portdir)/$(ports-game-lmarbles--builddir)
+endif
+ports-game-lmarbles--make-env += -C $(ports-game-lmarbles--pkgdir)
+
+.PHONY : ports-game-lmarbles- ports-game-lmarbles--clean ports-game-lmarbles--build_and_install-quick
+
+# When building for the host, we don't need to build the
+# linklibs - this is especially true when building the
+# crosstool toolchain on 'foreign' architectures (such as
+# building PPC on x86)
+
+#MM- ports-game-lmarbles--host : setup includes ports-game-lmarbles--quick
+#MM- ports-game-lmarbles--target : setup includes core-linklibs ports-game-lmarbles--quick
+#MM- ports-game-lmarbles-: ports-game-lmarbles--target
+
+# Using -j1 in install_command may result in a warning but finally
+# it does its job. make install for gcc does not work reliably for -jN
+# where N > 1.
+ifneq (,)
+    ports-game-lmarbles--install_command = \
+        $(ECHO) "Installing from build in         $(subst $(TOP)/,,$(ports-game-lmarbles--pkgdir))" && \
+        $(MAKE) PROGDIR="$(ports-game-lmarbles--PROGDIR)/" $(ports-game-lmarbles--install_opts) \
+        $(ports-game-lmarbles--make-env)  -j1
+
+    ports-game-lmarbles--uninstall_command = \
+    $(RM) $(ports-game-lmarbles--installflag) && \
+    $(MAKE) PROGDIR="$(ports-game-lmarbles--PROGDIR)/" \
+    $(ports-game-lmarbles--install_opts) $(ports-game-lmarbles--make-env) uninstall
+else
+    ports-game-lmarbles--install_command   := true
+    ports-game-lmarbles--uninstall_command := true
+endif
+
+#MM- ports-game-lmarbles--quick :  ports-game-lmarbles--configure  ports-game-lmarbles--build_and_install-quick ports-game-lmarbles-install ports-game-lmarbles--make-package
+
+#MM
+ports-game-lmarbles--build_and_install-quick :  $(ports-game-lmarbles--installflag)
+
+#
+# N.B.: the make test for the targets being up to date generates a benign Error 1.
+#
+$(ports-game-lmarbles--installflag) : $(ports-game-lmarbles--configflag)
+	$(Q)$(IF) ! $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-lmarbles--volfunc, PROGDIR)" -q $(ports-game-lmarbles--make-env); then \
+	    $(RM) $(ports-game-lmarbles--installflag) && \
+	    $(ECHO) "Performing build in         $(subst $(TOP)/,,$(ports-game-lmarbles--pkgdir))" && \
+	    $(BUILD_ENV) $(MAKE) PROGDIR="$(call ports-game-lmarbles--volfunc, PROGDIR)" $(ports-game-lmarbles--make-env) && \
+	    $(ports-game-lmarbles--install_command) && \
+	    $(TOUCH) $@ -r $^; \
+	fi
+
+ifeq (yes,yes)
+$(ports-game-lmarbles--touchfileflag):
+	$(Q)$(FOR) dir in $(ports-game-lmarbles--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)find $(ports-game-lmarbles-portdir)/$(ports-game-lmarbles--builddir) -exec $(TOUCH) -c -r $(ports-game-lmarbles--cfg-srcdir)/configure '{}' \; && \
+	$(TOUCH) $@
+endif
+
+#MM
+ports-game-lmarbles--uninstall :
+	$(ports-game-lmarbles--uninstall_command)
+
+#MM
+ports-game-lmarbles--configure : $(ports-game-lmarbles--configflag)
+
+$(ports-game-lmarbles--configflag) : TMP_SRCDIR := $(shell $(ECHO) $(ports-game-lmarbles--cfg-srcdir) | sed 's/^\(.\):\//\/\1\//')
+$(ports-game-lmarbles--configflag) : $(ports-game-lmarbles--touchfileflag) $(TOP)/$(CURDIR)/mmakefile
+	$(Q)$(RM) $@
+	$(Q)$(FOR) dir in $(ports-game-lmarbles--pkgdir) ; do \
+		$(IF) $(TEST) ! -d $$dir ; then $(MKDIR) $$dir ; else $(NOP) ; fi ; \
+	done
+	$(Q)$(ECHO) "Configuring build in         $(subst $(TOP)/,,$(ports-game-lmarbles--pkgdir))"
+	$(ports-game-lmarbles--init-env)
+	$(Q)cd $(ports-game-lmarbles--pkgdir) && \
+	find . -name config.cache -exec $(RM) '{}' \; && \
+	$(ports-game-lmarbles--cfg-env) $(TMP_SRCDIR)/configure $(ports-game-lmarbles--config_opts) $(LMARBLES_EXTRAOPTS) && \
+	$(TOUCH) $@
+
+#MM
+ports-game-lmarbles--clean : ports-game-lmarbles--uninstall
+	$(Q)$(RM) $(ports-game-lmarbles--pkgdir)
+
+.PHONY : ports-game-lmarbles--make-package ports-game-lmarbles--create-patch
+#MM ports-game-lmarbles--make-package : ports-game-lmarbles--quick
+
+#MM
+ports-game-lmarbles--make-package : $(ports-game-lmarbles--package)
+ 
+#There seems to be a bug, either with my clock or with make, 'cause it may happen
+#that $^ and $@ have exactly the same mtime, and in that case make tries
+#to rebuild $@ again, which would fail because the directory where
+#the package got installed would not exist anymore. 
+#We work this around by using an if statement to manually check the mtimes.
+$(ports-game-lmarbles--package-basename).tar.bz2 :
+	$(Q)$(IF) $(TEST) $(ports-game-lmarbles-installflag) -nt $@ || ! $(TEST) -s $@; then \
+	    $(RM) $@ ; \
+	    $(ECHO) "Building   \`$(ports-game-lmarbles--package-basename).tar.bz2'" ; \
+	    $(MKDIR) -p "$(DISTDIR)/Packages" ; \
+	    $(MKDIR) -p "$(ports-game-lmarbles-prefix)" ; \
+	    cd $(ports-game-lmarbles--package-dir) ; \
+	    tar -cvf $(ports-game-lmarbles--package-basename).tar * ; \
+	    bzip2 -9 -f $(ports-game-lmarbles--package-basename).tar ; \
+	fi
+
+#MM- ports-game-lmarbles-install : \
+#MM     ports-game-lmarbles-install-var \
+#MM     ports-game-lmarbles-install-bin \
+#MM     ports-game-lmarbles-install-gfx \
+#MM     ports-game-lmarbles-install-snd \
+#MM     ports-game-lmarbles-install-lvl \
+#MM     ports-game-lmarbles-install-files
+
+
+ports-game-lmarbles-install-bin_SRC := $(shell $(ECHO) $(GENDIR)/$(CURDIR)/lmarbles/src | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-lmarbles-install-bin
+
+#MM
+ports-game-lmarbles-install-bin : | $(TARGETDIR) 
+	$(foreach file, lmarbles, $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-lmarbles-install-bin_SRC)),$(ports-game-lmarbles-install-bin_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-lmarbles-install-bin_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+FILES := AUTHORS ChangeLog COPYING NEWS TODO
+
+ports-game-lmarbles-install-files_SRC := $(shell $(ECHO) $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION) | sed 's/^\(.\):\//\/\1\//')
+
+
+ifneq (setup,)
+setup : | $(TARGETDIR)
+else
+setup :: $(TARGETDIR)
+endif
+
+GLOB_MKDIRS += $(TARGETDIR)
+
+
+.PHONY : ports-game-lmarbles-install-files
+
+#MM
+ports-game-lmarbles-install-files : | $(TARGETDIR) 
+	$(foreach file, $(FILES), $(shell $(CP) $(addprefix $(if $(filter /%,$(ports-game-lmarbles-install-files_SRC)),$(ports-game-lmarbles-install-files_SRC),$(SRCDIR)/$(CURDIR)/$(ports-game-lmarbles-install-files_SRC))/, $(file)) $(addprefix $(TARGETDIR)/, $(file))))
+
+
+
+.PHONY : game-lmarbles-gfx-copy
+
+#MM
+game-lmarbles-gfx-copy :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx)))' to '$(if $(filter /%,$(TARGETDIR)/share/lmarbles/gfx),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/share/lmarbles/gfx)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/gfx)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/gfx))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/share/lmarbles/gfx)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/gfx -d $(TARGETDIR)/share/lmarbles/gfx -e 
+
+
+#MM ports-game-lmarbles-install-gfx : game-lmarbles-gfx-copy
+#MM
+ports-game-lmarbles-install-gfx:
+	$(Q)find $(TARGETDIR)/share/lmarbles/gfx -type f -exec chmod -R 666 {} \;
+
+
+.PHONY : game-lmarbles-snd-copy
+
+#MM
+game-lmarbles-snd-copy :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds)))' to '$(if $(filter /%,$(TARGETDIR)/share/lmarbles/sounds),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/share/lmarbles/sounds)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/sounds)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/sounds))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/share/lmarbles/sounds)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/sounds -d $(TARGETDIR)/share/lmarbles/sounds -e 
+
+
+#MM ports-game-lmarbles-install-snd : game-lmarbles-snd-copy
+#MM
+ports-game-lmarbles-install-snd:
+	$(Q)find $(TARGETDIR)/share/lmarbles/sounds -type f -exec chmod -R 666 {} \;
+
+
+.PHONY : game-lmarbles-lvl-copy
+
+#MM
+game-lmarbles-lvl-copy :
+	$(Q)$(ECHO) "Copying    directory '$(if $(filter /%,$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels),$(if $(filter $(SRCDIR)/%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels)),$(patsubst $(SRCDIR)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels)),$(patsubst $(TOP)/%,%,$(abspath $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels)))' to '$(if $(filter /%,$(TARGETDIR)/share/lmarbles/levels),$(if $(filter $(SRCDIR)/%,$(abspath $(TARGETDIR)/share/lmarbles/levels)),$(patsubst $(SRCDIR)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/levels)),$(patsubst $(TOP)/%,%,$(abspath $(TARGETDIR)/share/lmarbles/levels))),$(patsubst $(SRCDIR)/%,%,$(abspath $(SRCDIR)/$(CURDIR)/$(TARGETDIR)/share/lmarbles/levels)))'"
+	$(Q)cd $(SRCDIR)/$(CURDIR) && $(CPYDIRREC) -q -s $(PORTSDIR)/$(PACKAGE)/$(PACKAGE)-$(VERSION)/src/levels -d $(TARGETDIR)/share/lmarbles/levels -e 
+
+
+#MM ports-game-lmarbles-install-lvl : game-lmarbles-lvl-copy
+#MM
+ports-game-lmarbles-install-lvl:
+	$(Q)find $(TARGETDIR)/share/lmarbles/levels -type f -exec chmod -R 666 {} \;
+
+#MM
+ports-game-lmarbles-install-var : $(TARGETDIR)/var
+
+$(TARGETDIR)/var :
+	$(Q)$(IF) $(TEST) ! -d $@ ; then $(MKDIR) $@ ; else $(NOP) ; fi
+
+#MM
+ports-game-lmarbles-clean :
+	$(RM) $(TARGETDIR)
+	$(RM) $(GENDIR)/$(CURDIR)
+
+# Delete generated makefiles
+#MM
+clean ::
+	$(Q)$(RM) $(TOP)/$(CURDIR)/mmakefile $(TOP)/$(CURDIR)/mmakefile.bak
+
+include $(SRCDIR)/config/make.tail
+
+BDID := $(BDTARGETID)

@@ -1,0 +1,250 @@
+include $(SRCDIR)/config/aros-contrib.cfg
+
+#MM- ports-text : ports-text-scintilla
+#MM  ports-text-scintilla : includes linklibs workbench-libs-zunegfx ports-text-lexilla-fetch
+
+SCINTILLA_DIR := $(SRCDIR)/ports/text/scintilla
+LEXILLA_DIR   := $(PORTSDIR)/lexilla/lexilla
+
+USER_CXXFLAGS := -std=c++17 \
+    -DPLAT_AROS=1 \
+    -DSCI_LEXER \
+    -fexceptions \
+    -include $(SCINTILLA_DIR)/aros/aros_compat.h \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/src \
+    -I$(LEXILLA_DIR)/include \
+    -I$(LEXILLA_DIR)/lexlib
+
+USER_INCLUDES := \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/src \
+    -I$(LEXILLA_DIR)/include \
+    -I$(LEXILLA_DIR)/lexlib \
+    -I$(AROS_INCLUDES)
+
+# Core Scintilla source files (platform-independent)
+CORE_FILES := \
+    $(SCINTILLA_DIR)/src/AutoComplete \
+    $(SCINTILLA_DIR)/src/CallTip \
+    $(SCINTILLA_DIR)/src/CaseConvert \
+    $(SCINTILLA_DIR)/src/CaseFolder \
+    $(SCINTILLA_DIR)/src/CellBuffer \
+    $(SCINTILLA_DIR)/src/ChangeHistory \
+    $(SCINTILLA_DIR)/src/CharClassify \
+    $(SCINTILLA_DIR)/src/CharacterCategoryMap \
+    $(SCINTILLA_DIR)/src/CharacterType \
+    $(SCINTILLA_DIR)/src/ContractionState \
+    $(SCINTILLA_DIR)/src/DBCS \
+    $(SCINTILLA_DIR)/src/Decoration \
+    $(SCINTILLA_DIR)/src/Document \
+    $(SCINTILLA_DIR)/src/EditModel \
+    $(SCINTILLA_DIR)/src/EditView \
+    $(SCINTILLA_DIR)/src/Editor \
+    $(SCINTILLA_DIR)/src/Geometry \
+    $(SCINTILLA_DIR)/src/Indicator \
+    $(SCINTILLA_DIR)/src/KeyMap \
+    $(SCINTILLA_DIR)/src/LineMarker \
+    $(SCINTILLA_DIR)/src/MarginView \
+    $(SCINTILLA_DIR)/src/PerLine \
+    $(SCINTILLA_DIR)/src/PositionCache \
+    $(SCINTILLA_DIR)/src/RESearch \
+    $(SCINTILLA_DIR)/src/RunStyles \
+    $(SCINTILLA_DIR)/src/ScintillaBase \
+    $(SCINTILLA_DIR)/src/Selection \
+    $(SCINTILLA_DIR)/src/Style \
+    $(SCINTILLA_DIR)/src/UndoHistory \
+    $(SCINTILLA_DIR)/src/UniConversion \
+    $(SCINTILLA_DIR)/src/UniqueString \
+    $(SCINTILLA_DIR)/src/ViewStyle \
+    $(SCINTILLA_DIR)/src/XPM
+
+# AROS platform-specific files
+AROS_FILES := \
+    $(SCINTILLA_DIR)/aros/PlatAROS \
+    $(SCINTILLA_DIR)/aros/ScintillaAROS
+
+# Lexilla support library (lexlib)
+LEXLIB_FILES := \
+    $(LEXILLA_DIR)/lexlib/Accessor \
+    $(LEXILLA_DIR)/lexlib/CharacterCategory \
+    $(LEXILLA_DIR)/lexlib/CharacterSet \
+    $(LEXILLA_DIR)/lexlib/DefaultLexer \
+    $(LEXILLA_DIR)/lexlib/InList \
+    $(LEXILLA_DIR)/lexlib/LexAccessor \
+    $(LEXILLA_DIR)/lexlib/LexerBase \
+    $(LEXILLA_DIR)/lexlib/LexerModule \
+    $(LEXILLA_DIR)/lexlib/LexerSimple \
+    $(LEXILLA_DIR)/lexlib/PropSetSimple \
+    $(LEXILLA_DIR)/lexlib/StyleContext \
+    $(LEXILLA_DIR)/lexlib/WordList
+
+# Lexilla main entry point
+LEXILLA_SRC_FILES := \
+    $(LEXILLA_DIR)/src/Lexilla
+
+# Lexilla lexers (all available lexers)
+LEXER_FILES := \
+    $(LEXILLA_DIR)/lexers/LexA68k \
+    $(LEXILLA_DIR)/lexers/LexAPDL \
+    $(LEXILLA_DIR)/lexers/LexASY \
+    $(LEXILLA_DIR)/lexers/LexAU3 \
+    $(LEXILLA_DIR)/lexers/LexAVE \
+    $(LEXILLA_DIR)/lexers/LexAVS \
+    $(LEXILLA_DIR)/lexers/LexAbaqus \
+    $(LEXILLA_DIR)/lexers/LexAda \
+    $(LEXILLA_DIR)/lexers/LexAsciidoc \
+    $(LEXILLA_DIR)/lexers/LexAsm \
+    $(LEXILLA_DIR)/lexers/LexAsn1 \
+    $(LEXILLA_DIR)/lexers/LexBaan \
+    $(LEXILLA_DIR)/lexers/LexBash \
+    $(LEXILLA_DIR)/lexers/LexBasic \
+    $(LEXILLA_DIR)/lexers/LexBatch \
+    $(LEXILLA_DIR)/lexers/LexBibTeX \
+    $(LEXILLA_DIR)/lexers/LexBullant \
+    $(LEXILLA_DIR)/lexers/LexCIL \
+    $(LEXILLA_DIR)/lexers/LexCLW \
+    $(LEXILLA_DIR)/lexers/LexCOBOL \
+    $(LEXILLA_DIR)/lexers/LexCPP \
+    $(LEXILLA_DIR)/lexers/LexCSS \
+    $(LEXILLA_DIR)/lexers/LexCaml \
+    $(LEXILLA_DIR)/lexers/LexCmake \
+    $(LEXILLA_DIR)/lexers/LexCoffeeScript \
+    $(LEXILLA_DIR)/lexers/LexConf \
+    $(LEXILLA_DIR)/lexers/LexCrontab \
+    $(LEXILLA_DIR)/lexers/LexCsound \
+    $(LEXILLA_DIR)/lexers/LexD \
+    $(LEXILLA_DIR)/lexers/LexDMAP \
+    $(LEXILLA_DIR)/lexers/LexDMIS \
+    $(LEXILLA_DIR)/lexers/LexDart \
+    $(LEXILLA_DIR)/lexers/LexDataflex \
+    $(LEXILLA_DIR)/lexers/LexDiff \
+    $(LEXILLA_DIR)/lexers/LexECL \
+    $(LEXILLA_DIR)/lexers/LexEDIFACT \
+    $(LEXILLA_DIR)/lexers/LexEScript \
+    $(LEXILLA_DIR)/lexers/LexEiffel \
+    $(LEXILLA_DIR)/lexers/LexErlang \
+    $(LEXILLA_DIR)/lexers/LexErrorList \
+    $(LEXILLA_DIR)/lexers/LexFSharp \
+    $(LEXILLA_DIR)/lexers/LexFlagship \
+    $(LEXILLA_DIR)/lexers/LexForth \
+    $(LEXILLA_DIR)/lexers/LexFortran \
+    $(LEXILLA_DIR)/lexers/LexGAP \
+    $(LEXILLA_DIR)/lexers/LexGDScript \
+    $(LEXILLA_DIR)/lexers/LexGui4Cli \
+    $(LEXILLA_DIR)/lexers/LexHTML \
+    $(LEXILLA_DIR)/lexers/LexHaskell \
+    $(LEXILLA_DIR)/lexers/LexHex \
+    $(LEXILLA_DIR)/lexers/LexHollywood \
+    $(LEXILLA_DIR)/lexers/LexIndent \
+    $(LEXILLA_DIR)/lexers/LexInno \
+    $(LEXILLA_DIR)/lexers/LexJSON \
+    $(LEXILLA_DIR)/lexers/LexJulia \
+    $(LEXILLA_DIR)/lexers/LexKVIrc \
+    $(LEXILLA_DIR)/lexers/LexKix \
+    $(LEXILLA_DIR)/lexers/LexLaTeX \
+    $(LEXILLA_DIR)/lexers/LexLisp \
+    $(LEXILLA_DIR)/lexers/LexLout \
+    $(LEXILLA_DIR)/lexers/LexLua \
+    $(LEXILLA_DIR)/lexers/LexMMIXAL \
+    $(LEXILLA_DIR)/lexers/LexMPT \
+    $(LEXILLA_DIR)/lexers/LexMSSQL \
+    $(LEXILLA_DIR)/lexers/LexMagik \
+    $(LEXILLA_DIR)/lexers/LexMake \
+    $(LEXILLA_DIR)/lexers/LexMarkdown \
+    $(LEXILLA_DIR)/lexers/LexMatlab \
+    $(LEXILLA_DIR)/lexers/LexMaxima \
+    $(LEXILLA_DIR)/lexers/LexMetapost \
+    $(LEXILLA_DIR)/lexers/LexModula \
+    $(LEXILLA_DIR)/lexers/LexMySQL \
+    $(LEXILLA_DIR)/lexers/LexNim \
+    $(LEXILLA_DIR)/lexers/LexNimrod \
+    $(LEXILLA_DIR)/lexers/LexNix \
+    $(LEXILLA_DIR)/lexers/LexNsis \
+    $(LEXILLA_DIR)/lexers/LexNull \
+    $(LEXILLA_DIR)/lexers/LexOScript \
+    $(LEXILLA_DIR)/lexers/LexOpal \
+    $(LEXILLA_DIR)/lexers/LexPB \
+    $(LEXILLA_DIR)/lexers/LexPLM \
+    $(LEXILLA_DIR)/lexers/LexPO \
+    $(LEXILLA_DIR)/lexers/LexPOV \
+    $(LEXILLA_DIR)/lexers/LexPS \
+    $(LEXILLA_DIR)/lexers/LexPascal \
+    $(LEXILLA_DIR)/lexers/LexPerl \
+    $(LEXILLA_DIR)/lexers/LexPowerPro \
+    $(LEXILLA_DIR)/lexers/LexPowerShell \
+    $(LEXILLA_DIR)/lexers/LexProgress \
+    $(LEXILLA_DIR)/lexers/LexProps \
+    $(LEXILLA_DIR)/lexers/LexPython \
+    $(LEXILLA_DIR)/lexers/LexR \
+    $(LEXILLA_DIR)/lexers/LexRaku \
+    $(LEXILLA_DIR)/lexers/LexRebol \
+    $(LEXILLA_DIR)/lexers/LexRegistry \
+    $(LEXILLA_DIR)/lexers/LexRuby \
+    $(LEXILLA_DIR)/lexers/LexRust \
+    $(LEXILLA_DIR)/lexers/LexSAS \
+    $(LEXILLA_DIR)/lexers/LexSML \
+    $(LEXILLA_DIR)/lexers/LexSQL \
+    $(LEXILLA_DIR)/lexers/LexSTTXT \
+    $(LEXILLA_DIR)/lexers/LexScriptol \
+    $(LEXILLA_DIR)/lexers/LexSmalltalk \
+    $(LEXILLA_DIR)/lexers/LexSorcus \
+    $(LEXILLA_DIR)/lexers/LexSpecman \
+    $(LEXILLA_DIR)/lexers/LexSpice \
+    $(LEXILLA_DIR)/lexers/LexStata \
+    $(LEXILLA_DIR)/lexers/LexTACL \
+    $(LEXILLA_DIR)/lexers/LexTADS3 \
+    $(LEXILLA_DIR)/lexers/LexTAL \
+    $(LEXILLA_DIR)/lexers/LexTCL \
+    $(LEXILLA_DIR)/lexers/LexTCMD \
+    $(LEXILLA_DIR)/lexers/LexTOML \
+    $(LEXILLA_DIR)/lexers/LexTeX \
+    $(LEXILLA_DIR)/lexers/LexTroff \
+    $(LEXILLA_DIR)/lexers/LexTxt2tags \
+    $(LEXILLA_DIR)/lexers/LexVB \
+    $(LEXILLA_DIR)/lexers/LexVHDL \
+    $(LEXILLA_DIR)/lexers/LexVerilog \
+    $(LEXILLA_DIR)/lexers/LexVisualProlog \
+    $(LEXILLA_DIR)/lexers/LexX12 \
+    $(LEXILLA_DIR)/lexers/LexYAML \
+    $(LEXILLA_DIR)/lexers/LexZig
+
+FILES := $(CORE_FILES) $(AROS_FILES) $(LEXLIB_FILES) $(LEXILLA_SRC_FILES) $(LEXER_FILES)
+
+%build_linklib mmake=ports-text-scintilla \
+    libname=Scintilla cxxfiles=$(FILES)
+
+#-----------------------------------------------------------------------
+# Lexilla fetch
+#-----------------------------------------------------------------------
+
+LEXILLA_REPOSITORIES := https://www.scintilla.org https://github.com/ScintillaOrg/lexilla/releases/download/rel-5-4-3
+LEXILLA_ARCHBASE     := lexilla543
+
+%fetch mmake=ports-text-lexilla-fetch archive=$(LEXILLA_ARCHBASE) \
+    destination=$(PORTSDIR)/lexilla \
+    location=$(PORTSSOURCEDIR) \
+    archive_origins=$(LEXILLA_REPOSITORIES) \
+    suffixes="tgz"
+
+#-----------------------------------------------------------------------
+# Test application
+#-----------------------------------------------------------------------
+
+#MM  ports-text-scintilla-test : ports-text-scintilla workbench-libs-zunegfx
+
+TEST_CXXFLAGS := -std=c++17 \
+    -fexceptions \
+    -I$(SCINTILLA_DIR)/include \
+    -I$(SCINTILLA_DIR)/aros \
+    -I$(LEXILLA_DIR)/include
+
+TEST_FILES := $(SCINTILLA_DIR)/aros/test
+
+USER_CXXFLAGS := $(TEST_CXXFLAGS)
+
+%build_prog mmake=ports-text-scintilla-test progname=ScintillaTest \
+    cxxfiles=$(TEST_FILES) targetdir=$(AROS_TESTS)/Scintilla \
+    uselibs="Scintilla zunegfx stdc++"
+
+%common
