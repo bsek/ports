@@ -1,6 +1,6 @@
-diff --color -ruN clean/src/fx/FXFilter.cpp work/src/fx/FXFilter.cpp
---- clean/src/fx/FXFilter.cpp	1970-01-01 01:00:00
-+++ work/src/fx/FXFilter.cpp	2026-04-05 16:37:48
+diff -ruN MilkyTracker-1.05.01/src/fx/FXFilter.cpp MilkyTracker-1.05.01.aros/src/fx/FXFilter.cpp
+--- MilkyTracker-1.05.01/src/fx/FXFilter.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/FXFilter.cpp	2026-04-26 10:15:30.150472547 +0200
 @@ -0,0 +1,609 @@
 +/*
 + *  fx/Filter.cpp
@@ -611,9 +611,9 @@ diff --color -ruN clean/src/fx/FXFilter.cpp work/src/fx/FXFilter.cpp
 +		}
 +
 +}
-diff --color -ruN clean/src/fx/FXFilter.h work/src/fx/FXFilter.h
---- clean/src/fx/FXFilter.h	1970-01-01 01:00:00
-+++ work/src/fx/FXFilter.h	2026-04-05 16:37:38
+diff -ruN MilkyTracker-1.05.01/src/fx/FXFilter.h MilkyTracker-1.05.01.aros/src/fx/FXFilter.h
+--- MilkyTracker-1.05.01/src/fx/FXFilter.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/FXFilter.h	2026-04-26 10:15:30.150508304 +0200
 @@ -0,0 +1,70 @@
 +/*
 + *  fx/Filter.h
@@ -685,9 +685,9 @@ diff --color -ruN clean/src/fx/FXFilter.h work/src/fx/FXFilter.h
 +};
 +
 +#endif
-diff --color -ruN clean/src/fx/ParticleBlobs.cpp work/src/fx/ParticleBlobs.cpp
---- clean/src/fx/ParticleBlobs.cpp	2024-11-28 10:44:05
-+++ work/src/fx/ParticleBlobs.cpp	2026-04-05 16:38:02
+diff -ruN MilkyTracker-1.05.01/src/fx/ParticleBlobs.cpp MilkyTracker-1.05.01.aros/src/fx/ParticleBlobs.cpp
+--- MilkyTracker-1.05.01/src/fx/ParticleBlobs.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/ParticleBlobs.cpp	2026-04-26 10:15:30.150537979 +0200
 @@ -22,7 +22,7 @@
  
  #include "ParticleBlobs.h"
@@ -708,9 +708,9 @@ diff --color -ruN clean/src/fx/ParticleBlobs.cpp work/src/fx/ParticleBlobs.cpp
 +	//FXFilter::applyRadial(vscreen, this->width, this->height, pitch, this->width>>1, this->height>>1, 8192, 1);
  
  }
-diff --color -ruN clean/src/fx/PictureGlow.h work/src/fx/PictureGlow.h
---- clean/src/fx/PictureGlow.h	2024-11-28 10:44:05
-+++ work/src/fx/PictureGlow.h	2026-04-05 16:38:14
+diff -ruN MilkyTracker-1.05.01/src/fx/PictureGlow.h MilkyTracker-1.05.01.aros/src/fx/PictureGlow.h
+--- MilkyTracker-1.05.01/src/fx/PictureGlow.h	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/PictureGlow.h	2026-04-26 10:15:30.149621066 +0200
 @@ -24,7 +24,7 @@
  #define PICTUREGLOW__H
  
@@ -729,9 +729,9 @@ diff --color -ruN clean/src/fx/PictureGlow.h work/src/fx/PictureGlow.h
  	}
  
  	virtual void update(float syncFrac) { scale-=(int)(syncFrac*1024.0f); if (scale < 0) scale = 0; }
-diff --color -ruN clean/src/fx/TCBSplineTest.cpp work/src/fx/TCBSplineTest.cpp
---- clean/src/fx/TCBSplineTest.cpp	2024-11-28 10:44:05
-+++ work/src/fx/TCBSplineTest.cpp	2026-04-05 16:38:25
+diff -ruN MilkyTracker-1.05.01/src/fx/TCBSplineTest.cpp MilkyTracker-1.05.01.aros/src/fx/TCBSplineTest.cpp
+--- MilkyTracker-1.05.01/src/fx/TCBSplineTest.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/TCBSplineTest.cpp	2026-04-26 10:15:30.149919904 +0200
 @@ -24,7 +24,7 @@
  #include "TCBSplineTest.h"
  #include "TCBSpline.h"
@@ -750,9 +750,9 @@ diff --color -ruN clean/src/fx/TCBSplineTest.cpp work/src/fx/TCBSplineTest.cpp
  
  }
  
-diff --color -ruN clean/src/fx/TexturedGrid.cpp work/src/fx/TexturedGrid.cpp
---- clean/src/fx/TexturedGrid.cpp	2024-11-28 10:44:05
-+++ work/src/fx/TexturedGrid.cpp	2026-04-05 16:38:37
+diff -ruN MilkyTracker-1.05.01/src/fx/TexturedGrid.cpp MilkyTracker-1.05.01.aros/src/fx/TexturedGrid.cpp
+--- MilkyTracker-1.05.01/src/fx/TexturedGrid.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/fx/TexturedGrid.cpp	2026-04-26 10:15:30.150069514 +0200
 @@ -22,7 +22,7 @@
  
  #include "TexturedGrid.h"
@@ -783,10 +783,37 @@ diff --color -ruN clean/src/fx/TexturedGrid.cpp work/src/fx/TexturedGrid.cpp
  
  	//Filter<160,120>::applyBoxed(vscreen, buffer, 4);
  
-diff --color -ruN clean/src/milkyplay/AudioDriverManager.cpp work/src/milkyplay/AudioDriverManager.cpp
---- clean/src/milkyplay/AudioDriverManager.cpp	2024-11-28 10:44:05
-+++ work/src/milkyplay/AudioDriverManager.cpp	2026-04-05 16:37:11
-@@ -188,6 +188,22 @@
+diff -ruN MilkyTracker-1.05.01/src/milkyplay/AudioDriverBase.cpp MilkyTracker-1.05.01.aros/src/milkyplay/AudioDriverBase.cpp
+--- MilkyTracker-1.05.01/src/milkyplay/AudioDriverBase.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/milkyplay/AudioDriverBase.cpp	2026-04-26 10:15:30.155523877 +0200
+@@ -40,6 +40,8 @@
+ 
+ #if defined(__PSP__)
+ #include <pspkernel.h>
++#elif defined(__AROS__)
++#include <proto/dos.h>
+ #elif !defined(WIN32) && !defined(_WIN32_WCE)
+ #include <unistd.h>
+ #else
+@@ -53,9 +55,11 @@
+ #elif defined(__PSP__)
+ 	sceKernelDelayThreadCB(msecs*1000);
+ #elif defined(__AROS__)
+-	// usleep is not implemented on AROS
+-	if(msecs < 1000) msecs = 1000;
+-	sleep(msecs/1000);
++	// Delay() takes ticks of 1/50 second (20ms granularity).
++	// Round up so a 10ms request sleeps ~20ms, not a full second.
++	ULONG ticks = (msecs * TICKS_PER_SECOND + 999) / 1000;
++	if (ticks < 1) ticks = 1;
++	Delay(ticks);
+ #else
+ 	usleep(msecs*1000);
+ #endif
+diff -ruN MilkyTracker-1.05.01/src/milkyplay/AudioDriverManager.cpp MilkyTracker-1.05.01.aros/src/milkyplay/AudioDriverManager.cpp
+--- MilkyTracker-1.05.01/src/milkyplay/AudioDriverManager.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/milkyplay/AudioDriverManager.cpp	2026-04-26 10:15:30.151354275 +0200
+@@ -188,6 +188,30 @@
  	driverList[0] = new AudioDriver_SDL();
  }
  
@@ -802,16 +829,38 @@ diff --color -ruN clean/src/milkyplay/AudioDriverManager.cpp work/src/milkyplay/
 +	defaultDriverIndex(0)
 +{
 +	ALLOC_DRIVERLIST(1);
-+	ahiDriver = new AudioDriver_AHI();
++	// AHI driver is a process-wide singleton: AROS_Main.cpp owns the
++	// global pointer and uses it to dispatch pump() / getSignalMask()
++	// from the main event loop.  Multiple AudioDriverManager instances
++	// can be created (e.g. by transient MasterMixers spawned during
++	// module loading for song-length estimation), so we must not
++	// overwrite the global or hand ownership to driverList — otherwise
++	// the manager's destructor would tear down the live audio device.
++	if (!ahiDriver)
++		ahiDriver = new AudioDriver_AHI();
 +	driverList[0] = ahiDriver;
 +}
 +
  #elif defined(DRIVER_PSP)
  //////////////////////////////////////////////////////////////////
  //					 	PSP implementation
-diff --color -ruN clean/src/milkyplay/MilkyPlayCommon.h work/src/milkyplay/MilkyPlayCommon.h
---- clean/src/milkyplay/MilkyPlayCommon.h	2024-11-28 10:44:05
-+++ work/src/milkyplay/MilkyPlayCommon.h	2026-04-05 16:36:44
+@@ -223,7 +247,13 @@
+ 
+ AudioDriverManager::~AudioDriverManager()
+ {
++#if defined(DRIVER_AROS)
++	// Don't delete the AHI singleton — it's owned globally and
++	// referenced by AROS_Main's event loop.  Just free the list.
++	delete[] driverList;
++#else
+ 	CLEANUP_DRIVERLIST;
++#endif
+ }
+ 
+ AudioDriverInterface* AudioDriverManager::getAudioDriverByName(const char* name)
+diff -ruN MilkyTracker-1.05.01/src/milkyplay/MilkyPlayCommon.h MilkyTracker-1.05.01.aros/src/milkyplay/MilkyPlayCommon.h
+--- MilkyTracker-1.05.01/src/milkyplay/MilkyPlayCommon.h	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/milkyplay/MilkyPlayCommon.h	2026-04-26 10:15:30.151432221 +0200
 @@ -99,6 +99,8 @@
  	#define DRIVER_PSP
  #elif defined(__HAIKU__) && !defined(__FORCE_SDL_AUDIO__)
@@ -821,33 +870,40 @@ diff --color -ruN clean/src/milkyplay/MilkyPlayCommon.h work/src/milkyplay/Milky
  #else
  	#define DRIVER_SDL
  #endif
-diff --color -ruN clean/src/tracker/ModuleEditor.cpp work/src/tracker/ModuleEditor.cpp
---- clean/src/tracker/ModuleEditor.cpp	2024-11-28 10:44:05
-+++ work/src/tracker/ModuleEditor.cpp	2026-04-07 07:30:24
-@@ -714,16 +714,11 @@
- 	
- 		PPSystemString tempFile(getTempFilename());
- 	
--		try
--		{
--			res = module->saveExtendedModule(tempFile) == MP_OK;
--			if(!res)
--				return res;
-+		res = module->saveExtendedModule(tempFile) == MP_OK;
-+		if(!res)
-+			return res;
+diff -ruN MilkyTracker-1.05.01/src/ppui/osinterface/PPPathFactory.cpp MilkyTracker-1.05.01.aros/src/ppui/osinterface/PPPathFactory.cpp
+--- MilkyTracker-1.05.01/src/ppui/osinterface/PPPathFactory.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/ppui/osinterface/PPPathFactory.cpp	2026-04-26 10:15:30.160330729 +0200
+@@ -31,7 +31,26 @@
+ #include "PPPathFactory.h"
+ #include "BasicTypes.h"
  
--			res = module->loadModule(tempFile) == MP_OK;
--		} catch (const std::bad_alloc &) {
--			return false;
--		}
-+		res = module->loadModule(tempFile) == MP_OK;
- 	
- 		// restore one shot looping flag
- 		if (type == XModule::ModuleType_MOD)
-diff --color -ruN clean/src/tracker/aros/AROS_KeyTranslation.cpp work/src/tracker/aros/AROS_KeyTranslation.cpp
---- clean/src/tracker/aros/AROS_KeyTranslation.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AROS_KeyTranslation.cpp	2026-04-05 16:39:34
+-#if !defined(__PPUI_WINDOWS__)
++#if defined(__AROS__)
++
++#include "../../tracker/aros/PPPath_Amiga.h"
++
++PPPathEntry* PPPathFactory::createPathEntry()
++{
++	return new PPPathEntry_Amiga();
++}
++
++PPPath* PPPathFactory::createPath()
++{
++	return new PPPath_Amiga();
++}
++
++PPPath* PPPathFactory::createPathFromString(const PPSystemString& path)
++{
++	return new PPPath_Amiga(path);
++}
++
++#elif !defined(__PPUI_WINDOWS__)
+ 
+ #include "PPPath_POSIX.h"
+ 
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AROS_KeyTranslation.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_KeyTranslation.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/AROS_KeyTranslation.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_KeyTranslation.cpp	2026-04-26 10:15:30.164569831 +0200
 @@ -0,0 +1,255 @@
 +/*
 + *  tracker/aros/AROS_KeyTranslation.cpp
@@ -1104,9 +1160,9 @@ diff --color -ruN clean/src/tracker/aros/AROS_KeyTranslation.cpp work/src/tracke
 +		default: return 0;
 +	}
 +}
-diff --color -ruN clean/src/tracker/aros/AROS_KeyTranslation.h work/src/tracker/aros/AROS_KeyTranslation.h
---- clean/src/tracker/aros/AROS_KeyTranslation.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AROS_KeyTranslation.h	2026-04-05 16:39:34
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AROS_KeyTranslation.h MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_KeyTranslation.h
+--- MilkyTracker-1.05.01/src/tracker/aros/AROS_KeyTranslation.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_KeyTranslation.h	2026-04-26 10:15:30.164598805 +0200
 @@ -0,0 +1,32 @@
 +/*
 + *  tracker/aros/AROS_KeyTranslation.h
@@ -1140,10 +1196,10 @@ diff --color -ruN clean/src/tracker/aros/AROS_KeyTranslation.h work/src/tracker/
 +char      toChar(pp_uint16 rawkey, pp_uint16 qualifier);
 +
 +#endif
-diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/AROS_Main.cpp
---- clean/src/tracker/aros/AROS_Main.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AROS_Main.cpp	2026-04-07 07:36:56
-@@ -0,0 +1,338 @@
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AROS_Main.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_Main.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/AROS_Main.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_Main.cpp	2026-04-26 10:15:30.165030552 +0200
+@@ -0,0 +1,366 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -1228,7 +1284,14 @@ diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/ARO
 +	if (!TimerBase) return 0;
 +	struct timeval tv;
 +	GetSysTime(&tv);
-+	return ((tv.tv_secs - baseTime.tv_secs) * 1000) + ((tv.tv_micro - baseTime.tv_micro) / 1000);
++	// Signed-safe elapsed milliseconds since baseTime.
++	// Naive unsigned subtraction underflows tv_micro on second boundaries
++	// and breaks double-click / mouse-repeat timing.
++	LONG dsec  = (LONG)tv.tv_secs  - (LONG)baseTime.tv_secs;
++	LONG dusec = (LONG)tv.tv_micro - (LONG)baseTime.tv_micro;
++	if (dusec < 0) { dusec += 1000000; dsec -= 1; }
++	if (dsec < 0) return 0;
++	return (pp_uint32)(dsec * 1000 + dusec / 1000);
 +}
 +
 +static void scheduleTimerTick()
@@ -1277,8 +1340,13 @@ diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/ARO
 +	PPPoint p(x, y);
 +	if (btn == 1) {
 +		bool dbl = (now - lastClickTime < DBLCLICK_MS) && (abs(x - lastClickX) < DBLCLICK_DIST) && (abs(y - lastClickY) < DBLCLICK_DIST);
-+		PPEvent e(dbl ? eLMouseDoubleClick : eLMouseDown, &p, sizeof(p));
-+		RaiseEventSerialized(e);
++		// Always raise eLMouseDown so the container establishes caughtControl;
++		// then additionally raise eLMouseDoubleClick when applicable.  The
++		// PPUI Container only dispatches double-click events to a caught or
++		// focused control, so skipping the second eLMouseDown drops them on
++		// the floor.
++		{ PPEvent e(eLMouseDown, &p, sizeof(p)); RaiseEventSerialized(e); }
++		if (dbl) { PPEvent e(eLMouseDoubleClick, &p, sizeof(p)); RaiseEventSerialized(e); }
 +		lastClickX = x; lastClickY = y; lastClickTime = now; lastLBtnTime = now; lBtnDown = true;
 +	} else if (btn == 2) {
 +		PPEvent e(eRMouseDown, &p, sizeof(p)); RaiseEventSerialized(e);
@@ -1352,7 +1420,18 @@ diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/ARO
 +		myDisplayDevice->adjust(sx, sy);
 +
 +		switch (cls) {
-+		case IDCMP_CLOSEWINDOW: { PPEvent e(eAppQuit); RaiseEventSerialized(e); break; }
++		case IDCMP_CLOSEWINDOW: {
++			PPEvent e(eAppQuit);
++			RaiseEventSerialized(e);
++			// eAppQuit alone is unhandled in the codebase.  The SDL port
++			// follows up with myTracker->shutDown() which runs the
++			// "save changes?" dialog and returns true if the user confirmed.
++			if (globalMutex) globalMutex->lock();
++			bool ok = myTracker->shutDown();
++			if (globalMutex) globalMutex->unlock();
++			if (ok) running = false;
++			break;
++		}
 +		case IDCMP_MOUSEMOVE: if (sx >= 0 && sy >= 0) handleMouseMove(sx, sy); break;
 +		case IDCMP_MOUSEBUTTONS:
 +			switch (code) {
@@ -1471,6 +1550,11 @@ diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/ARO
 +	delete myTracker; myTracker = NULL;
 +	delete myTrackerScreen; myTrackerScreen = NULL;
 +	delete myDisplayDevice; myDisplayDevice = NULL;
++	// AHI driver is a process-wide singleton (kept alive across
++	// transient AudioDriverManagers).  Tear it down explicitly here so
++	// the AHI device is closed and its msgport/IORequests/buffers are
++	// freed before the executable is unloaded.
++	if (ahiDriver) { delete ahiDriver; ahiDriver = NULL; }
 +	delete globalMutex; globalMutex = NULL;
 +	closeTimer();
 +}
@@ -1482,9 +1566,9 @@ diff --color -ruN clean/src/tracker/aros/AROS_Main.cpp work/src/tracker/aros/ARO
 +	shutdownTracker();
 +	return 0;
 +}
-diff --color -ruN clean/src/tracker/aros/AROS_ModalLoop.cpp work/src/tracker/aros/AROS_ModalLoop.cpp
---- clean/src/tracker/aros/AROS_ModalLoop.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AROS_ModalLoop.cpp	2026-04-05 16:45:02
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AROS_ModalLoop.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_ModalLoop.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/AROS_ModalLoop.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_ModalLoop.cpp	2026-04-26 10:15:30.164625165 +0200
 @@ -0,0 +1,37 @@
 +#include "AROS_ModalLoop.h"
 +#include "Event.h"
@@ -1523,9 +1607,9 @@ diff --color -ruN clean/src/tracker/aros/AROS_ModalLoop.cpp work/src/tracker/aro
 +
 +	return modalLoopResponder.getReturnCode();
 +}
-diff --color -ruN clean/src/tracker/aros/AROS_ModalLoop.h work/src/tracker/aros/AROS_ModalLoop.h
---- clean/src/tracker/aros/AROS_ModalLoop.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AROS_ModalLoop.h	2026-04-05 16:39:34
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AROS_ModalLoop.h MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_ModalLoop.h
+--- MilkyTracker-1.05.01/src/tracker/aros/AROS_ModalLoop.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AROS_ModalLoop.h	2026-04-26 10:15:30.164652445 +0200
 @@ -0,0 +1,93 @@
 +/*
 + *  tracker/aros/AROS_ModalLoop.h
@@ -1620,10 +1704,10 @@ diff --color -ruN clean/src/tracker/aros/AROS_ModalLoop.h work/src/tracker/aros/
 +PPModalDialog::ReturnCodes AROS_runModalLoop(PPScreen* screen, PPDialogBase* dialog);
 +
 +#endif
-diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.cpp work/src/tracker/aros/AudioDriver_AHI.cpp
---- clean/src/tracker/aros/AudioDriver_AHI.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AudioDriver_AHI.cpp	2026-04-05 16:41:45
-@@ -0,0 +1,126 @@
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AudioDriver_AHI.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/AudioDriver_AHI.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/AudioDriver_AHI.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AudioDriver_AHI.cpp	2026-04-26 10:16:31.665606833 +0200
+@@ -0,0 +1,128 @@
 +#include "AudioDriver_AHI.h"
 +#include "MasterMixer.h"
 +#include <proto/exec.h>
@@ -1686,6 +1770,7 @@ diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.cpp work/src/tracker/ar
 +{
 +	if (!deviceOpen || playing) return MP_OK;
 +	playing = true;
++	deviceHasStarted = true;
 +
 +	fillAudioWithCompensation((char *)sampleBuffer[0], bufferSizeBytes);
 +	ahiReq[0]->ahir_Std.io_Command = CMD_WRITE;
@@ -1718,6 +1803,7 @@ diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.cpp work/src/tracker/ar
 +{
 +	if (!playing) return MP_OK;
 +	playing = false;
++	deviceHasStarted = false;
 +	if (deviceOpen) {
 +		AbortIO((struct IORequest *)ahiReq[0]); WaitIO((struct IORequest *)ahiReq[0]);
 +		AbortIO((struct IORequest *)ahiReq[1]); WaitIO((struct IORequest *)ahiReq[1]);
@@ -1750,9 +1836,9 @@ diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.cpp work/src/tracker/ar
 +		SendIO((struct IORequest *)ahiReq[buf]);
 +	}
 +}
-diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.h work/src/tracker/aros/AudioDriver_AHI.h
---- clean/src/tracker/aros/AudioDriver_AHI.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/AudioDriver_AHI.h	2026-04-05 16:40:55
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/AudioDriver_AHI.h MilkyTracker-1.05.01.aros/src/tracker/aros/AudioDriver_AHI.h
+--- MilkyTracker-1.05.01/src/tracker/aros/AudioDriver_AHI.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/AudioDriver_AHI.h	2026-04-26 10:15:30.164678624 +0200
 @@ -0,0 +1,37 @@
 +#ifndef __AUDIODRIVER_AHI_H__
 +#define __AUDIODRIVER_AHI_H__
@@ -1791,9 +1877,9 @@ diff --color -ruN clean/src/tracker/aros/AudioDriver_AHI.h work/src/tracker/aros
 +};
 +
 +#endif
-diff --color -ruN clean/src/tracker/aros/DisplayDevice_AROS.cpp work/src/tracker/aros/DisplayDevice_AROS.cpp
---- clean/src/tracker/aros/DisplayDevice_AROS.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/DisplayDevice_AROS.cpp	2026-04-07 07:41:31
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/DisplayDevice_AROS.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/DisplayDevice_AROS.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/DisplayDevice_AROS.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/DisplayDevice_AROS.cpp	2026-04-26 10:15:30.164706406 +0200
 @@ -0,0 +1,131 @@
 +#include "DisplayDevice_AROS.h"
 +#include "Graphics.h"
@@ -1926,9 +2012,9 @@ diff --color -ruN clean/src/tracker/aros/DisplayDevice_AROS.cpp work/src/tracker
 +	pitch = newSize.width * 4;
 +	pixelBuffer = (pp_uint8 *)AllocVec(pitch * newSize.height, MEMF_ANY | MEMF_CLEAR);
 +}
-diff --color -ruN clean/src/tracker/aros/DisplayDevice_AROS.h work/src/tracker/aros/DisplayDevice_AROS.h
---- clean/src/tracker/aros/DisplayDevice_AROS.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/DisplayDevice_AROS.h	2026-04-07 07:40:58
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/DisplayDevice_AROS.h MilkyTracker-1.05.01.aros/src/tracker/aros/DisplayDevice_AROS.h
+--- MilkyTracker-1.05.01/src/tracker/aros/DisplayDevice_AROS.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/DisplayDevice_AROS.h	2026-04-26 10:15:30.164739488 +0200
 @@ -0,0 +1,40 @@
 +#ifndef __DISPLAYDEVICE_AROS_H__
 +#define __DISPLAYDEVICE_AROS_H__
@@ -1970,9 +2056,166 @@ diff --color -ruN clean/src/tracker/aros/DisplayDevice_AROS.h work/src/tracker/a
 +};
 +
 +#endif
-diff --color -ruN clean/src/tracker/aros/PPPath_Amiga.cpp work/src/tracker/aros/PPPath_Amiga.cpp
---- clean/src/tracker/aros/PPPath_Amiga.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPPath_Amiga.cpp	2026-04-16 12:00:00
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPMessageBox_AROS.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPMessageBox_AROS.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPMessageBox_AROS.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPMessageBox_AROS.cpp	2026-04-26 10:15:30.164531580 +0200
+@@ -0,0 +1,18 @@
++#include "PPMessageBox.h"
++#include "AROS_ModalLoop.h"
++#include "DialogBase.h"
++
++PPMessageBox::ReturnCodes PPMessageBox::runModal()
++{
++	char* captionASCIIZ = this->caption.toASCIIZ();
++	char* contentASCIIZ = this->content.toASCIIZ();
++	PPString caption(captionASCIIZ);
++	PPString content(contentASCIIZ);
++	delete[] captionASCIIZ;
++	delete[] contentASCIIZ;
++
++	PPDialogBase* dialog = new PPDialogBase(screen, NULL, PP_DEFAULT_ID, caption, content);
++	ReturnCodes result = AROS_runModalLoop(screen, dialog);
++	delete dialog;
++	return result;
++}
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPMutex.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPMutex.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPMutex.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPMutex.cpp	2026-04-26 10:15:30.164827282 +0200
+@@ -0,0 +1,43 @@
++/*
++ *  tracker/aros/PPMutex.cpp
++ *
++ *  Copyright 2024 AROS port
++ *
++ *  This file is part of Milkytracker.
++ *
++ *  Milkytracker is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  Milkytracker is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with Milkytracker.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#include "PPMutex.h"
++
++PPMutex::PPMutex()
++{
++	InitSemaphore(&semaphore);
++}
++
++PPMutex::~PPMutex()
++{
++	/* Nothing to clean up for AROS semaphores */
++}
++
++void PPMutex::lock()
++{
++	ObtainSemaphore(&semaphore);
++}
++
++void PPMutex::unlock()
++{
++	ReleaseSemaphore(&semaphore);
++}
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPMutex.h MilkyTracker-1.05.01.aros/src/tracker/aros/PPMutex.h
+--- MilkyTracker-1.05.01/src/tracker/aros/PPMutex.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPMutex.h	2026-04-26 10:15:30.164853702 +0200
+@@ -0,0 +1,42 @@
++/*
++ *  tracker/aros/PPMutex.h
++ *
++ *  Copyright 2024 AROS port
++ *
++ *  This file is part of Milkytracker.
++ *
++ *  Milkytracker is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  Milkytracker is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with Milkytracker.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#ifndef PPMUTEX__H
++#define PPMUTEX__H
++
++#include <exec/semaphores.h>
++#include <proto/exec.h>
++
++class PPMutex
++{
++private:
++	struct SignalSemaphore semaphore;
++
++public:
++	PPMutex();
++	~PPMutex();
++
++	void lock();
++	void unlock();
++};
++
++#endif
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPOpenPanel_AROS.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPOpenPanel_AROS.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPOpenPanel_AROS.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPOpenPanel_AROS.cpp	2026-04-26 10:15:30.164880421 +0200
+@@ -0,0 +1,38 @@
++#include "PPOpenPanel.h"
++#include "AROS_ModalLoop.h"
++#include "DialogFileSelector.h"
++
++PPOpenPanel::PPOpenPanel(PPScreen* screen, const char* caption) :
++	PPModalDialog(screen)
++{
++	this->caption = new char[strlen(caption)+1];
++	strcpy(this->caption, caption);
++}
++
++PPOpenPanel::~PPOpenPanel()
++{
++	if (caption)
++		delete[] caption;
++}
++
++void PPOpenPanel::addExtension(const PPString& ext, const PPString& desc)
++{
++	Descriptor* d = new Descriptor(ext, desc);
++	items.add(d);
++}
++
++PPOpenPanel::ReturnCodes PPOpenPanel::runModal()
++{
++	DialogFileSelector* dialog = new DialogFileSelector(screen, NULL, PP_DEFAULT_ID, this->caption);
++	for (pp_int32 i = 0; i < items.size(); i++)
++	{
++		PPSystemString ext(items.get(i)->extension);
++		PPSystemString desc(items.get(i)->description);
++		dialog->addExtension(ext, desc);
++	}
++	ReturnCodes result = AROS_runModalLoop(screen, dialog);
++	PPSystemString pathEntry(dialog->getSelectedPathFull());
++	delete dialog;
++	fileName = ((result == ReturnCodeOK) ? pathEntry : "");
++	return result;
++}
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPPath_Amiga.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPPath_Amiga.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPPath_Amiga.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPPath_Amiga.cpp	2026-04-26 10:15:30.164767871 +0200
 @@ -0,0 +1,298 @@
 +/*
 + *  ppui/osinterface/amiga/PPPath_Amiga.cpp
@@ -2272,9 +2515,9 @@ diff --color -ruN clean/src/tracker/aros/PPPath_Amiga.cpp work/src/tracker/aros/
 +{
 +    return current.charAt(current.length() - 1) == ':';
 +}
-diff --color -ruN clean/src/tracker/aros/PPPath_Amiga.h work/src/tracker/aros/PPPath_Amiga.h
---- clean/src/tracker/aros/PPPath_Amiga.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPPath_Amiga.h	2026-04-16 12:00:00
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPPath_Amiga.h MilkyTracker-1.05.01.aros/src/tracker/aros/PPPath_Amiga.h
+--- MilkyTracker-1.05.01/src/tracker/aros/PPPath_Amiga.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPPath_Amiga.h	2026-04-26 10:15:30.164799671 +0200
 @@ -0,0 +1,79 @@
 +/*
 + *  ppui/osinterface/amiga/PPPath_Amiga.h
@@ -2355,197 +2598,9 @@ diff --color -ruN clean/src/tracker/aros/PPPath_Amiga.h work/src/tracker/aros/PP
 +};
 +
 +#endif
-diff --color -ruN clean/src/ppui/osinterface/PPPathFactory.cpp work/src/ppui/osinterface/PPPathFactory.cpp
---- clean/src/ppui/osinterface/PPPathFactory.cpp	2024-11-28 11:44:00
-+++ work/src/ppui/osinterface/PPPathFactory.cpp	2026-04-16 12:00:00
-@@ -31,7 +31,26 @@
- #include "PPPathFactory.h"
- #include "BasicTypes.h"
-
--#if !defined(__PPUI_WINDOWS__)
-+#if defined(__AROS__)
-+
-+#include "../../tracker/aros/PPPath_Amiga.h"
-+
-+PPPathEntry* PPPathFactory::createPathEntry()
-+{
-+	return new PPPathEntry_Amiga();
-+}
-+
-+PPPath* PPPathFactory::createPath()
-+{
-+	return new PPPath_Amiga();
-+}
-+
-+PPPath* PPPathFactory::createPathFromString(const PPSystemString& path)
-+{
-+	return new PPPath_Amiga(path);
-+}
-+
-+#elif !defined(__PPUI_WINDOWS__)
-
- #include "PPPath_POSIX.h"
-
-diff --color -ruN clean/src/tracker/aros/PPMessageBox_AROS.cpp work/src/tracker/aros/PPMessageBox_AROS.cpp
---- clean/src/tracker/aros/PPMessageBox_AROS.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPMessageBox_AROS.cpp	2026-04-05 16:40:04
-@@ -0,0 +1,18 @@
-+#include "PPMessageBox.h"
-+#include "AROS_ModalLoop.h"
-+#include "DialogBase.h"
-+
-+PPMessageBox::ReturnCodes PPMessageBox::runModal()
-+{
-+	char* captionASCIIZ = this->caption.toASCIIZ();
-+	char* contentASCIIZ = this->content.toASCIIZ();
-+	PPString caption(captionASCIIZ);
-+	PPString content(contentASCIIZ);
-+	delete[] captionASCIIZ;
-+	delete[] contentASCIIZ;
-+
-+	PPDialogBase* dialog = new PPDialogBase(screen, NULL, PP_DEFAULT_ID, caption, content);
-+	ReturnCodes result = AROS_runModalLoop(screen, dialog);
-+	delete dialog;
-+	return result;
-+}
-diff --color -ruN clean/src/tracker/aros/PPMutex.cpp work/src/tracker/aros/PPMutex.cpp
---- clean/src/tracker/aros/PPMutex.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPMutex.cpp	2026-04-05 16:39:34
-@@ -0,0 +1,43 @@
-+/*
-+ *  tracker/aros/PPMutex.cpp
-+ *
-+ *  Copyright 2024 AROS port
-+ *
-+ *  This file is part of Milkytracker.
-+ *
-+ *  Milkytracker is free software: you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation, either version 3 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  Milkytracker is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with Milkytracker.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include "PPMutex.h"
-+
-+PPMutex::PPMutex()
-+{
-+	InitSemaphore(&semaphore);
-+}
-+
-+PPMutex::~PPMutex()
-+{
-+	/* Nothing to clean up for AROS semaphores */
-+}
-+
-+void PPMutex::lock()
-+{
-+	ObtainSemaphore(&semaphore);
-+}
-+
-+void PPMutex::unlock()
-+{
-+	ReleaseSemaphore(&semaphore);
-+}
-diff --color -ruN clean/src/tracker/aros/PPMutex.h work/src/tracker/aros/PPMutex.h
---- clean/src/tracker/aros/PPMutex.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPMutex.h	2026-04-05 16:39:34
-@@ -0,0 +1,42 @@
-+/*
-+ *  tracker/aros/PPMutex.h
-+ *
-+ *  Copyright 2024 AROS port
-+ *
-+ *  This file is part of Milkytracker.
-+ *
-+ *  Milkytracker is free software: you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation, either version 3 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  Milkytracker is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with Milkytracker.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#ifndef PPMUTEX__H
-+#define PPMUTEX__H
-+
-+#include <exec/semaphores.h>
-+#include <proto/exec.h>
-+
-+class PPMutex
-+{
-+private:
-+	struct SignalSemaphore semaphore;
-+
-+public:
-+	PPMutex();
-+	~PPMutex();
-+
-+	void lock();
-+	void unlock();
-+};
-+
-+#endif
-diff --color -ruN clean/src/tracker/aros/PPOpenPanel_AROS.cpp work/src/tracker/aros/PPOpenPanel_AROS.cpp
---- clean/src/tracker/aros/PPOpenPanel_AROS.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPOpenPanel_AROS.cpp	2026-04-05 16:40:15
-@@ -0,0 +1,38 @@
-+#include "PPOpenPanel.h"
-+#include "AROS_ModalLoop.h"
-+#include "DialogFileSelector.h"
-+
-+PPOpenPanel::PPOpenPanel(PPScreen* screen, const char* caption) :
-+	PPModalDialog(screen)
-+{
-+	this->caption = new char[strlen(caption)+1];
-+	strcpy(this->caption, caption);
-+}
-+
-+PPOpenPanel::~PPOpenPanel()
-+{
-+	if (caption)
-+		delete[] caption;
-+}
-+
-+void PPOpenPanel::addExtension(const PPString& ext, const PPString& desc)
-+{
-+	Descriptor* d = new Descriptor(ext, desc);
-+	items.add(d);
-+}
-+
-+PPOpenPanel::ReturnCodes PPOpenPanel::runModal()
-+{
-+	DialogFileSelector* dialog = new DialogFileSelector(screen, NULL, PP_DEFAULT_ID, this->caption);
-+	for (pp_int32 i = 0; i < items.size(); i++)
-+	{
-+		PPSystemString ext(items.get(i)->extension);
-+		PPSystemString desc(items.get(i)->description);
-+		dialog->addExtension(ext, desc);
-+	}
-+	ReturnCodes result = AROS_runModalLoop(screen, dialog);
-+	PPSystemString pathEntry(dialog->getSelectedPathFull());
-+	delete dialog;
-+	fileName = ((result == ReturnCodeOK) ? pathEntry : "");
-+	return result;
-+}
-diff --color -ruN clean/src/tracker/aros/PPQuitSaveAlert_AROS.cpp work/src/tracker/aros/PPQuitSaveAlert_AROS.cpp
---- clean/src/tracker/aros/PPQuitSaveAlert_AROS.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPQuitSaveAlert_AROS.cpp	2026-04-05 16:40:37
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPQuitSaveAlert_AROS.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPQuitSaveAlert_AROS.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPQuitSaveAlert_AROS.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPQuitSaveAlert_AROS.cpp	2026-04-26 10:15:30.164907622 +0200
 @@ -0,0 +1,11 @@
 +#include "PPQuitSaveAlert.h"
 +#include "AROS_ModalLoop.h"
@@ -2558,9 +2613,9 @@ diff --color -ruN clean/src/tracker/aros/PPQuitSaveAlert_AROS.cpp work/src/track
 +	delete dialog;
 +	return result;
 +}
-diff --color -ruN clean/src/tracker/aros/PPSavePanel_AROS.cpp work/src/tracker/aros/PPSavePanel_AROS.cpp
---- clean/src/tracker/aros/PPSavePanel_AROS.cpp	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPSavePanel_AROS.cpp	2026-04-05 16:40:24
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPSavePanel_AROS.cpp MilkyTracker-1.05.01.aros/src/tracker/aros/PPSavePanel_AROS.cpp
+--- MilkyTracker-1.05.01/src/tracker/aros/PPSavePanel_AROS.cpp	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPSavePanel_AROS.cpp	2026-04-26 10:15:30.164934943 +0200
 @@ -0,0 +1,20 @@
 +#include "PPSavePanel.h"
 +#include "AROS_ModalLoop.h"
@@ -2582,9 +2637,9 @@ diff --color -ruN clean/src/tracker/aros/PPSavePanel_AROS.cpp work/src/tracker/a
 +	fileName = ((result == ReturnCodeOK) ? pathEntry : "");
 +	return result;
 +}
-diff --color -ruN clean/src/tracker/aros/PPSystem_AROS.h work/src/tracker/aros/PPSystem_AROS.h
---- clean/src/tracker/aros/PPSystem_AROS.h	1970-01-01 01:00:00
-+++ work/src/tracker/aros/PPSystem_AROS.h	2026-04-05 16:39:34
+diff -ruN MilkyTracker-1.05.01/src/tracker/aros/PPSystem_AROS.h MilkyTracker-1.05.01.aros/src/tracker/aros/PPSystem_AROS.h
+--- MilkyTracker-1.05.01/src/tracker/aros/PPSystem_AROS.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/aros/PPSystem_AROS.h	2026-04-26 10:15:30.164962294 +0200
 @@ -0,0 +1,28 @@
 +/*
 + *  tracker/aros/PPSystem_AROS.h
@@ -2614,12 +2669,46 @@ diff --color -ruN clean/src/tracker/aros/PPSystem_AROS.h work/src/tracker/aros/P
 +#include "PPSystem_POSIX.h"
 +
 +#endif
-diff --color -ruN clean/src/tracker/version.h work/src/tracker/version.h
---- clean/src/tracker/version.h	1970-01-01 01:00:00
-+++ work/src/tracker/version.h	2026-04-05 16:37:19
+diff -ruN MilkyTracker-1.05.01/src/tracker/ModuleEditor.cpp MilkyTracker-1.05.01.aros/src/tracker/ModuleEditor.cpp
+--- MilkyTracker-1.05.01/src/tracker/ModuleEditor.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/ModuleEditor.cpp	2026-04-26 10:15:30.161402733 +0200
+@@ -714,16 +714,11 @@
+ 	
+ 		PPSystemString tempFile(getTempFilename());
+ 	
+-		try
+-		{
+-			res = module->saveExtendedModule(tempFile) == MP_OK;
+-			if(!res)
+-				return res;
++		res = module->saveExtendedModule(tempFile) == MP_OK;
++		if(!res)
++			return res;
+ 
+-			res = module->loadModule(tempFile) == MP_OK;
+-		} catch (const std::bad_alloc &) {
+-			return false;
+-		}
++		res = module->loadModule(tempFile) == MP_OK;
+ 	
+ 		// restore one shot looping flag
+ 		if (type == XModule::ModuleType_MOD)
+diff -ruN MilkyTracker-1.05.01/src/tracker/TrackerSettings.cpp MilkyTracker-1.05.01.aros/src/tracker/TrackerSettings.cpp
+--- MilkyTracker-1.05.01/src/tracker/TrackerSettings.cpp	2024-11-28 10:44:05.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/TrackerSettings.cpp	2026-04-26 10:15:30.171628652 +0200
+@@ -683,7 +683,6 @@
+ 			pp_int32 i = str.getIntValue();
+ 			str = theKey->getStringValue();
+ 			sectionInstruments->setEncodedEnvelope(SectionInstruments::EnvelopeTypeVolume, i, str);
+-      printf("env %i %s\n",i,str.getStrBuffer());
+ 		}
+ 	}
+ 	else if (theKey->getKey().startsWith("PREDEFENVELOPEPANNING_"))
+diff -ruN MilkyTracker-1.05.01/src/tracker/version.h MilkyTracker-1.05.01.aros/src/tracker/version.h
+--- MilkyTracker-1.05.01/src/tracker/version.h	1970-01-01 01:00:00.000000000 +0100
++++ MilkyTracker-1.05.01.aros/src/tracker/version.h	2026-04-26 10:15:30.171591903 +0200
 @@ -0,0 +1,4 @@
 +// 0xXYYZZ = X.YY.ZZ
 +const int MILKYTRACKER_VERSION = 0x10500;
 +// Version string restricted to 20 chars for XM export!
 +const char MILKYTRACKER_VERSION_STRING[] = "MilkyTracker 1.05.01";
-
