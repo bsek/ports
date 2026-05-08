@@ -690,15 +690,7 @@ diff -ruN scummvm-2.2.0/backends/platform/sdl/sdl.cpp scummvm-2.2.0.aros/backend
  	// Check if SDL_net has not been initialized
  	if (!_initedSDLnet) {
  		// Initialize SDL_net
-@@ -353,6 +353,8 @@
- 
- 		_initedSDLnet = true;
- 	}
-+#elif defined(__AROS__)
-+	_initedSDLnet = true;
- #endif
- }
- 
+
 diff -ruN scummvm-2.2.0/common/keyboard.h scummvm-2.2.0.aros/common/keyboard.h
 --- scummvm-2.2.0/common/keyboard.h	2020-09-13 21:05:37.000000000 +0000
 +++ scummvm-2.2.0.aros/common/keyboard.h	2025-06-16 14:18:40.219016212 +0000
